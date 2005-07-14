@@ -1,0 +1,58 @@
+// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+package org.deltava.acars.command;
+
+import java.sql.Connection;
+
+import org.apache.log4j.Logger;
+
+import org.deltava.acars.beans.*;
+import org.deltava.acars.message.*;
+
+import org.deltava.dao.acars.SetInfo;
+import org.deltava.dao.DAOException;
+
+/**
+ * An ACARS Command to log the completion of a flight.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
+ */
+
+public class EndFlightCommand implements ACARSCommand {
+   
+   private static final Logger log = Logger.getLogger(EndFlightCommand.class);
+
+	/**
+	 * Executes the command.
+	 * @param ctx the Command context
+	 * @param env the message Envelope
+	 */
+   public void execute(CommandContext ctx, Envelope env) {
+
+      // Get the message
+      ACARSConnection con = ctx.getACARSConnection();
+      EndFlightMessage msg = (EndFlightMessage) env.getMessage();
+      
+      // Get the current info
+      InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+      if (iMsg == null) {
+         log.warn("No Flight Infor for Connection " + con.getFormatID());
+         return;
+      }
+
+		// Write the info to the database
+		try {
+			Connection c = ctx.getConnection();
+			SetInfo infoDAO = new SetInfo(c);
+			infoDAO.close(iMsg.getFlightID(), env.getConnectionID());
+		} catch (DAOException de) {
+			log.error(de.getMessage(), de);
+		} finally {
+			ctx.release();
+		}
+
+		// Clear flight info and log
+		con.setInfo(null);
+		log.info("Flight Completed by " + con.getUserID() + " (" + con.getFormatID() + ")");
+   }
+}
