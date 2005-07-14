@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<config env="dev" default="true">
+
+	<!-- Airline Information -->
+	<airline>
+		<name>Delta Virtual Airlines</name>
+		<domain>deltava.org</domain>
+		<banner>DeltaBanner.png</banner>
+		<code>DVA</code>
+		<db>DVA</db>
+		
+		<mail>
+			<info>info@deltava.org</info>
+			<webmaster>webmaster@deltava.org</webmaster>
+		</mail>
+	</airline>
+
+	<!-- If we are running in a multi-airline environment, this maps the db names to airline codes -->
+	<!-- This is mapped with the key being the database name IN LOWER CASE, the value is the code -->
+	<map name="airlineDatabases">
+		<afv>AFV</afv>
+	</map>
+	
+	<!-- JDBC data source configuration -->
+	<jdbc>
+		<driver>com.mysql.jdbc.Driver</driver>
+		<url>jdbc:mysql://polaris.sce.net/dva</url>
+		<user>root</user>
+		<pwd>***REMOVED***</pwd>
+		
+		<map name="connectProperties">
+			<useNewIO>false</useNewIO>
+			<autoReconnect>true</autoReconnect>
+		</map>
+		
+		<pool_size type="Integer">1</pool_size>
+		<pool_max_size type="Integer">2</pool_max_size>
+		<auto_commit type="Boolean">true</auto_commit>
+	</jdbc>
+	
+	<security>
+		<auth>org.deltava.security.DominoAuthenticator</auth>
+		<baseDN>ou=dva,o=sce</baseDN>
+	</security>
+	
+	<!-- ACARS Server Properties -->
+	<acars>
+		<port type="Integer">15527</port>
+		
+		<pool>
+			<size type="Integer">100</size>
+			<multiple type="Boolean">true</multiple>
+		</pool>
+		
+		<buffer>
+			<send type="Integer">4096</send>
+			<recv type="Integer">8192</recv>
+		</buffer>
+	
+		<sleep type="Integer">1000</sleep>
+		<timeout type="Integer">240</timeout>
+		<position_interval type="Integer">30000</position_interval>
+		
+		<ack>
+			<info type="Boolean">true</info>
+			<position type="Boolean">true</position>
+			<text type="Boolean">false</text>
+		</ack>
+	</acars>
+	
+</config>
