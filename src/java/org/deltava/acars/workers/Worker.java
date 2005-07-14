@@ -1,0 +1,65 @@
+package org.deltava.acars.workers;
+
+import org.apache.log4j.Logger;
+
+import org.deltava.acars.beans.MessageStack;
+
+/**
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
+ */
+
+public abstract class Worker implements Runnable {
+	
+	protected Logger log;
+	private String _name;
+	
+	protected WorkerStatus _status;
+	protected MessageStack _inStack;
+	protected MessageStack _outStack;
+	
+	protected abstract void $run0() throws Exception;
+
+	protected Worker(String name, Class loggerClass) {
+		_name = name.trim();
+		_status = new WorkerStatus();
+		log = Logger.getLogger(loggerClass);
+	}
+
+	public final WorkerStatus getWorkerStatus() {
+		return _status;
+	}
+	
+	public final String getName() {
+		return _name;
+	}
+
+	public void setStacks(MessageStack inS, MessageStack outS) {
+		_inStack = inS;
+		_outStack = outS;
+	}
+
+	// Default placeholder for the open() method; just sets status
+	public void open() {
+		_status.setStatus(WorkerStatus.STATUS_INIT);
+	}
+
+	// Default placeholder for the close() method; just sets status
+	public void close() {
+		_status.setStatus(WorkerStatus.STATUS_UNKNOWN);
+	}
+
+	// public thread interface which catches exceptions
+	public final void run() {
+		try {
+			_status.setStatus(WorkerStatus.STATUS_START);
+			$run0();
+			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			_status.setStatus(WorkerStatus.STATUS_ERROR);
+			_status.setMessage(e.getMessage());
+		}
+	}
+}
