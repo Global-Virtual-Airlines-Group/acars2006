@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/DVA2006"/>
-	<classpathentry kind="lib" path="/DVA2006/lib/jdom-1.0.jar"/>
-	<classpathentry kind="lib" path="/DVA2006/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="/DVA2006/lib/deploy/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="/DVA2006/lib/deploy/log4j-1.2.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
