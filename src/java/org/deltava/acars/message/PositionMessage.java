@@ -201,4 +201,8 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	public void setFlag(int mask, boolean isSet) {
 	   flags = (isSet) ? (flags | mask) : (flags & (~mask));
 	}
+	
+	public void setFlags(int flg) {
+		flags = flg;
+	}
 }
