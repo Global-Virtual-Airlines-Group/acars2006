@@ -130,11 +130,9 @@ class MessageParserV1 implements MessageParser {
 			msg.setMach(Double.parseDouble(getChildText("mach_num", "0")));
 			msg.setFuelRemaining(Integer.parseInt(getChildText("fuel", "0")));
 			msg.setFlaps(Integer.parseInt(getChildText("flaps", "0")));
+			msg.setFlags(Integer.parseInt(getChildText("flags", "0")));
 			msg.setN1(Double.parseDouble(getChildText("avg_n1", "0")));
 			msg.setN2(Double.parseDouble(getChildText("avg_n2", "0")));
-			msg.setFlag(PositionMessage.FLAG_AFTERBURNER, (_el.getChild("afterburner") != null));
-			msg.setFlag(PositionMessage.FLAG_PAUSED, (_el.getChild("paused") != null));
-			msg.setFlag(PositionMessage.FLAG_SLEW, (_el.getChild("slew") != null));
 			msg.setPhase(getChildText("phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
 			msg.setSimRate(Integer.parseInt(getChildText("simrate", "256")));
 		} catch (Exception e) {
