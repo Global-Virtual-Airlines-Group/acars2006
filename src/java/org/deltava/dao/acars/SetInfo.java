@@ -32,7 +32,6 @@ public final class SetInfo extends DAO {
 	}
 	
 	public void write(InfoMessage msg, long cid) throws DAOException {
-		
 		try {
 			prepareStatement((msg.getFlightID() == 0) ? ISQL : USQL);
 			
@@ -65,7 +64,7 @@ public final class SetInfo extends DAO {
 	
 	public void close(int flightID, long cid) throws DAOException {
 	   try {
-	      prepareStatement("UPDATE FLIGHTS SET END_TIME=? WHERE (ID=?) AND (CON_ID=?) AND (END_TIME IS NULL)");
+	      prepareStatement("UPDATE acars.FLIGHTS SET END_TIME=? WHERE (ID=?) AND (CON_ID=?) AND (END_TIME IS NULL)");
 	      _ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 	      _ps.setInt(2, flightID);
 	      _ps.setLong(3, cid);
