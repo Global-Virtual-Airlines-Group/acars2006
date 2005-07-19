@@ -151,16 +151,8 @@ public class ACARSConnection implements Serializable {
 		return Long.toHexString(id).toUpperCase();
 	}
 
-	public String getFormatStartTime() {
-		return Long.toHexString(this.startTime).toUpperCase();
-	}
-
 	public String getFormatLastActivityTime() {
 		return Long.toHexString(this.lastActivityTime).toUpperCase();
-	}
-
-	public String getFormatInactivityTime() {
-		return String.valueOf((System.currentTimeMillis() - this.lastActivityTime) / 1000);
 	}
 
 	public int getFlightID() {
