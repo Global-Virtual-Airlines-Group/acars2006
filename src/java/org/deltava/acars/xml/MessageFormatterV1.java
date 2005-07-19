@@ -220,9 +220,8 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.addContent(createElement("protocol", String.valueOf(con.getProtocolVersion())));
 			e.addContent(createElement("remoteaddr", con.getRemoteAddr()));
 			e.addContent(createElement("remotehost", con.getRemoteHost()));
-			e.addContent(createElement("starttime", con.getFormatStartTime()));
+			e.addContent(createElement("starttime", Long.toHexString(con.getStartTime())));
 			e.addContent(createElement("lastactivity", con.getFormatLastActivityTime()));
-			e.addContent(createElement("inactivity", con.getFormatInactivityTime()));
 			e.addContent(createElement("input", String.valueOf(con.getBytesIn())));
 			e.addContent(createElement("output", String.valueOf(con.getBytesOut())));
 			e.addContent(createElement("msginput", String.valueOf(con.getMsgsIn())));
