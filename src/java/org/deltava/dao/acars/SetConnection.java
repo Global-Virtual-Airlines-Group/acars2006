@@ -39,13 +39,15 @@ public final class SetConnection extends DAO {
 		
 		try {
 			// Init the prepared statement
-			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, REMOTE_ADDR, REMOTE_HOST) VALUES (?, ?, ?, ?)");
+			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST) VALUES "
+					+ "(?, ?, ?, INET_ATON(?), ?)");
 			
 			// Set the prepared statement
 			_ps.setLong(1, c.getID());
 			_ps.setInt(2, usr.getID());
-			_ps.setString(3, c.getRemoteAddr());
-			_ps.setString(4, c.getRemoteHost());
+			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
+			_ps.setString(4, c.getRemoteAddr());
+			_ps.setString(5, c.getRemoteHost());
 			
 			// Execute the prepared statement and close
 			_ps.executeUpdate();
