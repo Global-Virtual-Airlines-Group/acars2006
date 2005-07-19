@@ -186,7 +186,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setAltitude(getChildText("cruise_alt", null));
 		msg.setWaypoints(getChildText("route", "DIRECT"));
 		msg.setComments(getChildText("remarks", null));
-		msg.setFSVersion(getChildText("fsversion", null));
+		msg.setFSVersion(Integer.parseInt(getChildText("fsversion", "7")));
 		msg.setAirportD(SystemData.getAirport(getChildText("dep_apt", null)));
 		msg.setAirportA(SystemData.getAirport(getChildText("arr_apt", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText("alt_apt", null)));

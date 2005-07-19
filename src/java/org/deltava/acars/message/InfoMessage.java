@@ -14,12 +14,8 @@ public class InfoMessage extends AbstractMessage {
 	// Date/time parser
 	private static final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
 	
-	// FS Version constants
-	public static final int FS_UNKNOWN = 0;
-	public static final int FS_2000 = 1;
-	public static final int FS_2002 = 2;
-	public static final int FS_2004 = 3;
-	public static final String[] FS_NAMES = {"???", "FS2000", "FS2002", "FS2004"};
+	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1
+	public int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004};
 	
 	// Bean fields
 	private int _flightID;
@@ -137,21 +133,15 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void setFSVersion(int ver) {
-		
-		if ((ver >= 0) && (ver < FS_NAMES.length))
+		if (ver > 20) {
 			_fsVersion = ver;
-	}
-	
-	public void setFSVersion(String txtVer) {
-		
-		for (int x = 0; x < FS_NAMES.length; x++) {
-			if (FS_NAMES[x].equals(txtVer)) {
-				_fsVersion = x;
-				break;
-			}
+		} else if ((ver >= 0) && (ver < FSUIPC_FS_VERSIONS.length)) {
+			_fsVersion = FSUIPC_FS_VERSIONS[ver];
+		} else {
+			_fsVersion = 2004;
 		}
 	}
-
+	
 	public void setWaypoints(String wpList) {
 		
 		// Split into a tokenizer
