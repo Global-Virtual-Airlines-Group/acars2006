@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.message.*;
@@ -20,7 +21,7 @@ import org.deltava.acars.message.*;
  * @since 1.0
  */
 
-public class ACARSConnectionPool implements ServInfoProvider {
+public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
@@ -42,6 +43,10 @@ public class ACARSConnectionPool implements ServInfoProvider {
 	private MessageStack _inputStack;
 	private MessageStack _outputStack;
 
+	/**
+	 * Creates a new ACARS Connection Pool.
+	 * @param mxSize the maximum size of the pool
+	 */
 	public ACARSConnectionPool(int mxSize) {
 		super();
 
@@ -51,6 +56,11 @@ public class ACARSConnectionPool implements ServInfoProvider {
 		_disCon = new ArrayList();
 	}
 
+	/**
+	 * Returns ServIno-format connection data.
+	 * @return a ServInfo network information bean
+	 * @see ACARSConnectionPool#getNetworkStatus()
+	 */
 	public NetworkInfo getNetworkInfo() {
 		NetworkInfo info = new NetworkInfo("ACARS");
 		info.setVersion("1");
@@ -89,10 +99,29 @@ public class ACARSConnectionPool implements ServInfoProvider {
 		return info;
 	}
 
+	/**
+	 * Returns ServIno-format network data.
+	 * @return a ServInfo network bean
+	 * @see ACARSConnectionPool#getNetworkInfo()
+	 */
 	public NetworkStatus getNetworkStatus() {
 		return new NetworkStatus("ACARS");
 	}
+	
+	/**
+	 * Returns Connection Pool data to a web application.
+	 * @return a Collection of ACARSConnection beans
+	 */
+	public Collection getPoolInfo() {
+	   return new ArrayList(_cons);
+	}
 
+	/**
+	 * Adds a new connection to the pool.
+	 * @param c the connection to add
+	 * @throws ACARSException if the connection exists, the pool is fool or a network
+	 * error occurs
+	 */
 	public void add(ACARSConnection c) throws ACARSException {
 
 		// Check if we're already there
