@@ -18,6 +18,7 @@ import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.Authenticator;
 
+import org.deltava.util.UserID;
 import org.deltava.util.system.SystemData;
 
 /**
