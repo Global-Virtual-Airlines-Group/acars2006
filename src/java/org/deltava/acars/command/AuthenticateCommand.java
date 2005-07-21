@@ -63,7 +63,7 @@ public class AuthenticateCommand implements ACARSCommand {
 			errMsg.setEntry("error", "Authentication Failed");
 			ctx.push(errMsg, env.getConnectionID());
 		} catch (DAOException de) {
-			log.error("Error loading " + msg.getUserID() + " - " + de.getMessage());
+			log.error("Error loading " + msg.getUserID() + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(usr, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed");
 			ctx.push(errMsg, env.getConnectionID());
