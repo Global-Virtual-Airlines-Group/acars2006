@@ -334,7 +334,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 			// Get the connection and write the message
 			ACARSConnection c = get(env.getConnectionID());
-			c.write((String) env.getMessage());
+			if (c != null)
+				c.write((String) env.getMessage());
 		}
 	}
 }
