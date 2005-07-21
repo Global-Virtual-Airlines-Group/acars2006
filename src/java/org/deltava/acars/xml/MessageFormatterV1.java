@@ -59,6 +59,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			case Message.MSG_POSITION :
 				return formatPosition((PositionMessage) msgBean);
 			
+			case Message.MSG_SYSTEM :
+				return formatSystem((SystemTextMessage) msgBean);
+			
 			case Message.MSG_TEXT :
 				return formatText((TextMessage) msgBean);
 				
@@ -93,8 +96,24 @@ class MessageFormatterV1 implements MessageFormatter {
 		}
 	}
 	
+	private Element formatSystem(SystemTextMessage msg) throws XMLException {
+		try {
+			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+			e.setAttribute("msgtype", "text");
+			e.addContent(createElement("time", Long.toHexString(msg.getTime())));
+			for (Iterator i = msg.getMsgs().iterator(); i.hasNext(); ) {
+				String msgText = (String) i.next();
+				e.addContent(createElement("text", msgText));
+			}
+			
+			return e;
+		} catch (Exception e) {
+			throw new XMLException("Error formatting text message - " + e.getMessage(), e);
+		}
+	}
+	
 	private Element formatText(TextMessage msg) throws XMLException {
-		
 		try {
 			// Create the element and the type
 			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);

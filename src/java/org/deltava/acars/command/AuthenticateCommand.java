@@ -1,6 +1,7 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.Collection;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -107,6 +108,19 @@ public class AuthenticateCommand implements ACARSCommand {
 		DataRequestMessage drMsg = new DataRequestMessage(null, DataRequestMessage.REQ_ADDUSER);
 		drMsg.setFilter(con.getFormatID());
 		ctx.pushAll(drMsg, con.getID());
+		
+		// Return a system message to the user
+		SystemTextMessage sysMsg = new SystemTextMessage();
+		sysMsg.addMessage("Welcome to the " + SystemData.get("airline.name") + " ACARS server!");
+		sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
+		
+		// Add system-defined messages
+		Collection systemMsgs = (Collection) SystemData.getObject("acars.login_msgs");
+		if (systemMsgs != null)
+			sysMsg.addMessages(systemMsgs);
+		
+		// Send the message
+		ctx.push(sysMsg, env.getConnectionID());
 
 		// Send the ack message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
