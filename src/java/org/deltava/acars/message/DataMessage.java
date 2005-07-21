@@ -19,9 +19,9 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_ADDUSER = 4;
 	public static final int REQ_REMOVEUSER = 5;
 	public static final int REQ_PILOTINFO = 6;
+	public static final int REQ_NAVAIDINFO = 7;
 	
-	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot"};
-
+	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid"};
 	private int _reqType = REQ_UNKNOWN;
 
 	/**

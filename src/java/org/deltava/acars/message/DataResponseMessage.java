@@ -4,8 +4,11 @@ package org.deltava.acars.message;
 import java.util.*;
 
 import org.deltava.acars.beans.ACARSConnection;
+
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.Airport;
+
+import org.deltava.acars.beans.NavigationRadioBean;
 
 /**
  * @author Luke
@@ -16,8 +19,7 @@ import org.deltava.beans.schedule.Airport;
 public class DataResponseMessage extends DataMessage {
 	
 	// Response data
-	private List _rspData = new ArrayList();
-
+	private Set _rspData = new HashSet();
 
 	/**
 	 * @param type
@@ -36,7 +38,7 @@ public class DataResponseMessage extends DataMessage {
 	private void $addResponse(Object obj) {
 		
 		// Check if we're not already in the response
-		if ((obj == null) || _rspData.contains(obj))
+		if (obj == null)
 			return;
 		
 		_rspData.add(obj);
@@ -52,6 +54,10 @@ public class DataResponseMessage extends DataMessage {
 	
 	public void addResponse(ACARSConnection con) {
 		$addResponse(con);
+	}
+	
+	public void addResponse(NavigationRadioBean navaid) {
+		$addResponse(navaid);
 	}
 
 	public Collection getResponse() {

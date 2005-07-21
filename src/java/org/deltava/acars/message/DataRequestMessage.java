@@ -5,14 +5,14 @@ import java.util.*;
 import org.deltava.beans.Pilot;
 
 /**
- * @author Luke J. Kolin
+ * @author Luke
  * @version 1.0
  * @since 1.0
  */
 
 public class DataRequestMessage extends DataMessage {
 	
-	private Set _flags = new HashSet();
+	private Map _flags = new HashMap();
 	private String _reqFilter = FILTER_WILDCARD;
 	
 	// Constants to use for wildcards and flag parsing
@@ -29,45 +29,24 @@ public class DataRequestMessage extends DataMessage {
 		setRequestType(rType);
 	}
 	
-	public void addFlag(String newFlag) {
-		_flags.add(newFlag.toUpperCase());
+	public void addFlag(String name, String value) {
+		_flags.put(name.toUpperCase(), value);
 	}
 
 	public String getFilter() {
 		return _reqFilter;
 	}
+	
+	public String getFlag(String name) {
+		return (String) _flags.get(name.toUpperCase());
+	}
 
-	public Collection getFlags() {
-		return _flags;
-	}
-	
-	public String getAllFlags() {
-		
-		StringBuffer buf = new StringBuffer();
-		for (Iterator i = _flags.iterator(); i.hasNext(); ) {
-			buf.append((String) i.next());
-			if (i.hasNext())
-				buf.append(FILTER_SPACER);
-		}
-		
-		// Return the buffer
-		return buf.toString();
-	}
-	
 	public boolean hasFlag(String flagName) {
-		return _flags.contains(flagName.toUpperCase());
+		return _flags.containsKey(flagName.toUpperCase());
 	}
 	
 	public void setFilter(String newFilter) {
 		if (newFilter != null)
 			_reqFilter = newFilter;
-	}
-	
-	public void setFlags(String newFlags) {
-		
-		// Split using tokenizer
-		StringTokenizer fTokens = new StringTokenizer(newFlags, FILTER_SPACER);
-		while (fTokens.hasMoreTokens())
-			addFlag(fTokens.nextToken());
 	}
 }

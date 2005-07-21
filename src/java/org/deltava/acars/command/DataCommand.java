@@ -1,12 +1,19 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.sql.Connection;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+
+import org.deltava.beans.Pilot;
+import org.deltava.beans.navdata.NavigationDataBean;
+
+import org.deltava.dao.GetNavData;
+import org.deltava.dao.DAOException;
 
 /**
  * @author Luke
@@ -64,7 +71,30 @@ public class DataCommand implements ACARSCommand {
 				}
 
 				break;
+				
+			// Get navaid info
+			case DataMessage.REQ_NAVAIDINFO :
+				Pilot usr = null;
+				try {
+					Connection con = ctx.getConnection();
+					
+					// Get the DAO and find the Navaid in the DAFIF database
+					GetNavData dao = new GetNavData(con);
+					NavigationDataBean nav = dao.get(msg.getFlag("id"));
+					if (nav != null) {
+						log.info("Loaded Navigation data for " + nav.getCode());
+						dataRsp.addResponse(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
+					}
+				} catch (DAOException de) {
+					log.error("Error loading navaid " + msg.getFlag("id") + " - " + de.getMessage(), de);
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(usr, msg.getID());
+					errMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
+				} finally {
+					ctx.release();
+				}
 
+				break;
+				
 			default:
 				log.error("Unsupported Data Request Messasge - " + msg.getRequestType());
 		}
