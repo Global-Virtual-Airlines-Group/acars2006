@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
 import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.navdata.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
@@ -21,10 +23,10 @@ class MessageFormatterV1 implements MessageFormatter {
 	private static final int PROTOCOL_VERSION = 1;
 	
 	// Number formatters
-	private static final DecimalFormat mf = new DecimalFormat("0.00");
-	private static final DecimalFormat nxf = new DecimalFormat("#00.0");
-	private static final DecimalFormat hdgf = new DecimalFormat("000");
-	private static final DecimalFormat dgf = new DecimalFormat("##0.0000");
+	private static final DecimalFormat _mf = new DecimalFormat("0.00");
+	private static final DecimalFormat _nxf = new DecimalFormat("#00.0");
+	private static final DecimalFormat _hdgf = new DecimalFormat("000");
+	private static final DecimalFormat _dgf = new DecimalFormat("##0.0000");
 
 	MessageFormatterV1() {
 		super();
@@ -141,23 +143,23 @@ class MessageFormatterV1 implements MessageFormatter {
 			
 			// Set element information
 			e.addContent(createElement("from", msg.getSenderID()));
-			synchronized (dgf) {
-				e.addContent(createElement("lat", dgf.format(msg.getLatitude())));
-				e.addContent(createElement("lon", dgf.format(msg.getLongitude())));
+			synchronized (_dgf) {
+				e.addContent(createElement("lat", _dgf.format(msg.getLatitude())));
+				e.addContent(createElement("lon", _dgf.format(msg.getLongitude())));
 			}
-			e.addContent(createElement("heading", hdgf.format(msg.getHeading())));
+			e.addContent(createElement("heading", _hdgf.format(msg.getHeading())));
 			e.addContent(createElement("alt_msl", String.valueOf(msg.getAltitude())));
 			e.addContent(createElement("alt_agl", String.valueOf(msg.getRadarAltitude())));
-			e.addContent(createElement("mach_num", mf.format(msg.getMach())));
+			e.addContent(createElement("mach_num", _mf.format(msg.getMach())));
 			e.addContent(createElement("air_speed", String.valueOf(msg.getAspeed())));
 			e.addContent(createElement("ground_speed", String.valueOf(msg.getGspeed())));
 			e.addContent(createElement("vert_speed", String.valueOf(msg.getVspeed())));
 			e.addContent(createElement("fuel", String.valueOf(msg.getFuelRemaining())));
 			e.addContent(createElement("flaps", String.valueOf(msg.getFlaps())));
 			e.addContent(createElement("time", Long.toHexString(msg.getTime())));
-			synchronized (nxf) {
-				e.addContent(createElement("avg_n1", nxf.format(msg.getN1())));
-				e.addContent(createElement("avg_n2", nxf.format(msg.getN2())));
+			synchronized (_nxf) {
+				e.addContent(createElement("avg_n1", _nxf.format(msg.getN1())));
+				e.addContent(createElement("avg_n2", _nxf.format(msg.getN2())));
 			}
 			
 			// Create optional elements
@@ -200,7 +202,6 @@ class MessageFormatterV1 implements MessageFormatter {
 	}
 	
 	private Element formatDiag(DiagnosticMessage msg) throws XMLException {
-		
 		try {
 			// Create the element and the type
 			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
@@ -218,8 +219,35 @@ class MessageFormatterV1 implements MessageFormatter {
 		}
 	}
 	
+	private Element formatNavaid(NavigationRadioBean nav) throws XMLException {
+		try {
+			// Create the element
+			Element e = new Element("navaid");
+			
+			// Get the navaid info
+			NavigationDataBean navaid = nav.getNavaid();
+			
+			// Add navaid info
+			e.addContent(createElement("radio", nav.getRadio()));
+			e.addContent(createElement("type", navaid.getTypeName()));
+			e.addContent(createElement("code", navaid.getCode()));
+			if (navaid instanceof VOR) {
+				e.addContent(createElement("freq", ((VOR) navaid).getFrequency()));
+				e.addContent(createElement("hdg", nav.getHeading()));
+			} else if (navaid instanceof Runway) {
+				Runway rwy = (Runway) navaid;
+				e.addContent(createElement("freq", rwy.getFrequency()));
+				e.addContent(createElement("hdg", String.valueOf(rwy.getHeading())));
+			}
+				
+			// Return the element
+			return e;
+		} catch (Exception e) {
+			throw new XMLException("Error formatting navaid info message - " + e.getMessage(), e);
+		}
+	}
+	
 	private Element formatConnection(ACARSConnection con) throws XMLException {
-		
 		try {
 			// Create the element
 			Element e = new Element("Pilot");
@@ -286,8 +314,10 @@ class MessageFormatterV1 implements MessageFormatter {
 					e.addContent(childE);
 				} else if (rsp instanceof ACARSConnection) {
 					e.addContent(createElement("rsptype", "pilotlist"));
-					ACARSConnection c = (ACARSConnection) rsp;
-					e.addContent(formatConnection(c));
+					e.addContent(formatConnection((ACARSConnection) rsp));
+				} else if (rsp instanceof NavigationRadioBean) {
+					e.addContent(createElement("rsptype", "navaid"));
+					e.addContent(formatNavaid((NavigationRadioBean) rsp));
 				}
 			}
 
