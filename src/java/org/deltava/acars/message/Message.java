@@ -1,6 +1,3 @@
-/*
- * Created on Feb 6, 2004
- */
 package org.deltava.acars.message;
 
 import java.io.Serializable;
@@ -34,14 +31,16 @@ public interface Message extends Serializable {
 	public static final int MSG_PING = 9;
 	public static final int MSG_QUIT = 10;
 	public static final int MSG_ENDFLIGHT = 11;
+	public static final int MSG_SYSTEM = 12;
 
 	// XML message codes
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "raw", "datarsp",
-	      "ping", "quit", "end_flight"};
+	      "ping", "quit", "end_flight", "smsg"};
 	
 	// Message code descriptions
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
-						"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight"};
+						"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect",
+						"End Flight", "System Message"};
 
 	public abstract int getType();
 	

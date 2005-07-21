@@ -20,8 +20,6 @@ public abstract class AbstractMessage implements Message {
 	protected int protocolVersion = 0;
 
 	protected AbstractMessage(int type, Pilot msgFrom) {
-		
-		// Init super class
 		super();
 		
 		// Init the bean
