@@ -162,9 +162,11 @@ public final class NetworkHandler extends Worker {
 			// See if we have someone waiting to connect
 			SelectionKey ssKey = _channel.keyFor(_cSelector);
 			if (ssKey.isAcceptable()) {
-				SocketChannel cc = _channel.accept();
-				if (cc != null)
-					newConnection(cc);
+				try {
+					SocketChannel cc = _channel.accept();
+					if (cc != null)
+						newConnection(cc);
+				} catch (ClosedByInterruptException cie) { }
 			}
 			
 			// Check if there are any messages waiting, and pushes them onto the raw input stack.
