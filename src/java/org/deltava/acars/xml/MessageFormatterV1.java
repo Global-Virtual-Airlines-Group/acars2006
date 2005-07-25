@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.navdata.*;
 
 import org.deltava.acars.beans.*;
@@ -163,9 +164,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			}
 			
 			// Create optional elements
-			if (msg.isFlagSet(PositionMessage.FLAG_AFTERBURNER)) e.addContent(createElement("afterburner", "1"));
-			if (msg.isFlagSet(PositionMessage.FLAG_PAUSED)) e.addContent(createElement("paused", "1"));
-			if (msg.isFlagSet(PositionMessage.FLAG_SLEW)) e.addContent(createElement("slew", "1"));
+			if (msg.isFlagSet(ACARSFlags.FLAG_AFTERBURNER)) e.addContent(createElement("afterburner", "1"));
+			if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) e.addContent(createElement("paused", "1"));
+			if (msg.isFlagSet(ACARSFlags.FLAG_SLEW)) e.addContent(createElement("slew", "1"));
 			if (msg.getSimRate() != 1) e.addContent(createElement("simrate", String.valueOf(msg.getSimRate())));
 			
 			// Return the element
@@ -208,7 +209,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 			
 			// Save the type
-			e.addContent(createElement("reqtype", DiagnosticMessage.MSG_TYPES[msg.getRequestType()]));
+			e.addContent(createElement("reqtype", Message.MSG_TYPES[msg.getRequestType()]));
 			e.addContent(createElement("reqData", msg.getRequestData()));
 			e.addContent(createElement("time", Long.toHexString(msg.getTime())));			
 			

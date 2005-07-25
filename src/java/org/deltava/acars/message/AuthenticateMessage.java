@@ -10,7 +10,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 
 	private String userID;
 	private String pwd;
-	private int protcolVersion = 1;
+	private int _protocolVersion = 1;
 	private long reqConID;
 
 	public AuthenticateMessage(String id, String password) {
@@ -32,7 +32,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	}
 	
 	public int getProtocolVersion() {
-		return this.protocolVersion;
+		return _protocolVersion;
 	}
 	
 	public final boolean isAnonymous() {
@@ -41,7 +41,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setProtocolVersion(int pv) {
 		if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
-			this.protocolVersion = pv;
+			_protocolVersion = pv;
 	}
 	
 	public void setRequestedID(long reqID) {

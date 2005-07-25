@@ -17,7 +17,6 @@ public class DataRequestMessage extends DataMessage {
 	
 	// Constants to use for wildcards and flag parsing
 	private static final String FILTER_WILDCARD = "*";
-	private static final String FILTER_SPACER = ","; 
 
 	public DataRequestMessage(Pilot msgFrom, int rType) {
 		super(Message.MSG_DATAREQ, msgFrom);
