@@ -318,6 +318,10 @@ class MessageFormatterV1 implements MessageFormatter {
 				} else if (rsp instanceof NavigationRadioBean) {
 					e.addContent(createElement("rsptype", "navaid"));
 					e.addContent(formatNavaid((NavigationRadioBean) rsp));
+				} else if (rsp instanceof DataResponseMessage.TextElement) {
+				   DataResponseMessage.TextElement txt = (DataResponseMessage.TextElement) rsp;
+				   e.addContent(createElement("rsptype", "info"));
+				   e.addContent(createElement(txt.getName(), txt.getValue()));
 				}
 			}
 

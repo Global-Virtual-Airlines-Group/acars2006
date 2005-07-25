@@ -15,6 +15,8 @@ import org.deltava.beans.navdata.NavigationDataBean;
 import org.deltava.dao.GetNavData;
 import org.deltava.dao.DAOException;
 
+import org.deltava.util.system.SystemData;
+
 /**
  * @author Luke
  * @version 1.0
@@ -63,6 +65,11 @@ public class DataCommand implements ACARSCommand {
 				dataRsp.addResponse((ACARSConnection) i.next());
 				break;
 
+			// Get private voice info
+			case DataMessage.REQ_PVTVOX:
+			   dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
+				break;
+				
 			// Get flight information
 			case DataMessage.REQ_ILIST:
 				while (i.hasNext()) {
