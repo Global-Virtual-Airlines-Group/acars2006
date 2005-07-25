@@ -31,7 +31,6 @@ public class EndFlightCommand implements ACARSCommand {
 
       // Get the message
       ACARSConnection con = ctx.getACARSConnection();
-      EndFlightMessage msg = (EndFlightMessage) env.getMessage();
       
       // Get the current info
       InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);

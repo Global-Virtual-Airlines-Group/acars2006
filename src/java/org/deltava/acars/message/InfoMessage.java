@@ -1,7 +1,6 @@
 package org.deltava.acars.message;
 
 import java.util.*;
-import java.text.SimpleDateFormat;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.Airport;
@@ -10,9 +9,6 @@ import org.deltava.beans.schedule.Airport;
  * @author Luke J. Kolin
  */
 public class InfoMessage extends AbstractMessage {
-	
-	// Date/time parser
-	private static final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
 	
 	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1
 	public int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004};
