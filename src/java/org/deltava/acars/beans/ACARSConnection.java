@@ -57,7 +57,7 @@ public class ACARSConnection implements Serializable {
 	private long startTime;
 	private long lastActivityTime;
 
-	private MessageStack outputStack;
+	//private MessageStack _outputStack;
 
 	// Statistics
 	private long bytesIn;
@@ -93,7 +93,7 @@ public class ACARSConnection implements Serializable {
 		this.iBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
 		this.oBuffer = ByteBuffer.allocate(WRITE_BUFFER_SIZE);
 		this.msgBuffer = new StringBuffer();
-		this.outputStack = new MessageStack();
+		//_outputStack = new MessageStack();
 	}
 
 	public void close() {
