@@ -13,6 +13,7 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.message.*;
+import org.deltava.acars.util.RouteEntryHelper;
 
 /**
  * A TCP/IP Connection Pool.
@@ -106,6 +107,23 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 */
 	public NetworkStatus getNetworkStatus() {
 		return new NetworkStatus("ACARS");
+	}
+	
+	/**
+	 * Returns network data in a format suitable for Google Maps.
+	 * @return a Collection of MapEntry beans
+	 */
+	public Collection getMapEntries() {
+	   Set results = new HashSet();
+	   for (Iterator i = _cons.iterator(); i.hasNext(); ) {
+			ACARSConnection con = (ACARSConnection) i.next();
+			PositionMessage posInfo = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
+			InfoMessage usrInfo = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+			if ((usrInfo != null) && (posInfo != null))
+			   results.add(RouteEntryHelper.build(con.getUser(), posInfo, usrInfo));
+	   }
+	   
+	   return results;
 	}
 	
 	/**
