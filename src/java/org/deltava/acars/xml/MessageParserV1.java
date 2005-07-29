@@ -2,11 +2,13 @@
 package org.deltava.acars.xml;
 
 import java.util.*;
+import java.text.*;
 
 import org.jdom.Element;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.util.ACARSHelper;
 
 import org.deltava.util.system.SystemData;
 
@@ -17,6 +19,8 @@ import org.deltava.util.system.SystemData;
  */
 
 class MessageParserV1 implements MessageParser {
+   
+   private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
 
 	// ACARS protcol version
 	private static final int PROTOCOL_VERSION = 1;
@@ -51,7 +55,11 @@ class MessageParserV1 implements MessageParser {
 	}
 
 	private String getChildText(String childName, String defaultValue) {
-		String tmp = _el.getChildTextTrim(childName);
+	   return getChildText(childName, defaultValue);
+	}
+	
+	private String getChildText(Element e, String childName, String defaultValue) {
+	   String tmp = e.getChildTextTrim(childName);
 		return (tmp == null) ? defaultValue : tmp;
 	}
 
@@ -60,10 +68,10 @@ class MessageParserV1 implements MessageParser {
 		// Depending on the message type, call a parse method
 		switch (msgType) {
 			case Message.MSG_POSITION:
-				return parsePosition();
+				return parsePosition(_el);
 
 			case Message.MSG_INFO:
-				return parseInfo();
+				return parseInfo(_el);
 
 			case Message.MSG_TEXT:
 				return parseText();
@@ -79,6 +87,9 @@ class MessageParserV1 implements MessageParser {
 
 			case Message.MSG_DATAREQ:
 				return parseDataReq();
+			
+			case Message.MSG_PIREP:
+			   return parsePIREP();
 
 			case Message.MSG_ENDFLIGHT:
 				return new EndFlightMessage(_user);
@@ -113,7 +124,7 @@ class MessageParserV1 implements MessageParser {
 		return msg;
 	}
 
-	private Message parsePosition() throws XMLException {
+	private Message parsePosition(Element e) throws XMLException {
 
 		// Create the bean
 		PositionMessage msg = new PositionMessage(_user);
@@ -121,24 +132,24 @@ class MessageParserV1 implements MessageParser {
 
 		// Get the basic information
 		try {
-			msg.setHeading(Integer.parseInt(getChildText("heading", "0")));
-			msg.setLatitude(Double.parseDouble(getChildText("lat", "0")));
-			msg.setLongitude(Double.parseDouble(getChildText("lon", "0")));
-			msg.setAltitude(Integer.parseInt(getChildText("alt_msl", "0")));
-			msg.setRadarAltitude(Integer.parseInt(getChildText("alt_agl", "0")));
-			msg.setAspeed(Integer.parseInt(getChildText("air_speed", "0")));
-			msg.setGspeed(Integer.parseInt(getChildText("ground_speed", "0")));
-			msg.setVspeed(Integer.parseInt(getChildText("vert_speed", "0")));
-			msg.setMach(Double.parseDouble(getChildText("mach_num", "0")));
-			msg.setFuelRemaining(Integer.parseInt(getChildText("fuel", "0")));
-			msg.setFlaps(Integer.parseInt(getChildText("flaps", "0")));
-			msg.setFlags(Integer.parseInt(getChildText("flags", "0")));
-			msg.setN1(Double.parseDouble(getChildText("avg_n1", "0")));
-			msg.setN2(Double.parseDouble(getChildText("avg_n2", "0")));
-			msg.setPhase(getChildText("phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
-			msg.setSimRate(Integer.parseInt(getChildText("simrate", "256")));
-		} catch (Exception e) {
-			throw new XMLException("Error parsing Position data - " + e.getMessage(), e);
+			msg.setHeading(Integer.parseInt(getChildText(e, "heading", "0")));
+			msg.setLatitude(Double.parseDouble(getChildText(e, "lat", "0")));
+			msg.setLongitude(Double.parseDouble(getChildText(e, "lon", "0")));
+			msg.setAltitude(Integer.parseInt(getChildText(e, "alt_msl", "0")));
+			msg.setRadarAltitude(Integer.parseInt(getChildText(e, "alt_agl", "0")));
+			msg.setAspeed(Integer.parseInt(getChildText(e, "air_speed", "0")));
+			msg.setGspeed(Integer.parseInt(getChildText(e, "ground_speed", "0")));
+			msg.setVspeed(Integer.parseInt(getChildText(e, "vert_speed", "0")));
+			msg.setMach(Double.parseDouble(getChildText(e, "mach_num", "0")));
+			msg.setFuelRemaining(Integer.parseInt(getChildText(e, "fuel", "0")));
+			msg.setFlaps(Integer.parseInt(getChildText(e, "flaps", "0")));
+			msg.setFlags(Integer.parseInt(getChildText(e, "flags", "0")));
+			msg.setN1(Double.parseDouble(getChildText(e, "avg_n1", "0")));
+			msg.setN2(Double.parseDouble(getChildText(e, "avg_n2", "0")));
+			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
+			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
+		} catch (Exception ex) {
+			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}
 
 		// Return the bean
@@ -176,22 +187,21 @@ class MessageParserV1 implements MessageParser {
 		}
 	}
 
-	private Message parseInfo() {
+	private Message parseInfo(Element e) {
 
 		// Create the bean
 		InfoMessage msg = new InfoMessage(_user);
 		msg.setTime(_timeStamp);
 
 		// Load the bean
-		msg.setEquipmentType(getChildText("equipment", "UNKNOWN"));
-		msg.setFlightCode(getChildText("flight_num", "???"));
-		msg.setAltitude(getChildText("cruise_alt", null));
-		msg.setWaypoints(getChildText("route", "DIRECT"));
-		msg.setComments(getChildText("remarks", null));
-		msg.setFSVersion(Integer.parseInt(getChildText("fsversion", "7")));
-		msg.setAirportD(SystemData.getAirport(getChildText("dep_apt", null)));
-		msg.setAirportA(SystemData.getAirport(getChildText("arr_apt", null)));
-		msg.setAirportL(SystemData.getAirport(getChildText("alt_apt", null)));
+		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
+		msg.setFlightCode(getChildText(e, "flight_num", "???"));
+		msg.setAltitude(getChildText(e, "cruise_alt", null));
+		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
+		msg.setComments(getChildText(e, "remarks", null));
+		msg.setFSVersion(Integer.parseInt(getChildText(e, "fsversion", "7")));
+		msg.setAirportD(SystemData.getAirport(getChildText(e, "dep_apt", null)));
+		msg.setAirportA(SystemData.getAirport(getChildText(e, "arr_apt", null)));
 
 		// Return the bean
 		return msg;
@@ -233,5 +243,102 @@ class MessageParserV1 implements MessageParser {
 
 		// Return the bean
 		return msg;
+	}
+	
+	private Message parsePIREP() throws XMLException {
+	   
+	   // Build the message bean
+	   FlightReportMessage msg = new FlightReportMessage(_user);
+	   
+	   // Parse the PIREP data
+	   Element pe = _el.getChild("pirep");
+	   if (pe == null)
+	      throw new XMLException("No PIREP data in Message");
+	   
+	   // Build the PIREP
+	   ACARSFlightReport afr = ACARSHelper.create(getChildText(pe, "flightcode", "001"));
+	   try {
+	   	afr.setAttribute(FlightReport.ATTR_ACARS, true);
+      	afr.setDatabaseID(FlightReport.DBID_ACARS, Integer.parseInt(pe.getChildTextTrim("flight_id")));
+      	afr.setDatabaseID(FlightReport.DBID_PILOT, _user.getID());
+			afr.setRank(_user.getRank());
+      	afr.setStatus(FlightReport.SUBMITTED);
+      	afr.setEquipmentType(pe.getChildTextTrim("equipment"));
+      	afr.setDate(new Date());
+      	afr.setCreatedOn(afr.getDate());
+      	afr.setSubmittedOn(afr.getDate());
+      	afr.setFSVersion("FS" + pe.getChildTextTrim("fsVersion"));
+      	afr.setAirportD(SystemData.getAirport(pe.getChildTextTrim("dep_apt").toUpperCase()));
+      	afr.setAirportA(SystemData.getAirport(pe.getChildTextTrim("arr_apt").toUpperCase()));
+      	afr.setRemarks(pe.getChildText("remarks"));
+      	
+         // Get the online network
+         String network = pe.getChildTextTrim("network").toUpperCase();
+         if ("VATSIM".equals(network)) {
+            afr.setAttribute(FlightReport.ATTR_VATSIM, true);
+         } else if ("IVAO".equals(network)) {
+            afr.setAttribute(FlightReport.ATTR_IVAO, true);
+         } else if ("FPI".equals(network)) {
+            afr.setAttribute(FlightReport.ATTR_FPI, true);
+         }
+
+         // Set the times
+         try {
+            afr.setStartTime(_dtf.parse(pe.getChildTextTrim("startTime")));
+            afr.setEngineStartTime(_dtf.parse(pe.getChildTextTrim("engineStartTime")));
+         	afr.setTaxiTime(_dtf.parse(pe.getChildTextTrim("taxiOutTime")));
+         	afr.setTakeoffTime(_dtf.parse(pe.getChildTextTrim("takeoffTime")));
+         	afr.setLandingTime(_dtf.parse(pe.getChildTextTrim("landingTime")));
+         	afr.setEndTime(_dtf.parse(pe.getChildTextTrim("gateTime")));
+         } catch (ParseException pex) {
+            throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
+         }
+         
+         // Calculate the flight time
+         int duration = (int) ((afr.getEndTime().getTime() - afr.getStartTime().getTime()) / 1000);
+         afr.setLength(duration / 36);
+         
+         // Set the weights/speeds
+         try {
+            afr.setTaxiFuel(Integer.parseInt(getChildText(pe, "fuel_at_taxi", "0")));
+            afr.setTaxiWeight(Integer.parseInt(getChildText(pe, "weight_at_taxi", "0")));
+            afr.setTakeoffFuel(Integer.parseInt(getChildText(pe, "fuel_at_takeoff", "0")));
+            afr.setTakeoffWeight(Integer.parseInt(getChildText(pe, "weight_at_takeoff", "0")));
+            afr.setTakeoffN1(Double.parseDouble(getChildText(pe, "n1_at_takeoff", "0")));
+            afr.setTakeoffSpeed(Integer.parseInt(getChildText(pe, "takeoff_speed", "0")));
+            afr.setLandingFuel(Integer.parseInt(getChildText(pe, "fuel_at_landing", "0")));
+            afr.setLandingWeight(Integer.parseInt(getChildText(pe, "weight_at_landing", "0")));
+            afr.setLandingN1(Double.parseDouble(getChildText(pe, "n1_at_landing", "0")));
+            afr.setLandingSpeed(Integer.parseInt(getChildText(pe, "landing_speed", "0")));
+            afr.setLandingVSpeed(Integer.parseInt(getChildText(pe, "landing_vspeed", "0")) * -1);
+            afr.setGateFuel(Integer.parseInt(getChildText(pe, "fuel_at_gate", "0")));
+            afr.setGateWeight(Integer.parseInt(getChildText(pe, "weight_at_gate", "0")));
+         } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException("Invalid Weight/Speed - " + nfe.getMessage());
+         }
+	   } catch (Exception e) {
+	      throw new XMLException("Invalid PIREP data - " + e.getMessage(), e);
+	   }
+	   
+	   // Save the PIREP and mark if we are offline
+	   msg.setPIREP(afr);
+	   
+	   // If this was an offline PIREP, then load the info
+	   Element ie = _el.getChild("info");
+	   if ((ie != null) && msg.isOffline())
+	      msg.setInfo((InfoMessage) parseInfo(ie));
+	   
+	   // If this was an offline PIREP, then load the positions
+	   Element pse = _el.getChild("positions");
+	   if ((pse != null) && msg.isOffline()) {
+	      List positions = _el.getChildren("position");
+	      for (Iterator i = positions.iterator(); i.hasNext(); ) {
+	         Element posE = (Element) i.next();
+	         msg.addPosition((PositionMessage) parsePosition(posE));
+	      }
+	   }
+	   
+	   // Return the message
+	   return msg;
 	}
 }

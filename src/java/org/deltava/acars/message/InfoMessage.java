@@ -19,7 +19,6 @@ public class InfoMessage extends AbstractMessage {
 	private String _flightCode;
 	private Airport _airportA;
 	private Airport _airportD;
-	private Airport _airportL;
 	private String _fpAlt;
 	private String _comments;
 	private int _fsVersion;
@@ -51,10 +50,6 @@ public class InfoMessage extends AbstractMessage {
 		return _airportD;
 	}
 
-	public Airport getAirportL() {
-		return _airportL;
-	}
-	
 	public String getAltitude() {
 		return _fpAlt;
 	}
@@ -102,10 +97,6 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setAirportD(Airport aInfo) {
 		_airportD = aInfo;
-	}
-	
-	public void setAirportL(Airport aInfo) {
-		_airportL = aInfo;
 	}
 	
 	public void setAltitude(String newFPAlt) {

@@ -1,5 +1,7 @@
 package org.deltava.acars.message;
 
+import java.util.Date;
+
 import org.deltava.beans.Pilot;
 import org.deltava.beans.GeoLocation;
 import org.deltava.beans.acars.ACARSFlags;
@@ -12,7 +14,7 @@ import org.deltava.util.StringUtils;
  * @since 1.0
  */
 
-public class PositionMessage extends AbstractMessage implements GeoLocation, ACARSFlags {
+public class PositionMessage extends AbstractMessage implements GeoLocation, ACARSFlags, Comparable {
 	
 	// Flight phase constants
 	public static final int PHASE_UNKNOWN = 0;
@@ -44,12 +46,20 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	// Flight phase
 	private int phase;
 	
+	// Date
+	private Date _dt;
+	
 	/**
 	 * Creates a new Position Message.
 	 * @param msgFrom the originating Pilot
 	 */
 	public PositionMessage(Pilot msgFrom) {
 		super(Message.MSG_POSITION, msgFrom);
+		_dt = new Date();
+	}
+	
+	public Date getDate() {
+	   return _dt;
 	}
 	
 	public int getAltitude() {
@@ -118,6 +128,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public boolean isFlagSet(int mask) {
 	   return ((flags & mask) != 0);
+	}
+	
+	public void setDate(Date dt) {
+	   _dt = dt;
 	}
 	
 	public void setAltitude(int alt) {
@@ -204,5 +218,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public void setFlags(int flg) {
 		flags = flg;
+	}
+	
+	public int compareTo(Object o2) {
+	   PositionMessage msg2 = (PositionMessage) o2;
+	   return _dt.compareTo(msg2.getDate());
 	}
 }
