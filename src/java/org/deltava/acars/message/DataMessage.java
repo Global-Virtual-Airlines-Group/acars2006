@@ -2,6 +2,7 @@
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
+import org.deltava.util.StringUtils;
 
 /**
  * @author Luke
@@ -13,7 +14,7 @@ public abstract class DataMessage extends AbstractMessage {
 	
 	// Request type constants
 	public static final int REQ_UNKNOWN = 0;
-	public static final int REQ_ALIST = 1;
+	public static final int REQ_USRLIST = 1;
 	public static final int REQ_ILIST = 2;
 	public static final int REQ_PLIST = 3;
 	public static final int REQ_ADDUSER = 4;
@@ -21,9 +22,13 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_PILOTINFO = 6;
 	public static final int REQ_NAVAIDINFO = 7;
 	public static final int REQ_PVTVOX = 8;
+	public static final int REQ_EQLIST = 9;
+	public static final int REQ_APLIST = 10;
+	public static final int REQ_ALLIST = 11;
 	
-	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid", "pvtvox"};
 	private int _reqType = REQ_UNKNOWN;
+	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid", "pvtvox",
+		"eqList", "apList", "aList"};
 
 	/**
 	 * @param type
@@ -38,12 +43,8 @@ public abstract class DataMessage extends AbstractMessage {
 	}
 
 	public void setRequestType(String newRT) {
-		for (int x = 0; x < REQ_TYPES.length; x++) {
-			if (REQ_TYPES[x].equals(newRT)) {
-				_reqType = x;
-				break;
-			}
-		}
+		int reqType = StringUtils.arrayIndexOf(REQ_TYPES, newRT);
+		setRequestType((reqType == -1) ? 0 : reqType);
 	}
 	
 	public void setRequestType(int rType) {
