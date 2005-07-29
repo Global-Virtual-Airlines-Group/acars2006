@@ -18,10 +18,10 @@ public final class SetInfo extends DAO {
 
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, "
-		+ "AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "AIRPORT_A, ROUTE, REMARKS, FSVERSION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, " +
-		"AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=? WHERE (ID=?)";
+	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, "
+		+ "AIRPORT_D=?, AIRPORT_A=?, ROUTE=?, REMARKS=?, FSVERSION=? WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -43,12 +43,11 @@ public final class SetInfo extends DAO {
 			_ps.setString(5, msg.getAltitude());
 			_ps.setString(6, msg.getAirportD().getIATA());
 			_ps.setString(7, msg.getAirportA().getIATA());
-			_ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
-			_ps.setString(9, msg.getAllWaypoints());
-			_ps.setString(10, msg.getComments());
-			_ps.setInt(11, msg.getFSVersion());
+			_ps.setString(8, msg.getAllWaypoints());
+			_ps.setString(9, msg.getComments());
+			_ps.setInt(10, msg.getFSVersion());
 			if (msg.getFlightID() != 0)
-				_ps.setInt(12, msg.getFlightID());
+				_ps.setInt(11, msg.getFlightID());
 			
 			// Write to the database and close the statement
 			_ps.executeUpdate();

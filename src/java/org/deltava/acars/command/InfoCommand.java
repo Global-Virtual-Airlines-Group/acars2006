@@ -39,17 +39,17 @@ public class InfoCommand implements ACARSCommand {
 			Connection c = ctx.getConnection();
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());
+			
+			// Create the ack message and envelope
+			if (SystemData.getBoolean("acars.ack.info")) {
+				AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+				ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+				ctx.push(ackMsg, env.getConnectionID());						
+			}
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
 		} finally {
 			ctx.release();
-		}
-		
-		// Create the ack message and envelope
-		if (SystemData.getBoolean("acars.ack.info")) {
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
-			ctx.push(ackMsg, env.getConnectionID());						
 		}
 		
 		// Set the info for the connection and write it to the database

@@ -189,7 +189,6 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.addContent(createElement("flight_num", msg.getFlightCode()));
 			e.addContent(createElement("dep_apt", msg.getAirportD().getICAO()));
 			e.addContent(createElement("arr_apt", msg.getAirportA().getICAO()));
-			e.addContent(createElement("alt_apt", msg.getAirportL().getICAO()));
 			e.addContent(createElement("cruise_alt", msg.getAltitude()));
 			e.addContent(createElement("route", msg.getAllWaypoints()));
 			e.addContent(createElement("remarks", msg.getComments()));
