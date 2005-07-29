@@ -1,8 +1,8 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.*;
 import java.sql.Connection;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
@@ -10,6 +10,8 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.schedule.Airline;
+import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.navdata.NavigationDataBean;
 
 import org.deltava.dao.GetNavData;
@@ -54,7 +56,7 @@ public class DataCommand implements ACARSCommand {
 				break;
 
 			// Get position info
-			case DataMessage.REQ_ALIST:
+			case DataMessage.REQ_USRLIST:
 				while (i.hasNext())
 					dataRsp.addResponse((ACARSConnection) i.next());
 
@@ -65,6 +67,36 @@ public class DataCommand implements ACARSCommand {
 				dataRsp.addResponse((ACARSConnection) i.next());
 				break;
 
+			// Get equipment list
+			case DataMessage.REQ_EQLIST:
+				List eqTypes = (List) SystemData.getObject("eqTypes");
+				for (i = eqTypes.iterator(); i.hasNext(); ) {
+					String eqType = (String) i.next();
+					dataRsp.addResponse("eqtype", eqType);
+				}
+				
+				break;
+				
+			// Get airline list
+			case DataMessage.REQ_ALLIST:
+				Map airlines = (Map) SystemData.getObject("airlines");
+				for (i = airlines.values().iterator(); i.hasNext(); )  {
+					Airline a = (Airline) i.next();
+					dataRsp.addResponse(a.getCode(), a.getName());
+				}
+				
+				break;
+				
+			// Get airport list
+			case DataMessage.REQ_APLIST :
+				Map airports = (Map) SystemData.getObject("airports");
+				for (i = airports.values().iterator(); i.hasNext(); ) {
+					Airport a = (Airport) i.next();
+					dataRsp.addResponse(a);
+				}
+				
+				break;
+				
 			// Get private voice info
 			case DataMessage.REQ_PVTVOX:
 			   dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
