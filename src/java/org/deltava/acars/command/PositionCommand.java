@@ -41,11 +41,16 @@ public class PositionCommand implements ACARSCommand {
 		}
 
 		// Get the last position report and its age
+		InfoMessage info = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
 		PositionMessage oldPM = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
-		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime()); 
+		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
+		
+		// If we are an offline fight, update the timestamp of the mesage
+		if (info.isOffline())
+			msg.setTime(msg.getDate().getTime());
 
 		// Set the info for the connection and write it to the database if we aren't being flooded
-		if (pmAge >= SystemData.getInt("acars.position_interval")) {
+		if ((!info.isOffline()) || (pmAge >= SystemData.getInt("acars.position_interval"))) {
 			con.setInfo(msg);
 			log.debug("Received position from " + con.getUser().getPilotCode() + " (" + con.getFormatID() + ")");
 			
