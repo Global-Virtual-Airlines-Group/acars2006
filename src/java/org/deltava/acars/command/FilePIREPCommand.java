@@ -84,8 +84,8 @@ public class FilePIREPCommand implements ACARSCommand {
 			// Start the transaction
 			con.setAutoCommit(false);
 			
-         // Get the write DAO and save the PIREP
-         SetFlightReport wdao = new SetFlightReport(con);
+			// Get the write DAO and save the PIREP
+			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr);
 			wdao.writeACARS(afr);
 
@@ -94,7 +94,9 @@ public class FilePIREPCommand implements ACARSCommand {
 			
 			// Create the ack message and envelope
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("flight_id", String.valueOf(msg.getInfo().getFlightID()));
+			if (msg.getInfo() != null)
+				ackMsg.setEntry("flight_id", String.valueOf(msg.getInfo().getFlightID()));
+			
 			ctx.push(ackMsg, env.getConnectionID());						
       } catch (DAOException de) {
          try {
