@@ -161,7 +161,6 @@ public class ACARSHelper {
       
       // Set the times
       try {
-         afr.setEngineStartTime(getDate(afr.getStartTime(), Integer.parseInt(p.getProperty("time_out", "0"))));
       	afr.setTaxiTime(getDate(afr.getStartTime(), Integer.parseInt(p.getProperty("taxi_out_time", "0"))));
       	afr.setTakeoffTime(getDate(afr.getStartTime(), Integer.parseInt(p.getProperty("takeoff_time", "0"))));
       	afr.setLandingTime(getDate(afr.getStartTime(), Integer.parseInt(p.getProperty("time_on", "0"))));

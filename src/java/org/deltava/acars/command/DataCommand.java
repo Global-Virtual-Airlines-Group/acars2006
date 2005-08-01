@@ -14,6 +14,8 @@ import org.deltava.beans.schedule.Airline;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.navdata.NavigationDataBean;
 
+import org.deltava.comparators.AirportComparator;
+
 import org.deltava.dao.GetNavData;
 import org.deltava.dao.DAOException;
 
@@ -44,6 +46,7 @@ public class DataCommand implements ACARSCommand {
 
 		// Create the response
 		DataResponseMessage dataRsp = new DataResponseMessage(env.getOwner(), msg.getRequestType());
+		log.info("Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from " + env.getOwnerID());
 
 		switch (msg.getRequestType()) {
 			// Get all of the pilot info stuff
@@ -69,12 +72,8 @@ public class DataCommand implements ACARSCommand {
 
 			// Get equipment list
 			case DataMessage.REQ_EQLIST:
-				List eqTypes = (List) SystemData.getObject("eqTypes");
-				for (i = eqTypes.iterator(); i.hasNext(); ) {
-					String eqType = (String) i.next();
-					dataRsp.addResponse("eqtype", eqType);
-				}
-				
+				Set eqTypes = new TreeSet((List) SystemData.getObject("eqtypes"));
+				dataRsp.addResponse("eqtype", eqTypes);
 				break;
 				
 			// Get airline list
@@ -89,8 +88,10 @@ public class DataCommand implements ACARSCommand {
 				
 			// Get airport list
 			case DataMessage.REQ_APLIST :
-				Map airports = (Map) SystemData.getObject("airports");
-				for (i = airports.values().iterator(); i.hasNext(); ) {
+				Map allAirports = (Map) SystemData.getObject("airports");
+				Set airports = new TreeSet(new AirportComparator(AirportComparator.NAME));
+				airports.addAll(allAirports.values());
+				for (i = airports.iterator(); i.hasNext(); ) {
 					Airport a = (Airport) i.next();
 					dataRsp.addResponse(a);
 				}
