@@ -78,7 +78,7 @@ public class MessageReader implements Serializable {
 			
 		// Check the element name
 		if (!ROOT_ELEMENT_NAME.equals(root.getName()))
-			throw new XMLException("Invalid Attribute name - " + root.getName());
+			throw new XMLException("Invalid root Element - " + root.getName());
 		
 		// Get the protocol version attribute
 		int version = 1;
@@ -132,7 +132,7 @@ public class MessageReader implements Serializable {
 					_msgs.add(msg);
 				}
 			} catch (XMLException xe) {
-				System.out.println("Message parse exception - " + xe.getMessage());
+				log.error("Message parse exception - " + xe.getMessage(), xe);
 			}
 		}
 		

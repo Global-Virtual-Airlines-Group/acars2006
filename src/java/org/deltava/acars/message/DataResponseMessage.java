@@ -18,28 +18,34 @@ import org.deltava.acars.beans.NavigationRadioBean;
 
 public class DataResponseMessage extends DataMessage {
    
-   public class TextElement {
+   public class DataElement {
       
       private String _name;
-      private String _value;
+      private Object _value;
       
-      public TextElement(String name, String value) {
+      public DataElement(String name, String value) {
          super();
          _name = name;
          _value = value;
+      }
+      
+      public DataElement(String name, Collection value) {
+    	  super();
+          _name = name;
+          _value = value;
       }
       
       public String getName() {
          return _name;
       }
       
-      public String getValue() {
+      public Object getValue() {
          return _value;
       }
    }
 	
 	// Response data
-	private Set _rspData = new HashSet();
+	private List _rspData = new ArrayList();
 
 	/**
 	 * @param type
@@ -81,7 +87,11 @@ public class DataResponseMessage extends DataMessage {
 	}
 	
 	public void addResponse(String name, String value) {
-	   $addResponse(new TextElement(name, value));
+	   $addResponse(new DataElement(name, value));
+	}
+	
+	public void addResponse(String name, Collection value) {
+		   $addResponse(new DataElement(name, value));
 	}
 
 	public Collection getResponse() {

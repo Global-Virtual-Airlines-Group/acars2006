@@ -1,6 +1,6 @@
 package org.deltava.acars.xml;
 
-import java.util.Iterator;
+import java.util.*;
 import java.text.DecimalFormat;
 
 import org.jdom.Element;
@@ -8,6 +8,7 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.Airport;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -148,10 +149,10 @@ class MessageFormatterV1 implements MessageFormatter {
 				e.addContent(createElement("lat", _dgf.format(msg.getLatitude())));
 				e.addContent(createElement("lon", _dgf.format(msg.getLongitude())));
 			}
-			e.addContent(createElement("heading", _hdgf.format(msg.getHeading())));
-			e.addContent(createElement("alt_msl", String.valueOf(msg.getAltitude())));
-			e.addContent(createElement("alt_agl", String.valueOf(msg.getRadarAltitude())));
-			e.addContent(createElement("mach_num", _mf.format(msg.getMach())));
+			e.addContent(createElement("hdg", _hdgf.format(msg.getHeading())));
+			e.addContent(createElement("msl", String.valueOf(msg.getAltitude())));
+			e.addContent(createElement("agl", String.valueOf(msg.getRadarAltitude())));
+			e.addContent(createElement("mach", _mf.format(msg.getMach())));
 			e.addContent(createElement("air_speed", String.valueOf(msg.getAspeed())));
 			e.addContent(createElement("ground_speed", String.valueOf(msg.getGspeed())));
 			e.addContent(createElement("vert_speed", String.valueOf(msg.getVspeed())));
@@ -184,7 +185,8 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
 			// Set element information
-			e.addContent(createElement("from", msg.getSenderID()));
+			e.addContent(createElement("id", msg.getSenderID()));
+			e.addContent(createElement("name", msg.getSender().getName()));
 			e.addContent(createElement("equipment", msg.getEquipmentType()));
 			e.addContent(createElement("flight_num", msg.getFlightCode()));
 			e.addContent(createElement("dep_apt", msg.getAirportD().getICAO()));
@@ -281,6 +283,19 @@ class MessageFormatterV1 implements MessageFormatter {
 		}
 	}
 	
+	private Element getData(Element cmd, String rspType) {
+		// Get the element
+		Element e = cmd.getChild(rspType);
+		if (e != null)
+			return e;
+		
+		// Create the new element
+		cmd.addContent(createElement("rsptype", rspType));
+		e = new Element(rspType);
+		cmd.addContent(e);
+		return e;
+	}
+	
 	private Element formatDataRsp(DataResponseMessage msg) throws XMLException {
 
 		try {
@@ -313,15 +328,31 @@ class MessageFormatterV1 implements MessageFormatter {
 					childE.removeAttribute("type");
 					e.addContent(childE);
 				} else if (rsp instanceof ACARSConnection) {
-					e.addContent(createElement("rsptype", "pilotlist"));
-					e.addContent(formatConnection((ACARSConnection) rsp));
+					Element pList = getData(e, "pilotlist");
+					pList.addContent(formatConnection((ACARSConnection) rsp));
+				} else if (rsp instanceof Airport) {
+					Airport a = (Airport) rsp;
+					Element aList = getData(e, "airports");
+					Element ae = new Element("airport");
+					ae.setAttribute("name", a.getName());
+					ae.setAttribute("icao", a.getICAO());
+					aList.addContent(ae);
 				} else if (rsp instanceof NavigationRadioBean) {
-					e.addContent(createElement("rsptype", "navaid"));
-					e.addContent(formatNavaid((NavigationRadioBean) rsp));
-				} else if (rsp instanceof DataResponseMessage.TextElement) {
-				   DataResponseMessage.TextElement txt = (DataResponseMessage.TextElement) rsp;
-				   e.addContent(createElement("rsptype", "info"));
-				   e.addContent(createElement(txt.getName(), txt.getValue()));
+					Element navE = getData(e, "navaid");
+					navE.addContent(formatNavaid((NavigationRadioBean) rsp));
+				} else if (rsp instanceof DataResponseMessage.DataElement) {
+				   DataResponseMessage.DataElement de = (DataResponseMessage.DataElement) rsp;
+				   Element iE = getData(e, "info");
+				   Object eValue = de.getValue();
+				   if (eValue instanceof String) {
+					   iE.addContent(createElement(de.getName(), (String) de.getValue()));
+				   } else if (eValue instanceof Collection) {
+					   Collection eValues = (Collection) eValue;
+					   for (Iterator vi = eValues.iterator(); vi.hasNext(); ) {
+						   String entryData = (String) vi.next();
+						  iE.addContent(createElement(de.getName(), entryData));
+					   }
+				   }
 				}
 			}
 
