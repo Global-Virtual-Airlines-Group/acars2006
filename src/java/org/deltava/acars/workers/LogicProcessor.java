@@ -28,8 +28,8 @@ public class LogicProcessor extends Worker {
 
 		// Initialize commands
 		_commands = new HashMap();
-		_commands.put(new Integer(Message.MSG_ACK), new AcknowledgeCommand());
-		_commands.put(new Integer(Message.MSG_PING), new AcknowledgeCommand());
+		_commands.put(new Integer(Message.MSG_ACK), new DummyCommand());
+		_commands.put(new Integer(Message.MSG_PING), new AcknowledgeCommand("ping"));
 		_commands.put(new Integer(Message.MSG_POSITION), new PositionCommand());
 		_commands.put(new Integer(Message.MSG_TEXT), new TextMessageCommand());
 		_commands.put(new Integer(Message.MSG_AUTH), new AuthenticateCommand());
