@@ -43,7 +43,7 @@ public final class SetPosition extends DAO {
 			// Set the prepared statement parameters
 			_ps.setLong(1, cid);
 			_ps.setInt(2, flightID);
-			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
+			_ps.setTimestamp(3, createTimestamp(msg.getDate()));
 			_ps.setDouble(4, msg.getLatitude());
 			_ps.setDouble(5, msg.getLongitude());
 			_ps.setInt(6, msg.getAltitude());
