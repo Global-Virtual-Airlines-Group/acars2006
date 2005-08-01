@@ -20,7 +20,7 @@ import org.deltava.acars.xml.ProtocolInfo;
  * @author Luke J. Kolin
  */
 public class ACARSConnection implements Serializable {
-	
+
 	private static final Logger log = Logger.getLogger(ACARSConnection.class);
 
 	// Info type constants
@@ -57,8 +57,6 @@ public class ACARSConnection implements Serializable {
 	private long startTime;
 	private long lastActivityTime;
 
-	//private MessageStack _outputStack;
-
 	// Statistics
 	private long bytesIn;
 	private long bytesOut;
@@ -93,7 +91,6 @@ public class ACARSConnection implements Serializable {
 		this.iBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
 		this.oBuffer = ByteBuffer.allocate(WRITE_BUFFER_SIZE);
 		this.msgBuffer = new StringBuffer();
-		//_outputStack = new MessageStack();
 	}
 
 	public void close() {
@@ -158,7 +155,7 @@ public class ACARSConnection implements Serializable {
 	public int getFlightID() {
 		return (this.fInfo == null) ? 0 : this.fInfo.getFlightID();
 	}
-	
+
 	public long getID() {
 		return this.id;
 	}
@@ -222,10 +219,10 @@ public class ACARSConnection implements Serializable {
 	}
 
 	public void setInfo(Message msg) {
-	   if (msg == null) {
-	      fInfo = null;
-	      pInfo = null;
-	   } else if (msg instanceof InfoMessage) {
+		if (msg == null) {
+			fInfo = null;
+			pInfo = null;
+		} else if (msg instanceof InfoMessage) {
 			fInfo = (InfoMessage) msg;
 		} else if (msg instanceof PositionMessage) {
 			pInfo = (PositionMessage) msg;
@@ -294,22 +291,20 @@ public class ACARSConnection implements Serializable {
 
 		// Get the end of the message - if there's an end element build a message and return it
 		int ePos = msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
-		if (ePos != -1) {
-			ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
+		if (ePos == -1)
+			return null;
 
-			// Get the XML message out of the buffer
-			StringBuffer msgOut = new StringBuffer(ProtocolInfo.XML_HEADER);
-			msgOut.append(msgBuffer.substring(sPos, ePos));
+		ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
 
-			// Clear the message out of the buffer
-			msgBuffer.delete(0, ePos);
+		// Get the XML message out of the buffer
+		StringBuffer msgOut = new StringBuffer(ProtocolInfo.XML_HEADER);
+		msgOut.append(msgBuffer.substring(sPos, ePos));
 
-			// Return the buffer
-			return msgOut.toString();
-		}
+		// Clear the message out of the buffer
+		msgBuffer.delete(0, ePos);
 
-		// Return nothing
-		return null;
+		// Return the buffer
+		return msgOut.toString();
 	}
 
 	void write(String msg) {
