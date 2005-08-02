@@ -11,6 +11,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.dao.*;
+import org.deltava.dao.acars.SetPosition;
 
 /**
  * An ACARS command to file a Flight Report.
@@ -39,6 +40,9 @@ public class FilePIREPCommand implements ACARSCommand {
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = (InfoMessage) ac.getInfo(ACARSConnection.FLIGHT_INFO);
+		
+		// Generate the response message
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 
 		Connection con = null;
 		try {
@@ -54,8 +58,6 @@ public class FilePIREPCommand implements ACARSCommand {
 				afr.setID(fr.getID());
 				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
-				if (info != null)
-					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
 			}
 
 			// Check if this Flight Report counts for promotion
@@ -64,6 +66,16 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Start the transaction
 			con.setAutoCommit(false);
+			
+			// Get the position write DAO and write the positions
+			if (info != null) {
+			   afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+			   SetPosition pwdao = new SetPosition(con);
+			   for (Iterator i = info.getPositions().iterator(); i.hasNext(); ) {
+			      PositionMessage pmsg = (PositionMessage) i.next();
+			      pwdao.write(pmsg, ac.getID(), info.getFlightID());
+			   }
+			}
 
 			// Get the write DAO and save the PIREP
 			SetFlightReport wdao = new SetFlightReport(con);
@@ -72,24 +84,22 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Commit the transaction
 			con.commit();
-
-			// Create the ack message and envelope
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			if (msg.getInfo() != null)
-				ackMsg.setEntry("flight_id", String.valueOf(msg.getInfo().getFlightID()));
-
-			ctx.push(ackMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			try {
 				con.rollback();
 			} catch (Exception e) {
 			} finally {
 				log.error(de.getMessage(), de);
+				ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 		} finally {
 			ctx.release();
 		}
+		
+		// Send the response
+		ctx.push(ackMsg, ac.getID());
 	}
 }

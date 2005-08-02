@@ -329,21 +329,6 @@ class MessageParserV1 implements MessageParser {
 		// Save the PIREP and mark if we are offline
 		msg.setPIREP(afr);
 
-		// If this was an offline PIREP, then load the info
-		Element ie = _el.getChild("info");
-		if ((ie != null) && msg.isOffline())
-			msg.setInfo((InfoMessage) parseInfo(ie));
-
-		// If this was an offline PIREP, then load the positions
-		Element pse = _el.getChild("positions");
-		if ((pse != null) && msg.isOffline()) {
-			List positions = _el.getChildren("position");
-			for (Iterator i = positions.iterator(); i.hasNext();) {
-				Element posE = (Element) i.next();
-				msg.addPosition((PositionMessage) parsePosition(posE));
-			}
-		}
-
 		// Return the message
 		return msg;
 	}
