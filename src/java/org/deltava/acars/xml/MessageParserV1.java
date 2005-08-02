@@ -5,6 +5,8 @@ import java.util.*;
 import java.text.*;
 
 import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import org.deltava.beans.*;
 import org.deltava.acars.message.*;
@@ -303,22 +305,24 @@ class MessageParserV1 implements MessageParser {
 			// Set the weights/speeds
 			try {
 				afr.setTaxiFuel(Integer.parseInt(getChildText("taxiFuel", "0")));
-				afr.setTaxiWeight(Integer.parseInt(getChildText("taxiWeight", "0")));
+				afr.setTaxiWeight(Integer.parseInt(getChildText("taxiWeight", "1")));
 				afr.setTakeoffFuel(Integer.parseInt(getChildText("takeoffFuel", "0")));
-				afr.setTakeoffWeight(Integer.parseInt(getChildText("takeoffWeight", "0")));
+				afr.setTakeoffWeight(Integer.parseInt(getChildText("takeoffWeight", "1")));
 				afr.setTakeoffN1(Double.parseDouble(getChildText("takeoffN1", "0")));
 				afr.setTakeoffSpeed(Integer.parseInt(getChildText("takeoffSpeed", "0")));
 				afr.setLandingFuel(Integer.parseInt(getChildText("landingFuel", "0")));
-				afr.setLandingWeight(Integer.parseInt(getChildText("landingWeight", "0")));
+				afr.setLandingWeight(Integer.parseInt(getChildText("landingWeight", "1")));
 				afr.setLandingN1(Double.parseDouble(getChildText("landingN1", "0")));
 				afr.setLandingSpeed(Integer.parseInt(getChildText("landingSpeed", "0")));
-				afr.setLandingVSpeed(Integer.parseInt(getChildText("landingVSpeed", "0")));
+				afr.setLandingVSpeed(Integer.parseInt(getChildText("landingVSpeed", "-1")));
 				afr.setGateFuel(Integer.parseInt(getChildText("gateFuel", "0")));
-				afr.setGateWeight(Integer.parseInt(getChildText("gateWeight", "0")));
+				afr.setGateWeight(Integer.parseInt(getChildText("gateWeight", "1")));
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid Weight/Speed - " + nfe.getMessage());
 			}
 		} catch (Exception e) {
+			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
+			System.out.println(xmlOut.outputString(_el));
 			throw new XMLException("Invalid PIREP data - " + e.getMessage(), e);
 		}
 
