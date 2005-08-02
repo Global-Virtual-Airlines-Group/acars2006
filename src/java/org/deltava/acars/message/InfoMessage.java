@@ -14,7 +14,7 @@ import org.deltava.beans.schedule.Airport;
 public class InfoMessage extends AbstractMessage {
 	
 	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1
-	public int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004};
+	private int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004};
 	
 	// Bean fields
 	private int _flightID;
@@ -28,6 +28,7 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _offlineFlight;
 	
 	private ArrayList _waypoints = new ArrayList();
+	private Set _offlinePositions;
 	
 	// Constant for splitting waypoint lists
 	private final static String WAYPOINT_SPACER = " ";
@@ -95,8 +96,17 @@ public class InfoMessage extends AbstractMessage {
 		return getAllWaypoints(WAYPOINT_SPACER.charAt(0));
 	}
 	
+	public Collection getPositions() {
+	   return _offlinePositions;
+	}
+	
 	public boolean isOffline() {
 		return _offlineFlight;
+	}
+	
+	public void addPosition(PositionMessage pmsg) {
+	   if (_offlineFlight)
+	      _offlinePositions.add(pmsg);
 	}
 	
 	public void setAirportA(Airport aInfo) {
@@ -139,6 +149,8 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setOffline(boolean isOffline) {
 		_offlineFlight = isOffline;
+		if (_offlinePositions == null)
+		   _offlinePositions = new TreeSet();
 	}
 	
 	public void setWaypoints(String wpList) {
