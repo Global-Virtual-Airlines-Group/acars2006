@@ -203,14 +203,15 @@ class MessageParserV1 implements MessageParser {
 		msg.setTime(_timeStamp);
 
 		// Load the bean
+		msg.setID(getChildText(e, "flight_id", "0"));
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
 		msg.setFlightCode(getChildText(e, "flight_num", "???"));
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
 		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		msg.setComments(getChildText(e, "remarks", null));
-		msg.setFSVersion(Integer.parseInt(getChildText(e, "fsversion", "2004")));
-		msg.setAirportD(SystemData.getAirport(getChildText(e, "dep_apt", null)));
-		msg.setAirportA(SystemData.getAirport(getChildText(e, "arr_apt", null)));
+		msg.setFSVersion(Integer.parseInt(getChildText(e, "fs_ver", "2004")));
+		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
+		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 
 		// Return the bean
