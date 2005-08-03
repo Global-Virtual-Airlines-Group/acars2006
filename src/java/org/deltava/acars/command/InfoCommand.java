@@ -32,12 +32,17 @@ public class InfoCommand implements ACARSCommand {
 		// Get the message
 		InfoMessage msg = (InfoMessage) env.getMessage();
 		String flightType = msg.isOffline() ? "Offline" : "Online";
+		boolean assignID = (msg.getFlightID() == 0);
 
 		// Write the info to the database
 		try {
 			Connection c = ctx.getConnection();
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());
+			
+			// Log returned flight id
+			if (assignID)
+				log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
 
 			// Create the ack message and envelope - these are always acknowledged
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

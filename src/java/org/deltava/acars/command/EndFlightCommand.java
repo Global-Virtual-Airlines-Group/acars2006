@@ -19,25 +19,25 @@ import org.deltava.dao.DAOException;
  */
 
 public class EndFlightCommand implements ACARSCommand {
-   
-   private static final Logger log = Logger.getLogger(EndFlightCommand.class);
+
+	private static final Logger log = Logger.getLogger(EndFlightCommand.class);
 
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-   public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, Envelope env) {
 
-      // Get the message
-      ACARSConnection con = ctx.getACARSConnection();
-      
-      // Get the current info
-      InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
-      if (iMsg == null) {
-         log.warn("No Flight Infor for Connection " + con.getFormatID());
-         return;
-      }
+		// Get the message
+		ACARSConnection con = ctx.getACARSConnection();
+
+		// Get the current info
+		InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+		if (iMsg == null) {
+			log.warn("No Flight Information for Connection " + con.getFormatID());
+			return;
+		}
 
 		// Write the info to the database
 		try {
@@ -51,7 +51,6 @@ public class EndFlightCommand implements ACARSCommand {
 		}
 
 		// Clear flight info and log
-		con.setInfo(null);
 		log.info("Flight Completed by " + con.getUserID() + " (" + con.getFormatID() + ")");
-   }
+	}
 }
