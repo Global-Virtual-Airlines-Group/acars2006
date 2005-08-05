@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.beans.system.UserData;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetPosition;
@@ -41,6 +42,9 @@ public class FilePIREPCommand implements ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = (InfoMessage) ac.getInfo(ACARSConnection.FLIGHT_INFO);
 		
+		// Get the user's location
+		UserData usrLoc = (UserData) ac.getInfo(ACARSConnection.USER_LOCATION_DATA);
+		
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 
@@ -50,7 +54,7 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Search for draft Flight Reports for this city pair
 			GetFlightReports prdao = new GetFlightReports(con);
-			List dFlights = prdao.getDraftReports(env.getOwner().getID(), afr.getAirportD(), afr.getAirportA());
+			List dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 
 			// If we found a flight report, save its database ID and copy its ID to the PIREP we will file
 			if (!dFlights.isEmpty()) {
@@ -63,7 +67,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			// Check if this Flight Report counts for promotion
 			GetEquipmentType eqdao = new GetEquipmentType(con);
 			afr.setCaptEQType(eqdao.getPrimaryTypes(afr.getEquipmentType()));
-
+			
 			// Start the transaction
 			con.setAutoCommit(false);
 			
@@ -83,21 +87,18 @@ public class FilePIREPCommand implements ACARSCommand {
 			// Get the write DAO and save the PIREP
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr);
-			wdao.writeACARS(afr);
+			wdao.writeACARS(afr, usrLoc.getDB());
 
 			// Commit the transaction
 			con.commit();
-		} catch (DAOException de) {
+		} catch (Exception e) {
 			try {
 				con.rollback();
-			} catch (Exception e) {
+			} catch (Exception e2) {
 			} finally {
-				log.error(de.getMessage(), de);
-				ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
+				log.error(e.getMessage(), e);
+				ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 		} finally {
 			ctx.release();
 		}
