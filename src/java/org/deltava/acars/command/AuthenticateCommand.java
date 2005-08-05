@@ -7,14 +7,15 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.system.UserData;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.xml.MessageWriter;
 import org.deltava.acars.xml.XMLException;
 
-import org.deltava.dao.DAOException;
-import org.deltava.dao.GetPilot;
+import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.Authenticator;
@@ -42,7 +43,8 @@ public class AuthenticateCommand implements ACARSCommand {
 		// Get the message and the user ID
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
 		UserID usrID = new UserID(msg.getUserID());
-
+		
+		UserData ud = null;
 		Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection();
@@ -52,6 +54,10 @@ public class AuthenticateCommand implements ACARSCommand {
 			usr = pdao.getPilotByCode(usrID.getUserID(), usrID.getAirlineCode());
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
 				throw new SecurityException("Unknown User ID");
+			
+			// Get the User location data
+			GetUserData udao = new GetUserData(c);
+			ud = udao.get(usr.getID());
 
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
@@ -74,13 +80,14 @@ public class AuthenticateCommand implements ACARSCommand {
 		// If we're not logged in, abort
 		if (usr == null)
 			return;
-
-		// Get the connection
+		
+		// Get the ACARS connection
 		ACARSConnection con = ctx.getACARSConnection();
 
 		// Log the user in
 		usr.login(con.getRemoteHost());
 		con.setUser(usr);
+		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
 
 		// Update the registration with the dispatcher - remove and re-register
