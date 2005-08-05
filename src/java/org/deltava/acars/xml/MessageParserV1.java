@@ -301,7 +301,7 @@ class MessageParserV1 implements MessageParser {
 
 			// Calculate the flight time
 			int duration = (int) ((afr.getEndTime().getTime() - afr.getStartTime().getTime()) / 1000);
-			afr.setLength(duration / 36);
+			afr.setLength(duration / 360);
 
 			// Set the weights/speeds
 			try {
