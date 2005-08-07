@@ -236,10 +236,6 @@ class MessageFormatterV1 implements MessageFormatter {
 			if (navaid instanceof VOR) {
 				e.addContent(createElement("freq", ((VOR) navaid).getFrequency()));
 				e.addContent(createElement("hdg", nav.getHeading()));
-			} else if (navaid instanceof Runway) {
-				Runway rwy = (Runway) navaid;
-				e.addContent(createElement("freq", rwy.getFrequency()));
-				e.addContent(createElement("hdg", String.valueOf(rwy.getHeading())));
 			}
 				
 			// Return the element
@@ -352,6 +348,18 @@ class MessageFormatterV1 implements MessageFormatter {
 					ae.setAttribute("name", a.getName());
 					ae.setAttribute("icao", a.getICAO());
 					aList.addContent(ae);
+				} else if (rsp instanceof Runway) {
+					Runway r = (Runway) rsp;
+					Element rwyE = getData(e, "runways");
+					Element re = new Element("runway");
+					re.setAttribute("icao", r.getCode());
+					re.setAttribute("name", r.getName());
+					re.setAttribute("hdg", String.valueOf(r.getHeading()));
+					re.setAttribute("length", String.valueOf(r.getLength()));
+					if ((r.getFrequency() != null) && (!"-".equals(r.getFrequency())))
+						re.addContent(createElement("freq", r.getFrequency()));
+					
+					rwyE.addContent(re);
 				} else if (rsp instanceof NavigationRadioBean) {
 					Element navE = getData(e, "navaid");
 					navE.addContent(formatNavaid((NavigationRadioBean) rsp));
