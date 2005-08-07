@@ -135,20 +135,34 @@ public class DataCommand implements ACARSCommand {
 				
 				break;
 				
-			// Get navaid info
+			// Get navaid/runway info
 			case DataMessage.REQ_NAVAIDINFO :
+				
+				boolean isRunway = (msg.getFlag("runway") != null);
 				try {
 					Connection con = ctx.getConnection();
 					
 					// Get the DAO and find the Navaid in the DAFIF database
 					GetNavData dao = new GetNavData(con);
-					NavigationDataBean nav = dao.get(msg.getFlag("id"));
-					if (nav != null) {
-						log.info("Loaded Navigation data for " + nav.getCode());
-						dataRsp.addResponse(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
+					NavigationDataBean nav = null;
+					if (isRunway) {
+						Airport ap = SystemData.getAirport(msg.getFlag("id").toUpperCase());
+						if (ap != null)
+							nav = dao.getRunway(ap.getICAO(), msg.getFlag("runway"));
+						
+						if (nav != null) {
+							log.info("Loaded Runway data for " + nav.getCode() + " " + nav.getName());
+							dataRsp.addResponse(nav);
+						}
+					} else {
+						nav = dao.get(msg.getFlag("id"));
+						if (nav != null) {
+							log.info("Loaded Navigation data for " + nav.getCode());
+							dataRsp.addResponse(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
+						}
 					}
-				} catch (DAOException de) {
-					log.error("Error loading navaid " + msg.getFlag("id") + " - " + de.getMessage(), de);
+				} catch (Exception e) {
+					log.error("Error loading navaid " + msg.getFlag("id") + " - " + e.getMessage(), e);
 					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 					errMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
 					ctx.push(errMsg, ctx.getACARSConnection().getID());
