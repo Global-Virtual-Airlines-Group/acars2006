@@ -3,12 +3,7 @@ package org.deltava.acars.message;
 
 import java.util.*;
 
-import org.deltava.acars.beans.ACARSConnection;
-
 import org.deltava.beans.Pilot;
-import org.deltava.beans.schedule.Airport;
-
-import org.deltava.acars.beans.NavigationRadioBean;
 
 /**
  * @author Luke
@@ -17,33 +12,34 @@ import org.deltava.acars.beans.NavigationRadioBean;
  */
 
 public class DataResponseMessage extends DataMessage {
-   
-   public class DataElement {
-      
-      private String _name;
-      private Object _value;
-      
-      public DataElement(String name, String value) {
-         super();
-         _name = name;
-         _value = value;
-      }
-      
-      public DataElement(String name, Collection value) {
-    	  super();
-          _name = name;
-          _value = value;
-      }
-      
-      public String getName() {
-         return _name;
-      }
-      
-      public Object getValue() {
-         return _value;
-      }
-   }
-	
+
+	public class DataElement {
+
+		private String _name;
+
+		private Object _value;
+
+		public DataElement(String name, String value) {
+			super();
+			_name = name;
+			_value = value;
+		}
+
+		public DataElement(String name, Collection value) {
+			super();
+			_name = name;
+			_value = value;
+		}
+
+		public String getName() {
+			return _name;
+		}
+
+		public Object getValue() {
+			return _value;
+		}
+	}
+
 	// Response data
 	private List _rspData = new ArrayList();
 
@@ -55,43 +51,26 @@ public class DataResponseMessage extends DataMessage {
 		super(Message.MSG_DATARSP, msgFrom);
 		setRequestType(rType);
 	}
-	
+
 	public DataResponseMessage(Pilot msgFrom, String rType) {
 		super(Message.MSG_DATARSP, msgFrom);
 		setRequestType(rType);
 	}
 
-	private void $addResponse(Object obj) {
-		
+	public void addResponse(Object obj) {
 		// Check if we're not already in the response
 		if (obj == null)
 			return;
-		
+
 		_rspData.add(obj);
 	}
-	
-	public void addResponse(Airport apBean) {
-		$addResponse(apBean);
-	}
-	
-	public void addResponse(Message rspBean) {
-		$addResponse(rspBean);
-	}
-	
-	public void addResponse(ACARSConnection con) {
-		$addResponse(con);
-	}
-	
-	public void addResponse(NavigationRadioBean navaid) {
-		$addResponse(navaid);
-	}
-	
+
 	public void addResponse(String name, String value) {
-	   $addResponse(new DataElement(name, value));
+		addResponse(new DataElement(name, value));
 	}
-	
+
 	public void addResponse(String name, Collection value) {
-		   $addResponse(new DataElement(name, value));
+		addResponse(new DataElement(name, value));
 	}
 
 	public Collection getResponse() {

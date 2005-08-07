@@ -8,7 +8,7 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.navdata.*;
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -330,6 +330,21 @@ class MessageFormatterV1 implements MessageFormatter {
 				} else if (rsp instanceof ACARSConnection) {
 					Element pList = getData(e, "pilotlist");
 					pList.addContent(formatConnection((ACARSConnection) rsp));
+				} else if (rsp instanceof Chart) {
+					Chart c = (Chart) rsp;
+					Airport a = c.getAirport();
+					
+					// Save the airport info
+					Element cList = getData(e, "charts");
+					cList.setAttribute("name", a.getName());
+					cList.setAttribute("iata", a.getIATA());
+					cList.setAttribute("icao", a.getICAO());
+
+					// Add the cheart element
+					Element ce = new Element("chart");
+					ce.setAttribute("name", c.getName());
+					ce.setAttribute("id", String.valueOf(c.getID()));
+					cList.addContent(ce);
 				} else if (rsp instanceof Airport) {
 					Airport a = (Airport) rsp;
 					Element aList = getData(e, "airports");
