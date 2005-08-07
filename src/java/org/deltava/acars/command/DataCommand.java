@@ -9,15 +9,13 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.Airline;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.navdata.NavigationDataBean;
 
 import org.deltava.comparators.AirportComparator;
 
-import org.deltava.dao.GetNavData;
-import org.deltava.dao.DAOException;
+import org.deltava.dao.*;
 
 import org.deltava.util.system.SystemData;
 
@@ -53,21 +51,17 @@ public class DataCommand implements ACARSCommand {
 			case DataMessage.REQ_PLIST:
 				while (i.hasNext()) {
 					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse((PositionMessage) ac.getInfo(ACARSConnection.POSITION_INFO));
+					dataRsp.addResponse(ac.getInfo(ACARSConnection.POSITION_INFO));
 				}
 
 				break;
 
-			// Get position info
+			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
-				while (i.hasNext())
-					dataRsp.addResponse((ACARSConnection) i.next());
-
-				break;
-
-			// Get Pilot Info
 			case DataMessage.REQ_PILOTINFO:
-				dataRsp.addResponse((ACARSConnection) i.next());
+				while (i.hasNext())
+					dataRsp.addResponse(i.next());
+
 				break;
 
 			// Get equipment list
@@ -107,14 +101,42 @@ public class DataCommand implements ACARSCommand {
 			case DataMessage.REQ_ILIST:
 				while (i.hasNext()) {
 					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse((InfoMessage) ac.getInfo(ACARSConnection.FLIGHT_INFO));
+					dataRsp.addResponse(ac.getInfo(ACARSConnection.FLIGHT_INFO));
 				}
 
 				break;
 				
+			// Get approach charts
+			case DataMessage.REQ_CHARTS :
+				Airport a = SystemData.getAirport(msg.getFlag("id"));
+				if (a == null) {
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					errMsg.setEntry("error", "Unknown Airport " + msg.getFlag("id"));
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+					return;
+				}
+				
+				try {
+					Connection con = ctx.getConnection();
+					
+					// Get the DAO and the charts
+					GetChart dao = new GetChart(con);
+					Collection charts = dao.getCharts(a);
+					for (Iterator ci = charts.iterator(); ci.hasNext(); )
+						dataRsp.addResponse(ci.next());
+				} catch (DAOException de) {
+					log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					errMsg.setEntry("error", "Cannot load " + msg.getFlag("id") + " charts");
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+				} finally {
+					ctx.release();
+				}
+				
+				break;
+				
 			// Get navaid info
 			case DataMessage.REQ_NAVAIDINFO :
-				Pilot usr = null;
 				try {
 					Connection con = ctx.getConnection();
 					
@@ -127,8 +149,9 @@ public class DataCommand implements ACARSCommand {
 					}
 				} catch (DAOException de) {
 					log.error("Error loading navaid " + msg.getFlag("id") + " - " + de.getMessage(), de);
-					AcknowledgeMessage errMsg = new AcknowledgeMessage(usr, msg.getID());
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 					errMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
 				} finally {
 					ctx.release();
 				}
