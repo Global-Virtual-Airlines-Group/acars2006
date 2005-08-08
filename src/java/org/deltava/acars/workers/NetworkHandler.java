@@ -61,7 +61,6 @@ public final class NetworkHandler extends Worker {
 		// Get the socket and set various socket options
 		Socket s = sc.socket();
 		try {
-			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
 			s.setSoLinger(true, 2);
 		} catch (SocketException se) {
 			log.error("Error setting socket options - " + se.getMessage());
