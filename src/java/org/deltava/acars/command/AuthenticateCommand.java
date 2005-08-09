@@ -112,8 +112,8 @@ public class AuthenticateCommand implements ACARSCommand {
 		}
 
 		// Tell everybody else that someone has logged on
-		DataRequestMessage drMsg = new DataRequestMessage(null, DataMessage.REQ_ADDUSER);
-		drMsg.setFilter(con.getFormatID());
+		DataResponseMessage drMsg = new DataResponseMessage(usr, DataMessage.REQ_ADDUSER);
+		drMsg.addResponse(usr);
 		ctx.pushAll(drMsg, con.getID());
 		
 		// Return a system message to the user
