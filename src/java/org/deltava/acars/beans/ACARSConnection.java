@@ -332,13 +332,12 @@ public class ACARSConnection implements Serializable {
 			_oBuffer.put(msg.getBytes());
 			_oBuffer.flip();
 			channel.write(_oBuffer);
+			channel.socket().getOutputStream().flush();
 			bytesOut += msg.length();
 			lastActivityTime = System.currentTimeMillis();
 		} catch (IOException ie) {
 			log.error("Error writing to socket " + remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
 		}
-
-		// Search for
 	}
 
 	public void write(RawMessage rawMsg) {
@@ -358,13 +357,14 @@ public class ACARSConnection implements Serializable {
 			_oBuffer.put(msg.getBytes());
 			_oBuffer.flip();
 			channel.write(_oBuffer);
+			channel.socket().getOutputStream().flush();
 			bytesOut += msg.length();
 			msgsOut++;
 			lastActivityTime = System.currentTimeMillis();
 		} catch (BufferOverflowException bfe) {
-			log.error("Error writing message to buffer, size=" + msg.length());
+			log.error("Error writing message to buffer, size=" + msg.length(), bfe);
 		} catch (IOException ie) {
-			log.error("Error writing to socket channel " + remoteAddr.getHostAddress());
+			log.error("Error writing to socket channel " + remoteAddr.getHostAddress(), ie);
 		}
 	}
 }
