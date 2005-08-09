@@ -323,6 +323,26 @@ class MessageFormatterV1 implements MessageFormatter {
 					childE.setName(childE.getAttributeValue("type"));
 					childE.removeAttribute("type");
 					e.addContent(childE);
+				} else if (rsp instanceof Pilot) {
+					Pilot userInfo = (Pilot) rsp;
+					Element pe = new Element("Pilot");
+					pe.setAttribute("id", userInfo.getPilotCode());
+					pe.addContent(createElement("firstname", userInfo.getFirstName()));
+					pe.addContent(createElement("lastname", userInfo.getLastName()));
+					pe.addContent(createElement("name", userInfo.getName()));
+					pe.addContent(createElement("eqtype", userInfo.getEquipmentType()));
+					pe.addContent(createElement("rank", userInfo.getRank()));
+					Element dpe;
+					switch (msg.getRequestType()) {
+						case DataMessage.REQ_ADDUSER :
+							dpe = getData(e, "addpilots");
+							dpe.addContent(pe);
+							break;
+							
+						case DataMessage.REQ_REMOVEUSER :
+							dpe = getData(e, "addpilots");
+							dpe.addContent(pe);
+					}
 				} else if (rsp instanceof ACARSConnection) {
 					Element pList = getData(e, "pilotlist");
 					pList.addContent(formatConnection((ACARSConnection) rsp));
