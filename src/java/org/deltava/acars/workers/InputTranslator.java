@@ -41,7 +41,7 @@ public final class InputTranslator extends Worker {
 								_outStack.push(new Envelope(msg, env.getConnectionID()));
 						}
 					} catch (XMLException xe) {
-						log.error("Translation Error - " + xe.getMessage());
+						log.error("Translation Error - " + xe.getMessage(), xe);
 					}
 				}
 			}

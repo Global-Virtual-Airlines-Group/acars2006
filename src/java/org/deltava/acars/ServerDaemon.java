@@ -138,6 +138,7 @@ public abstract class ServerDaemon {
 		// Init the network handler
 		NetworkHandler nHandler = new NetworkHandler();
 		nHandler.setStacks(rawInputStack, rawOutputStack);
+		nHandler.setFormattedInputStack(inputStack);
 		_tasks.add(nHandler);
 
 		// Init the logic processor
