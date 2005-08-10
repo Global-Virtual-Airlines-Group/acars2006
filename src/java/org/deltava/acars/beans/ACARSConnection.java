@@ -96,9 +96,6 @@ public class ACARSConnection implements Serializable {
 	}
 
 	public void close() {
-		// Clear the user info bean
-		this.userInfo = null;
-
 		// Close the socket
 		try {
 			this.channel.close();

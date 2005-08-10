@@ -18,8 +18,4 @@ public class QuitMessage extends AbstractMessage {
 	public QuitMessage(Pilot msgFrom) {
 		super(Message.MSG_QUIT, msgFrom);
 	}
-
-	public final boolean isAnonymous() {
-		return true;
-	}
 }

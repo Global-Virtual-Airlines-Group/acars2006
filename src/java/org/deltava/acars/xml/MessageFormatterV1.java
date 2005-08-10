@@ -340,7 +340,7 @@ class MessageFormatterV1 implements MessageFormatter {
 							break;
 							
 						case DataMessage.REQ_REMOVEUSER :
-							dpe = getData(e, "addpilots");
+							dpe = getData(e, "delpilots");
 							dpe.addContent(pe);
 					}
 				} else if (rsp instanceof ACARSConnection) {

@@ -31,10 +31,8 @@ public class MessageReader implements Serializable {
 	private ArrayList _msgs;
 	
 	public MessageReader(Envelope env) throws XMLException {
-		
-		// Check for null
 		if (env == null)
-			throw new XMLException("Null Message Envelope");
+			return;
 		
 		// Build the XML document from the string
 		SAXBuilder builder = new SAXBuilder();

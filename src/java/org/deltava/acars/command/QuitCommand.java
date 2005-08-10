@@ -13,7 +13,7 @@ import org.deltava.acars.message.DataResponseMessage;
  */
 
 public class QuitCommand implements ACARSCommand {
-
+	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
