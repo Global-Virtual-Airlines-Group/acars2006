@@ -201,9 +201,15 @@ class MessageParserV1 implements MessageParser {
 		// Create the bean
 		InfoMessage msg = new InfoMessage(_user);
 		msg.setTime(_timeStamp);
+		
+		// Check if we're loading an existing flight ID
+		try {
+			msg.setFlightID(Integer.parseInt(getChildText(e, "flight_id", "0")));
+		} catch (NumberFormatException nfe) {
+			msg.setFlightID(0);
+		}
 
 		// Load the bean
-		msg.setID(getChildText(e, "flight_id", "0"));
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
 		msg.setFlightCode(getChildText(e, "flight_num", "???"));
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
