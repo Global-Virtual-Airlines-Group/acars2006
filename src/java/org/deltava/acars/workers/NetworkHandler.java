@@ -69,6 +69,7 @@ public final class NetworkHandler extends Worker {
 		Socket s = sc.socket();
 		try {
 			s.setSoLinger(true, 2);
+			s.setSendBufferSize(8192);
 		} catch (SocketException se) {
 			log.error("Error setting socket options - " + se.getMessage());
 		}
