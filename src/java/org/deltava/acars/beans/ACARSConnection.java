@@ -157,6 +157,10 @@ public class ACARSConnection implements Serializable {
 	public long getID() {
 		return this.id;
 	}
+	
+	public InfoMessage getFlightInfo() {
+		return this.fInfo;
+	}
 
 	public Object getInfo(int infoType) {
 
