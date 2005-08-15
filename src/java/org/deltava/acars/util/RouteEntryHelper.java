@@ -70,6 +70,7 @@ public class RouteEntryHelper {
       
       // Build the NamedRouteEntry
       NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr);
+      result.setID(imsg.getFlightID());
       result.setAirSpeed(msg.getAspeed());
       result.setGroundSpeed(msg.getGspeed());
       result.setVerticalSpeed(msg.getVspeed());
