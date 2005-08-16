@@ -335,6 +335,7 @@ public class ACARSConnection implements Serializable {
 			channel.write(_oBuffer);
 			channel.socket().getOutputStream().flush();
 			bytesOut += msg.length();
+			msgsOut++;
 			lastActivityTime = System.currentTimeMillis();
 		} catch (IOException ie) {
 			log.error("Error writing to socket " + remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
