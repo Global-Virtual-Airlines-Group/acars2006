@@ -45,7 +45,7 @@ public class PositionCommand implements ACARSCommand {
 		PositionMessage oldPM = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
 		
 		// If we are an offline fight, update the timestamp of the mesage
-		if (info.isOffline()) {
+		if (info.isOffline() && info.isComplete()) {
 			msg.setTime(msg.getDate().getTime());
 			info.addPosition(msg);
 		} else {
