@@ -219,6 +219,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
+		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
 
 		// Return the bean
 		return msg;

@@ -25,7 +25,9 @@ public class InfoMessage extends AbstractMessage {
 	private String _fpAlt;
 	private String _comments;
 	private int _fsVersion;
+	
 	private boolean _offlineFlight;
+	private boolean _flightComplete;
 	
 	private ArrayList _waypoints = new ArrayList();
 	private Set _offlinePositions;
@@ -100,6 +102,10 @@ public class InfoMessage extends AbstractMessage {
 	   return _offlinePositions;
 	}
 	
+	public boolean isComplete() {
+		return _flightComplete;
+	}
+	
 	public boolean isOffline() {
 		return _offlineFlight;
 	}
@@ -151,6 +157,10 @@ public class InfoMessage extends AbstractMessage {
 		_offlineFlight = isOffline;
 		if (_offlinePositions == null)
 		   _offlinePositions = new TreeSet();
+	}
+	
+	public void setComplete(boolean isComplete) {
+		_flightComplete = isComplete;
 	}
 	
 	public void setWaypoints(String wpList) {
