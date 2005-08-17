@@ -137,7 +137,6 @@ public class DataCommand implements ACARSCommand {
 				
 			// Get navaid/runway info
 			case DataMessage.REQ_NAVAIDINFO :
-				
 				boolean isRunway = (msg.getFlag("runway") != null);
 				try {
 					Connection con = ctx.getConnection();
@@ -147,12 +146,21 @@ public class DataCommand implements ACARSCommand {
 					NavigationDataBean nav = null;
 					if (isRunway) {
 						Airport ap = SystemData.getAirport(msg.getFlag("id").toUpperCase());
-						if (ap != null)
-							nav = dao.getRunway(ap.getICAO(), msg.getFlag("runway"));
 						
-						if (nav != null) {
-							log.info("Loaded Runway data for " + nav.getCode() + " " + nav.getName());
-							dataRsp.addResponse(nav);
+						// Add a leading zero to the runway if required
+						if (ap != null) {
+							String runway = msg.getFlag("runway");
+							if (Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2)) {
+								runway = "0" + runway;
+							} else if (runway.length() == 1) {
+								runway = "0" + runway;
+							}
+							
+							nav = dao.getRunway(ap.getICAO(), runway);
+							if (nav != null) {
+								log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
+								dataRsp.addResponse(nav);
+							}
 						}
 					} else {
 						nav = dao.get(msg.getFlag("id"));
