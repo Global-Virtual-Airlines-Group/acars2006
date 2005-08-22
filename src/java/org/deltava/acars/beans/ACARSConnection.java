@@ -332,8 +332,9 @@ public class ACARSConnection implements Serializable {
 		try {
 			_oBuffer.put(msg.getBytes());
 			_oBuffer.flip();
-			channel.write(_oBuffer);
-			channel.socket().getOutputStream().flush();
+			while (_oBuffer.remaining() > 0)
+				channel.write(_oBuffer);
+			
 			bytesOut += msg.length();
 			msgsOut++;
 			lastActivityTime = System.currentTimeMillis();
@@ -358,8 +359,9 @@ public class ACARSConnection implements Serializable {
 		try {
 			_oBuffer.put(msg.getBytes());
 			_oBuffer.flip();
-			channel.write(_oBuffer);
-			channel.socket().getOutputStream().flush();
+			while (_oBuffer.remaining() > 0)
+				channel.write(_oBuffer);
+			
 			bytesOut += msg.length();
 			msgsOut++;
 			lastActivityTime = System.currentTimeMillis();
