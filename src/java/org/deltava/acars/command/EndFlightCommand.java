@@ -11,6 +11,8 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.acars.SetInfo;
 import org.deltava.dao.DAOException;
 
+import org.deltava.util.StringUtils;
+
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
@@ -35,7 +37,7 @@ public class EndFlightCommand implements ACARSCommand {
 		// Get the current info
 		InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
 		if (iMsg == null) {
-			log.warn("No Flight Information for Connection " + con.getFormatID());
+			log.warn("No Flight Information for Connection " + StringUtils.formatHex(con.getID()));
 			return;
 		}
 
@@ -51,6 +53,6 @@ public class EndFlightCommand implements ACARSCommand {
 		}
 
 		// Clear flight info and log
-		log.info("Flight Completed by " + con.getUserID() + " (" + con.getFormatID() + ")");
+		log.info("Flight Completed by " + con.getUserID());
 	}
 }

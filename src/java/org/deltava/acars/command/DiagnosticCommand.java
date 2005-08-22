@@ -8,6 +8,8 @@ import org.deltava.acars.message.*;
 
 import org.deltava.acars.xml.MessageWriter;
 
+import org.deltava.util.StringUtils;
+
 /**
  * @author Luke
  * @version 1.0
@@ -47,8 +49,8 @@ public class DiagnosticCommand implements ACARSCommand {
             if (ac != null) {
                MessageWriter.remove(cid);
                ctx.getACARSConnectionPool().remove(ac);
-               log.warn("Connection " + ac.getFormatID() + " (" + ac.getUserID() + ") KICKED");
-               daMsg.setEntry("cid", ac.getFormatID());
+               log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED");
+               daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
                daMsg.setEntry("user", ac.getUserID());
                daMsg.setEntry("addr", ac.getRemoteAddr());
             } else {
