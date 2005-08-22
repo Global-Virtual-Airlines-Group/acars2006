@@ -13,6 +13,8 @@ import org.deltava.beans.schedule.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.util.StringUtils;
+
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
@@ -266,7 +268,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.addContent(createElement("remoteaddr", con.getRemoteAddr()));
 			e.addContent(createElement("remotehost", con.getRemoteHost()));
 			e.addContent(createElement("starttime", Long.toHexString(con.getStartTime())));
-			e.addContent(createElement("lastactivity", con.getFormatLastActivityTime()));
+			e.addContent(createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
 			e.addContent(createElement("input", String.valueOf(con.getBytesIn())));
 			e.addContent(createElement("output", String.valueOf(con.getBytesOut())));
 			e.addContent(createElement("msginput", String.valueOf(con.getMsgsIn())));

@@ -20,7 +20,7 @@ import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.Authenticator;
 
-import org.deltava.util.UserID;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -95,7 +95,7 @@ public class AuthenticateCommand implements ACARSCommand {
 			MessageWriter.remove(con.getID());
 			MessageWriter.addConnection(con.getID(), usr, con.getProtocolVersion());
 		} catch (XMLException xe) {
-			log.error("Cannot re-register " + con.getFormatID() + " - " + xe.getMessage());
+			log.error("Cannot re-register " + StringUtils.formatHex(con.getID()) + " - " + xe.getMessage());
 		}
 		
 		// Save the connection data

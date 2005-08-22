@@ -11,6 +11,7 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetPosition;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -68,7 +69,7 @@ public class PositionCommand implements ACARSCommand {
 		}
 		
 		// Log and update
-		log.debug("Received position from " + con.getUser().getPilotCode() + " (" + con.getFormatID() + ")");
+		log.debug("Received position from " + con.getUser().getPilotCode() + " (" + StringUtils.formatHex(con.getID()) + ")");
 	   con.setInfo(msg);
 	}
 }
