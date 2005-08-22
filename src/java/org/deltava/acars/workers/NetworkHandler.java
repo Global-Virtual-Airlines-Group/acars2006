@@ -9,13 +9,12 @@ import java.nio.channels.*;
 import org.deltava.acars.*;
 import org.deltava.acars.beans.*;
 
-import org.deltava.acars.message.RawMessage;
 import org.deltava.acars.message.QuitMessage;
 
 import org.deltava.acars.xml.MessageWriter;
 import org.deltava.acars.xml.XMLException;
 
-import org.deltava.util.IDGenerator;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -78,15 +77,15 @@ public final class NetworkHandler extends Worker {
 		try {
 			_pool.add(con);
 			MessageWriter.addConnection(con.getID(), null, 1);
-			log.info("New Connection from " + con.getRemoteAddr() + " - " + con.getFormatID());
+			log.info("New Connection from " + con.getRemoteAddr());
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
 		} catch (XMLException xe) {
-			log.error("Unable to register " + con.getFormatID() + " with dispatcher - " + xe.getMessage(), xe);
+			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - " + xe.getMessage(), xe);
 		}
 
 		// Say hello
-		con.write(new RawMessage(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n"));
+		con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 
 		// Update the max/current connection counts
 		ServerStats.add(ServerStats.CURRENT_CONNECT);
@@ -183,7 +182,7 @@ public final class NetworkHandler extends Worker {
 			// Check for inactive connections - generate a QUIT message for every one
 			for (Iterator ic = _pool.checkConnections().iterator(); ic.hasNext();) {
 				ACARSConnection con = (ACARSConnection) ic.next();
-				log.info("Connection " + con.getFormatID() + " (" + con.getRemoteAddr() + ") disconnected");
+				log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
 				MessageWriter.remove(con.getID());
 				if (con.isAuthenticated()) {
 					log.debug("QUIT Message from " + con.getUser().getName());
