@@ -8,27 +8,27 @@ package org.deltava.acars.message;
  */
 public final class AuthenticateMessage extends AbstractMessage {
 
-	private String userID;
-	private String pwd;
+	private String _userID;
+	private String _pwd;
 	private int _protocolVersion = 1;
-	private long reqConID;
+	private int _build;
 
 	public AuthenticateMessage(String id, String password) {
 		super(Message.MSG_AUTH, null);
-		this.userID = id;
-		this.pwd = password;
+		_userID = id;
+		_pwd = password;
+	}
+	
+	public int getClientBuild() {
+	   return _build;
 	}
 	
 	public String getUserID() {
-		return this.userID;
+		return _userID;
 	}
 	
 	public String getPassword() {
-		return this.pwd;
-	}
-	
-	public long getRequestedID() {
-		return this.reqConID;
+		return this._pwd;
 	}
 	
 	public int getProtocolVersion() {
@@ -44,13 +44,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 			_protocolVersion = pv;
 	}
 	
-	public void setRequestedID(long reqID) {
-		this.reqConID = reqID;
-	}
-	
-	public void setRequestedID(String reqID) {
-		try {
-			this.reqConID = Long.parseLong(reqID, 16);
-		} catch (Exception e) { }
+	public void setClientBuild(int buildNumber) {
+	   _build = buildNumber;
 	}
 }

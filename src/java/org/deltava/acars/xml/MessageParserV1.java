@@ -114,13 +114,14 @@ class MessageParserV1 implements MessageParser {
 		String pwd = getChildText("password", null);
 		if ((userID == null) || (pwd == null))
 			throw new XMLException("Missing userID/password");
+		
+		// Get the build number
+		int buildNumber = Integer.parseInt(getChildText("build", "0"));
 
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
-
-		// Get any requested connection ID
-		msg.setRequestedID(getChildText("connection", "0"));
+		msg.setClientBuild(buildNumber);
 
 		// Return the bean
 		return msg;
