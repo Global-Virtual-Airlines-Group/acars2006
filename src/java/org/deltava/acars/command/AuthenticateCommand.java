@@ -44,6 +44,15 @@ public class AuthenticateCommand implements ACARSCommand {
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
 		UserID usrID = new UserID(msg.getUserID());
 		
+		// Check the minimum build number
+		int minBuild = SystemData.getInt("acars.build");
+		if (msg.getClientBuild() < minBuild) {
+		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+		   errMsg.setEntry("error", "Obsolete Build - Use Build " + minBuild +" or newer");
+		   ctx.push(errMsg, env.getConnectionID());
+		   return;
+		}
+		
 		UserData ud = null;
 		Pilot usr = null;
 		try {
