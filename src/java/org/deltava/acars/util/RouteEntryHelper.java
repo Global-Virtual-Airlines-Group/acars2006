@@ -12,6 +12,8 @@ import org.deltava.beans.acars.RouteEntry;
 import org.deltava.acars.message.InfoMessage;
 import org.deltava.acars.message.PositionMessage;
 
+import org.deltava.util.StringUtils;
+
 /**
  * A utility class to turn PositionMessages into RouteEntry beans.
  * @author Luke
@@ -25,10 +27,12 @@ public class RouteEntryHelper {
       
       private Pilot _usr;
       private String _airports;
+      private String _eqType;
       
-      NamedRouteEntry(Date dt, GeoLocation gl, Pilot usr) {
+      NamedRouteEntry(Date dt, GeoLocation gl, Pilot usr, String eqType) {
          super(dt, gl.getLatitude(), gl.getLongitude());
          _usr = usr;
+         _eqType = eqType;
       }
       
       public void setAirports(String airports) {
@@ -48,10 +52,17 @@ public class RouteEntryHelper {
       }
       
       public final String getInfoBox() {
-         StringBuffer buf = new StringBuffer("<span class=\"small pri bld\">");
+         StringBuffer buf = new StringBuffer("<a href=\"javascript:void mapZoom(");
+         buf.append(StringUtils.format(getLatitude(), "##0.00000"));
+         buf.append(',');
+         buf.append(StringUtils.format(getLongitude(), "##0.00000"));
+         buf.append(", 8)\" class=\"small pri bld\">");
          buf.append(_usr.getName());
-         buf.append("</span> <span class=\"small\">(");
-         buf.append(_usr.getPilotCode() + ")<br />");
+         buf.append("</a> <span class=\"small\">(");
+         buf.append(_usr.getPilotCode());
+         buf.append(") - ");
+         buf.append(_eqType);
+         buf.append("<br />");
          buf.append(_airports);
          buf.append("</span><br />");
          buf.append(super.getInfoBox());
@@ -69,7 +80,7 @@ public class RouteEntryHelper {
    public static RouteEntry build(Pilot usr, PositionMessage msg, InfoMessage imsg) {
       
       // Build the NamedRouteEntry
-      NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr);
+      NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
       result.setID(imsg.getFlightID());
       result.setAirSpeed(msg.getAspeed());
       result.setGroundSpeed(msg.getGspeed());
