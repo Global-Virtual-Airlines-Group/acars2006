@@ -51,7 +51,7 @@ public class DataCommand implements ACARSCommand {
 			case DataMessage.REQ_PLIST:
 				while (i.hasNext()) {
 					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse(ac.getInfo(ACARSConnection.POSITION_INFO));
+					dataRsp.addResponse(ac.getPosition());
 				}
 
 				break;
@@ -101,7 +101,7 @@ public class DataCommand implements ACARSCommand {
 			case DataMessage.REQ_ILIST:
 				while (i.hasNext()) {
 					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse(ac.getInfo(ACARSConnection.FLIGHT_INFO));
+					dataRsp.addResponse(ac.getFlightInfo());
 				}
 
 				break;

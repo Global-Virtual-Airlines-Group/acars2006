@@ -40,10 +40,8 @@ public class FilePIREPCommand implements ACARSCommand {
 
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
-		InfoMessage info = (InfoMessage) ac.getInfo(ACARSConnection.FLIGHT_INFO);
-		
-		// Get the user's location
-		UserData usrLoc = (UserData) ac.getInfo(ACARSConnection.USER_LOCATION_DATA);
+		InfoMessage info = ac.getFlightInfo();
+		UserData usrLoc = ac.getUserData();
 		
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());

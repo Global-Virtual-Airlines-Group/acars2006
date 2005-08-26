@@ -25,12 +25,6 @@ public class ACARSConnection implements Serializable {
 
    private static final Logger log = Logger.getLogger(ACARSConnection.class);
 
-   // Info type constants
-   public static final int POSITION_INFO = 0;
-   public static final int FLIGHT_INFO = 1;
-   public static final int USER_INFO = 2;
-   public static final int USER_LOCATION_DATA = 3;
-
    // Byte byffer decoder and character set
    private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
 
@@ -50,7 +44,6 @@ public class ACARSConnection implements Serializable {
    private long id;
    private Pilot userInfo;
    private UserData userData;
-
    private InfoMessage fInfo;
    private PositionMessage pInfo;
 
@@ -150,23 +143,11 @@ public class ACARSConnection implements Serializable {
    }
 
    public InfoMessage getFlightInfo() {
-      return this.fInfo;
+      return fInfo;
    }
-
-   public Object getInfo(int infoType) {
-
-      switch (infoType) {
-         case POSITION_INFO:
-            return this.pInfo;
-         case FLIGHT_INFO:
-            return this.fInfo;
-         case USER_INFO:
-            return getUser();
-         case USER_LOCATION_DATA:
-            return this.userData;
-         default:
-            return null;
-      }
+   
+   public PositionMessage getPosition() {
+      return pInfo;
    }
 
    public long getLastActivity() {
@@ -199,6 +180,10 @@ public class ACARSConnection implements Serializable {
 
    public Pilot getUser() {
       return (isAuthenticated()) ? userInfo : null;
+   }
+   
+   public UserData getUserData() {
+      return userData;
    }
 
    public String getUserID() {
