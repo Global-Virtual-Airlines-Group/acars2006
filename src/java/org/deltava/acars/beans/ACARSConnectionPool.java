@@ -68,8 +68,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		info.setValidDate(new Date());
 		for (Iterator i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection con = (ACARSConnection) i.next();
-			PositionMessage pos = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
-			InfoMessage usrInfo = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+			PositionMessage pos = con.getPosition();
+			InfoMessage usrInfo = con.getFlightInfo();
 
 			// Add Pilots to servinfo data, if they're logged in and have info/position data
 			if (con.isAuthenticated() && (pos != null) && (usrInfo != null)) {
@@ -117,8 +117,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	   Set results = new HashSet();
 	   for (Iterator i = _cons.iterator(); i.hasNext(); ) {
 			ACARSConnection con = (ACARSConnection) i.next();
-			PositionMessage posInfo = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
-			InfoMessage usrInfo = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+			PositionMessage posInfo = con.getPosition();
+			InfoMessage usrInfo = con.getFlightInfo();
 			if ((usrInfo != null) && (posInfo != null))
 			   results.add(RouteEntryHelper.build(con.getUser(), posInfo, usrInfo));
 	   }

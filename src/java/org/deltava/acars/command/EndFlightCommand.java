@@ -35,7 +35,7 @@ public class EndFlightCommand implements ACARSCommand {
 		ACARSConnection con = ctx.getACARSConnection();
 
 		// Get the current info
-		InfoMessage iMsg = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
+		InfoMessage iMsg = con.getFlightInfo();
 		if (iMsg == null) {
 			log.warn("No Flight Information for Connection " + StringUtils.formatHex(con.getID()));
 			return;

@@ -42,8 +42,10 @@ public class PositionCommand implements ACARSCommand {
 		}
 
 		// Get the last position report and its age
-		InfoMessage info = (InfoMessage) con.getInfo(ACARSConnection.FLIGHT_INFO);
-		PositionMessage oldPM = (PositionMessage) con.getInfo(ACARSConnection.POSITION_INFO);
+		InfoMessage info = con.getFlightInfo();
+		PositionMessage oldPM = con.getPosition();
+		if (info == null)
+		   return;
 		
 		// If we are an offline fight, update the timestamp of the mesage
 		if (info.isOffline() && info.isComplete()) {
