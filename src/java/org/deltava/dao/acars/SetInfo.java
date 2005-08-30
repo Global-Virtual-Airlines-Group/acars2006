@@ -8,7 +8,7 @@ import org.deltava.dao.DAO;
 import org.deltava.dao.DAOException;
 
 /**
- * A Data Access Object to write Flight entries.
+ * A Data Access Object to write Flight Information entries.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -21,7 +21,7 @@ public final class SetInfo extends DAO {
 		+ "AIRPORT_A, ROUTE, REMARKS, FSVERSION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, "
-		+ "AIRPORT_D=?, AIRPORT_A=?, ROUTE=?, REMARKS=?, FSVERSION=? WHERE (ID=?)";
+		+ "AIRPORT_D=?, AIRPORT_A=?, ROUTE=?, REMARKS=?, FSVERSION=?, END_TIME=NULL WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -38,7 +38,7 @@ public final class SetInfo extends DAO {
 			// Set the prepared statement
 			_ps.setLong(1, cid);
 			_ps.setString(2, msg.getFlightCode());
-			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
+			_ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
 			_ps.setString(4, msg.getEquipmentType());
 			_ps.setString(5, msg.getAltitude());
 			_ps.setString(6, msg.getAirportD().getIATA());
@@ -63,10 +63,9 @@ public final class SetInfo extends DAO {
 	
 	public void close(int flightID, long cid) throws DAOException {
 	   try {
-	      prepareStatement("UPDATE acars.FLIGHTS SET END_TIME=? WHERE (ID=?) AND (CON_ID=?) AND (END_TIME IS NULL)");
-	      _ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-	      _ps.setInt(2, flightID);
-	      _ps.setLong(3, cid);
+	      prepareStatement("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=?) AND (END_TIME IS NULL)");
+	      _ps.setInt(1, flightID);
+	      _ps.setLong(2, cid);
 	      executeUpdate(1);
 	   } catch (SQLException se) {
 	      throw new DAOException(se);
