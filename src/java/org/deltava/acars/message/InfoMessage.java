@@ -18,6 +18,7 @@ public class InfoMessage extends AbstractMessage {
 	
 	// Bean fields
 	private int _flightID;
+	private Date _startTime;
 	private String _eqType;
 	private String _flightCode;
 	private Airport _airportA;
@@ -75,6 +76,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public int getFSVersion() {
 		return _fsVersion;
+	}
+	
+	public Date getStartTime() {
+		return _startTime;
 	}
 	
 	public Collection getWaypoints() {
@@ -147,7 +152,7 @@ public class InfoMessage extends AbstractMessage {
 		if (ver > 20) {
 			_fsVersion = ver;
 		} else if ((ver >= 0) && (ver < FSUIPC_FS_VERSIONS.length)) {
-			_fsVersion = FSUIPC_FS_VERSIONS[ver];
+			_fsVersion = FSUIPC_FS_VERSIONS[ver - 1];
 		} else {
 			_fsVersion = 2004;
 		}
@@ -157,6 +162,10 @@ public class InfoMessage extends AbstractMessage {
 		_offlineFlight = isOffline;
 		if (_offlinePositions == null)
 		   _offlinePositions = new TreeSet();
+	}
+	
+	public void setStartTime(Date dt) {
+		_startTime = dt;
 	}
 	
 	public void setComplete(boolean isComplete) {
