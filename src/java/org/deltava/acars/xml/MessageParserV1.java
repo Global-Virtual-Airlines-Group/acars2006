@@ -209,6 +209,13 @@ class MessageParserV1 implements MessageParser {
 		} catch (NumberFormatException nfe) {
 			msg.setFlightID(0);
 		}
+		
+		// Parse the start date/time
+		try {
+			msg.setStartTime(_dtf.parse(getChildText(e, "startTime", "")));
+		} catch (Exception ex) {
+			msg.setStartTime(new Date(_timeStamp));
+		}
 
 		// Load the bean
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
