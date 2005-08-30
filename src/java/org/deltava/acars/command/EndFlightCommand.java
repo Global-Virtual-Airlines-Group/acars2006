@@ -1,6 +1,7 @@
 // Copyright 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.Date;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -39,13 +40,15 @@ public class EndFlightCommand implements ACARSCommand {
 		if (iMsg == null) {
 			log.warn("No Flight Information for Connection " + StringUtils.formatHex(con.getID()));
 			return;
+		} else {
+		   iMsg.setEndTime(new Date());
 		}
 
 		// Write the info to the database
 		try {
 			Connection c = ctx.getConnection();
 			SetInfo infoDAO = new SetInfo(c);
-			infoDAO.close(iMsg.getFlightID(), env.getConnectionID());
+			infoDAO.close(iMsg.getFlightID(), env.getConnectionID(), true);
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
 		} finally {
