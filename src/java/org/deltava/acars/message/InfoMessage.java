@@ -19,6 +19,8 @@ public class InfoMessage extends AbstractMessage {
 	// Bean fields
 	private int _flightID;
 	private Date _startTime;
+	private Date _endTime;
+	
 	private String _eqType;
 	private String _flightCode;
 	private Airport _airportA;
@@ -80,6 +82,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public Date getStartTime() {
 		return _startTime;
+	}
+	
+	public Date getEndTime() {
+	   return _endTime;
 	}
 	
 	public Collection getWaypoints() {
@@ -166,6 +172,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setStartTime(Date dt) {
 		_startTime = dt;
+	}
+	
+	public void setEndTime(Date dt) {
+	   _endTime = ((dt != null) && (dt.after(_startTime))) ? dt : _startTime;
 	}
 	
 	public void setComplete(boolean isComplete) {
