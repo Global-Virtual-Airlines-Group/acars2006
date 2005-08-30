@@ -7,7 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.system.UserData;
+import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -53,6 +53,11 @@ public class AuthenticateCommand implements ACARSCommand {
 		   return;
 		}
 		
+		// Check for valid airline code
+		AirlineInformation aInfo = SystemData.getApp(usrID.getAirlineCode());
+		if (aInfo == null)
+			aInfo = SystemData.getApp(SystemData.get("airline.code"));
+		
 		UserData ud = null;
 		Pilot usr = null;
 		try {
@@ -60,7 +65,7 @@ public class AuthenticateCommand implements ACARSCommand {
 
 			// Figure out the DN from the Pilot ID
 			GetPilot pdao = new GetPilot(c);
-			usr = pdao.getPilotByCode(usrID.getUserID(), usrID.getAirlineCode());
+			usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
 				throw new SecurityException("Unknown User ID");
 			
