@@ -40,9 +40,14 @@ public class AuthenticateCommand implements ACARSCommand {
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
 
-		// Get the message and the user ID
+		// Get the message and validate the user ID
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
-		UserID usrID = new UserID(msg.getUserID());
+		if (StringUtils.isEmpty(msg.getUserID())) {
+		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+		   errMsg.setEntry("error", "No User ID specified");
+		   ctx.push(errMsg, env.getConnectionID());
+		   return;
+		}
 		
 		// Check the minimum build number
 		int minBuild = SystemData.getInt("acars.build");
@@ -53,7 +58,8 @@ public class AuthenticateCommand implements ACARSCommand {
 		   return;
 		}
 		
-		// Check for valid airline code
+		// Get the user ID and check for valid airline code
+		UserID usrID = new UserID(msg.getUserID());
 		AirlineInformation aInfo = SystemData.getApp(usrID.getAirlineCode());
 		if (aInfo == null)
 			aInfo = SystemData.getApp(SystemData.get("airline.code"));
