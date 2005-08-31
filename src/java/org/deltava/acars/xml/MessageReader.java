@@ -129,8 +129,8 @@ public class MessageReader implements Serializable {
 					msg.setID(id);
 					_msgs.add(msg);
 				}
-			} catch (XMLException xe) {
-				log.error("Message parse exception - " + xe.getMessage(), xe);
+			} catch (Exception e) {
+				log.error("Message parse exception - " + e.getMessage(), e);
 			}
 		}
 		
