@@ -1,7 +1,6 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.util.Date;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -29,31 +28,25 @@ public class QuitCommand implements ACARSCommand {
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
 	   
-	   // Get the ACARS connection and flight information
-	   ACARSConnection ac = ctx.getACARSConnection();
-	   InfoMessage info = ac.getFlightInfo();
+	   // Get the message
+	   QuitMessage msg = (QuitMessage) env.getMessage();
 	   
 		// Mark the flight as closed
-	   if ((info != null) && (info.getEndTime() == null)) {
-	      info.setEndTime(new Date());
-
+	   if (msg.getFlightID() != 0) {
 			try {
 				Connection c = ctx.getConnection();
 				SetInfo infoDAO = new SetInfo(c);
-				infoDAO.close(info.getFlightID(), env.getConnectionID(), true);
+				infoDAO.close(msg.getFlightID(), env.getConnectionID(), false);
 			} catch (DAOException de) {
 				log.error(de.getMessage(), de);
 			} finally {
 				ctx.release();
 			}
-			
-			// Clear flight info and log
-			log.info("Flight Completed by " + ac.getUserID());
 	   }
 
 		// Create a deletepilots message
-		DataResponseMessage msg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER);
-		msg.addResponse(env.getOwner());
+		DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER);
+		drmsg.addResponse(env.getOwner());
 		
 		// Send to everyone except ourself
 		ctx.pushAll(msg, env.getConnectionID());
