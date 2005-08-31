@@ -41,8 +41,11 @@ public class InfoCommand implements ACARSCommand {
 			infoDAO.write(msg, env.getConnectionID());
 			
 			// Log returned flight id
-			if (assignID)
+			if (assignID) {
 				log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
+			} else {
+			   log.info("Resuming Flight " + msg.getFlightID());
+			}
 
 			// Create the ack message and envelope - these are always acknowledged
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
