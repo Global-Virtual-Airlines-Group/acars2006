@@ -186,7 +186,9 @@ public final class NetworkHandler extends Worker {
 				MessageWriter.remove(con.getID());
 				if (con.isAuthenticated()) {
 					log.debug("QUIT Message from " + con.getUser().getName());
-					_fmtInputStack.push(new Envelope(new QuitMessage(con.getUser()), con.getID()));
+					QuitMessage qmsg = new QuitMessage(con.getUser());
+					qmsg.setFlightID(con.getFlightID());
+					_fmtInputStack.push(new Envelope(qmsg, con.getID()));
 				}
 			}
 

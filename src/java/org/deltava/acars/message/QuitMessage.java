@@ -10,6 +10,8 @@ import org.deltava.beans.Pilot;
  */
 
 public class QuitMessage extends AbstractMessage {
+   
+   private int _flightID;
 
 	/**
 	 * @param type
@@ -17,5 +19,13 @@ public class QuitMessage extends AbstractMessage {
 	 */
 	public QuitMessage(Pilot msgFrom) {
 		super(Message.MSG_QUIT, msgFrom);
+	}
+	
+	public int getFlightID() {
+	   return _flightID;
+	}
+	
+	public void setFlightID(int id) {
+	   _flightID = id;
 	}
 }
