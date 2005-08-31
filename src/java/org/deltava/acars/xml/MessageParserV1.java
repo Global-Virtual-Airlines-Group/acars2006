@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 
 class MessageParserV1 implements MessageParser {
 
-	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
 	// ACARS protcol version
 	private static final int PROTOCOL_VERSION = 1;
