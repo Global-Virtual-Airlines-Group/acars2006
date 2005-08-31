@@ -199,10 +199,7 @@ public class ACARSConnection implements Serializable {
    }
 
    public void setInfo(Message msg) {
-      if (msg == null) {
-         fInfo = null;
-         pInfo = null;
-      } else if (msg instanceof InfoMessage) {
+       if (msg instanceof InfoMessage) {
          fInfo = (InfoMessage) msg;
       } else if (msg instanceof PositionMessage) {
          pInfo = (PositionMessage) msg;
