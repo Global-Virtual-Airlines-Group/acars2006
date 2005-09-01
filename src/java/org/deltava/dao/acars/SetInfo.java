@@ -18,10 +18,10 @@ public final class SetInfo extends DAO {
 
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, "
-		+ "AIRPORT_A, ROUTE, REMARKS, FSVERSION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "AIRPORT_A, ROUTE, REMARKS, FSVERSION, OFFLINE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, "
-		+ "AIRPORT_D=?, AIRPORT_A=?, ROUTE=?, REMARKS=?, FSVERSION=?, END_TIME=NULL WHERE (ID=?)";
+		+ "AIRPORT_D=?, AIRPORT_A=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, END_TIME=NULL WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -46,8 +46,9 @@ public final class SetInfo extends DAO {
 			_ps.setString(8, msg.getAllWaypoints());
 			_ps.setString(9, msg.getComments());
 			_ps.setInt(10, msg.getFSVersion());
+			_ps.setBoolean(11, msg.isOffline());
 			if (msg.getFlightID() != 0)
-				_ps.setInt(11, msg.getFlightID());
+				_ps.setInt(12, msg.getFlightID());
 			
 			// Write to the database and close the statement
 			_ps.executeUpdate();

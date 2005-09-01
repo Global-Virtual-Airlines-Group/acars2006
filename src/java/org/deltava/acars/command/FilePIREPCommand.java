@@ -71,7 +71,9 @@ public class FilePIREPCommand implements ACARSCommand {
 			
 			// Get the position write DAO and write the positions
 			if (info != null) {
-			   afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
+					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+				
 			   log.info("Writing " + info.getPositions().size() + " offline Position reports");
 			   SetPosition pwdao = new SetPosition(con);
 			   for (Iterator i = info.getPositions().iterator(); i.hasNext(); ) {
