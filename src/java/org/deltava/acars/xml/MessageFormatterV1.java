@@ -76,7 +76,7 @@ class MessageFormatterV1 implements MessageFormatter {
 				return null;
 			
 			default :
-				throw new XMLException("Invalid message type");
+				throw new XMLException("Invalid message type - " + msgBean.getType());
 		}
 	}
 	
