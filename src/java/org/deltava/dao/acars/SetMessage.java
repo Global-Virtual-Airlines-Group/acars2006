@@ -36,12 +36,13 @@ public class SetMessage extends DAO {
 	public void write(TextMessage msg, long conID, Pilot recipient) throws DAOException {
 		
 		try {
-			prepareStatement("INSERT INTO acars.MESSAGES (CON_ID, ID, AUTHOR, RECIPIENT, BODY) VALUES (?, ?, ?, ?, ?)");
+			prepareStatement("INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) VALUES (?, ?, ?, ?, ?, ?)");
 			_ps.setLong(1, conID);
 			_ps.setLong(2, msg.getID());
-			_ps.setInt(3, msg.getSender().getID());
-			_ps.setInt(4, msg.isPublic() ? 0 : recipient.getID());
-			_ps.setString(5, msg.getText());
+			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
+			_ps.setInt(4, msg.getSender().getID());
+			_ps.setInt(5, msg.isPublic() ? 0 : recipient.getID());
+			_ps.setString(6, msg.getText());
 			
 			// Update the database
 			executeUpdate(1);
