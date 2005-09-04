@@ -73,6 +73,7 @@ class MessageFormatterV1 implements MessageFormatter {
 				
 			// if for some reason we get a raw message ignore it
 			case Message.MSG_RAW :
+			case Message.MSG_QUIT :
 				return null;
 			
 			default :
