@@ -65,7 +65,9 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Check if this Flight Report counts for promotion
 			GetEquipmentType eqdao = new GetEquipmentType(con);
-			afr.setCaptEQType(eqdao.getPrimaryTypes(ac.getUser().getEquipmentType()));
+			Collection promoEQ = eqdao.getPrimaryTypes(afr.getEquipmentType());
+			if (promoEQ.contains(ac.getUser().getEquipmentType()))
+				afr.setCaptEQType(promoEQ);
 			
 			// Check the schedule database and check the route pair
 			GetSchedule sdao = new GetSchedule(con);
