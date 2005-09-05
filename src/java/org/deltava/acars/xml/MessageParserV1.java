@@ -8,6 +8,8 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import org.apache.log4j.Logger;
+
 import org.deltava.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.util.ACARSHelper;
@@ -21,6 +23,8 @@ import org.deltava.util.system.SystemData;
  */
 
 class MessageParserV1 implements MessageParser {
+	
+	private static final Logger log = Logger.getLogger(MessageParserV1.class);
 
 	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
@@ -158,6 +162,7 @@ class MessageParserV1 implements MessageParser {
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
+			msg.setNoFlood(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}
@@ -338,7 +343,7 @@ class MessageParserV1 implements MessageParser {
 			}
 		} catch (Exception e) {
 			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-			System.out.println(xmlOut.outputString(_el));
+			log.error(xmlOut.outputString(_el));
 			throw new XMLException("Invalid PIREP data - " + e.getMessage(), e);
 		}
 
