@@ -13,6 +13,7 @@ import org.deltava.beans.system.UserData;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetPosition;
+import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to file a Flight Report.
@@ -64,7 +65,19 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Check if this Flight Report counts for promotion
 			GetEquipmentType eqdao = new GetEquipmentType(con);
-			afr.setCaptEQType(eqdao.getPrimaryTypes(afr.getEquipmentType()));
+			afr.setCaptEQType(eqdao.getPrimaryTypes(ac.getUser().getEquipmentType()));
+			
+			// Check the schedule database and check the route pair
+			GetSchedule sdao = new GetSchedule(con);
+			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA());
+			if (avgHours == 0) {
+				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
+			} else {
+				int minHours = (int) ((avgHours * 0.75) - (SystemData.getDouble("users.pirep.pad_hours") * 10));
+				int maxHours = (int) ((avgHours * 1.15) + (SystemData.getDouble("users.pirep.pad_hours") * 10));
+				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
+					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
+			}
 			
 			// Start the transaction
 			con.setAutoCommit(false);
