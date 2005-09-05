@@ -45,6 +45,7 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 
 	// Flight phase
 	private int phase;
+	private boolean _noFlood;
 	
 	// Date
 	private Date _dt;
@@ -117,6 +118,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	public int getSimRate() {
 		return this.simRate;
 	}
+	
+	public boolean getNoFlood() {
+		return _noFlood;
+	}
 
 	public int getVspeed() {
 		return vspeed;
@@ -128,6 +133,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public boolean isFlagSet(int mask) {
 	   return ((flags & mask) != 0);
+	}
+	
+	public void setNoFlood(boolean noFlood) {
+		_noFlood = noFlood;
 	}
 	
 	public void setDate(Date dt) {

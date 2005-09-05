@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
  */
 
 public class PositionCommand implements ACARSCommand {
-	
+
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
 
 	/**
@@ -30,7 +30,7 @@ public class PositionCommand implements ACARSCommand {
 	 * @param env the message Envelope
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
-		
+
 		// Get the Message and the ACARS Connection
 		PositionMessage msg = (PositionMessage) env.getMessage();
 		ACARSConnection con = ctx.getACARSConnection();
@@ -45,16 +45,16 @@ public class PositionCommand implements ACARSCommand {
 		InfoMessage info = con.getFlightInfo();
 		PositionMessage oldPM = con.getPosition();
 		if (info == null)
-		   return;
-		
+			return;
+
 		// If we are an offline fight, update the timestamp of the mesage
-		if (info.isOffline() && info.isComplete()) {
+		if ((info.isOffline() && info.isComplete()) || (msg.getNoFlood())) {
 			msg.setTime(msg.getDate().getTime());
 			info.addPosition(msg);
 		} else {
-		   // Check for position flood
-		   long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
-		   if (pmAge >= SystemData.getInt("acars.position_interval")) {
+			// Check for position flood
+			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
+			if (pmAge >= SystemData.getInt("acars.position_interval")) {
 				try {
 					Connection c = ctx.getConnection();
 					SetPosition dao = new SetPosition(c);
@@ -64,14 +64,16 @@ public class PositionCommand implements ACARSCommand {
 				} finally {
 					ctx.release();
 				}
-		   } else {
-		      log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval=" + String.valueOf(pmAge) + "ms");
-		      return;
-		   }
+			} else {
+				log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="
+						+ String.valueOf(pmAge) + "ms");
+				return;
+			}
 		}
-		
+
 		// Log and update
-		log.debug("Received position from " + con.getUser().getPilotCode() + " (" + StringUtils.formatHex(con.getID()) + ")");
-	   con.setInfo(msg);
+		log.debug("Received position from " + con.getUser().getPilotCode() + " (" + StringUtils.formatHex(con.getID())
+				+ ")");
+		con.setInfo(msg);
 	}
 }
