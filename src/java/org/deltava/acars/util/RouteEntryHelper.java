@@ -28,11 +28,16 @@ public class RouteEntryHelper {
       private Pilot _usr;
       private String _airports;
       private String _eqType;
+      private String _flightNumber;
       
       NamedRouteEntry(Date dt, GeoLocation gl, Pilot usr, String eqType) {
          super(dt, gl.getLatitude(), gl.getLongitude());
          _usr = usr;
          _eqType = eqType;
+      }
+      
+      public void setFlightNumber(String flightNumber) {
+         _flightNumber = flightNumber;
       }
       
       public void setAirports(String airports) {
@@ -60,7 +65,13 @@ public class RouteEntryHelper {
          buf.append(_usr.getName());
          buf.append("</a> <span class=\"small\">(");
          buf.append(_usr.getPilotCode());
-         buf.append(") - ");
+         buf.append(")<br />");
+         if (!StringUtils.isEmpty(_flightNumber)) {
+            buf.append("<b>");
+            buf.append(_flightNumber);
+            buf.append("</b> - ");
+         }
+         
          buf.append(_eqType);
          buf.append("<br />");
          buf.append(_airports);
@@ -82,6 +93,7 @@ public class RouteEntryHelper {
       // Build the NamedRouteEntry
       NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
       result.setID(imsg.getFlightID());
+      result.setFlightNumber(imsg.getFlightCode());
       result.setAirSpeed(msg.getAspeed());
       result.setGroundSpeed(msg.getGspeed());
       result.setVerticalSpeed(msg.getVspeed());
