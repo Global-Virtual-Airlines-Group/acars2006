@@ -41,7 +41,7 @@ public class SetMessage extends DAO {
 			_ps.setLong(2, msg.getID());
 			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
 			_ps.setInt(4, msg.getSender().getID());
-			_ps.setInt(5, msg.isPublic() ? 0 : recipient.getID());
+			_ps.setInt(5, (recipient == null) ? 0 : recipient.getID());
 			_ps.setString(6, msg.getText());
 			
 			// Update the database
