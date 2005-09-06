@@ -35,7 +35,7 @@ public class ACARSConnection implements Serializable {
 
    // Input/output network buffers
    private ByteBuffer _iBuffer;
-   private ByteBuffer _oBuffer;
+   //private ByteBuffer _oBuffer;
 
    // The the actual buffer for messages
    private StringBuffer msgBuffer;
@@ -83,8 +83,8 @@ public class ACARSConnection implements Serializable {
 
       // Allocate the buffers and output stack for this channel
       this.msgBuffer = new StringBuffer();
-      _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.recv"));
-      _oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.send"));
+      _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.recv"));
+      //_oBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.send"));
    }
 
    public void close() {
@@ -130,7 +130,7 @@ public class ACARSConnection implements Serializable {
       return this.channel;
    }
    
-   Socket getSocket() {
+   public Socket getSocket() {
       return this.channel.socket();
    }
 
@@ -290,25 +290,29 @@ public class ACARSConnection implements Serializable {
       if ((msg == null) || (msg.length() < 1))
          return;
 
-      // Clear the buffer
-      _oBuffer.clear();
+      /*_oBuffer.clear();
 
       // If the message would be larger than the buffer, create a new buffer
       if (msg.length() > _oBuffer.limit())
-         _oBuffer = ByteBuffer.allocate(msg.length() + 16);
+         _oBuffer = ByteBuffer.allocateDirect(msg.length() + 16); */
 
       // Dump the message into the buffer and write to the socket channel
       try {
-         _oBuffer.put(msg.getBytes());
-         _oBuffer.flip();
-         while (_oBuffer.remaining() > 0)
-            channel.write(_oBuffer);
+         // Write the message in a buffer
+         ByteBuffer oBuffer = ByteBuffer.wrap(msg.getBytes());
+         
+         //_oBuffer.put(msg.getBytes());
+         //_oBuffer.flip();
+         while (oBuffer.remaining() > 0)
+            channel.write(oBuffer);
 
          bytesOut += msg.length();
          msgsOut++;
          lastActivityTime = System.currentTimeMillis();
       } catch (IOException ie) {
          log.error("Error writing to socket " + remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
+      } catch (OutOfMemoryError oome) {
+         log.error("Out of Memory creating Buffer!", oome);
       }
    }
 }
