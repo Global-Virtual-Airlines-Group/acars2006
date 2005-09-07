@@ -99,7 +99,7 @@ public abstract class ServerDaemon {
  		
  		Connection c = null;
  		try {
- 			c = _pool.getSystemConnection();
+ 			c = _pool.getConnection(true);
  			
  			// Load the airports
             log.info("Loading Airports");
