@@ -35,17 +35,16 @@ public class ACARSConnection implements Serializable {
 
    // Input/output network buffers
    private ByteBuffer _iBuffer;
-   //private ByteBuffer _oBuffer;
 
    // The the actual buffer for messages
    private StringBuffer msgBuffer;
 
    // Connection information
    private long id;
-   private Pilot userInfo;
-   private UserData userData;
-   private InfoMessage fInfo;
-   private PositionMessage pInfo;
+   private Pilot _userInfo;
+   private UserData _userData;
+   private InfoMessage _fInfo;
+   private PositionMessage _pInfo;
 
    // Activity monitors
    private long startTime;
@@ -83,8 +82,7 @@ public class ACARSConnection implements Serializable {
 
       // Allocate the buffers and output stack for this channel
       this.msgBuffer = new StringBuffer();
-      _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.recv"));
-      //_oBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.send"));
+      _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
    }
 
    public void close() {
@@ -115,7 +113,7 @@ public class ACARSConnection implements Serializable {
    }
 
    public boolean equals(String pid) {
-      return this.userInfo.getPilotCode().equals(pid);
+      return _userInfo.getPilotCode().equals(pid);
    }
 
    public long getBytesIn() {
@@ -135,7 +133,7 @@ public class ACARSConnection implements Serializable {
    }
 
    public int getFlightID() {
-      return (this.fInfo == null) ? 0 : this.fInfo.getFlightID();
+      return (_fInfo == null) ? 0 : _fInfo.getFlightID();
    }
 
    public long getID() {
@@ -143,11 +141,11 @@ public class ACARSConnection implements Serializable {
    }
 
    public InfoMessage getFlightInfo() {
-      return fInfo;
+      return _fInfo;
    }
    
    public PositionMessage getPosition() {
-      return pInfo;
+      return _pInfo;
    }
 
    public long getLastActivity() {
@@ -179,19 +177,19 @@ public class ACARSConnection implements Serializable {
    }
 
    public Pilot getUser() {
-      return (isAuthenticated()) ? userInfo : null;
+      return _userInfo;
    }
    
    public UserData getUserData() {
-      return userData;
+      return _userData;
    }
 
    public String getUserID() {
-      return isAuthenticated() ? userInfo.getPilotCode() : getRemoteAddr();
+      return isAuthenticated() ? _userInfo.getPilotCode() : getRemoteAddr();
    }
 
    public boolean isAuthenticated() {
-      return (this.userInfo != null);
+      return (_userInfo != null);
    }
 
    public boolean isConnected() {
@@ -200,9 +198,9 @@ public class ACARSConnection implements Serializable {
 
    public void setInfo(Message msg) {
        if (msg instanceof InfoMessage) {
-         fInfo = (InfoMessage) msg;
+         _fInfo = (InfoMessage) msg;
       } else if (msg instanceof PositionMessage) {
-         pInfo = (PositionMessage) msg;
+         _pInfo = (PositionMessage) msg;
       }
    }
 
@@ -212,11 +210,11 @@ public class ACARSConnection implements Serializable {
    }
 
    public void setUser(Pilot p) {
-      this.userInfo = p;
+      _userInfo = p;
    }
 
    public void setUserLocation(UserData ud) {
-      this.userData = ud;
+      _userData = ud;
    }
 
    /* Here are the basic I/O methods, read and write */
@@ -290,19 +288,10 @@ public class ACARSConnection implements Serializable {
       if ((msg == null) || (msg.length() < 1))
          return;
 
-      /*_oBuffer.clear();
-
-      // If the message would be larger than the buffer, create a new buffer
-      if (msg.length() > _oBuffer.limit())
-         _oBuffer = ByteBuffer.allocateDirect(msg.length() + 16); */
-
       // Dump the message into the buffer and write to the socket channel
       try {
          // Write the message in a buffer
          ByteBuffer oBuffer = ByteBuffer.wrap(msg.getBytes());
-         
-         //_oBuffer.put(msg.getBytes());
-         //_oBuffer.flip();
          while (oBuffer.remaining() > 0)
             channel.write(oBuffer);
 
