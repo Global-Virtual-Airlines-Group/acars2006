@@ -68,9 +68,10 @@ public final class NetworkHandler extends Worker {
 		Socket s = sc.socket();
 		try {
 			s.setSoLinger(true, 2);
-			//s.setTcpNoDelay(true);
+			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
+			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
 		} catch (SocketException se) {
-			log.error("Error setting socket options - " + se.getMessage());
+			log.error("Error setting socket options - " + se.getMessage(), se);
 		}
 
 		// Register the channel with the selector and the message writer/dispatcher
