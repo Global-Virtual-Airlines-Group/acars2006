@@ -41,6 +41,10 @@ public class EndFlightCommand implements ACARSCommand {
 			log.warn("No Flight Information for Connection " + StringUtils.formatHex(con.getID()));
 			return;
 		}
+		
+		// If the flight was already ended, then abort
+		if (iMsg.getEndTime() != null)
+			return;
 
 		// Write the info to the database
 		iMsg.setEndTime(new Date());
