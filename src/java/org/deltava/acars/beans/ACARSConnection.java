@@ -28,16 +28,17 @@ public class ACARSConnection implements Serializable {
    // Byte byffer decoder and character set
    private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
 
-   private SocketChannel channel;
-   private InetAddress remoteAddr;
-   private String remoteHost;
+   private SocketChannel _channel;
+   private InetAddress _remoteAddr;
+   private String _remoteHost;
    private int protocolVersion = 1;
 
    // Input/output network buffers
    private ByteBuffer _iBuffer;
+   private ByteBuffer _oBuffer;
 
    // The the actual buffer for messages
-   private StringBuffer msgBuffer;
+   private StringBuffer _msgBuffer;
 
    // Connection information
    private long id;
@@ -64,37 +65,42 @@ public class ACARSConnection implements Serializable {
       this.id = cid;
 
       // Get IP Address information
-      this.remoteAddr = sc.socket().getInetAddress();
+      _remoteAddr = sc.socket().getInetAddress();
 
       // Turn off blocking
       try {
          sc.configureBlocking(false);
       } catch (IOException ie) {
          // Log our error and shut the connection
-         log.error("Cannot set non-blocking I/O from " + remoteAddr.getHostAddress(), ie);
+         log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress(), ie);
          try {
             sc.close();
          } catch (Exception e) {
          }
       } finally {
-         this.channel = sc;
+         _channel = sc;
       }
 
       // Allocate the buffers and output stack for this channel
-      this.msgBuffer = new StringBuffer();
+      _msgBuffer = new StringBuffer();
       _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
+      _oBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
    }
 
    public void close() {
+	   // Clear the buffers
+	   _iBuffer = null;
+	   _oBuffer = null;
+	   
       // Close the socket
       try {
-         this.channel.close();
+         _channel.close();
       } catch (Exception e) {
       }
    }
 
    public boolean equals(SocketChannel ch) {
-      return this.channel.equals(ch);
+      return _channel.equals(ch);
    }
 
    public boolean equals(Object o2) {
@@ -125,11 +131,11 @@ public class ACARSConnection implements Serializable {
    }
 
    SocketChannel getChannel() {
-      return this.channel;
+      return _channel;
    }
    
    public Socket getSocket() {
-      return this.channel.socket();
+      return _channel.socket();
    }
 
    public int getFlightID() {
@@ -169,11 +175,11 @@ public class ACARSConnection implements Serializable {
    }
 
    public String getRemoteAddr() {
-      return this.remoteAddr.getHostAddress();
+      return _remoteAddr.getHostAddress();
    }
 
    public String getRemoteHost() {
-      return (this.remoteHost == null) ? this.remoteAddr.getHostName() : this.remoteHost;
+      return (_remoteHost == null) ? _remoteAddr.getHostName() : _remoteHost;
    }
 
    public Pilot getUser() {
@@ -193,7 +199,7 @@ public class ACARSConnection implements Serializable {
    }
 
    public boolean isConnected() {
-      return this.channel.isConnected();
+      return _channel.isConnected();
    }
 
    public void setInfo(Message msg) {
@@ -225,7 +231,7 @@ public class ACARSConnection implements Serializable {
 
       // Try and read from the channel until end of stream
       try {
-         channel.read(_iBuffer);
+         _channel.read(_iBuffer);
       } catch (IOException ie) {
          throw new SocketException("Error reading channel - " + ie.getMessage());
       }
@@ -243,21 +249,17 @@ public class ACARSConnection implements Serializable {
       lastActivityTime = System.currentTimeMillis();
 
       // Reset the decoder and decode into a char buffer
-      CharBuffer cBuf = null;
       try {
-         cBuf = decoder.decode(_iBuffer);
+    	  _msgBuffer.append(decoder.decode(_iBuffer).toString());
       } catch (CharacterCodingException cce) {
       }
 
-      // Append the message into the existing buffer
-      this.msgBuffer.append(cBuf.toString());
-
       // Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
-      int sPos = msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
+      int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
       if (sPos == -1) {
-         if (msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1) {
-            log.info("Malformed message - " + msgBuffer.toString());
-            msgBuffer.setLength(0);
+         if (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1) {
+            log.warn("Malformed message - " + _msgBuffer.toString());
+            _msgBuffer.setLength(0);
          }
 
          // Return nothing
@@ -265,7 +267,7 @@ public class ACARSConnection implements Serializable {
       }
 
       // Get the end of the message - if there's an end element build a message and return it
-      int ePos = msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
+      int ePos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
       if (ePos == -1)
          return null;
 
@@ -273,10 +275,10 @@ public class ACARSConnection implements Serializable {
 
       // Get the XML message out of the buffer
       StringBuffer msgOut = new StringBuffer(ProtocolInfo.XML_HEADER);
-      msgOut.append(msgBuffer.substring(sPos, ePos));
+      msgOut.append(_msgBuffer.substring(sPos, ePos));
 
       // Clear the message out of the buffer
-      msgBuffer.delete(0, ePos);
+      _msgBuffer.delete(0, ePos);
 
       // Return the buffer
       return msgOut.toString();
@@ -287,21 +289,33 @@ public class ACARSConnection implements Serializable {
       // Don't write nulls
       if ((msg == null) || (msg.length() < 1))
          return;
-
+      
       // Dump the message into the buffer and write to the socket channel
+      ByteBuffer oBuffer = null;
       try {
+    	  // Wrap in a larger buffer if too big
+    	  if (msg.length() > _oBuffer.capacity()) {
+    		  log.info("Generating temporary buffer (" + msg.length() + " bytes)");
+    		  oBuffer = ByteBuffer.wrap(msg.getBytes());
+    	  } else {
+    		  _oBuffer.clear();
+    		  _oBuffer.put(msg.getBytes());
+              _oBuffer.flip();
+              oBuffer = _oBuffer;
+    	  }
+    	  
          // Write the message in a buffer
-         ByteBuffer oBuffer = ByteBuffer.wrap(msg.getBytes());
          while (oBuffer.remaining() > 0)
-            channel.write(oBuffer);
+            _channel.write(oBuffer);
 
+         oBuffer = null;
          bytesOut += msg.length();
          msgsOut++;
          lastActivityTime = System.currentTimeMillis();
       } catch (IOException ie) {
-         log.error("Error writing to socket " + remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
+         log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
       } catch (OutOfMemoryError oome) {
-         log.error("Out of Memory creating Buffer!", oome);
+         log.error("Out of Memory creating Buffer! (size=" + msg.length() + ")");
       }
    }
 }
