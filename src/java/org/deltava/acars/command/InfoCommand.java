@@ -7,8 +7,9 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.beans.acars.FlightInfo;
 
-import org.deltava.dao.DAOException;
+import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
 
 /**
@@ -37,25 +38,46 @@ public class InfoCommand implements ACARSCommand {
 		// Write the info to the database
 		try {
 			Connection c = ctx.getConnection();
+			
+			// If we're requesting a specific ID, make sure we used to own it
+			if (!assignID) {
+			   GetACARSData rdao = new GetACARSData(c);
+			   FlightInfo info = rdao.getInfo(msg.getFlightID());
+			   if (info == null) {
+			      log.warn(env.getOwnerID() + " requesting invalid Flight " + msg.getFlightID());
+			      assignID = true;
+			      msg.setFlightID(0);
+			   } else if (info.getPilotID() != env.getOwner().getID()) {
+			      log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
+			      assignID = true;
+			      msg.setFlightID(0);
+			   } else if (info.getEndTime() != null) {
+			      log.warn(env.getOwnerID() + " requesting completed Flight " + msg.getFlightID());
+			      assignID = true;
+			      msg.setFlightID(0);
+			   }
+			}
+			
+			// Write the flight information
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());
-			
-			// Log returned flight id
-			if (assignID) {
-				log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
-			} else {
-			   log.info("Resuming Flight " + msg.getFlightID());
-			}
-
-			// Create the ack message and envelope - these are always acknowledged
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
-			ctx.push(ackMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
 		} finally {
 			ctx.release();
 		}
+		
+		// Log returned flight id
+		if (assignID) {
+			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
+		} else {
+		   log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
+		}
+
+		// Create the ack message and envelope - these are always acknowledged
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		ctx.push(ackMsg, env.getConnectionID());
 
 		// Set the info for the connection and write it to the database
 		ACARSConnection con = ctx.getACARSConnection();
