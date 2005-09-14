@@ -88,10 +88,10 @@ public class ACARSConnection implements Serializable {
    }
 
    public void close() {
-	   // Clear the buffers
-	   _iBuffer = null;
-	   _oBuffer = null;
-	   
+      // Clear the buffers
+      _iBuffer = null;
+      _oBuffer = null;
+
       // Close the socket
       try {
          _channel.close();
@@ -133,7 +133,7 @@ public class ACARSConnection implements Serializable {
    SocketChannel getChannel() {
       return _channel;
    }
-   
+
    public Socket getSocket() {
       return _channel.socket();
    }
@@ -149,7 +149,7 @@ public class ACARSConnection implements Serializable {
    public InfoMessage getFlightInfo() {
       return _fInfo;
    }
-   
+
    public PositionMessage getPosition() {
       return _pInfo;
    }
@@ -185,7 +185,7 @@ public class ACARSConnection implements Serializable {
    public Pilot getUser() {
       return _userInfo;
    }
-   
+
    public UserData getUserData() {
       return _userData;
    }
@@ -203,7 +203,7 @@ public class ACARSConnection implements Serializable {
    }
 
    public void setInfo(Message msg) {
-       if (msg instanceof InfoMessage) {
+      if (msg instanceof InfoMessage) {
          _fInfo = (InfoMessage) msg;
       } else if (msg instanceof PositionMessage) {
          _pInfo = (PositionMessage) msg;
@@ -250,7 +250,7 @@ public class ACARSConnection implements Serializable {
 
       // Reset the decoder and decode into a char buffer
       try {
-    	  _msgBuffer.append(decoder.decode(_iBuffer).toString());
+         _msgBuffer.append(decoder.decode(_iBuffer).toString());
       } catch (CharacterCodingException cce) {
       }
 
@@ -289,33 +289,41 @@ public class ACARSConnection implements Serializable {
       // Don't write nulls
       if ((msg == null) || (msg.length() < 1))
          return;
-      
-      // Dump the message into the buffer and write to the socket channel
-      ByteBuffer oBuffer = null;
-      try {
-    	  // Wrap in a larger buffer if too big
-    	  if (msg.length() > _oBuffer.capacity()) {
-    		  log.info("Generating temporary buffer (" + msg.length() + " bytes)");
-    		  oBuffer = ByteBuffer.wrap(msg.getBytes());
-    	  } else {
-    		  _oBuffer.clear();
-    		  _oBuffer.put(msg.getBytes());
-              _oBuffer.flip();
-              oBuffer = _oBuffer;
-    	  }
-    	  
-         // Write the message in a buffer
-         while (oBuffer.remaining() > 0)
-            _channel.write(oBuffer);
 
-         oBuffer = null;
+      // FIXME temp validation to ensure we are writing out just the message
+      StringBuffer buf = new StringBuffer();
+      String msg2 = msg;
+      
+      try {
+         // Keep writing until the message is done
+         while (msg.length() > 0) {
+            _oBuffer.clear();
+
+            // If the message is still larger than the buffer, then dump it out
+            if (msg.length() > _oBuffer.capacity()) {
+               String submsg = msg.substring(0, _oBuffer.capacity());
+               buf.append(submsg);
+               msg = msg.substring(_oBuffer.capacity());
+               _oBuffer.put(submsg.getBytes());
+            } else {
+               buf.append(msg);
+               _oBuffer.put(msg.getBytes());
+            }
+
+            // Flip the buffer and dump it all out
+            _oBuffer.flip();
+            while (_oBuffer.remaining() > 0)
+               _channel.write(_oBuffer);
+         }
+         
+         assert msg2.equals(buf.toString()) : "Strings not equal " + msg2.length() + ", " + buf.length();
+
+         // Update statistics
          bytesOut += msg.length();
          msgsOut++;
          lastActivityTime = System.currentTimeMillis();
       } catch (IOException ie) {
          log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + ie.getMessage(), ie);
-      } catch (OutOfMemoryError oome) {
-         log.error("Out of Memory creating Buffer! (size=" + msg.length() + ")");
       }
    }
 }
