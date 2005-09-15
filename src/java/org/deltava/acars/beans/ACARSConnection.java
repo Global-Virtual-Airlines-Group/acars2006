@@ -285,15 +285,9 @@ public class ACARSConnection implements Serializable {
    }
 
    public void write(String msg) {
-
-      // Don't write nulls
-      if ((msg == null) || (msg.length() < 1))
+      if (msg == null)
          return;
 
-      // FIXME temp validation to ensure we are writing out just the message
-      StringBuffer buf = new StringBuffer();
-      String msg2 = msg;
-      
       try {
          // Keep writing until the message is done
          while (msg.length() > 0) {
@@ -302,12 +296,13 @@ public class ACARSConnection implements Serializable {
             // If the message is still larger than the buffer, then dump it out
             if (msg.length() > _oBuffer.capacity()) {
                String submsg = msg.substring(0, _oBuffer.capacity());
-               buf.append(submsg);
                msg = msg.substring(_oBuffer.capacity());
                _oBuffer.put(submsg.getBytes());
+               bytesOut += msg.length();
             } else {
-               buf.append(msg);
                _oBuffer.put(msg.getBytes());
+               bytesOut += msg.length();
+               msg = "";
             }
 
             // Flip the buffer and dump it all out
@@ -316,10 +311,7 @@ public class ACARSConnection implements Serializable {
                _channel.write(_oBuffer);
          }
          
-         assert msg2.equals(buf.toString()) : "Strings not equal " + msg2.length() + ", " + buf.length();
-
          // Update statistics
-         bytesOut += msg.length();
          msgsOut++;
          lastActivityTime = System.currentTimeMillis();
       } catch (IOException ie) {
