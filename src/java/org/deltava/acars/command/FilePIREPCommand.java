@@ -7,9 +7,11 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.testing.CheckRide;
+import org.deltava.beans.system.UserData;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.beans.system.UserData;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetPosition;
@@ -97,6 +99,21 @@ public class FilePIREPCommand implements ACARSCommand {
 			   }
 			} else {
 				log.warn("No Flight Information found for ACARS Connection");
+			}
+			
+			// TODO If we're a checkride, then update the checkride record
+			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null )) {
+			   GetExam exdao = new GetExam(con);
+			   CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType());
+			   if (cr != null) {
+			      cr.setFlightID(info.getFlightID());
+			      
+			      // Update the checkride
+			      SetExam wdao = new SetExam(con);
+			      wdao.write(cr);
+			   } else {
+			      afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
+			   }
 			}
 
 			// Get the write DAO and save the PIREP
