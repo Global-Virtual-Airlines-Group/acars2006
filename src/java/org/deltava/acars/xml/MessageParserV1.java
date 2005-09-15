@@ -297,6 +297,10 @@ class MessageParserV1 implements MessageParser {
 			afr.setAirportD(SystemData.getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(SystemData.getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(_el.getChildText("remarks"));
+			
+			// Check if it's a checkride
+			boolean isCR = Boolean.valueOf(_el.getChildTextTrim("checkRide")).booleanValue();
+			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, isCR);
 
 			// Get the online network
 			String network = getChildText("network", "Offline").toUpperCase();
