@@ -44,11 +44,9 @@ public class QuitCommand implements ACARSCommand {
 			}
 	   }
 
-		// Create a deletepilots message
+		// Create a deletepilots message - send to everyone except ourself
 		DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER);
 		drmsg.addResponse(env.getOwner());
-		
-		// Send to everyone except ourself
-		ctx.pushAll(msg, env.getConnectionID());
+		ctx.pushAll(drmsg, env.getConnectionID());
 	}
 }
