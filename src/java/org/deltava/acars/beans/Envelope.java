@@ -5,20 +5,13 @@
  */
 package org.deltava.acars.beans;
 
-import java.io.Serializable;
-
 import org.deltava.beans.Pilot;
 import org.deltava.acars.message.Message;
 
 /**
  * @author Luke J. Kolin
  */
-public class Envelope implements Serializable {
-
-	// Envelope contents constants
-	public static final int MSG_UNKNOWN = 0;
-	public static final int MSG_TEXT = 1;
-	public static final int MSG_BEAN = 2;
+public class Envelope {
 
 	private Pilot _owner;
 	private Object _msg;
@@ -61,19 +54,5 @@ public class Envelope implements Serializable {
 	
 	public long getTime() {
 		return _timeStamp;
-	}
-	
-	public int getType() {
-		
-		// Return the type of message we have
-		if (_msg == null) {
-			return MSG_UNKNOWN;
-		} else if (_msg instanceof String) {
-			return MSG_TEXT;
-		} else if (_msg instanceof Message) {
-			return MSG_BEAN;
-		}
-		
-		return MSG_UNKNOWN;
 	}
 }

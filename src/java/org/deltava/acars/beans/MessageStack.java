@@ -41,10 +41,10 @@ public class MessageStack implements Iterator {
 
 	// Iterator implementation methods
 	public boolean hasNext() {
-		return (_data.size() > 0);
+		return (size() > 0);
 	}
 	
-	public Object next() {
+	public synchronized Object next() {
 		
 		// Throw an exception if nothing there
 		if (_data.size() == 0)
