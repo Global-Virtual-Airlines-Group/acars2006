@@ -284,6 +284,7 @@ class MessageParserV1 implements MessageParser {
 		// Build the PIREP
 		ACARSFlightReport afr = ACARSHelper.create(getChildText("flightcode", "001"));
 		try {
+			afr.setLeg(Integer.parseInt(getChildText("leg", "1")));
 			afr.setAttribute(FlightReport.ATTR_ACARS, true);
 			afr.setDatabaseID(FlightReport.DBID_ACARS, Integer.parseInt(_el.getChildTextTrim("flightID")));
 			afr.setDatabaseID(FlightReport.DBID_PILOT, _user.getID());
