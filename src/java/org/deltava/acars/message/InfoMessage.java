@@ -184,8 +184,8 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setWaypoints(String wpList) {
 		
-		// Split into a tokenizer
-		StringTokenizer wpTokens = new StringTokenizer(wpList, WAYPOINT_SPACER);
+		// Split into a tokenizer - replace periods with the waypoint spacer
+		StringTokenizer wpTokens = new StringTokenizer(wpList.replaceAll("[.]+", WAYPOINT_SPACER), WAYPOINT_SPACER);
 		while (wpTokens.hasMoreTokens())
 			addWaypoint(wpTokens.nextToken());
 	}
