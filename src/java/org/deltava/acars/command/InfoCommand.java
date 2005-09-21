@@ -81,7 +81,7 @@ public class InfoCommand implements ACARSCommand {
 
 		// Set the info for the connection and write it to the database
 		ACARSConnection con = ctx.getACARSConnection();
-		con.setInfo(msg);
+		con.setFlightInfo(msg);
 		if (msg.isComplete()) {
 			log.info("Received completed " + flightType + " flight information from " + con.getUserID());
 		} else {
