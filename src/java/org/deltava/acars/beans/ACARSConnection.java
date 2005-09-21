@@ -202,12 +202,12 @@ public class ACARSConnection implements Serializable {
       return _channel.isConnected();
    }
 
-   public void setInfo(Message msg) {
-      if (msg instanceof InfoMessage) {
-         _fInfo = (InfoMessage) msg;
-      } else if (msg instanceof PositionMessage) {
-         _pInfo = (PositionMessage) msg;
-      }
+   public void setFlightInfo(InfoMessage msg) {
+	   _fInfo = msg;
+   }
+   
+   public void setPosition(PositionMessage msg) {
+	   _pInfo = msg;
    }
 
    public void setProtocolVersion(int pv) {

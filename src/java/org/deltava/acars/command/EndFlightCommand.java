@@ -60,5 +60,6 @@ public class EndFlightCommand implements ACARSCommand {
 
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
+		con.setPosition(null);
 	}
 }
