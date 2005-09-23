@@ -229,7 +229,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		Set results = new HashSet();
 		for (Iterator i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = (ACARSConnection) i.next();
-			if (c.getUserID().equals(pid))
+			if (c.getUserID().equalsIgnoreCase(pid))
 				results.add(c);
 		}
 
