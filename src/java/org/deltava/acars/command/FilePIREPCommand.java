@@ -33,10 +33,10 @@ public class FilePIREPCommand implements ACARSCommand {
 	 * @param env the message Envelope
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
-		
+
 		// Log PIREP filing
 		log.info("Receiving PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ")");
-		
+
 		// Get the Message and the ACARS connection
 		FlightReportMessage msg = (FlightReportMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
@@ -45,7 +45,7 @@ public class FilePIREPCommand implements ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
-		
+
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 
@@ -70,7 +70,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			Collection promoEQ = eqdao.getPrimaryTypes(afr.getEquipmentType());
 			if (promoEQ.contains(ac.getUser().getEquipmentType()))
 				afr.setCaptEQType(promoEQ);
-			
+
 			// Check the schedule database and check the route pair
 			GetSchedule sdao = new GetSchedule(con);
 			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA());
@@ -82,38 +82,38 @@ public class FilePIREPCommand implements ACARSCommand {
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}
-			
+
 			// Start the transaction
 			con.setAutoCommit(false);
-			
+
 			// Get the position write DAO and write the positions
 			if (info != null) {
 				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
-				
-			   log.info("Writing " + info.getPositions().size() + " offline Position reports");
-			   SetPosition pwdao = new SetPosition(con);
-			   for (Iterator i = info.getPositions().iterator(); i.hasNext(); ) {
-			      PositionMessage pmsg = (PositionMessage) i.next();
-			      pwdao.write(pmsg, ac.getID(), info.getFlightID());
-			   }
+
+				log.info("Writing " + info.getPositions().size() + " offline Position reports");
+				SetPosition pwdao = new SetPosition(con);
+				for (Iterator i = info.getPositions().iterator(); i.hasNext();) {
+					PositionMessage pmsg = (PositionMessage) i.next();
+					pwdao.write(pmsg, ac.getID(), info.getFlightID());
+				}
 			} else {
 				log.warn("No Flight Information found for ACARS Connection");
 			}
-			
-			// TODO If we're a checkride, then update the checkride record
-			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null )) {
-			   GetExam exdao = new GetExam(con);
-			   CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType());
-			   if (cr != null) {
-			      cr.setFlightID(info.getFlightID());
-			      
-			      // Update the checkride
-			      SetExam wdao = new SetExam(con);
-			      wdao.write(cr);
-			   } else {
-			      afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
-			   }
+
+			// If we're a checkride, then update the checkride record
+			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null)) {
+				GetExam exdao = new GetExam(con);
+				CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType());
+				if (cr != null) {
+					cr.setFlightID(info.getFlightID());
+
+					// Update the checkride
+					SetExam wdao = new SetExam(con);
+					wdao.write(cr);
+				} else {
+					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
+				}
 			}
 
 			// Get the write DAO and save the PIREP
@@ -134,7 +134,7 @@ public class FilePIREPCommand implements ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-		
+
 		// Send the response
 		ctx.push(ackMsg, ac.getID());
 	}
