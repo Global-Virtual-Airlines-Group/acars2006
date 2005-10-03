@@ -77,7 +77,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 				// Build the pilot object
 				org.deltava.beans.servinfo.Pilot p = new org.deltava.beans.servinfo.Pilot(usr.getID());
-				p.setName(usr.getName());
+				p.setName(usr.getName() + " " + usr.getHomeAirport());
 				p.setPilotID(usr.getID());
 
 				// Pass position information
@@ -223,10 +223,10 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 		// Wildcard matches everyone
 		if (("*".equals(pid)) || (pid == null))
-			return _cons;
+			return new TreeSet(_cons);
 
 		// Build results
-		Set results = new HashSet();
+		Set results = new TreeSet();
 		for (Iterator i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = (ACARSConnection) i.next();
 			if (c.getUserID().equalsIgnoreCase(pid))
