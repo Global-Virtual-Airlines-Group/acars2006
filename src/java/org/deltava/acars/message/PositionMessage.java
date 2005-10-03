@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.GeoLocation;
+import org.deltava.beans.schedule.GeoPosition;
 import org.deltava.beans.acars.ACARSFlags;
 
 import org.deltava.util.StringUtils;
@@ -93,6 +94,11 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 
 	public double getLongitude() {
 		return longitude;
+	}
+	
+	public int getHemisphere() {
+	   GeoPosition gp = new GeoPosition(latitude, longitude);
+	   return gp.getHemisphere();
 	}
 	
 	public double getMach() {
