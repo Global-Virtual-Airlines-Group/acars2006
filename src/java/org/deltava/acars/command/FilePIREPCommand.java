@@ -45,6 +45,9 @@ public class FilePIREPCommand implements ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
+		
+		// Load the FS Version
+		afr.setFSVersion(info.getFSVersion());
 
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());

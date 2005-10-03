@@ -294,7 +294,6 @@ class MessageParserV1 implements MessageParser {
 			afr.setDate(new Date());
 			afr.setCreatedOn(afr.getDate());
 			afr.setSubmittedOn(afr.getDate());
-			afr.setFSVersion("FS" + getChildText("fsVersion", "2004"));
 			afr.setAirportD(SystemData.getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(SystemData.getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(_el.getChildText("remarks"));
