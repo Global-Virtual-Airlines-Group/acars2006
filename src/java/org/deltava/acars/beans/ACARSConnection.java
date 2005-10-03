@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * @author Luke J. Kolin
  */
-public class ACARSConnection implements Serializable {
+public class ACARSConnection implements Serializable, Comparable {
 
    private static final Logger log = Logger.getLogger(ACARSConnection.class);
 
@@ -221,6 +221,17 @@ public class ACARSConnection implements Serializable {
 
    public void setUserLocation(UserData ud) {
       _userData = ud;
+   }
+   
+   public int compareTo(Object o2) {
+	   ACARSConnection c2 = (ACARSConnection) o2;
+	   if (!isAuthenticated())
+		   return -1;
+	   else if (!c2.isAuthenticated())
+		   return 1;
+	   
+	   Pilot usr = c2.getUser();
+	   return new Integer(_userInfo.getPilotNumber()).compareTo(new Integer(usr.getPilotNumber()));
    }
 
    /* Here are the basic I/O methods, read and write */
