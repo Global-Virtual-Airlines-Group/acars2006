@@ -51,10 +51,6 @@ public class InfoCommand implements ACARSCommand {
 			      log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
 			      assignID = true;
 			      msg.setFlightID(0);
-			   } else if (info.getEndTime() != null) {
-			      log.warn(env.getOwnerID() + " requesting completed Flight " + msg.getFlightID());
-			      assignID = true;
-			      msg.setFlightID(0);
 			   }
 			}
 			
