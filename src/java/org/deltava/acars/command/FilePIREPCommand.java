@@ -23,6 +23,7 @@ import org.deltava.util.system.SystemData;
  * @version 1.0
  * @since 1.0
  */
+
 public class FilePIREPCommand implements ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(FilePIREPCommand.class);
@@ -40,17 +41,21 @@ public class FilePIREPCommand implements ACARSCommand {
 		// Get the Message and the ACARS connection
 		FlightReportMessage msg = (FlightReportMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
+		
+		// Generate the response message
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
+		
+		// If we have an error, log it and return
+		if (msg.getError() != null) {
+			ackMsg.setEntry("error", "PIREP Submission failed - " + msg.getError());
+			ctx.push(ackMsg, ac.getID());
+			return;
+		}
 
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
-		
-		// Load the FS Version
-		afr.setFSVersion(info.getFSVersion());
-
-		// Generate the response message
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 
 		Connection con = null;
 		try {
@@ -91,6 +96,7 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Get the position write DAO and write the positions
 			if (info != null) {
+				info.setFSVersion(info.getFSVersion());
 				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
 
@@ -101,6 +107,7 @@ public class FilePIREPCommand implements ACARSCommand {
 					pwdao.write(pmsg, ac.getID(), info.getFlightID());
 				}
 			} else {
+				info.setFSVersion(2004);
 				log.warn("No Flight Information found for ACARS Connection");
 			}
 
