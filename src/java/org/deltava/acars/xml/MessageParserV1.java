@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
  */
 
 class MessageParserV1 implements MessageParser {
-	
+
 	private static final Logger log = Logger.getLogger(MessageParserV1.class);
 
 	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
@@ -118,7 +118,7 @@ class MessageParserV1 implements MessageParser {
 		String pwd = getChildText("password", null);
 		if ((userID == null) || (pwd == null))
 			throw new XMLException("Missing userID/password");
-		
+
 		// Get the build number
 		int buildNumber = Integer.parseInt(getChildText("build", "0"));
 
@@ -136,7 +136,7 @@ class MessageParserV1 implements MessageParser {
 		// Create the bean
 		PositionMessage msg = new PositionMessage(_user);
 		msg.setTime(_timeStamp);
-		
+
 		// Parse the date
 		try {
 			msg.setDate(_dtf.parse(getChildText(e, "date", "")));
@@ -207,14 +207,14 @@ class MessageParserV1 implements MessageParser {
 		// Create the bean
 		InfoMessage msg = new InfoMessage(_user);
 		msg.setTime(_timeStamp);
-		
+
 		// Check if we're loading an existing flight ID
 		try {
 			msg.setFlightID(Integer.parseInt(getChildText(e, "flight_id", "0")));
 		} catch (NumberFormatException nfe) {
 			msg.setFlightID(0);
 		}
-		
+
 		// Parse the start date/time
 		try {
 			msg.setStartTime(_dtf.parse(getChildText(e, "startTime", "")));
@@ -297,7 +297,7 @@ class MessageParserV1 implements MessageParser {
 			afr.setAirportD(SystemData.getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(SystemData.getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(_el.getChildText("remarks"));
-			
+
 			// Check if it's a checkride
 			boolean isCR = Boolean.valueOf(_el.getChildTextTrim("checkRide")).booleanValue();
 			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, isCR);
@@ -323,10 +323,6 @@ class MessageParserV1 implements MessageParser {
 				throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
 			}
 
-			// Calculate the flight time
-			int duration = (int) ((afr.getEndTime().getTime() - afr.getStartTime().getTime()) / 1000);
-			afr.setLength(duration / 360);
-
 			// Set the weights/speeds
 			try {
 				afr.setTaxiFuel(Integer.parseInt(getChildText("taxiFuel", "0")));
@@ -345,14 +341,23 @@ class MessageParserV1 implements MessageParser {
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid Weight/Speed - " + nfe.getMessage());
 			}
+
+			// Load the 1X/2X/4X times
+			try {
+				afr.setTime1X(Integer.parseInt(getChildText("time1X", "0")) * 60);
+				afr.setTime2X(Integer.parseInt(getChildText("time2X", "0")) * 60);
+				afr.setTime4X(Integer.parseInt(getChildText("time4X", "0")) * 60);
+			} catch (NumberFormatException nfe) {
+				throw new IllegalArgumentException("Invalid time - " + nfe.getMessage());
+			}
+
+			// Save the PIREP
+			msg.setPIREP(afr);
 		} catch (Exception e) {
 			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
 			log.error(xmlOut.outputString(_el));
-			throw new XMLException("Invalid PIREP data - " + e.getMessage(), e);
+			msg.setError(e.getMessage());
 		}
-
-		// Save the PIREP and mark if we are offline
-		msg.setPIREP(afr);
 
 		// Return the message
 		return msg;
