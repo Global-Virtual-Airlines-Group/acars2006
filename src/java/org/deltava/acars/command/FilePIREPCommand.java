@@ -53,12 +53,23 @@ public class FilePIREPCommand implements ACARSCommand {
 		Connection con = null;
 		try {
 			con = ctx.getConnection();
-
-			// Search for draft Flight Reports for this city pair
 			GetFlightReports prdao = new GetFlightReports(con);
-			List dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
+			
+			// Check for existing PIREP with this flight ID
+			if ((info != null) && (info.getFlightID() != 0)) {
+			   ACARSFlightReport afr2 = prdao.getACARS(info.getFlightID());
+			   if (afr2 != null) {
+			      ctx.release();
+			      
+			      // Log warning and return an ACK
+			      log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID());
+			      ctx.push(ackMsg, ac.getID());
+			      return;
+			   }
+			}
 
-			// If we found a flight report, save its database ID and copy its ID to the PIREP we will file
+			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
+			List dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 			if (!dFlights.isEmpty()) {
 				FlightReport fr = (FlightReport) dFlights.get(0);
 				afr.setID(fr.getID());
@@ -139,6 +150,7 @@ public class FilePIREPCommand implements ACARSCommand {
 		}
 
 		// Send the response
-		ctx.push(ackMsg, ac.getID());
+		// FIXME: Disabled for testing purposes
+		//ctx.push(ackMsg, ac.getID());
 	}
 }
