@@ -89,7 +89,7 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Get the position write DAO and write the positions
 			if (info != null) {
-				info.setFSVersion(info.getFSVersion());
+				afr.setFSVersion(info.getFSVersion());
 				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
 
@@ -100,7 +100,7 @@ public class FilePIREPCommand implements ACARSCommand {
 					pwdao.write(pmsg, ac.getID(), info.getFlightID());
 				}
 			} else {
-				info.setFSVersion(2004);
+				afr.setFSVersion(2004);
 				log.warn("No Flight Information found for ACARS Connection");
 			}
 
