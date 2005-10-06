@@ -12,6 +12,7 @@ import org.deltava.beans.Pilot;
 import org.deltava.acars.beans.Envelope;
 
 import org.deltava.acars.message.Message;
+import org.deltava.acars.message.ErrorMessage;
 
 /**
  * @author Luke
@@ -130,7 +131,8 @@ public class MessageReader implements Serializable {
 					_msgs.add(msg);
 				}
 			} catch (Exception e) {
-				log.error("Message parse exception - " + e.getMessage(), e);
+				log.warn("Message parse exception - " + e.getMessage());
+				_msgs.add(new ErrorMessage(_sender, e.getMessage(), id));
 			}
 		}
 		

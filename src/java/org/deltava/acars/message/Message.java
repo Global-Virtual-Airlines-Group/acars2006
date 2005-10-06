@@ -33,15 +33,16 @@ public interface Message extends Serializable {
 	public static final int MSG_ENDFLIGHT = 11;
 	public static final int MSG_SYSTEM = 12;
 	public static final int MSG_PIREP = 13;
+	public static final int MSG_ERROR = 14;
 
 	// XML message codes
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "raw", "datarsp",
-	      "ping", "quit", "end_flight", "smsg", "pirep"};
+	      "ping", "quit", "end_flight", "smsg", "pirep", "error"};
 	
 	// Message code descriptions
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 						"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect",
-						"End Flight", "System Message", "Flight Report"};
+						"End Flight", "System Message", "Flight Report", "Error"};
 
 	public abstract int getType();
 	

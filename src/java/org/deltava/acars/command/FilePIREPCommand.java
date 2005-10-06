@@ -45,13 +45,6 @@ public class FilePIREPCommand implements ACARSCommand {
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 		
-		// If we have an error, log it and return
-		if (msg.getError() != null) {
-			ackMsg.setEntry("error", "PIREP Submission failed - " + msg.getError());
-			ctx.push(ackMsg, ac.getID());
-			return;
-		}
-
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
