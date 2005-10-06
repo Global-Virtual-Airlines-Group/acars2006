@@ -14,6 +14,8 @@ import org.deltava.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.util.ACARSHelper;
 
+import org.deltava.beans.schedule.Airport;
+
 import org.deltava.util.system.SystemData;
 
 /**
@@ -68,6 +70,14 @@ class MessageParserV1 implements MessageParser {
 		String tmp = e.getChildTextTrim(childName);
 		return (tmp == null) ? defaultValue : tmp;
 	}
+	
+	private Airport getAirport(String code) throws XMLException {
+		Airport a = SystemData.getAirport(code);
+		if (a != null)
+			throw new XMLException("Invalid Airport Code - " + code);
+		
+		return a;
+	}
 
 	public Message parse(int msgType) throws XMLException {
 
@@ -118,14 +128,15 @@ class MessageParserV1 implements MessageParser {
 		String pwd = getChildText("password", null);
 		if ((userID == null) || (pwd == null))
 			throw new XMLException("Missing userID/password");
-
-		// Get the build number
-		int buildNumber = Integer.parseInt(getChildText("build", "0"));
-
+		
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
-		msg.setClientBuild(buildNumber);
+		try {
+			msg.setClientBuild(Integer.parseInt(getChildText("build", "0")));	
+		} catch (NumberFormatException nfe) {
+			throw new XMLException("Invalid Build Number - " + getChildText("build", ""), nfe);
+		}
 
 		// Return the bean
 		return msg;
@@ -202,7 +213,7 @@ class MessageParserV1 implements MessageParser {
 		}
 	}
 
-	private Message parseInfo(Element e) {
+	private Message parseInfo(Element e) throws XMLException {
 
 		// Create the bean
 		InfoMessage msg = new InfoMessage(_user);
@@ -229,12 +240,10 @@ class MessageParserV1 implements MessageParser {
 		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		msg.setComments(getChildText(e, "remarks", null));
 		msg.setFSVersion(Integer.parseInt(getChildText(e, "fs_ver", "2004")));
-		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
-		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
+		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
+		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
-
-		// Return the bean
 		return msg;
 	}
 
@@ -247,8 +256,6 @@ class MessageParserV1 implements MessageParser {
 		// Set the request type
 		msg.setRequestType(getChildText("reqtype", ""));
 		msg.setRequestData(getChildText("reqdata", null));
-
-		// Return the bean
 		return msg;
 	}
 
@@ -294,8 +301,8 @@ class MessageParserV1 implements MessageParser {
 			afr.setDate(new Date());
 			afr.setCreatedOn(afr.getDate());
 			afr.setSubmittedOn(afr.getDate());
-			afr.setAirportD(SystemData.getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
-			afr.setAirportA(SystemData.getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
+			afr.setAirportD(getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
+			afr.setAirportA(getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(_el.getChildText("remarks"));
 
 			// Check if it's a checkride
@@ -356,7 +363,7 @@ class MessageParserV1 implements MessageParser {
 		} catch (Exception e) {
 			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
 			log.error(xmlOut.outputString(_el));
-			msg.setError(e.getMessage());
+			throw new XMLException(e.getMessage());
 		}
 
 		// Return the message

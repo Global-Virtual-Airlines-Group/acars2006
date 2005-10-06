@@ -13,7 +13,6 @@ import org.deltava.beans.*;
 public class FlightReportMessage extends AbstractMessage {
    
    private ACARSFlightReport _afr;
-   private String _errorMsg;
 
    /**
     * Creates a new Flight Report message.
@@ -27,15 +26,7 @@ public class FlightReportMessage extends AbstractMessage {
       _afr = afr;
    }
    
-   public void setError(String msg) {
-	   _errorMsg = msg;
-   }
-   
    public ACARSFlightReport getPIREP() {
       return _afr;
-   }
-   
-   public String getError() {
-	   return _errorMsg;
    }
 }
