@@ -73,7 +73,7 @@ class MessageParserV1 implements MessageParser {
 	
 	private Airport getAirport(String code) throws XMLException {
 		Airport a = SystemData.getAirport(code);
-		if (a != null)
+		if (a == null)
 			throw new XMLException("Invalid Airport Code - " + code);
 		
 		return a;
