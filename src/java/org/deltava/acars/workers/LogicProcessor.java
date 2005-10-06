@@ -81,7 +81,7 @@ public class LogicProcessor extends Worker {
 				try {
 					process(env);
 				} catch (Exception e) {
-					log.error("Error Processing Message - " + e.getMessage(), e);
+					log.error("Error Processing Message from " + env.getOwnerID() + " - " + e.getMessage(), e);
 				}
 			}
 
