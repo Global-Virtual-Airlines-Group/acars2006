@@ -150,7 +150,6 @@ public class FilePIREPCommand implements ACARSCommand {
 		}
 
 		// Send the response
-		// FIXME: Disabled for testing purposes
-		//ctx.push(ackMsg, ac.getID());
+		ctx.push(ackMsg, ac.getID());
 	}
 }
