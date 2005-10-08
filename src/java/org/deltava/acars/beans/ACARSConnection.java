@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
  */
 public class ACARSConnection implements Serializable, Comparable {
 
-   private static final Logger log = Logger.getLogger(ACARSConnection.class);
+   protected static final Logger log = Logger.getLogger(ACARSConnection.class);
 
    // Byte byffer decoder and character set
    private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
@@ -290,7 +290,7 @@ public class ACARSConnection implements Serializable, Comparable {
 
       // Clear the message out of the buffer
       _msgBuffer.delete(0, ePos);
-
+      
       // Return the buffer
       return msgOut.toString();
    }
@@ -298,7 +298,7 @@ public class ACARSConnection implements Serializable, Comparable {
    public void write(String msg) {
       if (msg == null)
          return;
-
+      
       try {
          // Keep writing until the message is done
          while (msg.length() > 0) {

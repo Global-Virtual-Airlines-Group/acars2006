@@ -44,11 +44,16 @@ public final class NetworkHandler extends Worker {
 	}
 
 	private void newConnection(SocketChannel sc) {
-
-		// Create a new connection bean
-		ACARSConnection con = new ACARSConnection(IDGenerator.generate(), sc);
 		ServerStats.add(ServerStats.CONNECT_COUNT);
-
+		
+		// Create a new connection bean
+		ACARSConnection con = null;
+		if (SystemData.getBoolean("acars.debug")) {
+			con = new ACARSDebugConnection(IDGenerator.generate(), sc);
+		} else {
+			con = new ACARSConnection(IDGenerator.generate(), sc);
+		}
+		
 		// Check if we have a connection from there already
 		if (!SystemData.getBoolean("acars.pool.multiple")) {
 			if (_pool.hasConnection(con.getRemoteAddr())) {
