@@ -45,7 +45,7 @@ public final class NetworkHandler extends Worker {
 
 	private void newConnection(SocketChannel sc) {
 		ServerStats.add(ServerStats.CONNECT_COUNT);
-		
+
 		// Create a new connection bean
 		ACARSConnection con = null;
 		if (SystemData.getBoolean("acars.debug")) {
@@ -53,7 +53,7 @@ public final class NetworkHandler extends Worker {
 		} else {
 			con = new ACARSConnection(IDGenerator.generate(), sc);
 		}
-		
+
 		// Check if we have a connection from there already
 		if (!SystemData.getBoolean("acars.pool.multiple")) {
 			if (_pool.hasConnection(con.getRemoteAddr())) {
@@ -87,7 +87,8 @@ public final class NetworkHandler extends Worker {
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
 		} catch (XMLException xe) {
-			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - " + xe.getMessage(), xe);
+			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - "
+					+ xe.getMessage(), xe);
 		}
 
 		// Say hello
@@ -182,27 +183,30 @@ public final class NetworkHandler extends Worker {
 				}
 			}
 
-			// Check if there are any messages waiting, and pushes them onto the raw input stack.
-			_pool.read();
+			// Check if there are any messages waiting, and push them onto the raw input stack.
+			if (!_pool.isEmpty()) {
+				_pool.read();
 
-			// Check for inactive connections - generate a QUIT message for every one
-			for (Iterator ic = _pool.checkConnections().iterator(); ic.hasNext();) {
-				ACARSConnection con = (ACARSConnection) ic.next();
-				log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
-				MessageWriter.remove(con.getID());
-				if (con.isAuthenticated()) {
-					log.debug("QUIT Message from " + con.getUser().getName());
-					QuitMessage qmsg = new QuitMessage(con.getUser());
-					qmsg.setFlightID(con.getFlightID());
-					_fmtInputStack.push(new Envelope(qmsg, con.getID()));
+				// Check for inactive connections - generate a QUIT message for every one
+				for (Iterator ic = _pool.checkConnections().iterator(); ic.hasNext();) {
+					ACARSConnection con = (ACARSConnection) ic.next();
+					log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr()
+							+ ") disconnected");
+					MessageWriter.remove(con.getID());
+					if (con.isAuthenticated()) {
+						log.debug("QUIT Message from " + con.getUser().getName());
+						QuitMessage qmsg = new QuitMessage(con.getUser());
+						qmsg.setFlightID(con.getFlightID());
+						_fmtInputStack.push(new Envelope(qmsg, con.getID()));
+					}
 				}
+
+				// Wake up threads waiting for stuff on the input stack
+				_inStack.wakeup();
+
+				// Dump stuff from the output queue to the sockets
+				_pool.write();
 			}
-
-			// Wake up threads waiting for stuff on the input stack
-			_inStack.wakeup();
-
-			// Dump stuff from the output queue to the sockets
-			_pool.write();
 		}
 
 		// Mark the interrupt

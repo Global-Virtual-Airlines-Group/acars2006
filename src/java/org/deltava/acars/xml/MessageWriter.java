@@ -23,6 +23,8 @@ import org.deltava.util.IDGenerator;
 public class MessageWriter implements java.io.Serializable {
 	
 	private static final Logger log = Logger.getLogger(MessageWriter.class);
+	
+	private static final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat());
 
 	// Keeps track of XML documents, formatters and users who have msgs waiting
 	private static Map _xdocs = new HashMap();
@@ -80,7 +82,6 @@ public class MessageWriter implements java.io.Serializable {
 	}
 	
 	public static synchronized void reset() {
-		
 		for (Iterator i = _xdocs.keySet().iterator(); i.hasNext(); ) {
 			Long CID = (Long) i.next();
 			
@@ -135,15 +136,14 @@ public class MessageWriter implements java.io.Serializable {
 		_dirty.add(CID);
 	}
 	
+	public static boolean hasMessages() {
+		return !_dirty.isEmpty();
+	}
+	
 	public static Collection getMessages() {
 		
-		// Build the XML outputter
-		XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-		
-		// Build the return arraylist
-		ArrayList envs = new ArrayList();
-		
 		// Get the list of connections with messages waiting
+		ArrayList envs = new ArrayList();
 		for (Iterator i = _dirty.iterator(); i.hasNext(); ) {
 			Long CID = (Long) i.next();
 			
@@ -156,7 +156,7 @@ public class MessageWriter implements java.io.Serializable {
 				root.setAttribute("id", Long.toHexString(IDGenerator.generate()).toUpperCase());
 				
 				// Create the envelope and save it
-				String msgText = xmlOut.outputString(xdoc);
+				String msgText = _xmlOut.outputString(xdoc);
 				Envelope env = new Envelope(user, msgText, CID.longValue());
 				envs.add(env);
 				log.debug(msgText);

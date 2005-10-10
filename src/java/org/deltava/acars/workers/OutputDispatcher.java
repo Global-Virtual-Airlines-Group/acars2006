@@ -38,11 +38,13 @@ public final class OutputDispatcher extends Worker {
 			}
 
 			// Dump the messages to the output stack
-			for (Iterator i = MessageWriter.getMessages().iterator(); i.hasNext(); )
-				_outStack.push((Envelope) i.next());
+			if (MessageWriter.hasMessages()) {
+				for (Iterator i = MessageWriter.getMessages().iterator(); i.hasNext(); )
+					_outStack.push((Envelope) i.next());
 
-			// Reset the message writer's internal documents
-			MessageWriter.reset();
+				// Reset the message writer's internal documents
+				MessageWriter.reset();
+			}
 
 			// Wait until something is on the input stack or we get interrupted
 			try {

@@ -14,6 +14,8 @@ import org.deltava.acars.beans.Envelope;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.ErrorMessage;
 
+import org.deltava.util.StringUtils;
+
 /**
  * @author Luke
  * @version 1.0
@@ -50,15 +52,7 @@ public class MessageReader implements Serializable {
 	}
 	
 	private int getMessageType(String mType) {
-	
-		// Check the message codes
-		for (int x = 0, len = Message.MSG_CODES.length; x < len; x++) {
-			if (Message.MSG_CODES[x].equals(mType))
-				return x;
-		}
-		
-		// Return an invalid code
-		return -1;
+		return StringUtils.arrayIndexOf(Message.MSG_CODES, mType);
 	}
 	
 	public Collection parse() throws XMLException {

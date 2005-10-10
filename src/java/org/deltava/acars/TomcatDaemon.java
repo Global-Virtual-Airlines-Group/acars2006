@@ -41,14 +41,14 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 		while (keepRunning) {
 			// Go to sleep for a while - if interrupted, shut down the loop
 			try {
-				Thread.sleep(2500);
+				Thread.sleep(25000);
 			} catch (InterruptedException ie) {
 				keepRunning = false;
 			}
 			
 			// Check all of the threads
-			for (Iterator wi = _tasks.iterator(); keepRunning && wi.hasNext();) {
-				Worker w = (Worker) wi.next();
+			for (int x = 0; keepRunning && (x < _tasks.size()); x++) {
+				Worker w = (Worker) _tasks.get(x);
 
 				// Get the worker status
 				WorkerStatus status = w.getWorkerStatus();
