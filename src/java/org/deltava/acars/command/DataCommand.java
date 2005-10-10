@@ -9,9 +9,8 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.beans.schedule.Airline;
-import org.deltava.beans.schedule.Airport;
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.schedule.*;
+import org.deltava.beans.navdata.*;
 
 import org.deltava.comparators.AirportComparator;
 
@@ -38,6 +37,7 @@ public class DataCommand implements ACARSCommand {
 
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
+		ACARSConnection ac = ctx.getACARSConnection();
 
 		// Get the connections to process
 		Iterator i = ctx.getACARSConnections(msg.getFilter()).iterator();
@@ -50,8 +50,8 @@ public class DataCommand implements ACARSCommand {
 			// Get all of the pilot info stuff
 			case DataMessage.REQ_PLIST:
 				while (i.hasNext()) {
-					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse(ac.getPosition());
+					ACARSConnection c = (ACARSConnection) i.next();
+					dataRsp.addResponse(c.getPosition());
 				}
 
 				break;
@@ -69,45 +69,45 @@ public class DataCommand implements ACARSCommand {
 				Set eqTypes = new TreeSet((List) SystemData.getObject("eqtypes"));
 				dataRsp.addResponse("eqtype", eqTypes);
 				break;
-				
+
 			// Get airline list
 			case DataMessage.REQ_ALLIST:
 				Map airlines = (Map) SystemData.getObject("airlines");
-				for (i = airlines.values().iterator(); i.hasNext(); )  {
+				for (i = airlines.values().iterator(); i.hasNext();) {
 					Airline a = (Airline) i.next();
 					dataRsp.addResponse(a.getCode(), a.getName());
 				}
-				
+
 				break;
-				
+
 			// Get airport list
-			case DataMessage.REQ_APLIST :
+			case DataMessage.REQ_APLIST:
 				Map allAirports = (Map) SystemData.getObject("airports");
 				Set airports = new TreeSet(new AirportComparator(AirportComparator.NAME));
 				airports.addAll(allAirports.values());
-				for (i = airports.iterator(); i.hasNext(); ) {
+				for (i = airports.iterator(); i.hasNext();) {
 					Airport a = (Airport) i.next();
 					dataRsp.addResponse(a);
 				}
-				
+
 				break;
-				
+
 			// Get private voice info
 			case DataMessage.REQ_PVTVOX:
-			   dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
+				dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
 				break;
-				
+
 			// Get flight information
 			case DataMessage.REQ_ILIST:
 				while (i.hasNext()) {
-					ACARSConnection ac = (ACARSConnection) i.next();
-					dataRsp.addResponse(ac.getFlightInfo());
+					ACARSConnection c = (ACARSConnection) i.next();
+					dataRsp.addResponse(c.getFlightInfo());
 				}
 
 				break;
-				
+
 			// Get approach charts
-			case DataMessage.REQ_CHARTS :
+			case DataMessage.REQ_CHARTS:
 				Airport a = SystemData.getAirport(msg.getFlag("id"));
 				if (a == null) {
 					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -115,14 +115,14 @@ public class DataCommand implements ACARSCommand {
 					ctx.push(errMsg, ctx.getACARSConnection().getID());
 					return;
 				}
-				
+
 				try {
 					Connection con = ctx.getConnection();
-					
+
 					// Get the DAO and the charts
 					GetChart dao = new GetChart(con);
 					Collection charts = dao.getCharts(a);
-					for (Iterator ci = charts.iterator(); ci.hasNext(); )
+					for (Iterator ci = charts.iterator(); ci.hasNext();)
 						dataRsp.addResponse(ci.next());
 				} catch (DAOException de) {
 					log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
@@ -132,21 +132,21 @@ public class DataCommand implements ACARSCommand {
 				} finally {
 					ctx.release();
 				}
-				
+
 				break;
-				
+
 			// Get navaid/runway info
-			case DataMessage.REQ_NAVAIDINFO :
+			case DataMessage.REQ_NAVAIDINFO:
 				boolean isRunway = (msg.getFlag("runway") != null);
 				try {
 					Connection con = ctx.getConnection();
-					
+
 					// Get the DAO and find the Navaid in the DAFIF database
 					GetNavData dao = new GetNavData(con);
 					NavigationDataBean nav = null;
 					if (isRunway) {
 						Airport ap = SystemData.getAirport(msg.getFlag("id").toUpperCase());
-						
+
 						// Add a leading zero to the runway if required
 						if (ap != null) {
 							String runway = msg.getFlag("runway");
@@ -155,7 +155,7 @@ public class DataCommand implements ACARSCommand {
 							} else if (runway.length() == 1) {
 								runway = "0" + runway;
 							}
-							
+
 							nav = dao.getRunway(ap.getICAO(), runway);
 							if (nav != null) {
 								log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
@@ -163,8 +163,9 @@ public class DataCommand implements ACARSCommand {
 							}
 						}
 					} else {
-						nav = dao.get(msg.getFlag("id"));
-						if (nav != null) {
+						NavigationDataMap ndMap = dao.get(msg.getFlag("id"));
+						if (!ndMap.isEmpty()) {
+							nav = ndMap.get(msg.getFlag("id"), ac.getPosition());
 							log.info("Loaded Navigation data for " + nav.getCode());
 							dataRsp.addResponse(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
 						}
@@ -179,7 +180,7 @@ public class DataCommand implements ACARSCommand {
 				}
 
 				break;
-				
+
 			default:
 				log.error("Unsupported Data Request Messasge - " + msg.getRequestType());
 		}
