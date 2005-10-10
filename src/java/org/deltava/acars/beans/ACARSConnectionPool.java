@@ -265,6 +265,10 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		// Return nothing if not found
 		return null;
 	}
+	
+	public boolean isEmpty() {
+		return _cons.isEmpty();
+	}
 
 	public void read() {
 
