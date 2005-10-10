@@ -47,9 +47,7 @@ public final class InputTranslator extends Worker {
 			}
 
 			// Wake up any threads waiting for something on the output stack
-			synchronized (_outStack) {
-				_outStack.notifyAll();
-			}
+			_outStack.wakeup();
 
 			// Wait until something is on the input stack or we get interrupted
 			try {

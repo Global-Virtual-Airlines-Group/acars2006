@@ -33,7 +33,7 @@ public abstract class ServerDaemon {
  	
  	// Worker tasks
  	protected static ThreadGroup _workers;
- 	protected static Set _tasks;
+ 	protected static List _tasks;
  	protected static Map _threads;
  	
 	// Internal message stacks
@@ -123,7 +123,7 @@ public abstract class ServerDaemon {
  	protected static void initTasks() {
  		
  		// Create the task container and the thread group
- 		_tasks = new HashSet();
+ 		_tasks = new ArrayList();
 
 		// Init the input translator
 		InputTranslator iTrans = new InputTranslator();
