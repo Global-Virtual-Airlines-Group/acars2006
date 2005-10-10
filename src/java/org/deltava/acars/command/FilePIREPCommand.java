@@ -57,7 +57,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			
 			// Check for existing PIREP with this flight ID
 			if ((info != null) && (info.getFlightID() != 0)) {
-			   ACARSFlightReport afr2 = prdao.getACARS(info.getFlightID());
+			   ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), info.getFlightID());
 			   if (afr2 != null) {
 			      ctx.release();
 			      
@@ -79,7 +79,7 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Check if this Flight Report counts for promotion
 			GetEquipmentType eqdao = new GetEquipmentType(con);
-			Collection promoEQ = eqdao.getPrimaryTypes(afr.getEquipmentType());
+			Collection promoEQ = eqdao.getPrimaryTypes(usrLoc.getDB(), afr.getEquipmentType());
 			if (promoEQ.contains(ac.getUser().getEquipmentType()))
 				afr.setCaptEQType(promoEQ);
 
@@ -118,13 +118,13 @@ public class FilePIREPCommand implements ACARSCommand {
 			// If we're a checkride, then update the checkride record
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null)) {
 				GetExam exdao = new GetExam(con);
-				CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType());
+				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType());
 				if (cr != null) {
 					cr.setFlightID(info.getFlightID());
 
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
-					wdao.write(cr);
+					wdao.write(usrLoc.getDB(), cr);
 				} else {
 					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
 				}
@@ -132,7 +132,7 @@ public class FilePIREPCommand implements ACARSCommand {
 
 			// Get the write DAO and save the PIREP
 			SetFlightReport wdao = new SetFlightReport(con);
-			wdao.write(afr);
+			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
 
 			// Commit the transaction
