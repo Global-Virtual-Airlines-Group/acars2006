@@ -45,7 +45,8 @@ public class LogicProcessor extends Worker {
 
 	private void process(Envelope env) throws Exception {
 		
-		// Get the message
+		// Get the message and start time
+		long startTime = System.currentTimeMillis();
 		Message msg = (Message) env.getMessage();
 		
 		// Check if we can be anonymous
@@ -66,6 +67,11 @@ public class LogicProcessor extends Worker {
 		} else {
 			log.warn("No command for message");
 		}
+		
+		// Calculate execution time
+		long execTime = System.currentTimeMillis() - startTime;
+		if (execTime > 7000)
+			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 	}
 
 	protected void $run0() {
