@@ -30,6 +30,16 @@ public final class SetPosition extends DAO {
 	}
 	
 	/**
+	 * Helper method to initialize the prepared statement.
+	 */
+	private void initStatement() throws SQLException {
+	   if (_ps == null)
+	      prepareStatementWithoutLimits(SQL);
+	   else
+	      _ps.clearParameters();
+	}
+	
+	/**
 	 * Writes a position message to the database.
 	 * @param msg the Position data
 	 * @param cid the connection ID
@@ -38,7 +48,7 @@ public final class SetPosition extends DAO {
 	 */
 	public void write(PositionMessage msg, long cid, int flightID) throws DAOException {
 		try {
-			prepareStatement(SQL);
+			initStatement();
 			
 			// Set the prepared statement parameters
 			_ps.setLong(1, cid);
@@ -61,10 +71,20 @@ public final class SetPosition extends DAO {
 			_ps.setInt(18, msg.getFlags());
 			_ps.setInt(19, msg.getFlaps());
 			
-			// Add to the batch
-			executeUpdate(1);
+			// execute the statement
+			_ps.executeUpdate();
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
+	}
+
+	/**
+	 * Releases the prepared statement.
+	 */
+	public void release() {
+	   try {
+	      _ps.close();
+	   } catch (Exception e) {
+	   }
 	}
 }
