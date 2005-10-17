@@ -11,12 +11,12 @@ import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-
-import org.deltava.acars.xml.MessageWriter;
-import org.deltava.acars.xml.XMLException;
+import org.deltava.acars.xml.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
+
+import org.deltava.jdbc.ConnectionPoolFullException;
 
 import org.deltava.security.Authenticator;
 
@@ -39,7 +39,7 @@ public class AuthenticateCommand implements ACARSCommand {
 	 * @param env the message Envelope
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
-
+	   
 		// Get the message and validate the user ID
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
 		if (StringUtils.isEmpty(msg.getUserID())) {
@@ -85,13 +85,25 @@ public class AuthenticateCommand implements ACARSCommand {
 		} catch (SecurityException se) {
 			usr = null;
 			log.warn("Authentication Failure for " + msg.getUserID());
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(usr, msg.getID());
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed");
 			ctx.push(errMsg, env.getConnectionID());
+		} catch (DAOException de) {
+		   usr = null;
+		   if (de instanceof ConnectionPoolFullException) {
+		      log.warn("Error loading " + msg.getUserID() + " - Connection Pool Full");
+		   } else {
+		      log.error("Error loading " + msg.getUserID() + " - " + de.getMessage(), de);
+		   }
+		   
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", "Authentication Failed - " + de.getMessage());
+			ctx.push(errMsg, env.getConnectionID());
 		} catch (Exception e) {
+		   usr = null;
 			log.error("Error loading " + msg.getUserID() + " - " + e.getMessage(), e);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(usr, msg.getID());
-			errMsg.setEntry("error", "Authentication Failed");
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", "Authentication Failed - " + e.getMessage());
 			ctx.push(errMsg, env.getConnectionID());
 		} finally {
 			ctx.release();
