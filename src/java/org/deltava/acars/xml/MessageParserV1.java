@@ -232,10 +232,15 @@ class MessageParserV1 implements MessageParser {
 		} catch (Exception ex) {
 			msg.setStartTime(new Date(_timeStamp));
 		}
+		
+		// Load the flight code
+		String fCode = getChildText(e, "flight_num", SystemData.get("airline.code") + "001");
+		if (Character.isLetter(fCode.charAt(0)))
+		   fCode = SystemData.get("airline.code") + fCode;
 
 		// Load the bean
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
-		msg.setFlightCode(getChildText(e, "flight_num", "???"));
+		msg.setFlightCode(fCode);
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
 		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		msg.setComments(getChildText(e, "remarks", null));
