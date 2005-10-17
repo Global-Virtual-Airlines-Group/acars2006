@@ -33,15 +33,19 @@ public class CommandContext {
 		_pool = acp;
 		_ac = _pool.get(conID);
 	}
-
+	
 	public Connection getConnection() throws ConnectionPoolException {
+	   return getConnection(false);
+	}
+
+	public Connection getConnection(boolean isSystem) throws ConnectionPoolException {
 
 		if (_con != null)
 			throw new IllegalStateException("JDBC Connection already reserved");
 
 		// Get the connection pool
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		_con = cp.getConnection();
+		_con = cp.getConnection(isSystem);
 		return _con;
 	}
 

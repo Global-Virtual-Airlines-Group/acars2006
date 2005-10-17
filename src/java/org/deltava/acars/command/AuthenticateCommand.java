@@ -67,7 +67,7 @@ public class AuthenticateCommand implements ACARSCommand {
 		UserData ud = null;
 		Pilot usr = null;
 		try {
-			Connection c = ctx.getConnection();
+			Connection c = ctx.getConnection(true);
 
 			// Figure out the DN from the Pilot ID
 			GetPilot pdao = new GetPilot(c);
