@@ -1,15 +1,12 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.sql.Connection;
-
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.dao.DAOException;
-import org.deltava.dao.acars.SetPosition;
+import org.deltava.acars.util.PositionCache;
 
 import org.deltava.util.system.SystemData;
 
@@ -54,18 +51,9 @@ public class PositionCommand implements ACARSCommand {
 			// Check for position flood
 			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
 			if (pmAge >= SystemData.getInt("acars.position_interval")) {
-				try {
-					Connection c = ctx.getConnection();
-					SetPosition dao = new SetPosition(c);
-					dao.write(msg, con.getID(), con.getFlightID());
-				} catch (DAOException de) {
-					log.error(de.getMessage(), de);
-				} finally {
-					ctx.release();
-				}
+			   PositionCache.push(msg, con.getID(), con.getFlightID());
 			} else {
-				log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="
-						+ String.valueOf(pmAge) + "ms");
+				log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="  + pmAge + "ms");
 				return;
 			}
 		}

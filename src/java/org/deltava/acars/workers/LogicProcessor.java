@@ -1,10 +1,18 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
+
+import org.deltava.acars.util.PositionCache;
+
+import org.deltava.jdbc.*;
+
+import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.DAOException;
 
 import org.deltava.util.system.SystemData;
 
@@ -15,6 +23,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public class LogicProcessor extends Worker {
+   
+   private static final long CACHE_FLUSH = 60000;
 
 	private ACARSConnectionPool _pool;
 	private Map _commands;
@@ -89,6 +99,37 @@ public class LogicProcessor extends Worker {
 				} catch (Exception e) {
 					log.error("Error Processing Message from " + env.getOwnerID() + " - " + e.getMessage(), e);
 				}
+			}
+			
+			// Check if we need to flush the position cache
+			if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH)) {
+			   log.debug("Flushing Position Cache");
+			   
+			   // Get the connection pool
+			   ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+			   Connection c = null;
+			   try {
+			      c = pool.getConnection(true);
+			      SetPosition dao = new SetPosition(c);
+			      
+			      // Flush the cache
+			      synchronized (PositionCache.class) {
+			         for (Iterator i = PositionCache.getAll().iterator(); i.hasNext(); ) {
+			            PositionCache.PositionCacheEntry ce = (PositionCache.PositionCacheEntry) i.next();
+			            dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
+			            i.remove();
+			         }
+			         
+			         dao.release();
+			         PositionCache.flush();
+			      }
+			   } catch (ConnectionPoolFullException cpfe) {
+			      log.warn("Cannot flush Position Cache - Connection Pool Full");
+			   } catch (DAOException de) {
+			      log.error("Error flushing Position Cache - " + de.getMessage(), de);
+			   } finally {
+			      pool.release(c);
+			   }
 			}
 
 			// Notify everyone waiting on the output stack

@@ -110,6 +110,8 @@ public class FilePIREPCommand implements ACARSCommand {
 					PositionMessage pmsg = (PositionMessage) i.next();
 					pwdao.write(pmsg, ac.getID(), info.getFlightID());
 				}
+				
+				pwdao.release();
 			} else {
 				afr.setFSVersion(2004);
 				log.warn("No Flight Information found for ACARS Connection");
