@@ -50,7 +50,7 @@ public class EndFlightCommand implements ACARSCommand {
 		// Write the info to the database
 		iMsg.setEndTime(new Date());
 		try {
-			Connection c = ctx.getConnection();
+			Connection c = ctx.getConnection(true);
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.close(iMsg.getFlightID(), env.getConnectionID(), true);
 		} catch (DAOException de) {
