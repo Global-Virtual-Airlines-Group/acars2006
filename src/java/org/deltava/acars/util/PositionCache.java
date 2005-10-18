@@ -23,7 +23,7 @@ public final class PositionCache {
       private long _conID;
       private int _flightID;
       
-      private PositionCacheEntry(PositionMessage msg, long cID, int fID) {
+      PositionCacheEntry(PositionMessage msg, long cID, int fID) {
          super();
          _msg = msg;
          _conID = cID;
@@ -74,8 +74,8 @@ public final class PositionCache {
    }
    
    /**
-    * Returns the number of milliseconds since the last position flush
-    * @return
+    * Returns the number of milliseconds since the last position flush.
+    * @return the number of millseconds
     */
    public static long getFlushInterval() {
       return System.currentTimeMillis() - _lastFlush;
