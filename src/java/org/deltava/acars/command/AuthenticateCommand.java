@@ -108,13 +108,13 @@ public class AuthenticateCommand implements ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-
-		// If we're not logged in, abort
-		if (usr == null)
-			return;
 		
 		// Get the ACARS connection
 		ACARSConnection con = ctx.getACARSConnection();
+
+		// If we're not logged in or the connection is gone, abort
+		if ((usr == null) || (con == null))
+			return;
 
 		// Log the user in
 		usr.login(con.getRemoteHost());
