@@ -235,7 +235,7 @@ class MessageParserV1 implements MessageParser {
 		
 		// Load the flight code
 		String fCode = getChildText(e, "flight_num", SystemData.get("airline.code") + "001");
-		if (Character.isLetter(fCode.charAt(0)))
+		if (!Character.isLetter(fCode.charAt(0)))
 		   fCode = SystemData.get("airline.code") + fCode;
 
 		// Load the bean
