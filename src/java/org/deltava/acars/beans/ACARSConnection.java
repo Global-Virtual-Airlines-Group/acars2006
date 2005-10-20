@@ -32,6 +32,7 @@ public class ACARSConnection implements Serializable, Comparable {
    private InetAddress _remoteAddr;
    private String _remoteHost;
    private int protocolVersion = 1;
+   private int clientVersion;
 
    // Input/output network buffers
    private ByteBuffer _iBuffer;
@@ -169,6 +170,10 @@ public class ACARSConnection implements Serializable, Comparable {
    public int getProtocolVersion() {
       return this.protocolVersion;
    }
+   
+   public int getClientVersion() {
+      return this.clientVersion;
+   }
 
    public long getStartTime() {
       return this.startTime;
@@ -213,6 +218,11 @@ public class ACARSConnection implements Serializable, Comparable {
    public void setProtocolVersion(int pv) {
       if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
          this.protocolVersion = pv;
+   }
+   
+   public void setClientVersion(int ver) {
+      if (ver > 50)
+         clientVersion = ver;
    }
 
    public void setUser(Pilot p) {

@@ -1,8 +1,3 @@
-/*
- * Created on Mar 9, 2004
- *
- * Write connection info data access object
- */
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -39,8 +34,8 @@ public final class SetConnection extends DAO {
 		
 		try {
 			// Init the prepared statement
-			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST) VALUES "
-					+ "(?, ?, ?, INET_ATON(?), ?)");
+			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD) "
+			      + "VALUES (?, ?, ?, INET_ATON(?), ?, ?)");
 			
 			// Set the prepared statement
 			_ps.setLong(1, c.getID());
@@ -48,6 +43,7 @@ public final class SetConnection extends DAO {
 			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
 			_ps.setString(4, c.getRemoteAddr());
 			_ps.setString(5, c.getRemoteHost());
+			_ps.setInt(6, c.getClientVersion());
 			
 			// Execute the prepared statement and close
 			_ps.executeUpdate();

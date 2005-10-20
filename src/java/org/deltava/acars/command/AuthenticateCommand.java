@@ -121,6 +121,7 @@ public class AuthenticateCommand implements ACARSCommand {
 		con.setUser(usr);
 		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
+		con.setClientVersion(msg.getClientBuild());
 
 		// Update the registration with the dispatcher - remove and re-register
 		try {
@@ -164,5 +165,8 @@ public class AuthenticateCommand implements ACARSCommand {
 		// Send the ack message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
 		ctx.push(ackMsg, env.getConnectionID());
+		
+		// Log new connection
+		log.info("New Connection from " + usr.getName() + " (Build " + con.getClientVersion() + ")");
 	}
 }
