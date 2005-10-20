@@ -85,4 +85,20 @@ public final class SetInfo extends DAO {
 	      throw new DAOException(se);
 	   }
 	}
+	
+	/**
+	 * Marks a flight as having a filed PIREP, since the PIREP can be in different databases.
+	 * @param flightID the Flight ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void logPIREP(int flightID) throws DAOException {
+	   try {
+	      prepareStatement("UPDATE acars.FLIGHTS SET PIREP=? WHERE (ID=?)");
+	      _ps.setBoolean(1, true);
+	      _ps.setInt(2, flightID);
+	      executeUpdate(0);
+	   } catch (SQLException se) {
+	      throw new DAOException(se);
+	   }
+	}
 }

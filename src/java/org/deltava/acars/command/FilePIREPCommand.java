@@ -14,7 +14,8 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.acars.*;
+
 import org.deltava.util.system.SystemData;
 
 /**
@@ -103,6 +104,10 @@ public class FilePIREPCommand implements ACARSCommand {
 				afr.setFSVersion(info.getFSVersion());
 				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+				
+				// Mark the PIREP as filed
+				SetInfo idao = new SetInfo(con);
+				idao.logPIREP(info.getFlightID());
 
 				log.info("Writing " + info.getPositions().size() + " offline Position reports");
 				SetPosition pwdao = new SetPosition(con);
@@ -136,7 +141,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
-
+			
 			// Commit the transaction
 			con.commit();
 		} catch (Exception e) {
