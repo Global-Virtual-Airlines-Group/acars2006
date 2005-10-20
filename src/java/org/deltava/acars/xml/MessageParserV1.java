@@ -356,9 +356,9 @@ class MessageParserV1 implements MessageParser {
 
 			// Load the 1X/2X/4X times
 			try {
-				afr.setTime1X(Integer.parseInt(getChildText("time1X", "0")) * 60);
-				afr.setTime2X(Integer.parseInt(getChildText("time2X", "0")) * 60);
-				afr.setTime4X(Integer.parseInt(getChildText("time4X", "0")) * 60);
+				afr.setTime1X(Integer.parseInt(getChildText("time1X", "0")));
+				afr.setTime2X(Integer.parseInt(getChildText("time2X", "0")));
+				afr.setTime4X(Integer.parseInt(getChildText("time4X", "0")));
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid time - " + nfe.getMessage());
 			}
