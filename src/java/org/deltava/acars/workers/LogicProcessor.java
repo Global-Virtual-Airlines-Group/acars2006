@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 
 public class LogicProcessor extends Worker {
    
-   private static final long CACHE_FLUSH = 60000;
+   private static final long CACHE_FLUSH = 40000;
 
 	private ACARSConnectionPool _pool;
 	private Map _commands;
