@@ -116,8 +116,12 @@ public class LogicProcessor extends Worker {
 			      synchronized (PositionCache.class) {
 			         for (Iterator i = PositionCache.getAll().iterator(); i.hasNext(); ) {
 			            PositionCache.PositionCacheEntry ce = (PositionCache.PositionCacheEntry) i.next();
-			            dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
-			            i.remove();
+			            try {
+			               dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
+			               i.remove();
+			            } catch (DAOException de) {
+			               log.error("Error writing position - " + de.getMessage(), de);
+			            }
 			         }
 			         
 			         dao.release();
@@ -126,7 +130,7 @@ public class LogicProcessor extends Worker {
 			   } catch (ConnectionPoolFullException cpfe) {
 			      log.warn("Cannot flush Position Cache - Connection Pool Full");
 			   } catch (DAOException de) {
-			      log.error("Error flushing Position Cache - " + de.getMessage(), de);
+			      log.error("Error flushing Position Cache - " + de.getMessage());
 			   } finally {
 			      pool.release(c);
 			   }
