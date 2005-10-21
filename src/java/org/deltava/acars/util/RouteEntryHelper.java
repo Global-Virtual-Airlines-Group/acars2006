@@ -45,7 +45,9 @@ public class RouteEntryHelper {
       }
       
       public final String getIconColor() {
-         if (isFlagSet(ACARSFlags.FLAG_ONGROUND)) {
+         if (isFlagSet(ACARSFlags.FLAG_PAUSED)) {
+            return RED;
+         } else if (isFlagSet(ACARSFlags.FLAG_ONGROUND)) {
             return WHITE;
          } else if (getVerticalSpeed() > 100) {
             return ORANGE;
