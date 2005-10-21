@@ -47,7 +47,7 @@ public final class PositionCache {
          if (_conID != e2._conID)
             return false;
          
-         return (_msg.getID() == e2._msg.getID());
+         return _msg.getDate().equals(e2._msg.getDate());
       }
    }
    
