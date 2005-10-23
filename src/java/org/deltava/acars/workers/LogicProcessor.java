@@ -23,8 +23,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public class LogicProcessor extends Worker {
-   
-   private static final long CACHE_FLUSH = 40000;
+
+	private static final long CACHE_FLUSH = 40000;
 
 	private ACARSConnectionPool _pool;
 	private Map _commands;
@@ -52,13 +52,56 @@ public class LogicProcessor extends Worker {
 		_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
 		log.info("Loaded " + _commands.size() + " commands");
 	}
+	
+	public void close() {
+		if (PositionCache.isDirty()) {
+			log.info("Position Cache is Dirty - flushing");
+			flushPositionCache();
+		}
+		
+		super.close();
+	}
+
+	private void flushPositionCache() {
+		log.debug("Flushing Position Cache");
+
+		// Get the connection pool
+		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		Connection c = null;
+		try {
+			c = pool.getConnection(true);
+			SetPosition dao = new SetPosition(c);
+
+			// Flush the cache
+			synchronized (PositionCache.class) {
+				for (Iterator i = PositionCache.getAll().iterator(); i.hasNext();) {
+					PositionCache.PositionCacheEntry ce = (PositionCache.PositionCacheEntry) i.next();
+					try {
+						dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
+						i.remove();
+					} catch (DAOException de) {
+						log.error("Error writing position - " + de.getMessage(), de);
+					}
+				}
+
+				dao.release();
+				PositionCache.flush();
+			}
+		} catch (ConnectionPoolFullException cpfe) {
+			log.warn("Cannot flush Position Cache - Connection Pool Full");
+		} catch (Exception e) {
+			log.error("Error flushing Position Cache - " + e.getMessage());
+		} finally {
+			pool.release(c);
+		}
+	}
 
 	private void process(Envelope env) throws Exception {
-		
+
 		// Get the message and start time
 		long startTime = System.currentTimeMillis();
 		Message msg = (Message) env.getMessage();
-		
+
 		// Check if we can be anonymous
 		boolean isAuthenticated = (env.getOwner() != null);
 		if (isAuthenticated == msg.isAnonymous()) {
@@ -70,14 +113,15 @@ public class LogicProcessor extends Worker {
 		CommandContext ctx = new CommandContext(_outStack, _pool, env.getConnectionID());
 
 		// Log the received message and get the command to process it
-		log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + Long.toHexString(env.getConnectionID()).toUpperCase());
+		log.debug(Message.MSG_TYPES[msg.getType()] + " message from "
+				+ Long.toHexString(env.getConnectionID()).toUpperCase());
 		ACARSCommand cmd = (ACARSCommand) _commands.get(new Integer(msg.getType()));
 		if (cmd != null) {
 			cmd.execute(ctx, env);
 		} else {
 			log.warn("No command for message");
 		}
-		
+
 		// Calculate execution time
 		long execTime = System.currentTimeMillis() - startTime;
 		if (execTime > 7000)
@@ -100,41 +144,10 @@ public class LogicProcessor extends Worker {
 					log.error("Error Processing Message from " + env.getOwnerID() + " - " + e.getMessage(), e);
 				}
 			}
-			
+
 			// Check if we need to flush the position cache
-			if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH)) {
-			   log.debug("Flushing Position Cache");
-			   
-			   // Get the connection pool
-			   ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-			   Connection c = null;
-			   try {
-			      c = pool.getConnection(true);
-			      SetPosition dao = new SetPosition(c);
-			      
-			      // Flush the cache
-			      synchronized (PositionCache.class) {
-			         for (Iterator i = PositionCache.getAll().iterator(); i.hasNext(); ) {
-			            PositionCache.PositionCacheEntry ce = (PositionCache.PositionCacheEntry) i.next();
-			            try {
-			               dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
-			               i.remove();
-			            } catch (DAOException de) {
-			               log.error("Error writing position - " + de.getMessage(), de);
-			            }
-			         }
-			         
-			         dao.release();
-			         PositionCache.flush();
-			      }
-			   } catch (ConnectionPoolFullException cpfe) {
-			      log.warn("Cannot flush Position Cache - Connection Pool Full");
-			   } catch (DAOException de) {
-			      log.error("Error flushing Position Cache - " + de.getMessage());
-			   } finally {
-			      pool.release(c);
-			   }
-			}
+			if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH))
+				flushPositionCache();
 
 			// Notify everyone waiting on the output stack
 			_outStack.wakeup();
