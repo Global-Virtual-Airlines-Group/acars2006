@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.beans.acars.ACARSFlags;
 
 import org.deltava.acars.util.PositionCache;
 
@@ -51,15 +52,20 @@ public class PositionCommand implements ACARSCommand {
 			// Check for position flood
 			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
 			if (pmAge >= SystemData.getInt("acars.position_interval")) {
-			   PositionCache.push(msg, con.getID(), con.getFlightID());
+				boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED) || msg.isFlagSet(ACARSFlags.FLAG_SLEW);
+				if (!isPaused) {
+					PositionCache.push(msg, con.getID(), con.getFlightID());
+					con.setPosition(msg);
+				} else {
+					con.setPosition(null);					
+				}
 			} else {
 				log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="  + pmAge + "ms");
 				return;
 			}
 		}
 
-		// Log and update
+		// Log message received
 		log.debug("Received position from " + con.getUser().getPilotCode());
-		con.setPosition(msg);
 	}
 }
