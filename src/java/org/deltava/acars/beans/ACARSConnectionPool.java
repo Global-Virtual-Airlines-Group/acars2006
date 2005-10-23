@@ -27,7 +27,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
-	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 15000;
+	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 25000;
 
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
