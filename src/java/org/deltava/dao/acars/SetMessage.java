@@ -6,7 +6,6 @@ import java.sql.*;
 import org.deltava.dao.DAO;
 import org.deltava.dao.DAOException;
 
-import org.deltava.beans.Pilot;
 import org.deltava.acars.message.TextMessage;
 
 /**
@@ -17,6 +16,9 @@ import org.deltava.acars.message.TextMessage;
  */
 
 public class SetMessage extends DAO {
+   
+   private static final String SQL = "INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) "
+      + "VALUES (?, ?, ?, ?, ?, ?)";
 
 	/**
 	 * Initialize the Data Access Object.
@@ -24,6 +26,16 @@ public class SetMessage extends DAO {
 	 */
 	public SetMessage(Connection c) {
 		super(c);
+	}
+	
+	/**
+	 * Helper method to initialize the prepared statement.
+	 */
+	private void initStatement() throws SQLException {
+	   if (_ps == null)
+	      prepareStatementWithoutLimits(SQL);
+	   else
+	      _ps.clearParameters();
 	}
 
 	/**
@@ -33,21 +45,32 @@ public class SetMessage extends DAO {
 	 * @param recipient the message recipient
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void write(TextMessage msg, long conID, Pilot recipient) throws DAOException {
-		
+	public void write(TextMessage msg, long conID, int recipientID) throws DAOException {
 		try {
-			prepareStatement("INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) VALUES (?, ?, ?, ?, ?, ?)");
+		   initStatement();
+
+		   // Set the prepared statement parameters
 			_ps.setLong(1, conID);
 			_ps.setLong(2, msg.getID());
 			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
 			_ps.setInt(4, msg.getSender().getID());
-			_ps.setInt(5, (recipient == null) ? 0 : recipient.getID());
+			_ps.setInt(5, recipientID);
 			_ps.setString(6, msg.getText());
 			
 			// Update the database
-			executeUpdate(1);
+			_ps.executeUpdate();
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
+	}
+	
+	/**
+	 * Releases the prepared statement.
+	 */
+	public void release() {
+	   try {
+	      _ps.close();
+	   } catch (Exception e) {
+	   }
 	}
 }
