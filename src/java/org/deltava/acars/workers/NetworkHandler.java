@@ -33,14 +33,8 @@ public final class NetworkHandler extends Worker {
 	private static Selector _cSelector;
 	private static ServerSocketChannel _channel;
 
-	private MessageStack _fmtInputStack;
-
 	public NetworkHandler() {
 		super("Network I/O Handler", NetworkHandler.class);
-	}
-
-	public void setFormattedInputStack(MessageStack stack) {
-		_fmtInputStack = stack;
 	}
 
 	private void newConnection(SocketChannel sc) {
@@ -197,16 +191,17 @@ public final class NetworkHandler extends Worker {
 						log.debug("QUIT Message from " + con.getUser().getName());
 						QuitMessage qmsg = new QuitMessage(con.getUser());
 						qmsg.setFlightID(con.getFlightID());
-						_fmtInputStack.push(new Envelope(qmsg, con.getID()));
+						MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
+						MessageStack.MSG_INPUT.wakeup();
 					}
 				}
 
 				// Wake up threads waiting for stuff on the input stack
-				_inStack.wakeup();
+				MessageStack.RAW_INPUT.wakeup();
+				
+				// Dump stuff from the output queue to the sockets
+				_pool.write();
 			}
-
-			// Dump stuff from the output queue to the sockets
-			_pool.write();
 		}
 
 		// Mark the interrupt

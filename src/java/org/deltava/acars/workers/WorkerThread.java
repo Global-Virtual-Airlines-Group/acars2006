@@ -1,7 +1,5 @@
 package org.deltava.acars.workers;
 
-import org.deltava.acars.beans.MessageStack;
-
 /**
  * @author Luke
  * @version 1.0
@@ -11,8 +9,6 @@ import org.deltava.acars.beans.MessageStack;
 public abstract class WorkerThread extends Thread {
 
 	protected WorkerStatus _status;
-	protected MessageStack _inStack;
-	protected MessageStack _outStack;
 	
 	protected abstract void $run0() throws Exception;
 
@@ -23,11 +19,6 @@ public abstract class WorkerThread extends Thread {
 
 	public final WorkerStatus getWorkerStatus() {
 		return _status;
-	}
-
-	public void setStacks(MessageStack inS, MessageStack outS) {
-		_inStack = inS;
-		_outStack = outS;
 	}
 
 	// Default placeholder for the open() method; just sets status

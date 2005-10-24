@@ -4,6 +4,8 @@ package org.deltava.acars.workers;
 import java.util.Iterator;
 
 import org.deltava.acars.beans.Envelope;
+import org.deltava.acars.beans.MessageStack;
+
 import org.deltava.acars.message.Message;
 
 import org.deltava.acars.xml.MessageReader;
@@ -18,46 +20,44 @@ import org.deltava.acars.xml.XMLException;
 
 public final class InputTranslator extends Worker {
 
-	public InputTranslator() {
-		super("Input Stack Processor", InputTranslator.class);
-	}
+   public InputTranslator() {
+      super("Input Stack Processor", InputTranslator.class);
+   }
 
-	protected void $run0() {
-		log.info("Started");
+   protected void $run0() {
+      log.info("Started");
 
-		while (!Thread.currentThread().isInterrupted()) {
-			// Process stuff on the input stack
-			while (_inStack.hasNext()) {
-				Envelope env = _inStack.pop();
-				if (env != null) {
-					log.debug("Message received from " + env.getOwnerID());
-					try {
-						MessageReader reader = new MessageReader(env);
+      while (!Thread.currentThread().isInterrupted()) {
+         // Process stuff on the input stack
+         while (MessageStack.RAW_INPUT.hasNext()) {
+            Envelope env = MessageStack.RAW_INPUT.pop();
+            if (env != null) {
+               log.debug("Message received from " + env.getOwnerID());
+               try {
+                  MessageReader reader = new MessageReader(env);
 
-						// Copy the messages from the parser to the formatted input stack
-						for (Iterator i = reader.parse().iterator(); i.hasNext();) {
-							Message msg = (Message) i.next();
-							if (msg.getType() != Message.MSG_QUIT)
-								_outStack.push(new Envelope(msg, env.getConnectionID()));
-						}
-					} catch (XMLException xe) {
-						log.warn("Translation Error - " + xe.getMessage());
-					}
-				}
-			}
+                  // Copy the messages from the parser to the formatted input stack
+                  for (Iterator i = reader.parse().iterator(); i.hasNext();) {
+                     Message msg = (Message) i.next();
+                     if (msg.getType() != Message.MSG_QUIT)
+                        MessageStack.MSG_INPUT.push(new Envelope(msg, env.getConnectionID()));
+                  }
+               } catch (XMLException xe) {
+                  log.warn("Translation Error - " + xe.getMessage());
+               }
+            }
+         }
 
-			// Wake up any threads waiting for something on the output stack
-			_outStack.wakeup();
+         // Wake up any threads waiting for something on the formatted input stack
+         MessageStack.MSG_INPUT.wakeup();
 
-			// Wait until something is on the input stack or we get interrupted
-			try {
-				synchronized (_inStack) {
-					_inStack.wait();
-				}
-			} catch (InterruptedException ie) {
-				log.info("Interrupted");
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
+         // Wait until something is on the input stack or we get interrupted
+         try {
+            MessageStack.RAW_INPUT.waitForActivity();
+         } catch (InterruptedException ie) {
+            log.info("Interrupted");
+            Thread.currentThread().interrupt();
+         }
+      }
+   }
 }

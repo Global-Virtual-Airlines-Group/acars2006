@@ -11,7 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.deltava.jdbc.*;
 
 import org.deltava.acars.beans.ACARSConnectionPool;
-import org.deltava.acars.beans.MessageStack;
+
 import org.deltava.acars.workers.*;
 
 import org.deltava.dao.GetAirport;
@@ -35,12 +35,6 @@ public abstract class ServerDaemon {
  	protected static ThreadGroup _workers;
  	protected static List _tasks;
  	protected static Map _threads;
- 	
-	// Internal message stacks
-	private static MessageStack rawInputStack = new MessageStack();
-	private static MessageStack inputStack = new MessageStack();
-	private static MessageStack outputStack = new MessageStack();
-	private static MessageStack rawOutputStack = new MessageStack();
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -115,7 +109,6 @@ public abstract class ServerDaemon {
  	protected static void initACARSConnectionPool() throws ACARSException {
  		
 		ACARSConnectionPool cPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
-		cPool.setStacks(rawInputStack, rawOutputStack);
 		cPool.setTimeout(SystemData.getInt("acars.timeout"));
 		SystemData.add(SystemData.ACARS_POOL, cPool);
  	}
@@ -127,23 +120,18 @@ public abstract class ServerDaemon {
 
 		// Init the input translator
 		InputTranslator iTrans = new InputTranslator();
-		iTrans.setStacks(rawInputStack, inputStack);
 		_tasks.add(iTrans);
 
 		// Init the output dispatcher
 		OutputDispatcher oDispatch = new OutputDispatcher();
-		oDispatch.setStacks(outputStack, rawOutputStack);
 		_tasks.add(oDispatch);
 
 		// Init the network handler
 		NetworkHandler nHandler = new NetworkHandler();
-		nHandler.setStacks(rawInputStack, rawOutputStack);
-		nHandler.setFormattedInputStack(inputStack);
 		_tasks.add(nHandler);
 
 		// Init the logic processor
 		LogicProcessor lProcessor = new LogicProcessor();
-		lProcessor.setStacks(inputStack, outputStack);
 		_tasks.add(lProcessor);
 
 		// Try to init all of the worker threads

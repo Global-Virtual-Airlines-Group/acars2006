@@ -2,8 +2,6 @@ package org.deltava.acars.workers;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.acars.beans.MessageStack;
-
 /**
  * @author Luke
  * @version 1.0
@@ -16,8 +14,6 @@ public abstract class Worker implements Runnable {
 	private String _name;
 	
 	protected WorkerStatus _status;
-	protected MessageStack _inStack;
-	protected MessageStack _outStack;
 	
 	protected abstract void $run0() throws Exception;
 
@@ -33,11 +29,6 @@ public abstract class Worker implements Runnable {
 	
 	public final String getName() {
 		return _name;
-	}
-
-	public void setStacks(MessageStack inS, MessageStack outS) {
-		_inStack = inS;
-		_outStack = outS;
 	}
 
 	// Default placeholder for the open() method; just sets status
