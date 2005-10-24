@@ -32,7 +32,7 @@ public final class OutputDispatcher extends Worker {
                try {
                   MessageWriter.dispatch(env.getConnectionID(), msg);
                } catch (XMLException xe) {
-                  log.error("Cannot dispatch - " + xe.getMessage(), xe);
+                  log.error("Cannot dispatch - " + xe.getMessage());
                }
             }
          }
