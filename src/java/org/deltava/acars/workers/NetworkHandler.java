@@ -203,10 +203,10 @@ public final class NetworkHandler extends Worker {
 
 				// Wake up threads waiting for stuff on the input stack
 				_inStack.wakeup();
-
-				// Dump stuff from the output queue to the sockets
-				_pool.write();
 			}
+
+			// Dump stuff from the output queue to the sockets
+			_pool.write();
 		}
 
 		// Mark the interrupt
