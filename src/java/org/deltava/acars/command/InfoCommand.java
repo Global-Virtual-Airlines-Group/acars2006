@@ -33,7 +33,21 @@ public class InfoCommand implements ACARSCommand {
 		// Get the message
 		InfoMessage msg = (InfoMessage) env.getMessage();
 		String flightType = msg.isOffline() ? "Offline" : "Online";
+		
+		// Check if we already have a flight ID and are requesting a new one
 		boolean assignID = (msg.getFlightID() == 0);
+		ACARSConnection con = ctx.getACARSConnection();
+		InfoMessage curInfo = con.getFlightInfo();
+		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0)) {
+		   msg.setFlightID(curInfo.getFlightID());
+		   log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
+
+		   // Send back the acknowledgement
+			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+			ctx.push(ackMsg, env.getConnectionID());
+			return;
+		}
 
 		// Write the info to the database
 		try {
@@ -76,7 +90,6 @@ public class InfoCommand implements ACARSCommand {
 		ctx.push(ackMsg, env.getConnectionID());
 
 		// Set the info for the connection and write it to the database
-		ACARSConnection con = ctx.getACARSConnection();
 		con.setFlightInfo(msg);
 		if (msg.isComplete()) {
 			log.info("Received completed " + flightType + " flight information from " + con.getUserID());
