@@ -71,6 +71,7 @@ public class AuthenticateCommand implements ACARSCommand {
 
 			// Figure out the DN from the Pilot ID
 			GetPilot pdao = new GetPilot(c);
+			pdao.setQueryMax(1);
 			usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
 				throw new SecurityException("Unknown User ID");
