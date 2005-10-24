@@ -1,7 +1,6 @@
 // Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.sql.Connection;
 import java.util.*;
 
 import org.apache.log4j.Logger;
@@ -11,8 +10,7 @@ import org.deltava.beans.Pilot;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.dao.acars.SetMessage;
-import org.deltava.dao.DAOException;
+import org.deltava.acars.util.TextMessageCache;
 
 import org.deltava.util.system.SystemData;
 
@@ -62,15 +60,7 @@ public class TextMessageCommand implements ACARSCommand {
 			}
 		}
 		
-		// Save the message
-		try {
-			Connection c = ctx.getConnection();
-			SetMessage wdao = new SetMessage(c);
-			wdao.write(msg, env.getConnectionID(), rUsr);
-		} catch (DAOException de) {
-			log.error(de.getMessage(), de);
-		} finally {
-			ctx.release();
-		}
+		// Cache the message
+		TextMessageCache.push(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
 	}
 }
