@@ -62,6 +62,7 @@ public class EndFlightCommand implements ACARSCommand {
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
 		con.setPosition(null);
+		con.setFlightInfo(null);
 		
 		// Create the ack message and envelope - these are always acknowledged
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
