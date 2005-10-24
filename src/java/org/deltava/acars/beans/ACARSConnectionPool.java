@@ -40,10 +40,6 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	// The selector to use for non-blocking I/O reads
 	private Selector _cSelector;
 
-	// The input/output stacks in raw text
-	private MessageStack _inputStack;
-	private MessageStack _outputStack;
-
 	/**
 	 * Creates a new ACARS Connection Pool.
 	 * @param mxSize the maximum size of the pool
@@ -161,7 +157,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public Collection checkConnections() {
 
 		// Start with the list of dropped connections
-		ArrayList disCons = new ArrayList(_disCon);
+		List disCons = new ArrayList(_disCon);
 		_disCon.clear();
 
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
@@ -284,7 +280,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 					String msg = con.read();
 					if (msg != null) {
 						Envelope env = new Envelope(con.getUser(), msg, con.getID());
-						_inputStack.push(env);
+						MessageStack.RAW_INPUT.push(env);
 					}
 				} catch (SocketException se) {
 					log.error(se.getMessage(), se);
@@ -332,27 +328,14 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		_cSelector = cs;
 	}
 
-	public void setStacks(MessageStack is, MessageStack os) throws ACARSException {
-
-		// Check that the stacks are not null
-		if ((is == null) || (os == null))
-			throw new ACARSException("Input/Output stacks are NULL");
-
-		// Check that we're not resetting anything
-		if ((_inputStack == null) && (_outputStack == null)) {
-			_inputStack = is;
-			_outputStack = os;
-		}
-	}
-
 	public void setTimeout(int toSeconds) {
 		_inactivityTimeout = (toSeconds < 60) ? -1 : (toSeconds * 1000);
 	}
 
 	public void write() {
 		// Loop through the raw output stack
-		while (_outputStack.hasNext()) {
-			Envelope env = _outputStack.pop();
+		while (MessageStack.RAW_OUTPUT.hasNext()) {
+			Envelope env = MessageStack.RAW_OUTPUT.pop();
 
 			// Get the connection and write the message
 			ACARSConnection c = get(env.getConnectionID());

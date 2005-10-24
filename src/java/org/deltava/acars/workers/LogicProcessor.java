@@ -6,12 +6,11 @@ import java.sql.Connection;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
-
-import org.deltava.acars.util.PositionCache;
+import org.deltava.acars.util.*;
 
 import org.deltava.jdbc.*;
 
-import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.acars.*;
 import org.deltava.dao.DAOException;
 
 import org.deltava.util.system.SystemData;
@@ -24,7 +23,7 @@ import org.deltava.util.system.SystemData;
 
 public class LogicProcessor extends Worker {
 
-	private static final long CACHE_FLUSH = 40000;
+	private static final long CACHE_FLUSH = 30000;
 
 	private ACARSConnectionPool _pool;
 	private Map _commands;
@@ -59,6 +58,11 @@ public class LogicProcessor extends Worker {
 			flushPositionCache();
 		}
 		
+		if (TextMessageCache.isDirty()) {
+		   log.info("Text Message Cache is Dirty - flushing");
+		   flushMessageCache();
+		}
+		
 		super.close();
 	}
 
@@ -87,12 +91,43 @@ public class LogicProcessor extends Worker {
 				dao.release();
 				PositionCache.flush();
 			}
-		} catch (ConnectionPoolFullException cpfe) {
-			log.warn("Cannot flush Position Cache - Connection Pool Full");
 		} catch (Exception e) {
-			log.error("Error flushing Position Cache - " + e.getMessage());
+			log.error("Cannot flush Position Cache - " + e.getMessage());
 		} finally {
 			pool.release(c);
+		}
+	}
+	
+	private void flushMessageCache() {
+	   log.debug("Flushing Text Message Cache");
+	   
+		// Get the connection pool
+		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		Connection c = null;
+		try {
+			c = pool.getConnection(true);
+			SetMessage dao = new SetMessage(c);
+
+			// Flush the cache
+			synchronized (TextMessageCache.class) {
+				for (Iterator i = PositionCache.getAll().iterator(); i.hasNext();) {
+					TextMessageCache.TextMessageCacheEntry ce = (TextMessageCache.TextMessageCacheEntry) i.next();
+					try {
+						dao.write(ce.getMessage(), ce.getConnectionID(), ce.getRecipientID());
+						i.remove();
+					} catch (DAOException de) {
+						log.error("Error writing position - " + de.getMessage(), de);
+					}
+				}
+				
+				dao.release();
+				PositionCache.flush();
+			}
+		   
+		} catch (Exception e) {
+		   log.error("Cannot flush Text Message Cache - " + e.getMessage());
+		} finally {
+		   pool.release(c);
 		}
 	}
 
@@ -110,7 +145,7 @@ public class LogicProcessor extends Worker {
 		}
 
 		// Initialize the command context
-		CommandContext ctx = new CommandContext(_outStack, _pool, env.getConnectionID());
+		CommandContext ctx = new CommandContext(MessageStack.MSG_OUTPUT, _pool, env.getConnectionID());
 
 		// Log the received message and get the command to process it
 		log.debug(Message.MSG_TYPES[msg.getType()] + " message from "
@@ -124,7 +159,7 @@ public class LogicProcessor extends Worker {
 
 		// Calculate execution time
 		long execTime = System.currentTimeMillis() - startTime;
-		if (execTime > 7000)
+		if (execTime > 5000)
 			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 	}
 
@@ -136,28 +171,38 @@ public class LogicProcessor extends Worker {
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
-			while (_inStack.hasNext()) {
-				Envelope env = _inStack.pop();
+		   long startTime = System.currentTimeMillis();
+		   
+			while (MessageStack.MSG_INPUT.hasNext()) {
+				Envelope env = MessageStack.MSG_INPUT.pop();
 				try {
 					process(env);
 				} catch (Exception e) {
 					log.error("Error Processing Message from " + env.getOwnerID() + " - " + e.getMessage(), e);
 				}
+				
+				// Don't get bogged down if we're taking too long
+				long interval = (System.currentTimeMillis() - startTime);
+				if (interval > 1500) {
+				   MessageStack.MSG_OUTPUT.wakeup();
+				   log.warn("Loop time = " + interval + " ms");
+				   startTime = System.currentTimeMillis();
+				}
 			}
-
-			// Check if we need to flush the position cache
+			
+			// Notify everyone waiting on the output stack
+			MessageStack.MSG_OUTPUT.wakeup();
+			
+			// Check if we need to flush the position/message caches
 			if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH))
 				flushPositionCache();
-
-			// Notify everyone waiting on the output stack
-			_outStack.wakeup();
+			else if (TextMessageCache.isDirty() && (TextMessageCache.getFlushInterval() > CACHE_FLUSH))
+				flushMessageCache();
 
 			// Wait on the input queue for 5 seconds if we haven't already been interrupted
 			if (!Thread.currentThread().isInterrupted()) {
 				try {
-					synchronized (_inStack) {
-						_inStack.wait(5000);
-					}
+				   MessageStack.MSG_INPUT.waitForActivity();
 				} catch (InterruptedException ie) {
 					log.info("Interrupted");
 					Thread.currentThread().interrupt();

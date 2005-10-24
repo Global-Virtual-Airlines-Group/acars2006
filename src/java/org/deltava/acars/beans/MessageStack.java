@@ -1,8 +1,3 @@
-/*
- * Created on Feb 9, 2004
- *
- * FIFO Bean message stack
- */
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -12,6 +7,11 @@ import java.util.*;
  */
 public class MessageStack implements Iterator {
 
+   public static final MessageStack RAW_INPUT = new MessageStack();
+   public static final MessageStack MSG_INPUT = new MessageStack();
+   public static final MessageStack MSG_OUTPUT = new MessageStack();
+   public static final MessageStack RAW_OUTPUT = new MessageStack();
+   
 	private List _data;
 
 	public MessageStack() {
@@ -60,5 +60,9 @@ public class MessageStack implements Iterator {
 	
 	public synchronized void wakeup() {
 		notifyAll();
+	}
+	
+	public synchronized void waitForActivity() throws InterruptedException {
+	   wait();
 	}
 }
