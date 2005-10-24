@@ -3,34 +3,34 @@ package org.deltava.acars.util;
 
 import java.util.*;
 
-import org.deltava.acars.message.PositionMessage;
+import org.deltava.acars.message.TextMessage;
 
 /**
- * A utility class to cache position messages.
+ * A utility class to cache text messages.
  * @author Luke
  * @version 1.0
  * @since 1.0
  */
 
-public final class PositionCache {
+public class TextMessageCache {
    
    private static Set _cache = new LinkedHashSet();
-   private static long _lastFlush;
-
-   public static class PositionCacheEntry {
-
-      private PositionMessage _msg;
-      private long _conID;
-      private int _flightID;
+   private static long _lastFlush; 
+   
+   public static class TextMessageCacheEntry {
       
-      PositionCacheEntry(PositionMessage msg, long cID, int fID) {
+      private long _conID;
+      private int _recipientID;
+      private TextMessage _msg;
+      
+      TextMessageCacheEntry(TextMessage msg, long conID, int recipientID) {
          super();
          _msg = msg;
-         _conID = cID;
-         _flightID = fID;
+         _conID = conID;
+         _recipientID = recipientID;
       }
       
-      public PositionMessage getMessage() {
+      public TextMessage getMessage() {
          return _msg;
       }
       
@@ -38,31 +38,31 @@ public final class PositionCache {
          return _conID;
       }
       
-      public int getFlightID() {
-         return _flightID;
+      public int getRecipientID() {
+         return _recipientID;
       }
       
       public boolean equals(Object o) {
-         PositionCacheEntry e2 = (PositionCacheEntry) o;
+         TextMessageCacheEntry e2 = (TextMessageCacheEntry) o;
          if (_conID != e2._conID)
             return false;
          
-         return _msg.getDate().equals(e2._msg.getDate());
+         return (_msg.getID() == e2._msg.getID());
       }
    }
-   
-   // singleton constructor
-   private PositionCache() {
+
+   // Singleton constructor
+   private TextMessageCache() {
    }
-   
+
    /**
-    * Adds a new position entry to the cache.
-    * @param msg the Position data
+    * Adds a new text message to the cache.
+    * @param msg the Text Message
     * @param conID the ACARS connection ID
-    * @param flightID the ACARS flight ID
+    * @param recipientID the recipient's database ID
     */
-   public static synchronized void push(PositionMessage msg, long conID, int flightID) {
-      _cache.add(new PositionCacheEntry(msg, conID, flightID));
+   public static void push(TextMessage msg, long connectionID, int recipientID) {
+      _cache.add(new TextMessageCacheEntry(msg, connectionID, recipientID));
    }
    
    /**
@@ -91,7 +91,7 @@ public final class PositionCache {
    }
    
    /**
-    * Clears the position cache.
+    * Clears the message cache.
     */
    public static void flush() {
       _cache.clear();
