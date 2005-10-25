@@ -4,6 +4,8 @@ package org.deltava.acars.beans;
 import java.util.*;
 import java.nio.channels.*;
 
+import org.apache.log4j.Logger;
+
 import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.Pilot;
@@ -21,6 +23,8 @@ import org.deltava.acars.util.RouteEntryHelper;
  */
 
 public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
+   
+   private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 25000;
@@ -83,6 +87,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 				p.setCallsign(usrInfo.getFlightCode());
 				p.setEquipmentCode(usrInfo.getEquipmentType());
 				p.setComments(usrInfo.getComments());
+				p.setWayPoints(usrInfo.getAllWaypoints(' '));
 
 				// Add the pilot object
 				info.add(p);
@@ -137,8 +142,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		// Check if we're already there
 		if (_cons.contains(c))
 			throw new ACARSException("Connection already in pool");
-
-		if (_cons.size() >= _maxSize)
+		else if (_cons.size() >= _maxSize)
 			throw new ACARSException("Connection Pool full");
 
 		// Register the SocketChannel with the selector
@@ -169,9 +173,11 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 			// Calculate the inactivity timeout
 			long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
+			long idleTime = now - con.getLastActivity();
 
 			// Have we exceeded the timeout interval
-			if ((now - con.getLastActivity()) > timeout) {
+			if (idleTime > timeout) {
+			   log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
 				con.close();
 				i.remove();
 				disCons.add(con);
