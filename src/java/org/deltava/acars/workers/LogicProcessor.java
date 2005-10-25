@@ -110,7 +110,7 @@ public class LogicProcessor extends Worker {
 
 			// Flush the cache
 			synchronized (TextMessageCache.class) {
-				for (Iterator i = PositionCache.getAll().iterator(); i.hasNext();) {
+				for (Iterator i = TextMessageCache.getAll().iterator(); i.hasNext();) {
 					TextMessageCache.TextMessageCacheEntry ce = (TextMessageCache.TextMessageCacheEntry) i.next();
 					try {
 						dao.write(ce.getMessage(), ce.getConnectionID(), ce.getRecipientID());
@@ -121,7 +121,7 @@ public class LogicProcessor extends Worker {
 				}
 				
 				dao.release();
-				PositionCache.flush();
+				TextMessageCache.flush();
 			}
 		   
 		} catch (Exception e) {
