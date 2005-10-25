@@ -48,6 +48,7 @@ public class EndFlightCommand implements ACARSCommand {
 			return;
 
 		// Write the info to the database
+		iMsg.setComplete(true);
 		iMsg.setEndTime(new Date());
 		try {
 			Connection c = ctx.getConnection(true);

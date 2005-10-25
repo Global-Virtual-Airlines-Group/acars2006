@@ -108,6 +108,7 @@ public class FilePIREPCommand implements ACARSCommand {
 				// Mark the PIREP as filed
 				SetInfo idao = new SetInfo(con);
 				idao.logPIREP(info.getFlightID());
+				info.setComplete(true);
 
 				log.info("Writing " + info.getPositions().size() + " offline Position reports");
 				SetPosition pwdao = new SetPosition(con);
@@ -144,6 +145,9 @@ public class FilePIREPCommand implements ACARSCommand {
 			
 			// Commit the transaction
 			con.commit();
+			
+			// Log completion
+			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (Exception e) {
 			try {
 				con.rollback();
@@ -156,8 +160,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			ctx.release();
 		}
 
-		// Send the response and clear the flight information
-		ac.setFlightInfo(null);
+		// Send the response
 		ctx.push(ackMsg, ac.getID());
 	}
 }

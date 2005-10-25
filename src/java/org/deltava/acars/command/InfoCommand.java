@@ -38,7 +38,7 @@ public class InfoCommand implements ACARSCommand {
 		boolean assignID = (msg.getFlightID() == 0);
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
-		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0)) {
+		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && (!curInfo.isComplete())) {
 		   msg.setFlightID(curInfo.getFlightID());
 		   log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
 
