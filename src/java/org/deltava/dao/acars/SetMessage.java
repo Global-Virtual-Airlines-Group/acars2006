@@ -42,7 +42,7 @@ public class SetMessage extends DAO {
 	 * Writes a chat message to the database.
 	 * @param msg the message
 	 * @param conID the Connection ID
-	 * @param recipient the message recipient
+	 * @param recipientID the message recipient
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void write(TextMessage msg, long conID, int recipientID) throws DAOException {
