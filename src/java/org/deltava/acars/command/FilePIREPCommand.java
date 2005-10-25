@@ -156,7 +156,8 @@ public class FilePIREPCommand implements ACARSCommand {
 			ctx.release();
 		}
 
-		// Send the response
+		// Send the response and clear the flight information
+		ac.setFlightInfo(null);
 		ctx.push(ackMsg, ac.getID());
 	}
 }
