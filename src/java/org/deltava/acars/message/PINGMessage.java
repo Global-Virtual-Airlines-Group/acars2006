@@ -11,7 +11,7 @@ import org.deltava.beans.Pilot;
 public class PINGMessage extends AbstractMessage {
 
 	/**
-	 * @param type
+	 * Creates a new Ping Message.
 	 * @param msgFrom
 	 */
 	public PINGMessage(Pilot msgFrom) {
