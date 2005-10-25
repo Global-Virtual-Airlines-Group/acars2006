@@ -1,10 +1,8 @@
+// Copyright 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars.beans;
 
-import java.net.*;
 import java.util.*;
 import java.nio.channels.*;
-
-import org.apache.log4j.Logger;
 
 import org.deltava.acars.ACARSException;
 
@@ -23,8 +21,6 @@ import org.deltava.acars.util.RouteEntryHelper;
  */
 
 public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
-
-	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 25000;
@@ -267,9 +263,12 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	}
 
 	public void read() {
+		Collection keys = _cSelector.selectedKeys();
+		if (keys.isEmpty())
+			return;
 
 		// Get the list of channels waiting for input
-		for (Iterator i = _cSelector.selectedKeys().iterator(); i.hasNext();) {
+		for (Iterator i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = (SelectionKey) i.next();
 
 			// If the selection key is ready for reading, get the Connection and read
@@ -282,11 +281,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 						Envelope env = new Envelope(con.getUser(), msg, con.getID());
 						MessageStack.RAW_INPUT.push(env);
 					}
-				} catch (SocketException se) {
-					log.error(se.getMessage(), se);
-					con.close();
-					_cons.remove(con);
-				} catch (ProtocolException pe) {
+				} catch (Exception e) {
 					con.close();
 					_cons.remove(con);
 					_disCon.add(con);
