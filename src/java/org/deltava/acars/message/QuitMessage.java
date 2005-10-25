@@ -14,7 +14,7 @@ public class QuitMessage extends AbstractMessage {
    private int _flightID;
 
 	/**
-	 * @param type
+	 * Creates a new Quit Message.
 	 * @param msgFrom
 	 */
 	public QuitMessage(Pilot msgFrom) {
