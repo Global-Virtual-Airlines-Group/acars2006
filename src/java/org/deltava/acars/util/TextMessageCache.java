@@ -58,7 +58,7 @@ public class TextMessageCache {
    /**
     * Adds a new text message to the cache.
     * @param msg the Text Message
-    * @param conID the ACARS connection ID
+    * @param connectionID the ACARS connection ID
     * @param recipientID the recipient's database ID
     */
    public static void push(TextMessage msg, long connectionID, int recipientID) {
