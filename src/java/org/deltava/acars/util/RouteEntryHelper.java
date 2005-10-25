@@ -100,6 +100,7 @@ public class RouteEntryHelper {
       result.setGroundSpeed(msg.getGspeed());
       result.setVerticalSpeed(msg.getVspeed());
       result.setAltitude(msg.getAltitude());
+      result.setRadarAltitude(msg.getRadarAltitude());
       result.setFlags(msg.getFlags());
       result.setFlaps(msg.getFlaps());
       result.setHeading(msg.getHeading());
