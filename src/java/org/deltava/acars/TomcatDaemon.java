@@ -96,7 +96,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 			}
 
 			//Close the thread
-			log.info("Stopping " + w.getName());
+			log.debug("Stopping " + w.getName());
 			w.close();
 		}
 
