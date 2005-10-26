@@ -39,7 +39,6 @@ public class CommandContext {
 	}
 
 	public Connection getConnection(boolean isSystem) throws ConnectionPoolException {
-
 		if (_con != null)
 			throw new IllegalStateException("JDBC Connection already reserved");
 
@@ -72,7 +71,7 @@ public class CommandContext {
 	public void pushAll(Message msg, long skipThisConID) {
 		for (Iterator i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = (ACARSConnection) i.next();
-			if (c.getID() != skipThisConID) {
+			if (c.isAuthenticated() && (c.getID() != skipThisConID)) {
 				Envelope env = new Envelope(msg, c.getID());
 				_outStack.push(env);
 			}
