@@ -114,10 +114,9 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	   Set results = new HashSet();
 	   for (Iterator i = _cons.iterator(); i.hasNext(); ) {
 			ACARSConnection con = (ACARSConnection) i.next();
-			PositionMessage posInfo = con.getPosition();
-			InfoMessage usrInfo = con.getFlightInfo();
-			if ((usrInfo != null) && (posInfo != null))
-			   results.add(RouteEntryHelper.build(con.getUser(), posInfo, usrInfo));
+			RouteEntry re = RouteEntryHelper.build(con);
+			if (re != null)
+			   results.add(re);
 	   }
 	   
 	   return results;
