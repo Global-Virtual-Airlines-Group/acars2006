@@ -9,6 +9,7 @@ import org.deltava.beans.GeoLocation;
 import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.acars.RouteEntry;
 
+import org.deltava.acars.beans.ACARSConnection;
 import org.deltava.acars.message.InfoMessage;
 import org.deltava.acars.message.PositionMessage;
 
@@ -26,6 +27,7 @@ public class RouteEntryHelper {
    static class NamedRouteEntry extends RouteEntry {
       
       private Pilot _usr;
+      private int _clientBuild;
       private String _airports;
       private String _eqType;
       private String _flightNumber;
@@ -34,6 +36,10 @@ public class RouteEntryHelper {
          super(dt, gl.getLatitude(), gl.getLongitude());
          _usr = usr;
          _eqType = eqType;
+      }
+      
+      public void setClientBuild(int buildNumber) {
+    	  _clientBuild = buildNumber;
       }
       
       public void setFlightNumber(String flightNumber) {
@@ -75,7 +81,9 @@ public class RouteEntryHelper {
          }
          
          buf.append(_eqType);
-         buf.append("<br />");
+         buf.append(" (Build ");
+         buf.append(String.valueOf(_clientBuild));
+         buf.append(")<br />");
          buf.append(_airports);
          buf.append("</span><br />");
          buf.append(super.getInfoBox());
@@ -85,15 +93,21 @@ public class RouteEntryHelper {
    
    /**
     * Builds a route Entry from the current connection data.
-    * @param usr the Pilot bean
-    * @param msg the latest Position data
-    * @param imsg the flight Information data
+    * @param con the ACARS connection
     * @return a RouteEntry bean
     */
-   public static RouteEntry build(Pilot usr, PositionMessage msg, InfoMessage imsg) {
+   public static RouteEntry build(ACARSConnection con) {
       
+	   // Extract data from the connection
+	   Pilot usr = con.getUser();
+	   PositionMessage msg = con.getPosition();
+	   InfoMessage imsg = con.getFlightInfo();
+	   if ((usr == null) || (msg == null) || (imsg == null))
+		   return null;
+	   
       // Build the NamedRouteEntry
       NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
+      result.setClientBuild(con.getClientVersion());
       result.setID(imsg.getFlightID());
       result.setFlightNumber(imsg.getFlightCode());
       result.setAirSpeed(msg.getAspeed());
