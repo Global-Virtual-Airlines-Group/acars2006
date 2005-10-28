@@ -48,8 +48,10 @@ public final class InputTranslator extends Worker {
             }
          }
 
-         // Wake up any threads waiting for something on the formatted input stack
-         MessageStack.MSG_INPUT.wakeup();
+         // Wake up a single threads waiting for something on the formatted input stack
+         synchronized (MessageStack.MSG_INPUT) {
+            MessageStack.MSG_INPUT.notify();
+         }
 
          // Wait until something is on the input stack or we get interrupted
          try {
