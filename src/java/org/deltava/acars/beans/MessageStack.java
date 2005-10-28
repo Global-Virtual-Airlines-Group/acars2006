@@ -5,6 +5,7 @@ import java.util.*;
 /**
  * @author Luke J. Kolin
  */
+
 public class MessageStack implements Iterator {
 
    public static final MessageStack RAW_INPUT = new MessageStack();
@@ -14,7 +15,7 @@ public class MessageStack implements Iterator {
    
 	private List _data;
 
-	public MessageStack() {
+	private MessageStack() {
 		super();
 		_data = new ArrayList();
 	}
@@ -40,8 +41,8 @@ public class MessageStack implements Iterator {
 	}
 
 	// Iterator implementation methods
-	public boolean hasNext() {
-		return (size() > 0);
+	public synchronized boolean hasNext() {
+		return (_data.size() > 0);
 	}
 	
 	public synchronized Object next() {

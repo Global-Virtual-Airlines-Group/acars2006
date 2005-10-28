@@ -107,7 +107,6 @@ public abstract class ServerDaemon {
  	}
  	
  	protected static void initACARSConnectionPool() throws ACARSException {
- 		
 		ACARSConnectionPool cPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
 		cPool.setTimeout(SystemData.getInt("acars.timeout"));
 		SystemData.add(SystemData.ACARS_POOL, cPool);
@@ -130,9 +129,16 @@ public abstract class ServerDaemon {
 		NetworkHandler nHandler = new NetworkHandler();
 		_tasks.add(nHandler);
 
-		// Init the logic processor
-		LogicProcessor lProcessor = new LogicProcessor();
-		_tasks.add(lProcessor);
+		// Get the logic processor pool size
+		int logicThreads = SystemData.getInt("acars.pool.threads");
+		if (logicThreads < 1)
+		   logicThreads = 1;
+		
+		// Init the logic processor pool
+		for (int x = 0; x < logicThreads; x++) {
+		   LogicProcessor lProcessor = new LogicProcessor(x);
+		   _tasks.add(lProcessor);
+		}
 
 		// Try to init all of the worker threads
 		for (Iterator i = _tasks.iterator(); i.hasNext(); ) {
