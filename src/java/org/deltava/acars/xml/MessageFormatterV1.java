@@ -1,3 +1,4 @@
+// Copyright (c) 2004, 2005 Delta Virtual Airlines. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -13,7 +14,7 @@ import org.deltava.beans.schedule.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 
 /**
  * V1 Protocol Message Formatter.
@@ -40,12 +41,6 @@ class MessageFormatterV1 implements MessageFormatter {
 		return PROTOCOL_VERSION;
 	}
 	
-	private Element createElement(String eName, String eValue) {
-		Element e = new Element(eName);
-		e.setText(eValue);
-		return e;
-	}
-
 	public Element format(Message msgBean) throws XMLException {
 		
 		// Run a different function depending on the bean type
@@ -93,7 +88,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			Iterator i = msg.getEntryNames();
 			while (i.hasNext()) {
 				String eName = (String) i.next();
-				e.addContent(createElement(eName, msg.getEntry(eName)));
+				e.addContent(XMLUtils.createElement(eName, msg.getEntry(eName)));
 			}
 			
 			// Return the element
@@ -108,10 +103,10 @@ class MessageFormatterV1 implements MessageFormatter {
 			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 			e.setAttribute("msgtype", "text");
-			e.addContent(createElement("time", Long.toHexString(msg.getTime())));
+			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 			for (Iterator i = msg.getMsgs().iterator(); i.hasNext(); ) {
 				String msgText = (String) i.next();
-				e.addContent(createElement("text", msgText));
+				e.addContent(XMLUtils.createElement("text", msgText));
 			}
 			
 			return e;
@@ -127,11 +122,11 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 		
 			// Set information about the message
-			e.addContent(createElement("from", msg.getSenderID()));
-			e.addContent(createElement("text", msg.getText()));
-			e.addContent(createElement("time", Long.toHexString(msg.getTime())));
+			e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
+			e.addContent(XMLUtils.createElement("text", msg.getText()));
+			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 			if (!msg.isPublic())
-				e.addContent(createElement("to", msg.getRecipient()));
+				e.addContent(XMLUtils.createElement("to", msg.getRecipient()));
 
 			return e;
 		} catch (Exception e) {
@@ -147,31 +142,31 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 			
 			// Set element information
-			e.addContent(createElement("from", msg.getSenderID()));
+			e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
 			synchronized (_dgf) {
-				e.addContent(createElement("lat", _dgf.format(msg.getLatitude())));
-				e.addContent(createElement("lon", _dgf.format(msg.getLongitude())));
+				e.addContent(XMLUtils.createElement("lat", _dgf.format(msg.getLatitude())));
+				e.addContent(XMLUtils.createElement("lon", _dgf.format(msg.getLongitude())));
 			}
-			e.addContent(createElement("hdg", _hdgf.format(msg.getHeading())));
-			e.addContent(createElement("msl", String.valueOf(msg.getAltitude())));
-			e.addContent(createElement("agl", String.valueOf(msg.getRadarAltitude())));
-			e.addContent(createElement("mach", _mf.format(msg.getMach())));
-			e.addContent(createElement("air_speed", String.valueOf(msg.getAspeed())));
-			e.addContent(createElement("ground_speed", String.valueOf(msg.getGspeed())));
-			e.addContent(createElement("vert_speed", String.valueOf(msg.getVspeed())));
-			e.addContent(createElement("fuel", String.valueOf(msg.getFuelRemaining())));
-			e.addContent(createElement("flaps", String.valueOf(msg.getFlaps())));
-			e.addContent(createElement("time", Long.toHexString(msg.getTime())));
+			e.addContent(XMLUtils.createElement("hdg", _hdgf.format(msg.getHeading())));
+			e.addContent(XMLUtils.createElement("msl", String.valueOf(msg.getAltitude())));
+			e.addContent(XMLUtils.createElement("agl", String.valueOf(msg.getRadarAltitude())));
+			e.addContent(XMLUtils.createElement("mach", _mf.format(msg.getMach())));
+			e.addContent(XMLUtils.createElement("air_speed", String.valueOf(msg.getAspeed())));
+			e.addContent(XMLUtils.createElement("ground_speed", String.valueOf(msg.getGspeed())));
+			e.addContent(XMLUtils.createElement("vert_speed", String.valueOf(msg.getVspeed())));
+			e.addContent(XMLUtils.createElement("fuel", String.valueOf(msg.getFuelRemaining())));
+			e.addContent(XMLUtils.createElement("flaps", String.valueOf(msg.getFlaps())));
+			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 			synchronized (_nxf) {
-				e.addContent(createElement("avg_n1", _nxf.format(msg.getN1())));
-				e.addContent(createElement("avg_n2", _nxf.format(msg.getN2())));
+				e.addContent(XMLUtils.createElement("avg_n1", _nxf.format(msg.getN1())));
+				e.addContent(XMLUtils.createElement("avg_n2", _nxf.format(msg.getN2())));
 			}
 			
 			// Create optional elements
-			if (msg.isFlagSet(ACARSFlags.FLAG_AFTERBURNER)) e.addContent(createElement("afterburner", "1"));
-			if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) e.addContent(createElement("paused", "1"));
-			if (msg.isFlagSet(ACARSFlags.FLAG_SLEW)) e.addContent(createElement("slew", "1"));
-			if (msg.getSimRate() != 1) e.addContent(createElement("simrate", String.valueOf(msg.getSimRate())));
+			if (msg.isFlagSet(ACARSFlags.FLAG_AFTERBURNER)) e.addContent(XMLUtils.createElement("afterburner", "1"));
+			if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) e.addContent(XMLUtils.createElement("paused", "1"));
+			if (msg.isFlagSet(ACARSFlags.FLAG_SLEW)) e.addContent(XMLUtils.createElement("slew", "1"));
+			if (msg.getSimRate() != 1) e.addContent(XMLUtils.createElement("simrate", String.valueOf(msg.getSimRate())));
 			
 			// Return the element
 			return e;
@@ -188,16 +183,16 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
 			// Set element information
-			e.addContent(createElement("id", msg.getSenderID()));
-			e.addContent(createElement("name", msg.getSender().getName()));
-			e.addContent(createElement("equipment", msg.getEquipmentType()));
-			e.addContent(createElement("flight_num", msg.getFlightCode()));
-			e.addContent(createElement("dep_apt", msg.getAirportD().getICAO()));
-			e.addContent(createElement("arr_apt", msg.getAirportA().getICAO()));
-			e.addContent(createElement("cruise_alt", msg.getAltitude()));
-			e.addContent(createElement("route", msg.getAllWaypoints()));
-			e.addContent(createElement("remarks", msg.getComments()));
-			e.addContent(createElement("time", Long.toHexString(msg.getTime())));			
+			e.addContent(XMLUtils.createElement("id", msg.getSenderID()));
+			e.addContent(XMLUtils.createElement("name", msg.getSender().getName()));
+			e.addContent(XMLUtils.createElement("equipment", msg.getEquipmentType()));
+			e.addContent(XMLUtils.createElement("flight_num", msg.getFlightCode()));
+			e.addContent(XMLUtils.createElement("dep_apt", msg.getAirportD().getICAO()));
+			e.addContent(XMLUtils.createElement("arr_apt", msg.getAirportA().getICAO()));
+			e.addContent(XMLUtils.createElement("cruise_alt", msg.getAltitude()));
+			e.addContent(XMLUtils.createElement("route", msg.getAllWaypoints()));
+			e.addContent(XMLUtils.createElement("remarks", msg.getComments()));
+			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));			
 			
 			// Return the element
 			return e;
@@ -213,9 +208,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 			
 			// Save the type
-			e.addContent(createElement("reqtype", Message.MSG_TYPES[msg.getRequestType()]));
-			e.addContent(createElement("reqData", msg.getRequestData()));
-			e.addContent(createElement("time", Long.toHexString(msg.getTime())));			
+			e.addContent(XMLUtils.createElement("reqtype", Message.MSG_TYPES[msg.getRequestType()]));
+			e.addContent(XMLUtils.createElement("reqData", msg.getRequestData()));
+			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));			
 			
 			// Return the element
 			return e;
@@ -233,12 +228,12 @@ class MessageFormatterV1 implements MessageFormatter {
 			NavigationDataBean navaid = nav.getNavaid();
 			
 			// Add navaid info
-			e.addContent(createElement("radio", nav.getRadio()));
-			e.addContent(createElement("type", navaid.getTypeName()));
-			e.addContent(createElement("code", navaid.getCode()));
+			e.addContent(XMLUtils.createElement("radio", nav.getRadio()));
+			e.addContent(XMLUtils.createElement("type", navaid.getTypeName()));
+			e.addContent(XMLUtils.createElement("code", navaid.getCode()));
 			if (navaid instanceof VOR) {
-				e.addContent(createElement("freq", ((VOR) navaid).getFrequency()));
-				e.addContent(createElement("hdg", nav.getHeading()));
+				e.addContent(XMLUtils.createElement("freq", ((VOR) navaid).getFrequency()));
+				e.addContent(XMLUtils.createElement("hdg", nav.getHeading()));
 			}
 				
 			// Return the element
@@ -257,23 +252,23 @@ class MessageFormatterV1 implements MessageFormatter {
 			if (con.isAuthenticated()) {
 				Pilot userInfo = con.getUser();
 				e.setAttribute("id", userInfo.getPilotCode());
-				e.addContent(createElement("firstname", userInfo.getFirstName()));
-				e.addContent(createElement("lastname", userInfo.getLastName()));
-				e.addContent(createElement("name", userInfo.getName()));
-				e.addContent(createElement("eqtype", userInfo.getEquipmentType()));
-				e.addContent(createElement("rank", userInfo.getRank()));
+				e.addContent(XMLUtils.createElement("firstname", userInfo.getFirstName()));
+				e.addContent(XMLUtils.createElement("lastname", userInfo.getLastName()));
+				e.addContent(XMLUtils.createElement("name", userInfo.getName()));
+				e.addContent(XMLUtils.createElement("eqtype", userInfo.getEquipmentType()));
+				e.addContent(XMLUtils.createElement("rank", userInfo.getRank()));
 			}
 			
 			// Add connection specific stuff
-			e.addContent(createElement("protocol", String.valueOf(con.getProtocolVersion())));
-			e.addContent(createElement("remoteaddr", con.getRemoteAddr()));
-			e.addContent(createElement("remotehost", con.getRemoteHost()));
-			e.addContent(createElement("starttime", Long.toHexString(con.getStartTime())));
-			e.addContent(createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
-			e.addContent(createElement("input", String.valueOf(con.getBytesIn())));
-			e.addContent(createElement("output", String.valueOf(con.getBytesOut())));
-			e.addContent(createElement("msginput", String.valueOf(con.getMsgsIn())));
-			e.addContent(createElement("msgoutput", String.valueOf(con.getMsgsOut())));
+			e.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
+			e.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
+			e.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
+			e.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
+			e.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
+			e.addContent(XMLUtils.createElement("input", String.valueOf(con.getBytesIn())));
+			e.addContent(XMLUtils.createElement("output", String.valueOf(con.getBytesOut())));
+			e.addContent(XMLUtils.createElement("msginput", String.valueOf(con.getMsgsIn())));
+			e.addContent(XMLUtils.createElement("msgoutput", String.valueOf(con.getMsgsOut())));
 			
 			// Return the element
 			return e;
@@ -289,7 +284,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			return e;
 		
 		// Create the new element
-		cmd.addContent(createElement("rsptype", rspType));
+		cmd.addContent(XMLUtils.createElement("rsptype", rspType));
 		e = new Element(rspType);
 		cmd.addContent(e);
 		return e;
@@ -330,11 +325,11 @@ class MessageFormatterV1 implements MessageFormatter {
 					Pilot userInfo = (Pilot) rsp;
 					Element pe = new Element("Pilot");
 					pe.setAttribute("id", userInfo.getPilotCode());
-					pe.addContent(createElement("firstname", userInfo.getFirstName()));
-					pe.addContent(createElement("lastname", userInfo.getLastName()));
-					pe.addContent(createElement("name", userInfo.getName()));
-					pe.addContent(createElement("eqtype", userInfo.getEquipmentType()));
-					pe.addContent(createElement("rank", userInfo.getRank()));
+					pe.addContent(XMLUtils.createElement("firstname", userInfo.getFirstName()));
+					pe.addContent(XMLUtils.createElement("lastname", userInfo.getLastName()));
+					pe.addContent(XMLUtils.createElement("name", userInfo.getName()));
+					pe.addContent(XMLUtils.createElement("eqtype", userInfo.getEquipmentType()));
+					pe.addContent(XMLUtils.createElement("rank", userInfo.getRank()));
 					Element dpe;
 					switch (msg.getRequestType()) {
 						case DataMessage.REQ_ADDUSER :
@@ -380,7 +375,7 @@ class MessageFormatterV1 implements MessageFormatter {
 					re.setAttribute("hdg", String.valueOf(r.getHeading()));
 					re.setAttribute("length", String.valueOf(r.getLength()));
 					if ((r.getFrequency() != null) && (!"-".equals(r.getFrequency())))
-						re.addContent(createElement("freq", r.getFrequency()));
+						re.addContent(XMLUtils.createElement("freq", r.getFrequency()));
 					
 					rwyE.addContent(re);
 				} else if (rsp instanceof NavigationRadioBean) {
@@ -391,12 +386,12 @@ class MessageFormatterV1 implements MessageFormatter {
 				   Element iE = getData(e, "info");
 				   Object eValue = de.getValue();
 				   if (eValue instanceof String) {
-					   iE.addContent(createElement(de.getName(), (String) de.getValue()));
+					   iE.addContent(XMLUtils.createElement(de.getName(), (String) de.getValue()));
 				   } else if (eValue instanceof Collection) {
 					   Collection eValues = (Collection) eValue;
 					   for (Iterator vi = eValues.iterator(); vi.hasNext(); ) {
 						   String entryData = (String) vi.next();
-						  iE.addContent(createElement(de.getName(), entryData));
+						  iE.addContent(XMLUtils.createElement(de.getName(), entryData));
 					   }
 				   }
 				}
