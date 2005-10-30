@@ -90,8 +90,8 @@ public class FilePIREPCommand implements ACARSCommand {
 			if (avgHours == 0) {
 				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
 			} else {
-				int minHours = (int) ((avgHours * 0.75) - (SystemData.getDouble("users.pirep.pad_hours") * 10));
-				int maxHours = (int) ((avgHours * 1.15) + (SystemData.getDouble("users.pirep.pad_hours") * 10));
+				int minHours = (int) ((avgHours * 0.75) - (SystemData.getDouble("users.pirep.pad_hours", 0) * 10));
+				int maxHours = (int) ((avgHours * 1.15) + (SystemData.getDouble("users.pirep.pad_hours", 0) * 10));
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}

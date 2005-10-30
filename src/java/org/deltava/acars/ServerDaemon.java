@@ -66,7 +66,7 @@ public abstract class ServerDaemon {
 
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
- 	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size"));
+ 	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 1));
  	    jdbcPool.setProperties((Map) SystemData.getObject("jdbc.connectProperties"));
  	    jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
  	    jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
@@ -129,12 +129,8 @@ public abstract class ServerDaemon {
 		NetworkHandler nHandler = new NetworkHandler();
 		_tasks.add(nHandler);
 
-		// Get the logic processor pool size
-		int logicThreads = SystemData.getInt("acars.pool.threads");
-		if (logicThreads < 1)
-		   logicThreads = 1;
-		
 		// Init the logic processor pool
+		int logicThreads = SystemData.getInt("acars.pool.threads", 1);
 		for (int x = 0; x < logicThreads; x++) {
 		   LogicProcessor lProcessor = new LogicProcessor(x);
 		   _tasks.add(lProcessor);
