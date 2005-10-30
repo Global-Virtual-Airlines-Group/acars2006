@@ -6,6 +6,7 @@ import java.util.*;
 import org.deltava.beans.Pilot;
 
 /**
+ * An ACARS data response message bean.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -44,7 +45,8 @@ public class DataResponseMessage extends DataMessage {
 	private List _rspData = new ArrayList();
 
 	/**
-	 * @param type
+	 * Creates a new Data Response Message
+	 * @param rType
 	 * @param msgFrom
 	 */
 	public DataResponseMessage(Pilot msgFrom, int rType) {
