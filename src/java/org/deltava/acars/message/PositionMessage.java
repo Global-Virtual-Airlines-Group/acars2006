@@ -32,6 +32,8 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	private int altitude;
 	private int r_altitude;
 	private int heading;
+	private double pitch;
+	private double bank;
 	private int aspeed;
 	private int gspeed;
 	private int vspeed;
@@ -86,6 +88,14 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 
 	public int getHeading() {
 		return heading;
+	}
+	
+	public double getPitch() {
+		return pitch;
+	}
+	
+	public double getBank() {
+		return bank;
 	}
 
 	public double getLatitude() {
@@ -178,6 +188,16 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 		if ((i >= 0) && (i <= 360))
 			heading = i;
 	}
+	
+	public void setPitch(double p) {
+		if ((p >= -89) && (p <= 89))
+			pitch = p;
+	}
+	
+	public void setBank(double b) {
+		if ((b >= -99) && (b <= 99))
+			bank = b;
+	}
 
 	public void setLatitude(double l) {
 		if ((l >= -90) && (l <= 90))
@@ -195,12 +215,12 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	}
 	
 	public void setN1(double nn1) {
-		if ((nn1 >= 0) && (nn1 <= 150))
+		if ((nn1 >= 0) && (nn1 <= 145))
 			this.n1 = nn1;
 	}
 	
 	public void setN2(double nn2) {
-		if ((nn2 >= 0) && (nn2 <= 150))
+		if ((nn2 >= 0) && (nn2 <= 145))
 			this.n2 = nn2;
 	}
 	
