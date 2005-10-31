@@ -158,6 +158,8 @@ class MessageParserV1 implements MessageParser {
 		// Get the basic information
 		try {
 			msg.setHeading(Integer.parseInt(getChildText(e, "hdg", "0")));
+			msg.setPitch(Double.parseDouble(getChildText(e, "pitch", "0")));
+			msg.setBank(Double.parseDouble(getChildText(e, "bank", "0")));
 			msg.setLatitude(Double.parseDouble(getChildText(e, "lat", "0")));
 			msg.setLongitude(Double.parseDouble(getChildText(e, "lon", "0")));
 			msg.setAltitude(Integer.parseInt(getChildText(e, "msl", "0")));
