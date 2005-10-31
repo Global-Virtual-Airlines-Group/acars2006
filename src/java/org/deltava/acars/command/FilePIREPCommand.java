@@ -129,7 +129,8 @@ public class FilePIREPCommand implements ACARSCommand {
 				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType());
 				if (cr != null) {
 					cr.setFlightID(info.getFlightID());
-
+					cr.setSubmittedOn(new Date());
+					
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
 					wdao.write(usrLoc.getDB(), cr);
