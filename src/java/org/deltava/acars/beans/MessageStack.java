@@ -13,11 +13,11 @@ public class MessageStack implements Iterator {
    public static final MessageStack MSG_OUTPUT = new MessageStack();
    public static final MessageStack RAW_OUTPUT = new MessageStack();
    
-	private List _data;
+	private List<Envelope> _data;
 
 	private MessageStack() {
 		super();
-		_data = new ArrayList();
+		_data = new ArrayList<Envelope>();
 	}
 
 	public synchronized void push(Envelope env) {
@@ -31,7 +31,7 @@ public class MessageStack implements Iterator {
 			return null;
 		
 		// Get the first element and nuke it
-		Envelope env = (Envelope) _data.get(0);
+		Envelope env = _data.get(0);
 		_data.remove(0);
 		return env;
 	}

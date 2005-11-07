@@ -31,8 +31,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
-	private List _cons;
-	private List _disCon;
+	private List<ACARSConnection> _cons;
+	private List<ACARSConnection> _disCon;
 
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
@@ -49,8 +49,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 		// Init the maximum size and connection lists
 		_maxSize = (mxSize > 0) ? mxSize : -1;
-		_cons = new ArrayList();
-		_disCon = new ArrayList();
+		_cons = new ArrayList<ACARSConnection>();
+		_disCon = new ArrayList<ACARSConnection>();
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 * @return a Collection of MapEntry beans
 	 */
 	public Collection getMapEntries() {
-	   Set results = new HashSet();
+	   Set<RouteEntry> results = new HashSet<RouteEntry>();
 	   for (Iterator i = _cons.iterator(); i.hasNext(); ) {
 			ACARSConnection con = (ACARSConnection) i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
@@ -126,8 +126,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 * Returns Connection Pool data to a web application.
 	 * @return a Collection of ACARSConnection beans
 	 */
-	public Collection getPoolInfo() {
-	   return new ArrayList(_cons);
+	public Collection<ACARSConnection> getPoolInfo() {
+	   return new ArrayList<ACARSConnection>(_cons);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public Collection checkConnections() {
 
 		// Start with the list of dropped connections
-		List disCons = new ArrayList(_disCon);
+		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon);
 		_disCon.clear();
 
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
@@ -216,14 +216,14 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return null;
 	}
 
-	public Collection get(String pid) {
+	public Collection<ACARSConnection> get(String pid) {
 
 		// Wildcard matches everyone
 		if (("*".equals(pid)) || (pid == null))
-			return new TreeSet(_cons);
+			return new TreeSet<ACARSConnection>(_cons);
 
 		// Build results
-		Set results = new TreeSet();
+		Set<ACARSConnection> results = new TreeSet<ACARSConnection>();
 		for (Iterator i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = (ACARSConnection) i.next();
 			if (c.getUserID().equalsIgnoreCase(pid))
@@ -233,10 +233,10 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return results;
 	}
 
-	public Iterator get(Pilot userInfo) {
+	public Iterator<ACARSConnection> get(Pilot userInfo) {
 
 		// Build results list
-		ArrayList results = new ArrayList();
+		ArrayList<ACARSConnection> results = new ArrayList<ACARSConnection>();
 
 		// Loop through the connections
 		for (Iterator i = _cons.iterator(); i.hasNext();) {

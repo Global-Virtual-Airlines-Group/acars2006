@@ -156,7 +156,7 @@ public class AuthenticateCommand implements ACARSCommand {
 		sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
 		
 		// Add system-defined messages
-		Collection systemMsgs = (Collection) SystemData.getObject("acars.login_msgs");
+		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");
 		if (systemMsgs != null)
 			sysMsg.addMessages(systemMsgs);
 		

@@ -42,7 +42,7 @@ public class DataResponseMessage extends DataMessage {
 	}
 
 	// Response data
-	private List _rspData = new ArrayList();
+	private List<Object> _rspData = new ArrayList<Object>();
 
 	/**
 	 * Creates a new Data Response Message

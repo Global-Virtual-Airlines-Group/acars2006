@@ -48,7 +48,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 			
 			// Check all of the threads
 			for (int x = 0; keepRunning && (x < _tasks.size()); x++) {
-				Worker w = (Worker) _tasks.get(x);
+				Worker w =  _tasks.get(x);
 
 				// Get the worker status
 				WorkerStatus status = w.getWorkerStatus();
@@ -64,7 +64,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 						log.warn("Error on " + w.getName() + " - " + status.getMessage());
 
 						// Give the thread a second to get killed
-						Thread t = (Thread) _threads.get(w.getClass());
+						Thread t = _threads.get(w.getClass());
 						try {
 							if (t.isAlive())
 								t.join(500);
@@ -88,7 +88,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 			Worker w = (Worker) i.next();
 
 			// Wait for the thread to die if it hasn't yet
-			Thread t = (Thread) _threads.get(w.getClass());
+			Thread t = _threads.get(w.getClass());
 			try {
 				if (t.isAlive())
 					t.join(500);

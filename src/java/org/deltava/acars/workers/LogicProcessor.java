@@ -26,7 +26,7 @@ public class LogicProcessor extends Worker {
    private static final long CACHE_FLUSH = 30000;
 
    private ACARSConnectionPool _pool;
-   private static Map _commands;
+   private static Map<Integer, ACARSCommand> _commands;
 
    private int _workerID;
 
@@ -40,7 +40,7 @@ public class LogicProcessor extends Worker {
 
       // Initialize commands
       if (_commands == null) {
-         _commands = new HashMap();
+         _commands = new HashMap<Integer, ACARSCommand>();
          _commands.put(new Integer(Message.MSG_ACK), new DummyCommand());
          _commands.put(new Integer(Message.MSG_PING), new AcknowledgeCommand("ping"));
          _commands.put(new Integer(Message.MSG_POSITION), new PositionCommand());
@@ -154,7 +154,7 @@ public class LogicProcessor extends Worker {
 
       // Log the received message and get the command to process it
       log.debug("[Thread " + _workerID + "] " + Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
-      ACARSCommand cmd = (ACARSCommand) _commands.get(new Integer(msg.getType()));
+      ACARSCommand cmd = _commands.get(new Integer(msg.getType()));
       if (cmd != null) {
          cmd.execute(ctx, env);
       } else {

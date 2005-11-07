@@ -14,7 +14,7 @@ import org.deltava.acars.message.TextMessage;
 
 public class TextMessageCache {
    
-   private static Set _cache = new LinkedHashSet();
+   private static Set<TextMessageCacheEntry> _cache = new LinkedHashSet<TextMessageCacheEntry>();
    private static long _lastFlush; 
    
    public static class TextMessageCacheEntry {

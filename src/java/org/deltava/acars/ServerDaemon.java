@@ -33,8 +33,8 @@ public abstract class ServerDaemon {
  	
  	// Worker tasks
  	protected static ThreadGroup _workers;
- 	protected static List _tasks;
- 	protected static Map _threads;
+ 	protected static List<Worker> _tasks;
+ 	protected static Map<Class, Thread> _threads;
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -115,7 +115,7 @@ public abstract class ServerDaemon {
  	protected static void initTasks() {
  		
  		// Create the task container and the thread group
- 		_tasks = new ArrayList();
+ 		_tasks = new ArrayList<Worker>();
 
 		// Init the input translator
 		InputTranslator iTrans = new InputTranslator();
@@ -151,7 +151,7 @@ public abstract class ServerDaemon {
  		_workers.setDaemon(true);
  		
  		// Turn the workers into threads
- 		_threads = new HashMap();
+ 		_threads = new HashMap<Class, Thread>();
  		for (Iterator i = _tasks.iterator(); i.hasNext(); ) {
  			Worker w = (Worker) i.next();
  			Thread t = new Thread(_workers, w, w.getName());
