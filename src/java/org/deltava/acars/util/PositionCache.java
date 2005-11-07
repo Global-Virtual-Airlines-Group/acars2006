@@ -14,7 +14,7 @@ import org.deltava.acars.message.PositionMessage;
 
 public final class PositionCache {
    
-   private static Set _cache = new LinkedHashSet();
+   private static Set<PositionCacheEntry> _cache = new LinkedHashSet<PositionCacheEntry>();
    private static long _lastFlush;
 
    public static class PositionCacheEntry {

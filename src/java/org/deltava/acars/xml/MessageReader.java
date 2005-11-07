@@ -31,7 +31,7 @@ public class MessageReader implements Serializable {
 	private Document _xdoc;
 	private Pilot _sender;
 	private long _timeStamp;
-	private ArrayList _msgs;
+	private List<Message> _msgs;
 	
 	public MessageReader(Envelope env) throws XMLException {
 		if (env == null)
@@ -62,7 +62,7 @@ public class MessageReader implements Serializable {
 			return _msgs;
 		
 		// Create the message store
-		_msgs = new ArrayList();
+		_msgs = new ArrayList<Message>();
 		
 		// Get the root element
 		Element root = _xdoc.getRootElement();

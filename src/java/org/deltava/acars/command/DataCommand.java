@@ -66,7 +66,7 @@ public class DataCommand implements ACARSCommand {
 
 			// Get equipment list
 			case DataMessage.REQ_EQLIST:
-				Set eqTypes = new TreeSet((List) SystemData.getObject("eqtypes"));
+				Set<String> eqTypes = new TreeSet<String>((Collection<? extends String>) SystemData.getObject("eqtypes"));
 				dataRsp.addResponse("eqtype", eqTypes);
 				break;
 
@@ -83,7 +83,7 @@ public class DataCommand implements ACARSCommand {
 			// Get airport list
 			case DataMessage.REQ_APLIST:
 				Map allAirports = (Map) SystemData.getObject("airports");
-				Set airports = new TreeSet(new AirportComparator(AirportComparator.NAME));
+				Set<Object> airports = new TreeSet<Object>(new AirportComparator(AirportComparator.NAME));
 				airports.addAll(allAirports.values());
 				for (i = airports.iterator(); i.hasNext();) {
 					Airport a = (Airport) i.next();

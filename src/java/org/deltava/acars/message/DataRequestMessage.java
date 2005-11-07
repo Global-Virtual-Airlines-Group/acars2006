@@ -12,7 +12,7 @@ import org.deltava.beans.Pilot;
 
 public class DataRequestMessage extends DataMessage {
 	
-	private Map _flags = new HashMap();
+	private Map<String, String> _flags = new HashMap<String, String>();
 	private String _reqFilter = FILTER_WILDCARD;
 	
 	// Constants to use for wildcards and flag parsing
@@ -37,7 +37,7 @@ public class DataRequestMessage extends DataMessage {
 	}
 	
 	public String getFlag(String name) {
-		return (String) _flags.get(name.toUpperCase());
+		return _flags.get(name.toUpperCase());
 	}
 
 	public boolean hasFlag(String flagName) {

@@ -27,10 +27,10 @@ public class MessageWriter implements java.io.Serializable {
 	private static final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat());
 
 	// Keeps track of XML documents, formatters and users who have msgs waiting
-	private static Map _xdocs = new HashMap();
-	private static Map _formatters = new HashMap();
-	private static Map _users = new HashMap();
-	private static Set _dirty = new HashSet();
+	private static Map<Long, Document> _xdocs = new HashMap<Long, Document>();
+	private static Map<Long, MessageFormatter> _formatters = new HashMap<Long, MessageFormatter>();
+	private static Map<Long, Pilot> _users = new HashMap<Long, Pilot>();
+	private static Set<Long> _dirty = new HashSet<Long>();
 
 	// we're a singleton
 	private MessageWriter() {
@@ -86,7 +86,7 @@ public class MessageWriter implements java.io.Serializable {
 			Long CID = (Long) i.next();
 			
 			// Get the connection's message formatter to find the protocol to use
-			MessageFormatter fmt = (MessageFormatter) _formatters.get(CID); 
+			MessageFormatter fmt = _formatters.get(CID); 
 			_xdocs.put(CID, createXMLDoc(fmt.getProtocolVersion()));
 		}
 		
@@ -114,12 +114,12 @@ public class MessageWriter implements java.io.Serializable {
 		
 		// Get the document that we want to add this message to
 		Long CID = new Long(cid);
-		Document doc = (Document) _xdocs.get(CID);
+		Document doc = _xdocs.get(CID);
 		if (doc == null)
 			throw new XMLException("Connection " + Long.toHexString(cid).toUpperCase() + " disconnected");
 			
 		// Get the message formatter for that user
-		MessageFormatter fmt = (MessageFormatter) _formatters.get(CID);
+		MessageFormatter fmt = _formatters.get(CID);
 		if (fmt == null)
 			throw new XMLException("No Formatter for connection " + Long.toHexString(cid));
 		
@@ -140,16 +140,16 @@ public class MessageWriter implements java.io.Serializable {
 		return !_dirty.isEmpty();
 	}
 	
-	public static Collection getMessages() {
+	public static Collection<Envelope> getMessages() {
 		
 		// Get the list of connections with messages waiting
-		ArrayList envs = new ArrayList();
+		List<Envelope> envs = new ArrayList<Envelope>();
 		for (Iterator i = _dirty.iterator(); i.hasNext(); ) {
 			Long CID = (Long) i.next();
 			
 			// Get the XML Document and pilot bean
-			Document xdoc = (Document) _xdocs.get(CID);
-			Pilot user = (Pilot) _users.get(CID);
+			Document xdoc = _xdocs.get(CID);
+			Pilot user = _users.get(CID);
 			if (xdoc != null) {
 				// Set the response message ID
 				Element root = xdoc.getRootElement();

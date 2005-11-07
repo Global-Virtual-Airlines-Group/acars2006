@@ -32,8 +32,8 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _offlineFlight;
 	private boolean _flightComplete;
 	
-	private ArrayList _waypoints = new ArrayList();
-	private Set _offlinePositions;
+	private ArrayList<String> _waypoints = new ArrayList<String>();
+	private Set<PositionMessage> _offlinePositions;
 	
 	// Constant for splitting waypoint lists
 	private final static String WAYPOINT_SPACER = " ";
@@ -167,7 +167,7 @@ public class InfoMessage extends AbstractMessage {
 	public void setOffline(boolean isOffline) {
 		_offlineFlight = isOffline;
 		if (_offlinePositions == null)
-		   _offlinePositions = new TreeSet();
+		   _offlinePositions = new TreeSet<PositionMessage>();
 	}
 	
 	public void setStartTime(Date dt) {

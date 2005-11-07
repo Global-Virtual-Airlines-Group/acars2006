@@ -68,7 +68,7 @@ public class StandaloneDaemon extends ServerDaemon {
 						log.warn("Error on " + w.getName() + " - " + status.getMessage());
 
 						// Give the thread a second to get killed
-						Thread t = (Thread) _threads.get(w.getClass());
+						Thread t = _threads.get(w.getClass());
 						try {
 							if (t.isAlive())
 								t.join(500);
@@ -99,7 +99,7 @@ public class StandaloneDaemon extends ServerDaemon {
 			Worker w = (Worker) i.next();
 
 			// Wait for the thread to die if it hasn't yet
-			Thread t = (Thread) _threads.get(w.getClass());
+			Thread t = _threads.get(w.getClass());
 			try {
 				if (t.isAlive())
 					t.join(500);

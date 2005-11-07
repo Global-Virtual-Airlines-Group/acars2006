@@ -12,18 +12,18 @@ import java.util.*;
 
 public class SystemTextMessage extends AbstractMessage {
 	
-	private List _msgs;
+	private List<String> _msgs;
 
 	public SystemTextMessage() {
 		super(Message.MSG_SYSTEM, null);
-		_msgs = new ArrayList();
+		_msgs = new ArrayList<String>();
 	}
 
 	public void addMessage(String msg) {
 		_msgs.add(msg);
 	}
 	
-	public void addMessages(Collection msgs) {
+	public void addMessages(Collection<? extends String> msgs) {
 		_msgs.addAll(msgs);
 	}
 	

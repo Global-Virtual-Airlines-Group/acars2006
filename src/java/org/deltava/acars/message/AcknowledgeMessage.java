@@ -4,8 +4,7 @@
  */
 package org.deltava.acars.message;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import org.deltava.beans.Pilot;
 
@@ -14,27 +13,27 @@ import org.deltava.beans.Pilot;
  */
 public class AcknowledgeMessage extends AbstractMessage {
 
-	private long parent;
-	private HashMap msgs = new HashMap();
+	private long _parent;
+	private Map<String, String> _msgs = new HashMap<String, String>();
 
 	public AcknowledgeMessage(Pilot msgFrom, long parentID) {
 		super(Message.MSG_ACK, msgFrom);
-		this.parent = parentID;
+		_parent = parentID;
 	}
 	
 	public long getParentID() {
-		return this.parent;
+		return _parent;
 	}
 	
 	public String getEntry(String eName) {
-		return (String) this.msgs.get(eName);
+		return _msgs.get(eName);
 	}
 	
 	public Iterator getEntryNames() {
-		return this.msgs.keySet().iterator();
+		return _msgs.keySet().iterator();
 	}
 	
 	public void setEntry(String eName, String eValue) {
-		this.msgs.put(eName, eValue);
+		_msgs.put(eName, eValue);
 	}
 }
