@@ -9,7 +9,6 @@ import org.deltava.acars.beans.MessageStack;
 import org.deltava.acars.message.Message;
 
 import org.deltava.acars.xml.MessageReader;
-import org.deltava.acars.xml.XMLException;
 
 /**
  * An ACARS Worker to translate XML messages into Java objects.
@@ -42,8 +41,8 @@ public final class InputTranslator extends Worker {
                      if (msg.getType() != Message.MSG_QUIT)
                         MessageStack.MSG_INPUT.push(new Envelope(msg, env.getConnectionID()));
                   }
-               } catch (XMLException xe) {
-                  log.warn("Translation Error - " + xe.getMessage());
+               } catch (Exception e) {
+                  log.warn("Translation Error - " + e.getMessage(), e);
                }
             }
          }

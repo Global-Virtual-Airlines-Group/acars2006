@@ -164,7 +164,11 @@ public final class NetworkHandler extends Worker {
 
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
-			_cSelector.select(SystemData.getInt("acars.sleep"));
+			try {
+				_cSelector.select(SystemData.getInt("acars.sleep"));
+			} catch (IOException ie) {
+				log.warn("Error on select - " + ie.getMessage());
+			}
 
 			// See if we have someone waiting to connect
 			SelectionKey ssKey = _channel.keyFor(_cSelector);
