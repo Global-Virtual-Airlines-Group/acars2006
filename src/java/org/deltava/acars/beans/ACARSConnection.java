@@ -306,23 +306,18 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public void write(String msg) {
-		if (msg == null)
-			return;
+		if (msg == null) return;
 
-		// FIXME Remove after testing
-		StringBuffer buf = new StringBuffer();
-		
 		int ofs = 0;
 		byte[] msgBytes = msg.getBytes();
 		try {
 			// Keep writing until the message is done
-			while (ofs <= msgBytes.length) {
+			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
 
 				// Keep writing to the buffer
-				while ((ofs <= msgBytes.length) && (_oBuffer.remaining() > 0)) {
+				while ((ofs < msgBytes.length) && (_oBuffer.remaining() > 0)) {
 					_oBuffer.put(msgBytes[ofs]);
-					buf.append(msgBytes[ofs]);
 					ofs++;
 				}
 
@@ -331,9 +326,6 @@ public class ACARSConnection implements Serializable, Comparable {
 				while (_oBuffer.remaining() > 0)
 					_channel.write(_oBuffer);
 			}
-			
-			// FIXME Remove after testing
-			assert msg.equals(buf.toString());
 			
 			// Update statistics
 			msgsOut++;
