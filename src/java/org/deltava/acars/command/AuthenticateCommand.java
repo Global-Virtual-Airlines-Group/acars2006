@@ -50,7 +50,7 @@ public class AuthenticateCommand implements ACARSCommand {
 		}
 		
 		// Check the minimum build number
-		int minBuild = SystemData.getInt("acars.build");
+		int minBuild = SystemData.getInt("acars.build.minimum");
 		if (msg.getClientBuild() < minBuild) {
 		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 		   errMsg.setEntry("error", "Obsolete Build - Use Build " + minBuild +" or newer");
@@ -150,6 +150,15 @@ public class AuthenticateCommand implements ACARSCommand {
 		drMsg.addResponse(usr);
 		ctx.pushAll(drMsg, con.getID());
 		
+		// If we have a newer ACARS client build, say so
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
+		int latestBuild = SystemData.getInt("acars.build.latest");
+		if (latestBuild > msg.getClientBuild())
+			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
+
+		// Send the ack message
+		ctx.push(ackMsg, env.getConnectionID());
+		
 		// Return a system message to the user
 		SystemTextMessage sysMsg = new SystemTextMessage();
 		sysMsg.addMessage("Welcome to the " + SystemData.get("airline.name") + " ACARS server!");
@@ -162,10 +171,6 @@ public class AuthenticateCommand implements ACARSCommand {
 		
 		// Send the message
 		ctx.push(sysMsg, env.getConnectionID());
-
-		// Send the ack message
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-		ctx.push(ackMsg, env.getConnectionID());
 		
 		// Log new connection
 		log.info("New Connection from " + usr.getName() + " (Build " + con.getClientVersion() + ")");
