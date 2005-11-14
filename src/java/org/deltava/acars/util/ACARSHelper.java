@@ -63,8 +63,8 @@ public class ACARSHelper {
     */
    public static ACARSFlightReport create(String flightCode) {
 
-      StringBuffer aCode = new StringBuffer();
-      StringBuffer fCode = new StringBuffer();
+      StringBuilder aCode = new StringBuilder();
+      StringBuilder fCode = new StringBuilder();
       for (int x = 0; x < flightCode.length(); x++) {
          char c = flightCode.charAt(x);
          if (Character.isDigit(c)) {
@@ -145,7 +145,7 @@ public class ACARSHelper {
       }
 
       // Get the remarks and the route
-      StringBuffer buf = new StringBuffer("Route: ");
+      StringBuilder buf = new StringBuilder("Route: ");
       buf.append(p.getProperty("route"));
       buf.append("\nRemarks: ");
       buf.append(p.getProperty("remarks"));

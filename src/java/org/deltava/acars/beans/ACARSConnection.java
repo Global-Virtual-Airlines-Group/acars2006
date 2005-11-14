@@ -39,7 +39,7 @@ public class ACARSConnection implements Serializable, Comparable {
 	private ByteBuffer _oBuffer;
 
 	// The the actual buffer for messages
-	private StringBuffer _msgBuffer;
+	private StringBuilder _msgBuffer;
 
 	// Connection information
 	private long id;
@@ -83,7 +83,7 @@ public class ACARSConnection implements Serializable, Comparable {
 		}
 
 		// Allocate the buffers and output stack for this channel
-		_msgBuffer = new StringBuffer();
+		_msgBuffer = new StringBuilder();
 		_iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 		_oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 	}
@@ -295,7 +295,7 @@ public class ACARSConnection implements Serializable, Comparable {
 		ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
 
 		// Get the XML message out of the buffer
-		StringBuffer msgOut = new StringBuffer(ProtocolInfo.XML_HEADER);
+		StringBuilder msgOut = new StringBuilder(ProtocolInfo.XML_HEADER);
 		msgOut.append(_msgBuffer.substring(sPos, ePos));
 
 		// Clear the message out of the buffer

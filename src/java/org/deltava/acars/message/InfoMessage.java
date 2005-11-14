@@ -94,7 +94,7 @@ public class InfoMessage extends AbstractMessage {
 	
 	public String getAllWaypoints(char sep) {
 		
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (Iterator i = _waypoints.iterator(); i.hasNext(); ) {
 			buf.append((String) i.next());
 			if (i.hasNext())

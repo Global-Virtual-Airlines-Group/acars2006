@@ -72,7 +72,7 @@ public final class SetInfo extends DAO {
 	public void close(int flightID, long cid, boolean force) throws DAOException {
 	   
 	   // Build the SQL statement
-	   StringBuffer sqlBuf = new StringBuffer("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=?)");
+	   StringBuilder sqlBuf = new StringBuilder("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=?)");
 	   if (!force)
 	      sqlBuf.append(" AND (END_TIME IS NULL)");
 	   
