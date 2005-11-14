@@ -65,7 +65,7 @@ public class RouteEntryHelper {
       }
       
       public final String getInfoBox() {
-         StringBuffer buf = new StringBuffer("<a href=\"javascript:void mapZoom(");
+         StringBuilder buf = new StringBuilder("<a href=\"javascript:void mapZoom(");
          buf.append(StringUtils.format(getLatitude(), "##0.00000"));
          buf.append(',');
          buf.append(StringUtils.format(getLongitude(), "##0.00000"));
@@ -123,7 +123,7 @@ public class RouteEntryHelper {
       result.setMach(msg.getMach());
       
       // Build airports
-      StringBuffer buf = new StringBuffer(imsg.getAirportD().getName());
+      StringBuilder buf = new StringBuilder(imsg.getAirportD().getName());
       buf.append(" (");
       buf.append(imsg.getAirportD().getICAO());
       buf.append(") - ");
