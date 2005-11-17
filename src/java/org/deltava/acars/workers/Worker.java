@@ -19,11 +19,11 @@ public abstract class Worker implements Runnable {
 
 	protected Worker(String name, Class loggerClass) {
 		_name = name.trim();
-		_status = new WorkerStatus();
+		_status = new WorkerStatus(name);
 		log = Logger.getLogger(loggerClass);
 	}
 
-	public final WorkerStatus getWorkerStatus() {
+	public final WorkerStatus getStatus() {
 		return _status;
 	}
 	
@@ -34,11 +34,13 @@ public abstract class Worker implements Runnable {
 	// Default placeholder for the open() method; just sets status
 	public void open() {
 		_status.setStatus(WorkerStatus.STATUS_INIT);
+		_status.setMessage("Initializing");
 	}
 
 	// Default placeholder for the close() method; just sets status
 	public void close() {
 		_status.setStatus(WorkerStatus.STATUS_UNKNOWN);
+		_status.setMessage("Shut Down");
 	}
 
 	// public thread interface which catches exceptions
