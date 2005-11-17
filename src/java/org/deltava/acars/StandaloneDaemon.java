@@ -56,7 +56,7 @@ public class StandaloneDaemon extends ServerDaemon {
 				Worker w = (Worker) wi.next();
 
 				// Get the worker status
-				WorkerStatus status = w.getWorkerStatus();
+				WorkerStatus status = w.getStatus();
 				int wStat = status.getStatus();
 				switch (wStat) {
 					case WorkerStatus.STATUS_SHUTDOWN:

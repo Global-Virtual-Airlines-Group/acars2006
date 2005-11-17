@@ -6,6 +6,9 @@ import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
+
+import org.deltava.acars.workers.WorkerStatus;
+
 import org.deltava.jdbc.*;
 
 import org.deltava.util.system.SystemData;
@@ -18,20 +21,21 @@ import org.deltava.util.system.SystemData;
 
 public class CommandContext {
 
-	private MessageStack _outStack;
 	private Connection _con;
 
 	private ACARSConnectionPool _pool;
 	private ACARSConnection _ac;
+	
+	private WorkerStatus _status;
 
 	/**
 	 * Initializes the Command Context.
 	 */
-	public CommandContext(MessageStack stack, ACARSConnectionPool acp, long conID) {
+	public CommandContext(ACARSConnectionPool acp, long conID, WorkerStatus status) {
 		super();
-		_outStack = stack;
 		_pool = acp;
 		_ac = _pool.get(conID);
+		_status = status;
 	}
 	
 	public Connection getConnection() throws ConnectionPoolException {
@@ -73,12 +77,16 @@ public class CommandContext {
 			ACARSConnection c = (ACARSConnection) i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID)) {
 				Envelope env = new Envelope(msg, c.getID());
-				_outStack.push(env);
+				MessageStack.MSG_OUTPUT.push(env);
 			}
 		}
 	}
 
 	public void push(Message msg, long conID) {
-		_outStack.push(new Envelope(msg, conID));
+		MessageStack.MSG_OUTPUT.push(new Envelope(msg, conID));
+	}
+	
+	public void setStatusMessage(String msg) {
+		_status.setMessage(msg);
 	}
 }

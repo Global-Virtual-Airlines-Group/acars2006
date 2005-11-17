@@ -7,6 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.ServerStats;
 import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
@@ -123,6 +124,9 @@ public class AuthenticateCommand implements ACARSCommand {
 		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
+		
+		// Log successful authentication
+		ServerStats.add(ServerStats.AUTH_COUNT);
 
 		// Update the registration with the dispatcher - remove and re-register
 		try {

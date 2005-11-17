@@ -13,6 +13,7 @@ import org.deltava.acars.message.QuitMessage;
 
 import org.deltava.acars.xml.MessageWriter;
 import org.deltava.acars.xml.XMLException;
+import org.deltava.beans.acars.ServerStats;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -38,6 +39,7 @@ public final class NetworkHandler extends Worker {
 	}
 
 	private void newConnection(SocketChannel sc) {
+		_status.setMessage("Opening connection from " + sc.socket().getInetAddress().getHostAddress());
 		ServerStats.add(ServerStats.CONNECT_COUNT);
 
 		// Create a new connection bean
@@ -133,7 +135,8 @@ public final class NetworkHandler extends Worker {
 
 	public final void close() {
 
-		// Close all of the worker threads
+		// Close all of the connections
+		_status.setMessage("Closing connections");
 		for (Iterator i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection con = (ACARSConnection) i.next();
 			if (con.isAuthenticated()) {
@@ -164,6 +167,7 @@ public final class NetworkHandler extends Worker {
 
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
+			_status.setMessage("Listening for new Connections");
 			try {
 				_cSelector.select(SystemData.getInt("acars.sleep"));
 			} catch (IOException ie) {
@@ -183,28 +187,37 @@ public final class NetworkHandler extends Worker {
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (!_pool.isEmpty()) {
+				_status.setMessage("Reading Inbound Messages");
 				_pool.read();
 
 				// Check for inactive connections - generate a QUIT message for every one
-				for (Iterator ic = _pool.checkConnections().iterator(); ic.hasNext();) {
-					ACARSConnection con = (ACARSConnection) ic.next();
-					log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr()
-							+ ") disconnected");
-					MessageWriter.remove(con.getID());
-					if (con.isAuthenticated()) {
-						log.debug("QUIT Message from " + con.getUser().getName());
-						QuitMessage qmsg = new QuitMessage(con.getUser());
-						qmsg.setFlightID(con.getFlightID());
-						MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
-						MessageStack.MSG_INPUT.wakeup();
+				Collection disCon = _pool.checkConnections();
+				if (!disCon.isEmpty()) {
+					_status.setMessage("Handling disconnections");
+					for (Iterator ic = disCon.iterator(); ic.hasNext();) {
+						ACARSConnection con = (ACARSConnection) ic.next();
+						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr()
+								+ ") disconnected");
+						MessageWriter.remove(con.getID());
+						if (con.isAuthenticated()) {
+							log.debug("QUIT Message from " + con.getUser().getName());
+							QuitMessage qmsg = new QuitMessage(con.getUser());
+							qmsg.setFlightID(con.getFlightID());
+							MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
+							MessageStack.MSG_INPUT.wakeup();
+						}
 					}
 				}
 
 				// Wake up threads waiting for stuff on the input stack
 				MessageStack.RAW_INPUT.wakeup();
-				
+
 				// Dump stuff from the output queue to the sockets
+				_status.setMessage("Writing Outbound Messages");
 				_pool.write();
+
+				// Log executiuon
+				_status.execute();
 			}
 		}
 

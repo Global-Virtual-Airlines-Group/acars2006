@@ -1,11 +1,12 @@
 // Copyright 2005 Luke J. Kolin. All Rights Reserved.
 package org.deltava.acars;
 
-import java.util.Iterator;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.workers.*;
+import org.deltava.beans.acars.ACARSWorkerInfo;
 
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
@@ -14,7 +15,7 @@ import org.deltava.acars.workers.*;
  * @since 1.0
  */
 
-public class TomcatDaemon extends ServerDaemon implements Runnable {
+public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerInfo {
 
 	public void run() {
 
@@ -51,7 +52,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 				Worker w =  _tasks.get(x);
 
 				// Get the worker status
-				WorkerStatus status = w.getWorkerStatus();
+				WorkerStatus status = w.getStatus();
 				int wStat = status.getStatus();
 				switch (wStat) {
 					case WorkerStatus.STATUS_SHUTDOWN:
@@ -102,5 +103,15 @@ public class TomcatDaemon extends ServerDaemon implements Runnable {
 
 		// Display shutdown message
 		log.info("Terminated");
+	}
+	
+	public Collection<WorkerStatus> getWorkers() {
+		Set<WorkerStatus> results = new TreeSet<WorkerStatus>();
+		for (Iterator i = _tasks.iterator(); i.hasNext(); ) {
+			Worker w = (Worker) i.next();
+			results.add(w.getStatus());
+		}
+		
+		return results;
 	}
 }
