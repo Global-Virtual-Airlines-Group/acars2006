@@ -2,6 +2,8 @@
 package org.deltava.acars.command;
 
 import java.util.*;
+import java.net.HttpURLConnection;
+
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -10,11 +12,13 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.servinfo.*;
 import org.deltava.beans.navdata.*;
 
 import org.deltava.comparators.AirportComparator;
 
 import org.deltava.dao.*;
+import org.deltava.dao.http.GetServInfo;
 
 import org.deltava.util.system.SystemData;
 
@@ -95,6 +99,38 @@ public class DataCommand implements ACARSCommand {
 			// Get private voice info
 			case DataMessage.REQ_PVTVOX:
 				dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
+				break;
+				
+			// Get controller info
+			case DataMessage.REQ_ATCINFO:
+				String network = msg.getFlag("network").toLowerCase();
+				NetworkInfo info = null;
+				try {
+					// Connect to info URL
+					HttpURLConnection urlcon = ctx.getURL(SystemData.get("online." + network + ".status_url"));
+
+					// Get network URLs
+					GetServInfo sdao = new GetServInfo(urlcon);
+					NetworkStatus status = sdao.getStatus(network);
+					urlcon.disconnect();
+					
+					// Get network status
+					urlcon = ctx.getURL(status.getDataURL());
+					GetServInfo idao = new GetServInfo(urlcon);
+					idao.setBufferSize(40960);
+					info = idao.getInfo(network);
+					urlcon.disconnect();
+				} catch (Exception e) {
+					log.warn("Error retrieving " + network.toUpperCase() + " data - " + e.getMessage());
+				}
+				
+				// Filter the controllers based on rante from position
+				if ((info != null) && (ac.getPosition() != null)) {
+					Collection<Controller> ctrs = info.getControllers(ac.getPosition(), 400);
+					for (Iterator<Controller> ci = ctrs.iterator(); ci.hasNext(); )
+						dataRsp.addResponse(ci.next());
+				}
+					
 				break;
 
 			// Get flight information
