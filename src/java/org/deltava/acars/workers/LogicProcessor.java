@@ -8,6 +8,8 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.util.*;
 
+import org.deltava.beans.acars.CommandStats;
+
 import org.deltava.jdbc.*;
 
 import org.deltava.dao.acars.*;
@@ -161,14 +163,15 @@ public class LogicProcessor extends Worker {
 		ACARSCommand cmd = _commands.get(new Integer(msg.getType()));
 		if (cmd != null) {
 			cmd.execute(ctx, env);
+			
+			// Calculate and log execution time
+			long execTime = System.currentTimeMillis() - startTime;
+			CommandStats.log(cmd.getClass(), execTime);
+			if (execTime > 1250)
+				log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 		} else {
 			log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
 		}
-
-		// Calculate execution time
-		long execTime = System.currentTimeMillis() - startTime;
-		if (execTime > 1250)
-			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 	}
 
 	protected void $run0() {
