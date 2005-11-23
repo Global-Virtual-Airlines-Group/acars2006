@@ -267,12 +267,13 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return _cons.isEmpty();
 	}
 
-	public void read() {
+	public boolean read() {
 		Collection keys = _cSelector.selectedKeys();
 		if (keys.isEmpty())
-			return;
+			return false;
 
 		// Get the list of channels waiting for input
+		boolean hasMessage = false;
 		for (Iterator i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = (SelectionKey) i.next();
 
@@ -285,6 +286,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 					if (msg != null) {
 						Envelope env = new Envelope(con.getUser(), msg, con.getID());
 						MessageStack.RAW_INPUT.push(env);
+						hasMessage = true;
 					}
 				} catch (Exception e) {
 					con.close();
@@ -296,6 +298,9 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 			// Remove from the selected keys list
 			i.remove();
 		}
+		
+		// Return if we've pushed a message on the stack
+		return hasMessage;
 	}
 
 	public void remove(String id) {

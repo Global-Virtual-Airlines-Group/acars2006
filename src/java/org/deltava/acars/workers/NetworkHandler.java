@@ -188,7 +188,7 @@ public final class NetworkHandler extends Worker {
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (!_pool.isEmpty()) {
 				_status.setMessage("Reading Inbound Messages");
-				_pool.read();
+				boolean msgsRead = _pool.read();
 
 				// Check for inactive connections - generate a QUIT message for every one
 				Collection disCon = _pool.checkConnections();
@@ -210,7 +210,8 @@ public final class NetworkHandler extends Worker {
 				}
 
 				// Wake up threads waiting for stuff on the input stack
-				MessageStack.RAW_INPUT.wakeup();
+				if (msgsRead)
+					MessageStack.RAW_INPUT.wakeup();
 
 				// Dump stuff from the output queue to the sockets
 				_status.setMessage("Writing Outbound Messages");
