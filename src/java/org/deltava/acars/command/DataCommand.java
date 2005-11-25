@@ -37,6 +37,7 @@ public class DataCommand implements ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@SuppressWarnings("unchecked")
 	public void execute(CommandContext ctx, Envelope env) {
 
 		// Get the message
