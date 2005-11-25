@@ -67,7 +67,7 @@ public abstract class ServerDaemon {
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
  	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 1));
- 	    jdbcPool.setProperties((Map) SystemData.getObject("jdbc.connectProperties"));
+ 	    jdbcPool.setProperties((Map<? extends Object, ? extends Object>) SystemData.getObject("jdbc.connectProperties"));
  	    jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
  	    jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
  	    
