@@ -88,7 +88,7 @@ public class DataCommand implements ACARSCommand {
 			// Get airport list
 			case DataMessage.REQ_APLIST:
 				Map allAirports = (Map) SystemData.getObject("airports");
-				Set<Object> airports = new TreeSet<Object>(new AirportComparator(AirportComparator.NAME));
+				Set<Airport> airports = new TreeSet<Airport>(new AirportComparator<Airport>(AirportComparator.NAME));
 				airports.addAll(allAirports.values());
 				for (i = airports.iterator(); i.hasNext();) {
 					Airport a = (Airport) i.next();
