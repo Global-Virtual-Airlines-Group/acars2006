@@ -55,7 +55,7 @@ public class MessageReader implements Serializable {
 		return StringUtils.arrayIndexOf(Message.MSG_CODES, mType);
 	}
 	
-	public Collection parse() throws XMLException {
+	public Collection<Message> parse() throws XMLException {
 		
 		// If we've already got something, don't parse further and return what we have
 		if (_msgs != null)
