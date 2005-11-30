@@ -126,7 +126,7 @@ public class AuthenticateCommand implements ACARSCommand {
 		con.setClientVersion(msg.getClientBuild());
 		
 		// Log successful authentication
-		ServerStats.add(ServerStats.AUTH_COUNT);
+		ServerStats.authenticate();
 
 		// Update the registration with the dispatcher - remove and re-register
 		try {

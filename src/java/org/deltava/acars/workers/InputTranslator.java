@@ -38,13 +38,14 @@ public final class InputTranslator extends Worker {
 						MessageReader reader = new MessageReader(env);
 
 						// Copy the messages from the parser to the formatted input stack
-						for (Iterator i = reader.parse().iterator(); i.hasNext();) {
-							Message msg = (Message) i.next();
-							if (msg.getType() != Message.MSG_QUIT) {
+						for (Iterator<Message> i = reader.parse().iterator(); i.hasNext();) {
+							Message msg = i.next();
+							if (msg.getType() != Message.MSG_QUIT)
 								MessageStack.MSG_INPUT.push(new Envelope(msg, env.getConnectionID()));
-								ServerStats.add(ServerStats.MSGS_IN);
-							}
 						}
+						
+						// Log the messages
+						ServerStats.msgIn(String.valueOf(env.getMessage()).length()); 
 					} catch (Exception e) {
 						log.warn("Translation Error - " + e.getMessage(), e);
 					}
