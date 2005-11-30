@@ -40,7 +40,6 @@ public final class NetworkHandler extends Worker {
 
 	private void newConnection(SocketChannel sc) {
 		_status.setMessage("Opening connection from " + sc.socket().getInetAddress().getHostAddress());
-		ServerStats.add(ServerStats.CONNECT_COUNT);
 
 		// Create a new connection bean
 		ACARSConnection con = null;
@@ -91,11 +90,7 @@ public final class NetworkHandler extends Worker {
 		con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 
 		// Update the max/current connection counts
-		ServerStats.add(ServerStats.CURRENT_CONNECT);
-		long maxConnect = ServerStats.get(ServerStats.MAX_CONNECT);
-		long curConnect = ServerStats.get(ServerStats.CURRENT_CONNECT);
-		if (maxConnect < curConnect)
-			ServerStats.set(ServerStats.MAX_CONNECT, curConnect);
+		ServerStats.connect();
 	}
 
 	public final void open() {
@@ -137,8 +132,8 @@ public final class NetworkHandler extends Worker {
 
 		// Close all of the connections
 		_status.setMessage("Closing connections");
-		for (Iterator i = _pool.getAll().iterator(); i.hasNext();) {
-			ACARSConnection con = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
 			if (con.isAuthenticated()) {
 				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");
 			} else {
@@ -191,11 +186,12 @@ public final class NetworkHandler extends Worker {
 				boolean msgsRead = _pool.read();
 
 				// Check for inactive connections - generate a QUIT message for every one
-				Collection disCon = _pool.checkConnections();
+				Collection<ACARSConnection> disCon = _pool.checkConnections();
 				if (!disCon.isEmpty()) {
 					_status.setMessage("Handling disconnections");
-					for (Iterator ic = disCon.iterator(); ic.hasNext();) {
-						ACARSConnection con = (ACARSConnection) ic.next();
+					for (Iterator<ACARSConnection> ic = disCon.iterator(); ic.hasNext();) {
+						ACARSConnection con = ic.next();
+						ServerStats.disconnect();
 						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr()
 								+ ") disconnected");
 						MessageWriter.remove(con.getID());

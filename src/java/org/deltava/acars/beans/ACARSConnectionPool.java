@@ -153,7 +153,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		}
 	}
 
-	public Collection checkConnections() {
+	public Collection<ACARSConnection> checkConnections() {
 
 		// Start with the list of dropped connections
 		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon);
@@ -167,8 +167,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		long now = System.currentTimeMillis();
 
 		// Loop through the channels
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection con = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
 
 			// Calculate the inactivity timeout
 			long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
@@ -201,13 +201,13 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return false;
 	}
 
-	public Collection getAll() {
+	public Collection<ACARSConnection> getAll() {
 		return _cons;
 	}
 
 	public ACARSConnection get(long cid) {
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
 			if (c.equals(cid))
 				return c;
 		}
@@ -224,8 +224,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 		// Build results
 		Set<ACARSConnection> results = new TreeSet<ACARSConnection>();
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
 			if (c.getUserID().equalsIgnoreCase(pid))
 				results.add(c);
 		}
@@ -239,8 +239,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		ArrayList<ACARSConnection> results = new ArrayList<ACARSConnection>();
 
 		// Loop through the connections
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
 			if ((c.isAuthenticated()) && (c.getUser().equals(userInfo)))
 				results.add(c);
 		}
@@ -252,9 +252,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public ACARSConnection get(SocketChannel ch) {
 
 		// Loop through the connections
-		Iterator i = _cons.iterator();
-		while (i.hasNext()) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext(); ) {
+			ACARSConnection c = i.next();
 			if (c.equals(ch))
 				return c;
 		}
@@ -268,14 +267,14 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	}
 
 	public boolean read() {
-		Collection keys = _cSelector.selectedKeys();
+		Collection<SelectionKey> keys = _cSelector.selectedKeys();
 		if (keys.isEmpty())
 			return false;
 
 		// Get the list of channels waiting for input
 		boolean hasMessage = false;
-		for (Iterator i = keys.iterator(); i.hasNext();) {
-			SelectionKey sKey = (SelectionKey) i.next();
+		for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
+			SelectionKey sKey = i.next();
 
 			// If the selection key is ready for reading, get the Connection and read
 			if (sKey.isReadable()) {

@@ -44,10 +44,10 @@ public final class OutputDispatcher extends Worker {
 			// Dump the messages to the output stack
 			if (MessageWriter.hasMessages()) {
 				_status.setMessage("Pushing messages to XML Output Stack");
-
 				for (Iterator<Envelope> i = MessageWriter.getMessages().iterator(); i.hasNext(); ) {
-					MessageStack.RAW_OUTPUT.push(i.next());
-					ServerStats.add(ServerStats.MSGS_OUT);
+					Envelope env = i.next();
+					MessageStack.RAW_OUTPUT.push(env);
+					ServerStats.msgOut(String.valueOf(env.getMessage()).length());
 				}
 
 				// Reset the message writer's internal documents
