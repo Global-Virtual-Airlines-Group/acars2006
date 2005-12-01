@@ -16,6 +16,7 @@ import org.deltava.acars.util.ACARSHelper;
 
 import org.deltava.beans.schedule.Airport;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -244,13 +245,16 @@ class MessageParserV1 implements MessageParser {
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
 		msg.setFlightCode(fCode);
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
-		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		msg.setComments(getChildText(e, "remarks", null));
 		msg.setFSVersion(Integer.parseInt(getChildText(e, "fs_ver", "2004")));
 		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
+		
+		// Load waypoints
+		String waypoints = getChildText(e, "route", "DIRECT");
+		msg.setWaypoints(StringUtils.strip(waypoints, ",\'\""));
 		return msg;
 	}
 
