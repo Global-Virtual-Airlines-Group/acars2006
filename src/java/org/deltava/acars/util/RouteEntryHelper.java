@@ -65,7 +65,7 @@ public class RouteEntryHelper {
       }
       
       public final String getInfoBox() {
-         StringBuilder buf = new StringBuilder("<a href=\"javascript:void mapZoom(");
+         StringBuilder buf = new StringBuilder("<div class=\"mapInfoBox\"><a href=\"javascript:void mapZoom(");
          buf.append(StringUtils.format(getLatitude(), "##0.00000"));
          buf.append(',');
          buf.append(StringUtils.format(getLongitude(), "##0.00000"));
@@ -85,7 +85,7 @@ public class RouteEntryHelper {
          buf.append(String.valueOf(_clientBuild));
          buf.append(")<br />");
          buf.append(_airports);
-         buf.append("</span><br />");
+         buf.append("</span></div>");
          buf.append(super.getInfoBox());
          return buf.toString();
       }
