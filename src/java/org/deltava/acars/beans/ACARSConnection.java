@@ -24,6 +24,7 @@ import org.deltava.util.system.SystemData;
 public class ACARSConnection implements Serializable, Comparable {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
+	private static final int MAX_WRITE_ATTEMPTS = 12;
 
 	// Byte byffer decoder and character set
 	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
@@ -57,6 +58,7 @@ public class ACARSConnection implements Serializable, Comparable {
 	private long bytesOut;
 	private long msgsIn;
 	private long msgsOut;
+	private long bufferWrites;
 
 	public ACARSConnection(long cid, SocketChannel sc) {
 
@@ -165,6 +167,10 @@ public class ACARSConnection implements Serializable, Comparable {
 
 	public long getMsgsOut() {
 		return this.msgsOut;
+	}
+	
+	public long getBufferWrites() {
+		return this.bufferWrites;
 	}
 
 	public int getProtocolVersion() {
@@ -306,14 +312,17 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public void write(String msg) {
-		if (msg == null) return;
+		if (msg == null)
+			return;
 
 		int ofs = 0;
+		int writeCount = 0;
 		byte[] msgBytes = msg.getBytes();
 		try {
 			// Keep writing until the message is done
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
+				writeCount++;
 
 				// Keep writing to the buffer
 				while ((ofs < msgBytes.length) && (_oBuffer.remaining() > 0)) {
@@ -326,13 +335,18 @@ public class ACARSConnection implements Serializable, Comparable {
 				while (_oBuffer.remaining() > 0)
 					_channel.write(_oBuffer);
 			}
-			
+
 			// Update statistics
+			lastActivityTime = System.currentTimeMillis();
 			msgsOut++;
 			bytesOut += ofs;
-			lastActivityTime = System.currentTimeMillis();
+			bufferWrites += writeCount;
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
+
+		// Warn if too many attempts
+		if (writeCount > MAX_WRITE_ATTEMPTS)
+			log.warn("Excessive number of buffer writes - " + writeCount);
 	}
 }
