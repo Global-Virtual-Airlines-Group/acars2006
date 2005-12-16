@@ -1,3 +1,4 @@
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -19,23 +20,24 @@ import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS Server task to handle reading from network connections.
  * @author Luke
  * @version 1.0
  * @since 1.0
  */
 
-public final class NetworkHandler extends Worker {
+public final class NetworkReader extends Worker {
 
 	// System hello message
 	private static final String SYSTEM_HELLO = ACARSInfo.APP_NAME + " v" + String.valueOf(ACARSInfo.MAJOR_VERSION)
 			+ "." + String.valueOf(ACARSInfo.MINOR_VERSION) + " HELLO";
 
-	private static ACARSConnectionPool _pool;
-	private static Selector _cSelector;
-	private static ServerSocketChannel _channel;
+	private ACARSConnectionPool _pool;
+	private Selector _cSelector;
+	private ServerSocketChannel _channel;
 
-	public NetworkHandler() {
-		super("Network I/O Handler", NetworkHandler.class);
+	public NetworkReader() {
+		super("Network I/O Reader", NetworkReader.class);
 	}
 
 	private void newConnection(SocketChannel sc) {
@@ -94,8 +96,6 @@ public final class NetworkHandler extends Worker {
 	}
 
 	public final void open() {
-
-		// Call the parent open()
 		super.open();
 
 		// Get the ACARS Connection Pool
@@ -162,7 +162,7 @@ public final class NetworkHandler extends Worker {
 
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
-			_status.setMessage("Listening for new Connections");
+			_status.setMessage("Listening for new Connection");
 			try {
 				_cSelector.select(SystemData.getInt("acars.sleep"));
 			} catch (IOException ie) {
@@ -183,7 +183,11 @@ public final class NetworkHandler extends Worker {
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (!_pool.isEmpty()) {
 				_status.setMessage("Reading Inbound Messages");
-				boolean msgsRead = _pool.read();
+				Collection<Envelope> msgs = _pool.read();
+				if (!msgs.isEmpty()) {
+					MessageStack.RAW_INPUT.push(msgs);
+					MessageStack.RAW_INPUT.wakeup();
+				}
 
 				// Check for inactive connections - generate a QUIT message for every one
 				Collection<ACARSConnection> disCon = _pool.checkConnections();
@@ -204,14 +208,6 @@ public final class NetworkHandler extends Worker {
 						}
 					}
 				}
-
-				// Wake up threads waiting for stuff on the input stack
-				if (msgsRead)
-					MessageStack.RAW_INPUT.wakeup();
-
-				// Dump stuff from the output queue to the sockets
-				_status.setMessage("Writing Outbound Messages");
-				_pool.write();
 
 				// Log executiuon
 				_status.execute();

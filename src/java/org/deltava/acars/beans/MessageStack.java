@@ -1,9 +1,12 @@
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
 
 /**
- * @author Luke J. Kolin
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
  */
 
 public class MessageStack implements Iterator {
@@ -22,6 +25,10 @@ public class MessageStack implements Iterator {
 
 	public synchronized void push(Envelope env) {
 		_data.add(env);
+	}
+	
+	public synchronized void push(Collection<Envelope> envs) {
+		_data.addAll(envs);
 	}
 	
 	public synchronized Envelope pop() {

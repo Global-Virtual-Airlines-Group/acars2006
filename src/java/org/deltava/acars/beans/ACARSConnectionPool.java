@@ -266,13 +266,13 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return _cons.isEmpty();
 	}
 
-	public boolean read() {
+	public Collection<Envelope> read() {
 		Collection<SelectionKey> keys = _cSelector.selectedKeys();
 		if (keys.isEmpty())
-			return false;
+			return Collections.emptySet();
 
 		// Get the list of channels waiting for input
-		boolean hasMessage = false;
+		Collection<Envelope> results = new ArrayList<Envelope>();
 		for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = i.next();
 
@@ -284,8 +284,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 					String msg = con.read();
 					if (msg != null) {
 						Envelope env = new Envelope(con.getUser(), msg, con.getID());
-						MessageStack.RAW_INPUT.push(env);
-						hasMessage = true;
+						results.add(env);
 					}
 				} catch (Exception e) {
 					con.close();
@@ -298,21 +297,20 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 			i.remove();
 		}
 		
-		// Return if we've pushed a message on the stack
-		return hasMessage;
+		// Return messages
+		return results;
 	}
 
 	public void remove(String id) {
-
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
 
 			// Close/Remove if found
 			if (c.equals(id)) {
 				if (c.isConnected())
 					c.close();
-				i.remove();
-				break;
+				
+				return;
 			}
 		}
 	}
@@ -334,17 +332,5 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 	public void setTimeout(int toSeconds) {
 		_inactivityTimeout = (toSeconds < 60) ? -1 : (toSeconds * 1000);
-	}
-
-	public void write() {
-		// Loop through the raw output stack
-		while (MessageStack.RAW_OUTPUT.hasNext()) {
-			Envelope env = MessageStack.RAW_OUTPUT.pop();
-
-			// Get the connection and write the message
-			ACARSConnection c = get(env.getConnectionID());
-			if (c != null)
-				c.write((String) env.getMessage());
-		}
 	}
 }

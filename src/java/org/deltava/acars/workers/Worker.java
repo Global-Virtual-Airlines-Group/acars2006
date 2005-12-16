@@ -1,3 +1,4 @@
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import org.apache.log4j.Logger;
@@ -17,10 +18,14 @@ public abstract class Worker implements Runnable {
 	
 	protected abstract void $run0() throws Exception;
 
-	protected Worker(String name, Class loggerClass) {
+	protected Worker(String name, String loggerClassName) {
 		_name = name.trim();
 		_status = new WorkerStatus(name);
-		log = Logger.getLogger(loggerClass);
+		log = Logger.getLogger(loggerClassName);
+	}
+	
+	protected Worker(String name, Class loggerClass) {
+		this(name, loggerClass.getName());
 	}
 
 	public final WorkerStatus getStatus() {
