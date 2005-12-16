@@ -30,15 +30,15 @@ public class LogicProcessor extends Worker {
 	private ACARSConnectionPool _pool;
 	private static Map<Integer, ACARSCommand> _commands;
 
-	private int _workerID;
-
 	public LogicProcessor(int threadID) {
-		super("Message Processor #" + threadID, LogicProcessor.class);
-		_workerID = threadID;
+		super("Message Processor #" + threadID, LogicProcessor.class.getName() + "-" + threadID);
 	}
 
 	public synchronized void open() {
 		super.open();
+		
+		// Get the ACARS Connection Pool
+		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 
 		// Initialize commands
 		if (_commands == null) {
@@ -158,8 +158,7 @@ public class LogicProcessor extends Worker {
 		CommandContext ctx = new CommandContext(_pool, env.getConnectionID(), _status);
 
 		// Log the received message and get the command to process it
-		log.debug("[Thread " + _workerID + "] " + Message.MSG_TYPES[msg.getType()] + " message from "
-				+ env.getOwnerID());
+		log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
 		ACARSCommand cmd = _commands.get(new Integer(msg.getType()));
 		if (cmd != null) {
 			cmd.execute(ctx, env);
@@ -175,10 +174,7 @@ public class LogicProcessor extends Worker {
 	}
 
 	protected void $run0() {
-
-		// Get the ACARS Connection Pool
-		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
-		log.info("[Thread " + _workerID + "] Started");
+		log.info("Started");
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
@@ -197,7 +193,7 @@ public class LogicProcessor extends Worker {
 				long interval = (System.currentTimeMillis() - startTime);
 				if (interval > 1750) {
 					MessageStack.MSG_OUTPUT.wakeup();
-					log.warn("[Thread " + _workerID + "] Loop time = " + interval + " ms");
+					log.warn("Loop time = " + interval + " ms");
 					startTime = System.currentTimeMillis();
 				}
 			}
@@ -218,9 +214,10 @@ public class LogicProcessor extends Worker {
 			try {
 				MessageStack.MSG_INPUT.waitForActivity();
 			} catch (InterruptedException ie) {
-				log.info("[Thread " + _workerID + "] Interrupted");
 				Thread.currentThread().interrupt();
 			}
 		}
+		
+		log.info("Interrupted");
 	}
 }

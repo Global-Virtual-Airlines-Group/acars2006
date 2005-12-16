@@ -52,16 +52,16 @@ public final class InputTranslator extends Worker {
 				}
 			}
 
-			// Wake up a single threads waiting for something on the formatted input stack
+			// Wake up a single threadswaiting for something on the formatted input stack
 			synchronized (MessageStack.MSG_INPUT) {
 				MessageStack.MSG_INPUT.notify();
 			}
 
 			// Log execution
 			_status.execute();
+			_status.setMessage("Idle");
 
 			// Wait until something is on the input stack or we get interrupted
-			_status.setMessage("Idle");
 			try {
 				MessageStack.RAW_INPUT.waitForActivity();
 			} catch (InterruptedException ie) {

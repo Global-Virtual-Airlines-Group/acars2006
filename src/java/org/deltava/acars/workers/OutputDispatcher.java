@@ -53,6 +53,11 @@ public final class OutputDispatcher extends Worker {
 				// Reset the message writer's internal documents
 				MessageWriter.reset();
 			}
+			
+			// Wake up a single thread waiting for something on the raw output stack
+			synchronized (MessageStack.RAW_OUTPUT) {
+				MessageStack.RAW_OUTPUT.notify();
+			}
 
 			// Log execution
 			_status.execute();
