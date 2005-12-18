@@ -151,7 +151,7 @@ public class AuthenticateCommand implements ACARSCommand {
 
 		// Tell everybody else that someone has logged on
 		DataResponseMessage drMsg = new DataResponseMessage(usr, DataMessage.REQ_ADDUSER);
-		drMsg.addResponse(usr);
+		drMsg.addResponse(con);
 		ctx.pushAll(drMsg, con.getID());
 		
 		// If we have a newer ACARS client build, say so
@@ -159,6 +159,9 @@ public class AuthenticateCommand implements ACARSCommand {
 		int latestBuild = SystemData.getInt("acars.build.latest");
 		if (latestBuild > msg.getClientBuild())
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
+		
+		// Set roles
+		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID());
