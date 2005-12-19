@@ -33,8 +33,7 @@ public abstract class ServerDaemon {
  	
  	// Worker tasks
  	protected static ThreadGroup _workers;
- 	protected static List<Worker> _tasks;
- 	protected static Map<Class, Thread> _threads;
+ 	protected static Map<Worker, Thread> _threads;
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -115,54 +114,51 @@ public abstract class ServerDaemon {
  	protected static void initTasks() {
  		
  		// Create the task container and the thread group
- 		_tasks = new ArrayList<Worker>();
+ 		List<Worker> tasks = new ArrayList<Worker>();
 
 		// Init the input translator
 		InputTranslator iTrans = new InputTranslator();
-		_tasks.add(iTrans);
+		tasks.add(iTrans);
 
 		// Init the output dispatcher
 		OutputDispatcher oDispatch = new OutputDispatcher();
-		_tasks.add(oDispatch);
+		tasks.add(oDispatch);
 
 		// Init the network handler
 		NetworkReader nHandler = new NetworkReader();
-		_tasks.add(nHandler);
+		tasks.add(nHandler);
 
 		// Init the logic processor pool
 		int logicThreads = SystemData.getInt("acars.pool.threads.logic", 1);
 		for (int x = 0; x < logicThreads; x++) {
 		   LogicProcessor lProcessor = new LogicProcessor(x);
-		   _tasks.add(lProcessor);
+		   tasks.add(lProcessor);
 		}
 		
 		// Init the network output handler
 		int outputThreads = SystemData.getInt("acars.pool.threads.write", 1);
 		for (int x = 0; x < outputThreads; x++) {
 			NetworkWriter writer = new NetworkWriter(x);
-			_tasks.add(writer);
+			tasks.add(writer);
 		}
  	
 		// Try to init all of the worker threads
-		for (Iterator i = _tasks.iterator(); i.hasNext(); ) {
-			Worker w = (Worker) i.next();
+		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
+			Worker w = i.next();
 			log.debug("Initializing " + w.getName());
 			w.open();
 		}
- 	}
- 	
- 	protected static void initThreads() {
- 	
+		
  		// Set common priority for worker threads
  		_workers = new ThreadGroup("ACARS Workers");
  		_workers.setDaemon(true);
- 		
+
  		// Turn the workers into threads
- 		_threads = new HashMap<Class, Thread>();
- 		for (Iterator i = _tasks.iterator(); i.hasNext(); ) {
- 			Worker w = (Worker) i.next();
+ 		_threads = new LinkedHashMap<Worker, Thread>();
+ 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
+ 			Worker w = i.next();
  			Thread t = new Thread(_workers, w, w.getName());
- 			_threads.put(w.getClass(), t);
+ 			_threads.put(w, t);
  			log.debug("Starting " + w.getName());
  			t.start();
  		}

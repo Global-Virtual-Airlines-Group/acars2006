@@ -43,51 +43,33 @@ public class StandaloneDaemon extends ServerDaemon {
 
 		// Init the server tasks
 		initTasks();
-		initThreads();
 
 		// Log the start of the loop
 		log.info("Started");
 
 		// Start looping
-		boolean keepRunning = true;
-		while (keepRunning) {
-			// Check all of the threads
-			for (Iterator wi = _tasks.iterator(); wi.hasNext();) {
-				Worker w = (Worker) wi.next();
-
-				// Get the worker status
-				WorkerStatus status = w.getStatus();
-				int wStat = status.getStatus();
-				switch (wStat) {
-					case WorkerStatus.STATUS_SHUTDOWN:
-						log.warn("Shutdown requested by " + w.getName());
-						keepRunning = false;
-						break;
-
-					case WorkerStatus.STATUS_ERROR:
-						log.warn("Error on " + w.getName() + " - " + status.getMessage());
-
-						// Give the thread a second to get killed
-						Thread t = _threads.get(w.getClass());
-						try {
-							if (t.isAlive())
-								t.join(500);
-						} catch (InterruptedException ie) {
-						}
-
-						// Create a new thread based on this worker
-						Thread wt = new Thread(_workers, w, w.getName());
-						_threads.put(w.getClass(), wt);
-						wt.start();
-						break;
-				}
-			}
-
+		while (!Thread.currentThread().isInterrupted()) {
 			// Go to sleep for a while - if interrupted, shut down the loop
 			try {
-				Thread.sleep(2500);
+				Thread.sleep(45000);
+				
+				// Check all of the threads
+				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext(); ) {
+					Worker w =  i.next();
+
+					// Get the thread status
+					Thread t = _threads.get(w);
+					if (!t.isAlive()) {
+						log.warn(t.getName() + " not running, restarting");
+						
+						// Restart the worker thread
+						Thread wt = new Thread(_workers, w, w.getName());
+						_threads.put(w, wt);
+						wt.start();
+					}
+				}
 			} catch (InterruptedException ie) {
-				keepRunning = false;
+				Thread.currentThread().interrupt();
 			}
 		}
 
@@ -95,11 +77,11 @@ public class StandaloneDaemon extends ServerDaemon {
 		_workers.interrupt();
 
 		// Try to close the workers down
-		for (Iterator i = _tasks.iterator(); i.hasNext();) {
-			Worker w = (Worker) i.next();
+		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
+			Worker w = i.next();
 
 			// Wait for the thread to die if it hasn't yet
-			Thread t = _threads.get(w.getClass());
+			Thread t = _threads.get(w);
 			try {
 				if (t.isAlive())
 					t.join(500);
