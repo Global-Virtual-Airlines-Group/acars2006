@@ -187,18 +187,18 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		return disCons;
 	}
 
-	public boolean hasConnection(String remoteAddr) {
+	public ACARSConnection getFrom(String remoteAddr) {
 
 		// Loop through the connections
-		Iterator i = _cons.iterator();
+		Iterator<ACARSConnection> i = _cons.iterator();
 		while (i.hasNext()) {
-			ACARSConnection c = (ACARSConnection) i.next();
+			ACARSConnection c = i.next();
 			if (c.getRemoteAddr().equals(remoteAddr))
-				return true;
+				return c;
 		}
 
 		// No connection from that address found, return false
-		return false;
+		return null;
 	}
 
 	public Collection<ACARSConnection> getAll() {

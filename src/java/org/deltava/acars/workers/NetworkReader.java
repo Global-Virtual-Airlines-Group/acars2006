@@ -53,16 +53,15 @@ public final class NetworkReader extends Worker {
 
 		// Check if we have a connection from there already
 		if (!SystemData.getBoolean("acars.pool.multiple")) {
-			if (_pool.hasConnection(con.getRemoteAddr())) {
-				try {
-					sc.close();
-				} catch (IOException ie) {
-					log.error("Cannot close socket - " + ie.getMessage());
-				} finally {
-					log.warn("Duplicate connection from " + con.getRemoteAddr());
-				}
-
+			ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
+			boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
+			if ((oldCon != null) && !killOld) {
+				con.close();
+				log.warn("Duplicate connection from " + con.getRemoteAddr());
 				return;
+			} else if (oldCon != null) {
+				log.warn("Closing original connection from " + con.getRemoteAddr());
+				_pool.remove(oldCon);
 			}
 		}
 
