@@ -33,16 +33,22 @@ public class PositionCommand implements ACARSCommand {
 		ACARSConnection con = ctx.getACARSConnection();
 
 		// Create the ack message and envelope
-		if (SystemData.getBoolean("acars.ack.position")) {
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ctx.push(ackMsg, con.getID());
-		}
+		AcknowledgeMessage ackMsg = null;
+		if (SystemData.getBoolean("acars.ack.position"))
+			ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Get the last position report and its age
 		InfoMessage info = con.getFlightInfo();
 		PositionMessage oldPM = con.getPosition();
-		if (info == null)
+		if (info == null) {
+			log.warn("No Flight Information for " + con.getUserID());
+			if (ackMsg != null)
+				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			
+			ackMsg.setEntry("sendInfo", "true");
+			ctx.push(ackMsg, env.getConnectionID());
 			return;
+		}
 
 		// If we are an offline fight, update the timestamp of the mesage
 		if ((info.isOffline() && info.isComplete()) || (msg.getNoFlood())) {
@@ -67,5 +73,7 @@ public class PositionCommand implements ACARSCommand {
 
 		// Log message received
 		log.debug("Received position from " + con.getUser().getPilotCode());
+		if (ackMsg != null)
+			ctx.push(ackMsg, env.getConnectionID());
 	}
 }

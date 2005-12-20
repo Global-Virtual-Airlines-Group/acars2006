@@ -35,11 +35,16 @@ public class EndFlightCommand implements ACARSCommand {
 		// Get the message
 		ACARSConnection con = ctx.getACARSConnection();
 		EndFlightMessage msg = (EndFlightMessage) env.getMessage();
+		
+		// Create the ack message
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Get the current info
 		InfoMessage iMsg = con.getFlightInfo();
 		if (iMsg == null) {
 			log.warn("No Flight Information for Connection " + StringUtils.formatHex(con.getID()));
+			ackMsg.setEntry("sendInfo", "true");
+			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
 		
@@ -63,9 +68,6 @@ public class EndFlightCommand implements ACARSCommand {
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
 		con.setPosition(null);
-		
-		// Create the ack message and envelope - these are always acknowledged
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		ctx.push(ackMsg, env.getConnectionID());
 	}
 }

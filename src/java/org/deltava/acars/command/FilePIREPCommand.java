@@ -50,6 +50,14 @@ public class FilePIREPCommand implements ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
+		
+		// If we have no flight info, then push it back
+		if (info == null) {
+			log.warn("No Flight Information found for ACARS Connection");
+			ackMsg.setEntry("sendInfo", "true");
+			ctx.push(ackMsg, env.getConnectionID());
+			return;
+		}
 
 		Connection con = null;
 		try {
@@ -112,8 +120,8 @@ public class FilePIREPCommand implements ACARSCommand {
 
 				log.info("Writing " + info.getPositions().size() + " offline Position reports");
 				SetPosition pwdao = new SetPosition(con);
-				for (Iterator i = info.getPositions().iterator(); i.hasNext();) {
-					PositionMessage pmsg = (PositionMessage) i.next();
+				for (Iterator<PositionMessage> i = info.getPositions().iterator(); i.hasNext();) {
+					PositionMessage pmsg = i.next();
 					pwdao.write(pmsg, ac.getID(), info.getFlightID());
 				}
 				
