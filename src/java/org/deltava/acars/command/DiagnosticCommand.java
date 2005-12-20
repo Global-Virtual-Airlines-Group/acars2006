@@ -29,6 +29,7 @@ public class DiagnosticCommand implements ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@SuppressWarnings("unchecked")
 	public void execute(CommandContext ctx, Envelope env) {
 
 		// Get the message and the connection pool
@@ -89,6 +90,5 @@ public class DiagnosticCommand implements ACARSCommand {
 			default:
 				log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
 		}
-
 	}
 }
