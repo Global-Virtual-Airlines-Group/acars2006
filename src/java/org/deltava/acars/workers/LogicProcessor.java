@@ -141,6 +141,8 @@ public class LogicProcessor extends Worker {
 	}
 
 	private void process(Envelope env) throws Exception {
+		if (env == null)
+			return;
 
 		// Get the message and start time
 		long startTime = System.currentTimeMillis();
