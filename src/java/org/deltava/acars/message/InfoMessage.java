@@ -32,7 +32,7 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _offlineFlight;
 	private boolean _flightComplete;
 	
-	private ArrayList<String> _waypoints = new ArrayList<String>();
+	private Collection<String> _waypoints = new LinkedHashSet<String>();
 	private Set<PositionMessage> _offlinePositions;
 	
 	// Constant for splitting waypoint lists
@@ -43,9 +43,7 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void addWaypoint(String newWP) {
-		newWP = newWP.toUpperCase();
-		if (!_waypoints.contains(newWP))		
-			_waypoints.add(newWP);
+		_waypoints.add(newWP.toUpperCase());
 	}
 	
 	public int getFlightID() {
@@ -88,15 +86,15 @@ public class InfoMessage extends AbstractMessage {
 	   return _endTime;
 	}
 	
-	public Collection getWaypoints() {
+	public Collection<String> getWaypoints() {
 		return _waypoints;
 	}
 	
 	public String getAllWaypoints(char sep) {
 		
 		StringBuilder buf = new StringBuilder();
-		for (Iterator i = _waypoints.iterator(); i.hasNext(); ) {
-			buf.append((String) i.next());
+		for (Iterator<String> i = _waypoints.iterator(); i.hasNext(); ) {
+			buf.append(i.next());
 			if (i.hasNext())
 				buf.append(sep);
 		}
@@ -109,7 +107,7 @@ public class InfoMessage extends AbstractMessage {
 		return getAllWaypoints(WAYPOINT_SPACER.charAt(0));
 	}
 	
-	public Collection getPositions() {
+	public Collection<PositionMessage> getPositions() {
 	   return _offlinePositions;
 	}
 	
