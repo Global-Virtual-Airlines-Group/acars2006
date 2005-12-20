@@ -36,6 +36,9 @@ public final class NetworkReader extends Worker {
 	private Selector _cSelector;
 	private ServerSocketChannel _channel;
 
+	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
+	private Collection<String> _blockedAddrs;
+
 	public NetworkReader() {
 		super("Network I/O Reader", NetworkReader.class);
 	}
@@ -51,6 +54,13 @@ public final class NetworkReader extends Worker {
 			con = new ACARSConnection(IDGenerator.generate(), sc);
 		}
 
+		// Check if the address is on the block list
+		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
+			log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
+			con.close();
+			return;
+		}
+		
 		// Check if we have a connection from there already
 		if (!SystemData.getBoolean("acars.pool.multiple")) {
 			ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
@@ -94,8 +104,13 @@ public final class NetworkReader extends Worker {
 		ServerStats.connect();
 	}
 
+	@SuppressWarnings("unchecked")
 	public final void open() {
 		super.open();
+		
+		// Load the list of blocked connections
+		_blockedAddrs = new HashSet<String>((Collection) SystemData.getObject("acars.block"));
+		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
 
 		// Get the ACARS Connection Pool
 		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);

@@ -1,14 +1,18 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
+
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.acars.workers.NetworkReader;
 import org.deltava.acars.xml.MessageWriter;
 
 import org.deltava.util.StringUtils;
+import org.deltava.util.system.SystemData;
 
 /**
  * @author Luke
@@ -18,55 +22,73 @@ import org.deltava.util.StringUtils;
 
 public class DiagnosticCommand implements ACARSCommand {
 
-   private static final Logger log = Logger.getLogger(DiagnosticCommand.class);
+	private static final Logger log = Logger.getLogger(DiagnosticCommand.class);
 
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-   public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, Envelope env) {
 
-      // Get the message
-      DiagnosticMessage msg = (DiagnosticMessage) env.getMessage();
+		// Get the message and the connection pool
+		DiagnosticMessage msg = (DiagnosticMessage) env.getMessage();
+		ACARSConnectionPool cPool = ctx.getACARSConnectionPool();
 
-      // Create the ACK in advance
-      AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-      switch (msg.getRequestType()) {
-         // Send statistics
+		switch (msg.getRequestType()) {
 
-         // Kick a user based on connection ID
-         case DiagnosticMessage.REQ_KICK:
-            long cid = 0;
-            try {
-               cid = Long.parseLong(msg.getRequestData(), 16);
-            } catch (Exception e) {
-               log.error("Invalid KICK connection ID - " + msg.getRequestData());
-            }
+			// Kick a user based on connection ID
+			case DiagnosticMessage.REQ_KICK:
 
-            // Try and get the connection
-            ACARSConnection ac = ctx.getACARSConnectionPool().get(cid);
-            if (ac != null) {
-               MessageWriter.remove(cid);
-               ctx.getACARSConnectionPool().remove(ac);
-               log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED");
-               daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
-               daMsg.setEntry("user", ac.getUserID());
-               daMsg.setEntry("addr", ac.getRemoteAddr());
-            } else {
-               daMsg.setEntry("kick", "0");
-            }
+				// Try and get the connection
+				Collection<ACARSConnection> cons = cPool.get(msg.getRequestData());
+				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+					ACARSConnection ac = i.next();
+					MessageWriter.remove(ac.getID());
+					cPool.remove(ac);
+					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 
-            ctx.push(daMsg, env.getConnectionID());
-            break;
+					// Send the ACK
+					AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
+					daMsg.setEntry("user", ac.getUserID());
+					daMsg.setEntry("addr", ac.getRemoteAddr());
+					ctx.push(daMsg, env.getConnectionID());
+				}
 
-         case DiagnosticMessage.REQ_SHUTDOWN:
-            Thread.currentThread().interrupt();
-            break;
+				break;
 
-         // Kick the user and block his IP address
-         default:
-            log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
-      }
-   }
+			// Block an IP address or Hostname
+			case DiagnosticMessage.REQ_BLOCK:
+
+				// Get the list of blocked connections and add the address
+				Collection blockedAddrs = (Collection) SystemData.getObject(NetworkReader.BLOCKADDR_LIST);
+				blockedAddrs.add(msg.getRequestData());
+				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
+
+				// Kick any connections from this address
+				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext();) {
+					ACARSConnection ac = i.next();
+					if ((blockedAddrs.contains(ac.getRemoteAddr())) || (blockedAddrs.contains(ac.getRemoteHost()))) {
+						MessageWriter.remove(ac.getID());
+						cPool.remove(ac);
+						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+						
+						// Send the ACK
+						AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+						daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
+						daMsg.setEntry("user", ac.getUserID());
+						daMsg.setEntry("addr", ac.getRemoteAddr());
+						ctx.push(daMsg, env.getConnectionID());
+					}
+				}
+
+				break;
+
+			// Kick the user and block his IP address
+			default:
+				log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
+		}
+
+	}
 }
