@@ -1,3 +1,4 @@
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars;
 
 /**
@@ -9,7 +10,7 @@ package org.deltava.acars;
 public interface ACARSInfo {
 	
 	public static final int MAJOR_VERSION = 0;
-	public static final int MINOR_VERSION = 4;
+	public static final int MINOR_VERSION = 5;
 	
 	public static final String APP_NAME = "DVA ACARS";
 	public static final String AUTHOR_NAME = "Luke Kolin";
