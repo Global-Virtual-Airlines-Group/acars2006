@@ -55,6 +55,7 @@ public class LogicProcessor extends Worker {
 			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
 			_commands.put(new Integer(Message.MSG_PIREP), new FilePIREPCommand());
 			_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
+			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
 			log.info("Loaded " + _commands.size() + " commands");
 		}
 	}
@@ -85,20 +86,19 @@ public class LogicProcessor extends Worker {
 			SetPosition dao = new SetPosition(c);
 
 			// Flush the cache
-			synchronized (PositionCache.class) {
-				for (Iterator i = PositionCache.getAll().iterator(); i.hasNext();) {
-					PositionCache.PositionCacheEntry ce = (PositionCache.PositionCacheEntry) i.next();
-					try {
-						dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
-						i.remove();
-					} catch (DAOException de) {
-						log.error("Error writing position - " + de.getMessage(), de);
-					}
+			PositionCache.PositionCacheEntry ce = PositionCache.pop();
+			while (ce != null) {
+				try {
+					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
+				} catch (DAOException de) {
+					log.error("Error writing position - " + de.getMessage(), de);
 				}
-
-				dao.release();
-				PositionCache.flush();
+				
+				ce = PositionCache.pop();
 			}
+			
+			dao.release();
+			PositionCache.flush();
 		} catch (Exception e) {
 			log.error("Cannot flush Position Cache - " + e.getMessage());
 		} finally {
@@ -118,21 +118,19 @@ public class LogicProcessor extends Worker {
 			SetMessage dao = new SetMessage(c);
 
 			// Flush the cache
-			synchronized (TextMessageCache.class) {
-				for (Iterator i = TextMessageCache.getAll().iterator(); i.hasNext();) {
-					TextMessageCache.TextMessageCacheEntry ce = (TextMessageCache.TextMessageCacheEntry) i.next();
-					try {
-						dao.write(ce.getMessage(), ce.getConnectionID(), ce.getRecipientID());
-						i.remove();
-					} catch (DAOException de) {
-						log.error("Error writing position - " + de.getMessage(), de);
-					}
+			TextMessageCache.TextMessageCacheEntry ce = TextMessageCache.pop();
+			while (ce != null) {
+				try {
+					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getRecipientID());
+				} catch (DAOException de) {
+					log.error("Error writing position - " + de.getMessage(), de);
 				}
-
-				dao.release();
-				TextMessageCache.flush();
+				
+				ce = TextMessageCache.pop();
 			}
-
+			
+			dao.release();
+			TextMessageCache.flush();
 		} catch (Exception e) {
 			log.error("Cannot flush Text Message Cache - " + e.getMessage());
 		} finally {
@@ -204,6 +202,7 @@ public class LogicProcessor extends Worker {
 			MessageStack.MSG_OUTPUT.wakeup();
 
 			// Check if we need to flush the position/message caches
+			_status.setMessage("Checking Message/Position Caches");
 			synchronized (LogicProcessor.class) {
 				if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH))
 					flushPositionCache();
