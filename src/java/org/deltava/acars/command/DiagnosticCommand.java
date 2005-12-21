@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.beans.Pilot;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
@@ -35,6 +36,15 @@ public class DiagnosticCommand implements ACARSCommand {
 		// Get the message and the connection pool
 		DiagnosticMessage msg = (DiagnosticMessage) env.getMessage();
 		ACARSConnectionPool cPool = ctx.getACARSConnectionPool();
+		
+		// Check user access
+		Pilot usr = env.getOwner();
+		if (!usr.isInRole("Admin")) {
+			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			ackMsg.setEntry("error", "Insufficient Access");
+			ctx.push(ackMsg, env.getConnectionID());
+			return;
+		}
 
 		switch (msg.getRequestType()) {
 
