@@ -59,6 +59,8 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				log.error("Error restarting worker - " + e.getMessage(), e);
 			}
 		}
 
