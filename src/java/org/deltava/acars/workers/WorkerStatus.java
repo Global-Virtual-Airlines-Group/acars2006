@@ -1,5 +1,7 @@
 package org.deltava.acars.workers;
 
+import org.deltava.beans.ViewEntry;
+
 /**
  * A bean to return ACARS worker thread information.
  * @author Luke
@@ -7,7 +9,7 @@ package org.deltava.acars.workers;
  * @since 1.0
  */
 
-public class WorkerStatus implements java.io.Serializable, Comparable {
+public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry {
 	
 	public static final int STATUS_UNKNOWN = 0;
 	public static final int STATUS_SHUTDOWN = 1;
@@ -23,6 +25,7 @@ public class WorkerStatus implements java.io.Serializable, Comparable {
 	private String _msg;
 	private int _status;
 	private long _execCount;
+	private boolean _isRunning;
 	
 	WorkerStatus(String name) {
 		super();
@@ -37,6 +40,10 @@ public class WorkerStatus implements java.io.Serializable, Comparable {
 		return _status;
 	}
 	
+	public boolean getAlive() {
+		return _isRunning;
+	}
+	
 	public String getStatusName() {
 		return STATUS_NAME[getStatus()];
 	}
@@ -47,6 +54,10 @@ public class WorkerStatus implements java.io.Serializable, Comparable {
 	
 	public void setMessage(String msg) {
 		_msg = msg;
+	}
+	
+	public void setAlive(boolean isAlive) {
+		_isRunning = isAlive;
 	}
 	
 	synchronized void setStatus(int newStatus) {
@@ -68,5 +79,9 @@ public class WorkerStatus implements java.io.Serializable, Comparable {
 	
 	public String toString() {
 		return _name;
+	}
+	
+	public String getRowClassName() {
+		return _isRunning ? null : "warn";
 	}
 }
