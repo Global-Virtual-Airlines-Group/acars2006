@@ -43,18 +43,20 @@ public class NetworkWriter extends Worker {
 				Envelope env = MessageStack.RAW_OUTPUT.pop();
 
 				// Get the connection and write the message
-				ACARSConnection c = _pool.get(env.getConnectionID());
-				if (c != null) {
-					log.debug("Writing to " + c.getRemoteAddr());
-					_status.setMessage("Writing to " + c.getUserID() + " (" + c.getRemoteAddr() + ")");
-					c.write((String) env.getMessage());
+				if (env != null) {
+					ACARSConnection c = _pool.get(env.getConnectionID());
+					if (c != null) {
+						log.debug("Writing to " + c.getRemoteAddr());
+						_status.setMessage("Writing to " + c.getUserID() + " (" + c.getRemoteAddr() + ")");
+						c.write((String) env.getMessage());
+					}
 				}
 			}
 
 			// Log execution
 			_status.execute();
 			_status.setMessage("Idle");
-			
+
 			// Wait until something is on the bean output stack or we get interrupted
 			try {
 				MessageStack.RAW_OUTPUT.waitForActivity();
@@ -63,7 +65,7 @@ public class NetworkWriter extends Worker {
 				Thread.currentThread().interrupt();
 			}
 		}
-		
+
 		// Mark the interrupt
 		log.info("Interrupted");
 	}
