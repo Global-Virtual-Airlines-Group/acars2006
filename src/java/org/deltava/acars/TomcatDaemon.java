@@ -48,6 +48,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 					// Get the thread status
 					Thread t = _threads.get(w);
+					w.getStatus().setAlive(t.isAlive());
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
 						
