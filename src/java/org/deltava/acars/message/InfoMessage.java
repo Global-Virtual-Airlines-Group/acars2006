@@ -120,8 +120,10 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void addPosition(PositionMessage pmsg) {
-	   if (_offlineFlight)
-	      _offlinePositions.add(pmsg);
+		if (_offlinePositions == null)
+			_offlinePositions = new TreeSet<PositionMessage>();
+		   
+		_offlinePositions.add(pmsg);
 	}
 	
 	public void setAirportA(Airport aInfo) {
@@ -164,8 +166,7 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setOffline(boolean isOffline) {
 		_offlineFlight = isOffline;
-		if (_offlinePositions == null)
-		   _offlinePositions = new TreeSet<PositionMessage>();
+		
 	}
 	
 	public void setStartTime(Date dt) {
