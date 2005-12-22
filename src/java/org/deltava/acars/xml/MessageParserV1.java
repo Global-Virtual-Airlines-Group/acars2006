@@ -373,7 +373,7 @@ class MessageParserV1 implements MessageParser {
 			msg.setPIREP(afr);
 		} catch (Exception e) {
 			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-			log.error(xmlOut.outputString(_el));
+			log.error(xmlOut.outputString(_el), e);
 			throw new XMLException(e.getMessage());
 		}
 
