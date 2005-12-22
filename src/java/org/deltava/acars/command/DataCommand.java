@@ -125,9 +125,16 @@ public class DataCommand implements ACARSCommand {
 					log.warn("Error retrieving " + network.toUpperCase() + " data - " + e.getMessage());
 				}
 				
-				// Filter the controllers based on rante from position
-				if ((info != null) && (ac.getPosition() != null)) {
-					Collection<Controller> ctrs = info.getControllers(ac.getPosition(), 400);
+				// Filter the controllers based on range from position
+				if (info != null) {
+					int range = 500;
+					try {
+						range = Integer.parseInt(msg.getFlag("range"));
+					} catch (Exception e) {
+						// empty
+					}
+					
+					Collection<Controller> ctrs = (ac.getPosition() == null) ? info.getControllers() : info.getControllers(ac.getPosition(), range);
 					for (Iterator<Controller> ci = ctrs.iterator(); ci.hasNext(); )
 						dataRsp.addResponse(ci.next());
 				}
