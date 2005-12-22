@@ -33,7 +33,7 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _flightComplete;
 	
 	private Collection<String> _waypoints = new LinkedHashSet<String>();
-	private Set<PositionMessage> _offlinePositions;
+	private Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
 	
 	// Constant for splitting waypoint lists
 	private final static String WAYPOINT_SPACER = " ";
@@ -120,9 +120,6 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void addPosition(PositionMessage pmsg) {
-		if (_offlinePositions == null)
-			_offlinePositions = new TreeSet<PositionMessage>();
-		   
 		_offlinePositions.add(pmsg);
 	}
 	
