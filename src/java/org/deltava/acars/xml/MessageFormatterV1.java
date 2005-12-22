@@ -255,17 +255,21 @@ class MessageFormatterV1 implements MessageFormatter {
 
 			// Display user-specific stuff
 			if (con.isAuthenticated()) {
-				Pilot userInfo = con.getUser();
-				e.setAttribute("id", userInfo.getPilotCode());
-				e.addContent(XMLUtils.createElement("firstname", userInfo.getFirstName()));
-				e.addContent(XMLUtils.createElement("lastname", userInfo.getLastName()));
-				e.addContent(XMLUtils.createElement("name", userInfo.getName()));
-				e.addContent(XMLUtils.createElement("eqtype", userInfo.getEquipmentType()));
-				e.addContent(XMLUtils.createElement("rank", userInfo.getRank()));
+				Pilot usr= con.getUser();
+				e.setAttribute("id", usr.getPilotCode());
+				e.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
+				e.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
+				e.addContent(XMLUtils.createElement("name", usr.getName()));
+				e.addContent(XMLUtils.createElement("eqtype", usr.getEquipmentType()));
+				e.addContent(XMLUtils.createElement("rank", usr.getRank()));
+				e.addContent(XMLUtils.createElement("hours", String.valueOf(usr.getHours())));
+				e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
+				e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 			}
 
 			// Add connection specific stuff
 			e.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
+			e.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientVersion())));
 			e.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
 			e.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
 			e.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
@@ -335,6 +339,9 @@ class MessageFormatterV1 implements MessageFormatter {
 					pe.addContent(XMLUtils.createElement("name", userInfo.getName()));
 					pe.addContent(XMLUtils.createElement("eqtype", userInfo.getEquipmentType()));
 					pe.addContent(XMLUtils.createElement("rank", userInfo.getRank()));
+					e.addContent(XMLUtils.createElement("hours", String.valueOf(userInfo.getHours())));
+					e.addContent(XMLUtils.createElement("legs", String.valueOf(userInfo.getLegs())));
+					e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(userInfo.getCreatedOn(), "MMMM dd, yyyy")));
 					Element dpe;
 					switch (msg.getRequestType()) {
 						case DataMessage.REQ_ADDUSER:
@@ -347,7 +354,7 @@ class MessageFormatterV1 implements MessageFormatter {
 							dpe.addContent(pe);
 					}
 				} else if (rsp instanceof ACARSConnection) {
-					Element pList = getData(e, "pilotlist");
+					Element pList = (msg.getRequestType() == DataMessage.REQ_ADDUSER) ? getData(e, "addpilots") : getData(e, "pilotlist");
 					pList.addContent(formatConnection((ACARSConnection) rsp));
 				} else if (rsp instanceof Chart) {
 					Chart c = (Chart) rsp;
@@ -369,8 +376,11 @@ class MessageFormatterV1 implements MessageFormatter {
 					Element ctrList = getData(e, "atc");
 					Element ce = new Element("ctr");
 					ce.setAttribute("code", ctr.getCallsign());
+					ce.setAttribute("name", ctr.getName());
+					ce.setAttribute("rating", ctr.getRatingName());
 					ce.setAttribute("type", ctr.getFacilityType());
 					ce.setAttribute("freq", ctr.getFrequency());
+					ce.setAttribute("networkID", String.valueOf(ctr.getID()));
 					ctrList.addContent(ce);
 				} else if (rsp instanceof Airport) {
 					Airport a = (Airport) rsp;
