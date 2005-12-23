@@ -48,7 +48,7 @@ public class NetworkWriter extends Worker {
 					if (c != null) {
 						log.debug("Writing to " + c.getRemoteAddr());
 						_status.setMessage("Writing to " + c.getUserID() + " (" + c.getRemoteAddr() + ")");
-						c.write((String) env.getMessage());
+						c.queue((String) env.getMessage());
 					}
 				}
 			}

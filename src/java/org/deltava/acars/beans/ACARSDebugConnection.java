@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 /**
  * An ACARS Connection that dumps messages to a text file.
@@ -63,16 +64,18 @@ public class ACARSDebugConnection extends ACARSConnection {
 	}
 
 	/**
-	 * Writes a message to the connection
+	 * Writes a message to the connection.
 	 * @param msg the message text
 	 */
-	public void write(String msg) {
-		super.write(msg);
-		if (msg != null) {
+	public final void flush() {
+		for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
+			String msg = i.next();
+			i.remove();
 			_debugWriter.println("-- out");
 			_debugWriter.println(msg);
 			_debugWriter.println();
-			_debugWriter.flush();	
+			_debugWriter.flush();
+			write(msg);
 		}
 	}
 }

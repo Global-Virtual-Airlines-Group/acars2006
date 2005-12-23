@@ -1,7 +1,9 @@
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import java.nio.*;
 import java.nio.channels.SocketChannel;
@@ -32,40 +34,42 @@ public class ACARSConnection implements Serializable, Comparable {
 	private SocketChannel _channel;
 	private InetAddress _remoteAddr;
 	private String _remoteHost;
-	private int protocolVersion = 1;
-	private int clientVersion;
+	private int _protocolVersion = 1;
+	private int _clientVersion;
 
 	// Input/output network buffers
 	private ByteBuffer _iBuffer;
 	private ByteBuffer _oBuffer;
 
-	// The the actual buffer for messages
+	// The the actual buffers for messages
 	private StringBuilder _msgBuffer;
+	protected Collection<String> _msgOutBuffer;
 
 	// Connection information
-	private long id;
+	private long _id;
 	private Pilot _userInfo;
 	private UserData _userData;
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
 
 	// Activity monitors
-	private long startTime;
-	private long lastActivityTime;
+	private long _startTime;
+	private long _lastActivityTime;
+	private volatile boolean _isWriting;
 
 	// Statistics
-	private long bytesIn;
-	private long bytesOut;
-	private long msgsIn;
-	private long msgsOut;
-	private long bufferWrites;
+	private long _bytesIn;
+	private long _bytesOut;
+	private long _msgsIn;
+	private long _msgsOut;
+	private long _bufferWrites;
 
 	public ACARSConnection(long cid, SocketChannel sc) {
 
 		// Init the superclass and start time
 		super();
-		this.startTime = System.currentTimeMillis();
-		this.id = cid;
+		_startTime = System.currentTimeMillis();
+		_id = cid;
 
 		// Get IP Address information
 		_remoteAddr = sc.socket().getInetAddress();
@@ -86,6 +90,7 @@ public class ACARSConnection implements Serializable, Comparable {
 
 		// Allocate the buffers and output stack for this channel
 		_msgBuffer = new StringBuilder();
+		_msgOutBuffer = Collections.synchronizedCollection(new LinkedHashSet<String>());
 		_iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 		_oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 	}
@@ -118,7 +123,7 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public boolean equals(long cid) {
-		return (this.id == cid);
+		return (_id == cid);
 	}
 
 	public boolean equals(String pid) {
@@ -126,11 +131,11 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public long getBytesIn() {
-		return this.bytesIn;
+		return _bytesIn;
 	}
 
 	public long getBytesOut() {
-		return this.bytesOut;
+		return _bytesOut;
 	}
 
 	SocketChannel getChannel() {
@@ -146,7 +151,7 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public long getID() {
-		return this.id;
+		return _id;
 	}
 
 	public InfoMessage getFlightInfo() {
@@ -158,31 +163,31 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public long getLastActivity() {
-		return this.lastActivityTime;
+		return _lastActivityTime;
 	}
 
 	public long getMsgsIn() {
-		return this.msgsIn;
+		return _msgsIn;
 	}
 
 	public long getMsgsOut() {
-		return this.msgsOut;
+		return _msgsOut;
 	}
 	
 	public long getBufferWrites() {
-		return this.bufferWrites;
+		return _bufferWrites;
 	}
 
 	public int getProtocolVersion() {
-		return this.protocolVersion;
+		return _protocolVersion;
 	}
 
 	public int getClientVersion() {
-		return this.clientVersion;
+		return _clientVersion;
 	}
 
 	public long getStartTime() {
-		return this.startTime;
+		return _startTime;
 	}
 
 	public String getRemoteAddr() {
@@ -223,12 +228,12 @@ public class ACARSConnection implements Serializable, Comparable {
 
 	public void setProtocolVersion(int pv) {
 		if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
-			this.protocolVersion = pv;
+			_protocolVersion = pv;
 	}
 
 	public void setClientVersion(int ver) {
 		if (ver > 50)
-			clientVersion = ver;
+			_clientVersion = ver;
 	}
 
 	public void setUser(Pilot p) {
@@ -271,9 +276,9 @@ public class ACARSConnection implements Serializable, Comparable {
 		_iBuffer.flip();
 
 		// Update the counters
-		bytesIn += _iBuffer.limit();
-		msgsIn++;
-		lastActivityTime = System.currentTimeMillis();
+		_bytesIn += _iBuffer.limit();
+		_msgsIn++;
+		_lastActivityTime = System.currentTimeMillis();
 
 		// Reset the decoder and decode into a char buffer
 		try {
@@ -310,11 +315,24 @@ public class ACARSConnection implements Serializable, Comparable {
 		// Return the buffer
 		return msgOut.toString();
 	}
+	
+	public void queue(String msg) {
+		_msgOutBuffer.add(msg);
+		if (!_isWriting)
+			flush();
+	}
+	
+	private void flush() {
+		_isWriting = true;
+		for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
+			write(i.next());
+			i.remove();
+		}
+		
+		_isWriting = false;
+	}
 
-	public void write(String msg) {
-		if (msg == null)
-			return;
-
+	protected final synchronized void write(String msg) {
 		int ofs = 0;
 		int writeCount = 0;
 		byte[] msgBytes = msg.getBytes();
@@ -332,15 +350,17 @@ public class ACARSConnection implements Serializable, Comparable {
 
 				// Flip the buffer
 				_oBuffer.flip();
-				while (_oBuffer.remaining() > 0)
+				while (_oBuffer.hasRemaining())
 					_channel.write(_oBuffer);
 			}
 
 			// Update statistics
-			lastActivityTime = System.currentTimeMillis();
-			msgsOut++;
-			bytesOut += ofs;
-			bufferWrites += writeCount;
+			_lastActivityTime = System.currentTimeMillis();
+			_msgsOut++;
+			_bytesOut += ofs;
+			_bufferWrites += writeCount;
+		} catch (IOException ie) {
+			log.warn("Error writing to channel - " + ie.getMessage());
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
