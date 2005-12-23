@@ -98,7 +98,7 @@ public final class NetworkReader extends Worker {
 		}
 
 		// Say hello
-		con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
+		con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 
 		// Update the max/current connection counts
 		ServerStats.connect();
