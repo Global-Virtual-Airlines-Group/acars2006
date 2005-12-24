@@ -64,8 +64,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 	}
 
 	/**
-	 * Writes a message to the connection.
-	 * @param msg the message text
+	 * Flushes pending messages message on the connection.
 	 */
 	public final void flush() {
 		for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
