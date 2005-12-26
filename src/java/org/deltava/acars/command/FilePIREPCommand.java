@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -65,6 +65,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			GetFlightReports prdao = new GetFlightReports(con);
 			
 			// Check for existing PIREP with this flight ID
+			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
 			if ((info != null) && (info.getFlightID() != 0)) {
 			   ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), info.getFlightID());
 			   if (afr2 != null) {
@@ -78,6 +79,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			}
 
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
+			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
 			List dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 			if (!dFlights.isEmpty()) {
 				FlightReport fr = (FlightReport) dFlights.get(0);
@@ -87,6 +89,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			}
 
 			// Check if this Flight Report counts for promotion
+			ctx.setMessage("Checking type ratings for " + ac.getUserID());
 			GetEquipmentType eqdao = new GetEquipmentType(con);
 			Collection<String> promoEQ = eqdao.getPrimaryTypes(usrLoc.getDB(), afr.getEquipmentType());
 			if (promoEQ.contains(ac.getUser().getEquipmentType()))
@@ -97,6 +100,7 @@ public class FilePIREPCommand implements ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, true);
 
 			// Check the schedule database and check the route pair
+			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			GetSchedule sdao = new GetSchedule(con);
 			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA());
 			if (avgHours == 0) {
@@ -122,6 +126,8 @@ public class FilePIREPCommand implements ACARSCommand {
 				idao.logPIREP(info.getFlightID());
 				info.setComplete(true);
 
+				// Write the position reports
+				ctx.setMessage("Writing " + info.getPositions().size() + " offline Position reports for flight " + info.getFlightCode());
 				log.info("Writing " + info.getPositions().size() + " offline Position reports");
 				SetPosition pwdao = new SetPosition(con);
 				for (Iterator<PositionMessage> i = info.getPositions().iterator(); i.hasNext();) {
@@ -140,6 +146,7 @@ public class FilePIREPCommand implements ACARSCommand {
 				GetExam exdao = new GetExam(con);
 				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType());
 				if (cr != null) {
+					ctx.setMessage("Saving check ride data for ACARS Flight " + info.getFlightID());
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(new Date());
 					
@@ -152,6 +159,7 @@ public class FilePIREPCommand implements ACARSCommand {
 			}
 
 			// Get the write DAO and save the PIREP
+			ctx.setMessage("Saving Flight report for flight " + afr.getFlightCode() + " for " + ac.getUserID());
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());

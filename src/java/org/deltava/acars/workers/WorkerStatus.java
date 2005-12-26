@@ -52,7 +52,7 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 		return _execCount;
 	}
 	
-	public void setMessage(String msg) {
+	public synchronized void setMessage(String msg) {
 		_msg = msg;
 	}
 	
