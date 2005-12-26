@@ -97,7 +97,7 @@ public class CommandContext {
 		MessageStack.MSG_OUTPUT.push(new Envelope(msg, conID));
 	}
 	
-	public void setStatusMessage(String msg) {
+	public void setMessage(String msg) {
 		_status.setMessage(msg);
 	}
 }
