@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.workers.*;
 import org.deltava.beans.acars.ACARSWorkerInfo;
 
+import org.deltava.util.ThreadUtils;
+
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
@@ -35,13 +37,12 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 		// Log the start of the loop
 		log.info("Started");
+		ThreadUtils.sleep(10000);
 
 		// Start looping
 		while (!Thread.currentThread().isInterrupted()) {
 			// Go to sleep for a while - if interrupted, shut down the loop
 			try {
-				Thread.sleep(45000);
-				
 				// Check all of the threads
 				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext(); ) {
 					Worker w =  i.next();
@@ -58,6 +59,8 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 						wt.start();
 					}
 				}
+				
+				Thread.sleep(45000);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
