@@ -23,8 +23,8 @@ import org.deltava.acars.util.RouteEntryHelper;
  */
 
 public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
-   
-   private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
+
+	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 25000;
@@ -105,36 +105,35 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public NetworkStatus getNetworkStatus() {
 		return new NetworkStatus("ACARS");
 	}
-	
+
 	/**
 	 * Returns network data in a format suitable for Google Maps.
 	 * @return a Collection of MapEntry beans
 	 */
 	public Collection getMapEntries() {
-	   Set<RouteEntry> results = new HashSet<RouteEntry>();
-	   for (Iterator i = _cons.iterator(); i.hasNext(); ) {
+		Set<RouteEntry> results = new HashSet<RouteEntry>();
+		for (Iterator i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection con = (ACARSConnection) i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
 			if (re != null)
-			   results.add(re);
-	   }
-	   
-	   return results;
+				results.add(re);
+		}
+
+		return results;
 	}
-	
+
 	/**
 	 * Returns Connection Pool data to a web application.
 	 * @return a Collection of ACARSConnection beans
 	 */
 	public Collection<ACARSConnection> getPoolInfo() {
-	   return new ArrayList<ACARSConnection>(_cons);
+		return new ArrayList<ACARSConnection>(_cons);
 	}
 
 	/**
 	 * Adds a new connection to the pool.
 	 * @param c the connection to add
-	 * @throws ACARSException if the connection exists, the pool is fool or a network
-	 * error occurs
+	 * @throws ACARSException if the connection exists, the pool is fool or a network error occurs
 	 */
 	public void add(ACARSConnection c) throws ACARSException {
 
@@ -176,7 +175,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 			// Have we exceeded the timeout interval
 			if (idleTime > timeout) {
-			   log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
+				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
 				con.close();
 				i.remove();
 				disCons.add(con);
@@ -252,7 +251,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public ACARSConnection get(SocketChannel ch) {
 
 		// Loop through the connections
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext(); ) {
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.equals(ch))
 				return c;
@@ -261,7 +260,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		// Return nothing if not found
 		return null;
 	}
-	
+
 	public boolean isEmpty() {
 		return _cons.isEmpty();
 	}
@@ -277,7 +276,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 			SelectionKey sKey = i.next();
 
 			// If the selection key is ready for reading, get the Connection and read
-			if (sKey.isReadable()) {
+			if (sKey.isValid() && sKey.isReadable()) {
 				ACARSConnection con = get((SocketChannel) sKey.channel());
 
 				try {
@@ -296,7 +295,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 			// Remove from the selected keys list
 			i.remove();
 		}
-		
+
 		// Return messages
 		return results;
 	}
@@ -309,7 +308,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 			if (c.equals(id)) {
 				if (c.isConnected())
 					c.close();
-				
+
 				return;
 			}
 		}
