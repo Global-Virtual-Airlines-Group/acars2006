@@ -255,7 +255,7 @@ class MessageFormatterV1 implements MessageFormatter {
 
 			// Display user-specific stuff
 			if (con.isAuthenticated()) {
-				Pilot usr= con.getUser();
+				Pilot usr = con.getUser();
 				e.setAttribute("id", usr.getPilotCode());
 				e.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
 				e.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
@@ -265,6 +265,7 @@ class MessageFormatterV1 implements MessageFormatter {
 				e.addContent(XMLUtils.createElement("hours", String.valueOf(usr.getHours())));
 				e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
 				e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
+				e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 			}
 
 			// Add connection specific stuff
@@ -342,20 +343,37 @@ class MessageFormatterV1 implements MessageFormatter {
 					e.addContent(XMLUtils.createElement("hours", String.valueOf(userInfo.getHours())));
 					e.addContent(XMLUtils.createElement("legs", String.valueOf(userInfo.getLegs())));
 					e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(userInfo.getCreatedOn(), "MMMM dd, yyyy")));
-					Element dpe;
+					Element dpe = null;
 					switch (msg.getRequestType()) {
 						case DataMessage.REQ_ADDUSER:
 							dpe = getData(e, "addpilots");
-							dpe.addContent(pe);
 							break;
 
 						case DataMessage.REQ_REMOVEUSER:
 							dpe = getData(e, "delpilots");
-							dpe.addContent(pe);
+							break;
 					}
+					
+					if (dpe != null)
+						dpe.addContent(pe);
 				} else if (rsp instanceof ACARSConnection) {
-					Element pList = (msg.getRequestType() == DataMessage.REQ_ADDUSER) ? getData(e, "addpilots") : getData(e, "pilotlist");
-					pList.addContent(formatConnection((ACARSConnection) rsp));
+					Element pList = null;
+					switch (msg.getRequestType()) {
+						case DataMessage.REQ_ADDUSER:
+							pList = getData(e, "addpilots");
+							break;
+							
+						case DataMessage.REQ_PLIST:
+							pList = getData(e, "pilotlist");
+							break;
+							
+						case DataMessage.REQ_BUSY:
+							pList = getData(e, "busy");
+							break;
+					}
+
+					if (pList != null)
+						pList.addContent(formatConnection((ACARSConnection) rsp));
 				} else if (rsp instanceof Chart) {
 					Chart c = (Chart) rsp;
 					Airport a = c.getAirport();

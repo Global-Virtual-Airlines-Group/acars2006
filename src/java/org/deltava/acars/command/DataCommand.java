@@ -61,6 +61,19 @@ public class DataCommand implements ACARSCommand {
 
 				break;
 
+			case DataMessage.REQ_BUSY:
+				while (i.hasNext()) {
+					ACARSConnection c = (ACARSConnection) i.next();
+					c.setUserBusy(Boolean.valueOf(msg.getFlag("isBusy")).booleanValue());
+					dataRsp.addResponse(c);
+				}
+				
+				// Push the update to everyone else
+				DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_BUSY);
+				drmsg.addResponse(ac);
+				ctx.pushAll(drmsg, env.getConnectionID());
+				break;
+				
 			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
 			case DataMessage.REQ_PILOTINFO:
