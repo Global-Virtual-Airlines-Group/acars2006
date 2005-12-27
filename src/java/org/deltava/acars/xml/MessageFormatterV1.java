@@ -388,6 +388,9 @@ class MessageFormatterV1 implements MessageFormatter {
 					Element ae = new Element("airport");
 					ae.setAttribute("name", a.getName());
 					ae.setAttribute("icao", a.getICAO());
+					ae.setAttribute("iata", a.getIATA());
+					ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
+					ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 					aList.addContent(ae);
 				} else if (rsp instanceof Runway) {
 					Runway r = (Runway) rsp;
