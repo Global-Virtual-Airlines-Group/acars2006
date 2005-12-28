@@ -129,12 +129,10 @@ public class FilePIREPCommand implements ACARSCommand {
 				// Write the position reports
 				log.info("Writing " + info.getPositions().size() + " offline Position reports");
 				SetPosition pwdao = new SetPosition(con);
-				int x = 0;
-				for (Iterator<PositionMessage> i = info.getPositions().iterator(); i.hasNext();) {
-					PositionMessage pmsg = i.next();
-					pwdao.write(pmsg, ac.getID(), info.getFlightID());
+				List<PositionMessage> positions = new ArrayList<PositionMessage>(info.getPositions());
+				for (int x = 0; x < positions.size(); x++ ) {
+					pwdao.write(positions.get(x), ac.getID(), info.getFlightID());
 					ctx.setMessage("Writing " + x + " / " + info.getPositions().size() + " offline Position reports for flight " + info.getFlightCode());
-					x++;
 				}
 				
 				pwdao.release();
