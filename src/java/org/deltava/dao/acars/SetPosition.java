@@ -17,7 +17,7 @@ import org.deltava.acars.message.PositionMessage;
 public final class SetPosition extends DAO {
 
 	// SQL prepared statement syntax
-	private static final String SQL = 	"REPLACE INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
+	private static final String SQL = 	"INSERT INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
 		+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK) VALUES " 
 		+ "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
@@ -74,7 +74,7 @@ public final class SetPosition extends DAO {
 			_ps.setDouble(21, msg.getBank());
 			
 			// execute the statement
-			_ps.executeUpdate();
+			_ps.addBatch();
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
@@ -85,6 +85,7 @@ public final class SetPosition extends DAO {
 	 */
 	public void release() {
 	   try {
+		   _ps.executeBatch();
 	      _ps.close();
 	   } catch (Exception e) {
 	   }
