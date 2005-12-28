@@ -120,7 +120,8 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void addPosition(PositionMessage pmsg) {
-		_offlinePositions.add(pmsg);
+		if (pmsg != null)
+			_offlinePositions.add(pmsg);
 	}
 	
 	public void setAirportA(Airport aInfo) {
