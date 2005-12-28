@@ -360,15 +360,12 @@ class MessageFormatterV1 implements MessageFormatter {
 					Element pList = null;
 					switch (msg.getRequestType()) {
 						case DataMessage.REQ_ADDUSER:
+						case DataMessage.REQ_BUSY:
 							pList = getData(e, "addpilots");
 							break;
 							
-						case DataMessage.REQ_PLIST:
+						case DataMessage.REQ_USRLIST:
 							pList = getData(e, "pilotlist");
-							break;
-							
-						case DataMessage.REQ_BUSY:
-							pList = getData(e, "busy");
 							break;
 					}
 
