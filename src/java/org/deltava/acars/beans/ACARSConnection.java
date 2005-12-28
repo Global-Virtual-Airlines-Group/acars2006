@@ -43,7 +43,7 @@ public class ACARSConnection implements Serializable, Comparable {
 
 	// The the actual buffers for messages
 	private StringBuilder _msgBuffer;
-	protected Collection<String> _msgOutBuffer;
+	protected List<String> _msgOutBuffer;
 
 	// Connection information
 	private long _id;
@@ -91,7 +91,7 @@ public class ACARSConnection implements Serializable, Comparable {
 
 		// Allocate the buffers and output stack for this channel
 		_msgBuffer = new StringBuilder();
-		_msgOutBuffer = Collections.synchronizedCollection(new LinkedHashSet<String>());
+		_msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
 		_iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 		_oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 	}
@@ -333,11 +333,10 @@ public class ACARSConnection implements Serializable, Comparable {
 	
 	private void flush() {
 		_isWriting = true;
-		for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
-			write(i.next());
-			i.remove();
-		}
+		for (int x = 0; x < _msgOutBuffer.size(); x++)
+			write(_msgOutBuffer.get(x));
 		
+		_msgOutBuffer.clear();
 		_isWriting = false;
 	}
 
