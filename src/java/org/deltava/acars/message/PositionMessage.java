@@ -156,7 +156,8 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	}
 	
 	public void setDate(Date dt) {
-	   _dt = dt;
+		if (dt != null)
+			_dt = dt;
 	}
 	
 	public void setAltitude(int alt) {
