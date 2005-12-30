@@ -56,8 +56,13 @@ public class DiagnosticCommand implements ACARSCommand {
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
 					MessageWriter.remove(ac.getID());
-					cPool.remove(ac);
 					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+					
+					// Save the QUIT message
+					QuitMessage qmsg = new QuitMessage(ac.getUser());
+					qmsg.setFlightID(ac.getFlightID());
+					MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
+					MessageStack.MSG_INPUT.wakeup();
 
 					// Send the ACK
 					AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -65,6 +70,9 @@ public class DiagnosticCommand implements ACARSCommand {
 					daMsg.setEntry("user", ac.getUserID());
 					daMsg.setEntry("addr", ac.getRemoteAddr());
 					ctx.push(daMsg, env.getConnectionID());
+					
+					// Remove the connection
+					cPool.remove(ac);
 				}
 
 				break;
@@ -82,8 +90,13 @@ public class DiagnosticCommand implements ACARSCommand {
 					ACARSConnection ac = i.next();
 					if ((blockedAddrs.contains(ac.getRemoteAddr())) || (blockedAddrs.contains(ac.getRemoteHost()))) {
 						MessageWriter.remove(ac.getID());
-						cPool.remove(ac);
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+						
+						// Save the QUIT message
+						QuitMessage qmsg = new QuitMessage(ac.getUser());
+						qmsg.setFlightID(ac.getFlightID());
+						MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
+						MessageStack.MSG_INPUT.wakeup();
 						
 						// Send the ACK
 						AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -91,6 +104,9 @@ public class DiagnosticCommand implements ACARSCommand {
 						daMsg.setEntry("user", ac.getUserID());
 						daMsg.setEntry("addr", ac.getRemoteAddr());
 						ctx.push(daMsg, env.getConnectionID());
+						
+						// Remove the connection
+						cPool.remove(ac);
 					}
 				}
 
