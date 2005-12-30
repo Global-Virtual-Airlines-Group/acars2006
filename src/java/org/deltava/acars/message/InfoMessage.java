@@ -107,7 +107,7 @@ public class InfoMessage extends AbstractMessage {
 		return getAllWaypoints(WAYPOINT_SPACER.charAt(0));
 	}
 	
-	public Collection<PositionMessage> getPositions() {
+	public synchronized Collection<PositionMessage> getPositions() {
 	   return _offlinePositions;
 	}
 	
@@ -119,9 +119,8 @@ public class InfoMessage extends AbstractMessage {
 		return _offlineFlight;
 	}
 	
-	public void addPosition(PositionMessage pmsg) {
-		if (pmsg != null)
-			_offlinePositions.add(pmsg);
+	public synchronized void addPosition(PositionMessage pmsg) {
+		_offlinePositions.add(pmsg);
 	}
 	
 	public void setAirportA(Airport aInfo) {
