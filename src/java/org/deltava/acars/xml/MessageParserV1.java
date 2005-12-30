@@ -153,7 +153,7 @@ class MessageParserV1 implements MessageParser {
 		try {
 			msg.setDate(_dtf.parse(getChildText(e, "date", "")));
 		} catch (Exception ex) {
-			msg.setDate(new Date(_timeStamp));
+			// empty
 		}
 
 		// Get the basic information
