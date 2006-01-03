@@ -341,6 +341,9 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	protected final synchronized void write(String msg) {
+		if ((_oBuffer == null) || (msg == null))
+			return;
+		
 		int ofs = 0;
 		int writeCount = 0;
 		byte[] msgBytes = msg.getBytes();
