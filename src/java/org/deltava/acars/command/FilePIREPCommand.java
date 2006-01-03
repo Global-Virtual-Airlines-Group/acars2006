@@ -125,17 +125,6 @@ public class FilePIREPCommand implements ACARSCommand {
 				SetInfo idao = new SetInfo(con);
 				idao.logPIREP(info.getFlightID());
 				info.setComplete(true);
-
-				// Write the position reports
-				log.info("Writing " + info.getPositions().size() + " offline Position reports");
-				SetPosition pwdao = new SetPosition(con);
-				List<PositionMessage> positions = new ArrayList<PositionMessage>(info.getPositions());
-				for (int x = 0; x < positions.size(); x++ ) {
-					pwdao.write(positions.get(x), ac.getID(), info.getFlightID());
-					ctx.setMessage("Writing " + x + " / " + info.getPositions().size() + " offline Position reports for flight " + info.getFlightCode());
-				}
-				
-				pwdao.release();
 			} else {
 				afr.setFSVersion(2004);
 				log.warn("No Flight Information found for ACARS Connection");

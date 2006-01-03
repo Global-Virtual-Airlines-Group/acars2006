@@ -50,10 +50,9 @@ public class PositionCommand implements ACARSCommand {
 			return;
 		}
 
-		// If we are an offline fight, update the timestamp of the mesage
-		if ((info.isOffline() && info.isComplete()) || (msg.getNoFlood())) {
-			msg.setTime(msg.getDate().getTime());
-			info.addPosition(msg);
+		// If we are an offline fight, save the flight right away
+		if (msg.getNoFlood()) {
+			PositionCache.push(msg, con.getID(), con.getFlightID());
 		} else {
 			// Check for position flood
 			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
