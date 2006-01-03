@@ -62,7 +62,8 @@ public final class PositionCache {
 	 * @param flightID the ACARS flight ID
 	 */
 	public static synchronized void push(PositionMessage msg, long conID, int flightID) {
-		_cache.add(new PositionCacheEntry(msg, conID, flightID));
+		if ((msg != null) && (flightID != 0))
+			_cache.add(new PositionCacheEntry(msg, conID, flightID));
 	}
 
 	/**
