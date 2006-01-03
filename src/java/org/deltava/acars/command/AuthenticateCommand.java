@@ -30,7 +30,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class AuthenticateCommand implements ACARSCommand {
+public class AuthenticateCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(AuthenticateCommand.class);
 
@@ -181,5 +181,14 @@ public class AuthenticateCommand implements ACARSCommand {
 		
 		// Log new connection
 		log.info("New Connection from " + usr.getName() + " (Build " + con.getClientVersion() + ")");
+	}
+	
+	/**
+	 * Returns the maximum execution time of this command before a warning is issued.
+	 * @return the maximum execution time in milliseconds
+	 */
+	@Override
+	public final int getMaxExecTime() {
+		return 3000;
 	}
 }

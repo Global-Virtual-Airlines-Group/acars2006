@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class PositionCommand implements ACARSCommand {
+public class PositionCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
 

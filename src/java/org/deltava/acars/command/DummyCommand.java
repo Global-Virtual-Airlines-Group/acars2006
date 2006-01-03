@@ -9,7 +9,7 @@ import org.deltava.acars.beans.Envelope;
  * @version 1.0
  * @since 1.0
  */
-public class DummyCommand implements ACARSCommand {
+public class DummyCommand extends ACARSCommand {
 
    /**
     * Executes the command.

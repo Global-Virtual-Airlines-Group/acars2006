@@ -166,7 +166,7 @@ public class LogicProcessor extends Worker {
 			// Calculate and log execution time
 			long execTime = System.currentTimeMillis() - startTime;
 			CommandStats.log(cmd.getClass(), execTime);
-			if (execTime > 1250)
+			if (execTime > cmd.getMaxExecTime())
 				log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 		} else {
 			log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");

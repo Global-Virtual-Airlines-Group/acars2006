@@ -21,7 +21,7 @@ import org.deltava.util.StringUtils;
  * @since 1.0
  */
 
-public class EndFlightCommand implements ACARSCommand {
+public class EndFlightCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(EndFlightCommand.class);
 

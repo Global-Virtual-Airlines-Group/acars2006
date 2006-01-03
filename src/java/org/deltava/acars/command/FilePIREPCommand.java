@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class FilePIREPCommand implements ACARSCommand {
+public class FilePIREPCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(FilePIREPCommand.class);
 
@@ -172,5 +172,14 @@ public class FilePIREPCommand implements ACARSCommand {
 
 		// Send the response
 		ctx.push(ackMsg, ac.getID());
+	}
+	
+	/**
+	 * Returns the maximum execution time of this command before a warning is issued.
+	 * @return the maximum execution time in milliseconds
+	 */
+	@Override
+	public final int getMaxExecTime() {
+		return 3000;
 	}
 }
