@@ -28,7 +28,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class DataCommand implements ACARSCommand {
+public class DataCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(DataCommand.class);
 
@@ -118,6 +118,9 @@ public class DataCommand implements ACARSCommand {
 			// Get controller info
 			case DataMessage.REQ_ATCINFO:
 				String network = msg.getFlag("network").toLowerCase();
+				if ("offline".equals(network))
+					break;
+				
 				NetworkInfo info = null;
 				try {
 					// Connect to info URL
@@ -244,5 +247,14 @@ public class DataCommand implements ACARSCommand {
 
 		// Push the response
 		ctx.push(dataRsp, env.getConnectionID());
+	}
+	
+	/**
+	 * Returns the maximum execution time of this command before a warning is issued.
+	 * @return the maximum execution time in milliseconds
+	 */
+	@Override
+	public final int getMaxExecTime() {
+		return 9000;
 	}
 }

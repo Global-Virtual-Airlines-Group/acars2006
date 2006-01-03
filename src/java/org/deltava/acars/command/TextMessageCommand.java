@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class TextMessageCommand implements ACARSCommand {
+public class TextMessageCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(TextMessageCommand.class);
 	

@@ -13,7 +13,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class AcknowledgeCommand implements ACARSCommand {
+public class AcknowledgeCommand extends ACARSCommand {
 
    private String ackType;
 

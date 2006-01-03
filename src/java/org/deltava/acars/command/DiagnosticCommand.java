@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class DiagnosticCommand implements ACARSCommand {
+public class DiagnosticCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(DiagnosticCommand.class);
 

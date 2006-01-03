@@ -17,7 +17,7 @@ import org.deltava.dao.acars.SetInfo;
  * @since 1.0
  */
 
-public class QuitCommand implements ACARSCommand {
+public class QuitCommand extends ACARSCommand {
    
    private static final Logger log = Logger.getLogger(QuitCommand.class);
 	

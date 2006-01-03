@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
  * @since 1.0
  */
 
-public class ErrorCommand implements ACARSCommand {
+public class ErrorCommand extends ACARSCommand {
 
 	/**
 	 * Executes the command.

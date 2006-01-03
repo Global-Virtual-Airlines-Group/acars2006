@@ -19,7 +19,7 @@ import org.deltava.dao.acars.SetInfo;
  * @since 1.0
  */
 
-public class InfoCommand implements ACARSCommand {
+public class InfoCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(InfoCommand.class);
 
