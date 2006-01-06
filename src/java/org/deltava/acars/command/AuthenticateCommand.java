@@ -83,7 +83,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
-			auth.authenticate(usr.getDN(), msg.getPassword());
+			auth.authenticate(usr, msg.getPassword());
 		} catch (SecurityException se) {
 			usr = null;
 			log.warn("Authentication Failure for " + msg.getUserID());
