@@ -193,7 +193,6 @@ public class LogicProcessor extends Worker {
 				long interval = (System.currentTimeMillis() - startTime);
 				if (interval > 1750) {
 					MessageStack.MSG_OUTPUT.wakeup();
-					log.warn("Loop time = " + interval + " ms");
 					startTime = System.currentTimeMillis();
 				}
 			}
