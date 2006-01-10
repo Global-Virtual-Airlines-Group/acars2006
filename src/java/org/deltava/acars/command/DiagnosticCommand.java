@@ -2,20 +2,25 @@
 package org.deltava.acars.command;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.StatusUpdate;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.workers.NetworkReader;
 import org.deltava.acars.xml.MessageWriter;
 
+import org.deltava.dao.*;
+
 import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS server command to execute system administration tasks.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -71,6 +76,24 @@ public class DiagnosticCommand extends ACARSCommand {
 					daMsg.setEntry("addr", ac.getRemoteAddr());
 					ctx.push(daMsg, env.getConnectionID());
 					
+					// Log the KICK
+					StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
+					upd.setAuthorID(usr.getID());
+					upd.setDescription("Kicked from ACARS server");
+					
+					Connection con = null;
+					try {
+						con = ctx.getConnection();
+						
+						// Write the KICK record
+						SetStatusUpdate udao = new SetStatusUpdate(con);
+						udao.write(upd);
+					} catch (DAOException de) {
+						log.error("Cannot log KICK - " + de.getMessage(), de);
+					} finally {
+						ctx.release();
+					}
+
 					// Remove the connection
 					cPool.remove(ac);
 				}
@@ -104,6 +127,24 @@ public class DiagnosticCommand extends ACARSCommand {
 						daMsg.setEntry("user", ac.getUserID());
 						daMsg.setEntry("addr", ac.getRemoteAddr());
 						ctx.push(daMsg, env.getConnectionID());
+						
+						// Log the BLOCK
+						StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
+						upd.setAuthorID(usr.getID());
+						upd.setDescription("Kicked from ACARS server - blocked IP " + msg.getRequestData());
+
+						Connection con = null;
+						try {
+							con = ctx.getConnection();
+							
+							// Write the KICK record
+							SetStatusUpdate udao = new SetStatusUpdate(con);
+							udao.write(upd);
+						} catch (DAOException de) {
+							log.error("Cannot log BLOCK - " + de.getMessage(), de);
+						} finally {
+							ctx.release();
+						}
 						
 						// Remove the connection
 						cPool.remove(ac);
