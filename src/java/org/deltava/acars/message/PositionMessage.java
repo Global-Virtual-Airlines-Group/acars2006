@@ -42,6 +42,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	private double n1;
 	private double n2;
 	
+	// Wind information
+	private int _windHeading;
+	private int _windSpeed;
+	
 	private int flaps;
 	private int flags;
 	private int simRate = 1;
@@ -96,6 +100,14 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public double getBank() {
 		return bank;
+	}
+	
+	public int getWindSpeed() {
+		return _windSpeed;
+	}
+	
+	public int getWindHeading() {
+		return _windHeading;
 	}
 
 	public double getLatitude() {
@@ -241,6 +253,16 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public void setSimRate(int newRate) {
 		this.simRate = newRate;
+	}
+	
+	public void setWindHeading(int i) {
+		if ((i >= 0) && (i <= 360))
+			_windHeading = i;
+	}
+	
+	public void setWindSpeed(int spd) {
+		if (spd >= 0)
+			_windSpeed = spd;
 	}
 	
 	public void setVspeed(int i) {
