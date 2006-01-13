@@ -169,6 +169,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Return a system message to the user
 		SystemTextMessage sysMsg = new SystemTextMessage();
 		sysMsg.addMessage("Welcome to the " + SystemData.get("airline.name") + " ACARS server! (Build " + VersionInfo.BUILD + ")");
+		sysMsg.addMessage(VersionInfo.TXT_COPYRIGHT);
 		sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
 		
 		// Add system-defined messages
