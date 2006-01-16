@@ -25,12 +25,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 		log = Logger.getLogger("ACARSDaemon");
 
 		// Init the connection pool
-		try {
-			initACARSConnectionPool();
-		} catch (ACARSException ae) {
-			log.error("Cannot create ConnectionPool - " + ae.getMessage());
-			return;
-		}
+		initACARSConnectionPool();
 
 		// Init the server tasks
 		initTasks();

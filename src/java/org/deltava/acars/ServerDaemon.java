@@ -105,7 +105,7 @@ public abstract class ServerDaemon {
  		}
  	}
  	
- 	protected static void initACARSConnectionPool() throws ACARSException {
+ 	protected static void initACARSConnectionPool() {
 		ACARSConnectionPool cPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
 		cPool.setTimeout(SystemData.getInt("acars.timeout"));
 		SystemData.add(SystemData.ACARS_POOL, cPool);

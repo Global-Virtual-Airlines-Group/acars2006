@@ -34,12 +34,7 @@ public class StandaloneDaemon extends ServerDaemon {
 		initAirports();
 
 		// Init the connection pool
-		try {
-			initACARSConnectionPool();
-		} catch (ACARSException ae) {
-			log.error("Cannot create ConnectionPool - " + ae.getMessage());
-			return;
-		}
+		initACARSConnectionPool();
 
 		// Init the server tasks
 		initTasks();
