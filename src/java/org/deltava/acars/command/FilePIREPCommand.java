@@ -7,7 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.testing.CheckRide;
+import org.deltava.beans.testing.*;
 import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
@@ -138,6 +138,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + info.getFlightID());
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(new Date());
+					cr.setStatus(Test.SUBMITTED);
 					
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
