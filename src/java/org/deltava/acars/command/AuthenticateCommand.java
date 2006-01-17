@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -25,6 +25,7 @@ import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS server command to authenticate a user.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -173,6 +174,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
 		
 		// Add system-defined messages
+		@SuppressWarnings("unchecked")
 		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");
 		if (systemMsgs != null)
 			sysMsg.addMessages(systemMsgs);
