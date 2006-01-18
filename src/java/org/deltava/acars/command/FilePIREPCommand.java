@@ -133,7 +133,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// If we're a checkride, then update the checkride record
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null)) {
 				GetExam exdao = new GetExam(con);
-				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType());
+				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + info.getFlightID());
 					cr.setFlightID(info.getFlightID());
