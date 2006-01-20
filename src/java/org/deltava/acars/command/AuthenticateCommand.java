@@ -86,11 +86,16 @@ public class AuthenticateCommand extends ACARSCommand {
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			auth.authenticate(usr, msg.getPassword());
 		} catch (SecurityException se) {
-			usr = null;
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "Authentication Failed");
+			if ((usr != null) && usr.getNoACARS()) {
+				errMsg.setEntry("error", "ACARS Server access disabled");
+			} else {
+				errMsg.setEntry("error", "Authentication Failed");
+			}
+				
 			ctx.push(errMsg, env.getConnectionID());
+			usr = null;
 		} catch (DAOException de) {
 		   usr = null;
 		   if (de instanceof ConnectionPoolFullException) {
