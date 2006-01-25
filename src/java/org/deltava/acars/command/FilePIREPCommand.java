@@ -130,8 +130,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				log.warn("No Flight Information found for ACARS Connection");
 			}
 
-			// If we're a checkride, then update the checkride record
-			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (info != null)) {
+			// Update the checkride record (don't assume pilots check the box, because they don't)
+			if (info != null) {
 				GetExam exdao = new GetExam(con);
 				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
 				if (cr != null) {
@@ -143,9 +143,9 @@ public class FilePIREPCommand extends ACARSCommand {
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
 					wdao.write(usrLoc.getDB(), cr);
-				} else {
-					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
 				}
+				
+				afr.setAttribute(FlightReport.ATTR_CHECKRIDE, (cr != null));
 			}
 
 			// Get the write DAO and save the PIREP
