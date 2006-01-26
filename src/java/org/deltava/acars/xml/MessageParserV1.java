@@ -251,6 +251,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setFSVersion(Integer.parseInt(getChildText(e, "fs_ver", "2004")));
 		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
+		msg.setCheckRide(Boolean.valueOf(getChildText(e, "checkRide", "false")).booleanValue());
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
 		

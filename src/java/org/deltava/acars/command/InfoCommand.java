@@ -8,6 +8,9 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.beans.acars.FlightInfo;
+import org.deltava.beans.system.UserData;
+import org.deltava.beans.testing.CheckRide;
+import org.deltava.beans.testing.Test;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -38,6 +41,9 @@ public class InfoCommand extends ACARSCommand {
 		boolean assignID = (msg.getFlightID() == 0);
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
+		UserData usrLoc = con.getUserData();
+		
+		// Check for a duplicate Flight ID request
 		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && (!curInfo.isComplete())) {
 		   msg.setFlightID(curInfo.getFlightID());
 		   log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
@@ -68,6 +74,12 @@ public class InfoCommand extends ACARSCommand {
 			   }
 			}
 			
+			// Look for a checkride record
+			GetExam exdao = new GetExam(c);
+			CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), msg.getEquipmentType(), Test.NEW);
+			if (cr != null)
+				msg.setCheckRide(true);
+			
 			// Write the flight information
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());
@@ -87,6 +99,7 @@ public class InfoCommand extends ACARSCommand {
 		// Create the ack message and envelope - these are always acknowledged
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
 		ctx.push(ackMsg, env.getConnectionID());
 
 		// Set the info for the connection and write it to the database

@@ -31,6 +31,7 @@ public class InfoMessage extends AbstractMessage {
 	
 	private boolean _offlineFlight;
 	private boolean _flightComplete;
+	private boolean _checkRide;
 	
 	private Collection<String> _waypoints = new LinkedHashSet<String>();
 	private Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
@@ -119,6 +120,10 @@ public class InfoMessage extends AbstractMessage {
 		return _offlineFlight;
 	}
 	
+	public boolean isCheckRide() {
+		return _checkRide;
+	}
+	
 	public synchronized void addPosition(PositionMessage pmsg) {
 		_offlinePositions.add(pmsg);
 	}
@@ -163,7 +168,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setOffline(boolean isOffline) {
 		_offlineFlight = isOffline;
-		
+	}
+	
+	public void setCheckRide(boolean isCR) {
+		_checkRide = isCR;
 	}
 	
 	public void setStartTime(Date dt) {
