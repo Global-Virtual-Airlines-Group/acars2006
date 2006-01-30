@@ -17,8 +17,6 @@ import org.deltava.acars.xml.*;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
-import org.deltava.jdbc.ConnectionPoolFullException;
-
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.*;
@@ -98,10 +96,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			usr = null;
 		} catch (DAOException de) {
 		   usr = null;
-		   if (de instanceof ConnectionPoolFullException) {
-		      log.warn("Error loading " + msg.getUserID() + " - Connection Pool Full");
+		   String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
+		   if (de.isWarning()) {
+		      log.warn(errorMsg);
 		   } else {
-		      log.error("Error loading " + msg.getUserID() + " - " + de.getMessage(), de);
+		      log.error(errorMsg, de.getLogStackDump() ? de : null);
 		   }
 		   
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
