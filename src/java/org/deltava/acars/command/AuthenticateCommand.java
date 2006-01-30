@@ -149,6 +149,12 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Get the DAO and write the connection
 			SetConnection cwdao = new SetConnection(c);
 			cwdao.add(con);
+			
+			// If Teamspeak is enabled, mark us as logged in
+			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
+				SetTS2Data ts2wdao = new SetTS2Data(c);
+				ts2wdao.setActive(usr.getPilotCode(), true);
+			}
 		} catch (DAOException de) {
 			log.error("Error logging connection", de);
 		} finally {

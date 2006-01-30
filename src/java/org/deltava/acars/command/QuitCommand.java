@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -8,10 +8,13 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.dao.DAOException;
+import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
 
+import org.deltava.util.system.SystemData;
+
 /**
+ * An ACARS server command to handle disconnections by authenticated users.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -37,6 +40,13 @@ public class QuitCommand extends ACARSCommand {
 				Connection c = ctx.getConnection();
 				SetInfo infoDAO = new SetInfo(c);
 				infoDAO.close(msg.getFlightID(), env.getConnectionID(), false);
+				
+				// If Teamspeak is enabled, mark us as disconnected
+				if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
+					log.debug("Disabled " + env.getOwnerID() + " TS2 access");
+					SetTS2Data ts2wdao = new SetTS2Data(c);
+					ts2wdao.setActive(env.getOwnerID(), false);
+				}
 			} catch (DAOException de) {
 				log.error(de.getMessage(), de);
 			} finally {
