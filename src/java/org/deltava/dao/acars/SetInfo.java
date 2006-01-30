@@ -51,8 +51,7 @@ public final class SetInfo extends DAO {
 				_ps.setInt(12, msg.getFlightID());
 			
 			// Write to the database and close the statement
-			_ps.executeUpdate();
-			_ps.close();
+			executeUpdate(0);
 			
 			// If we're writing a new entry, get the database ID
 			if (msg.getFlightID() == 0)
