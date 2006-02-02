@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -8,16 +8,16 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.StatusUpdate;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.acars.workers.NetworkReader;
+import org.deltava.acars.security.UserBlocker;
 import org.deltava.acars.xml.MessageWriter;
 
 import org.deltava.dao.*;
 
 import org.deltava.util.StringUtils;
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to execute system administration tasks.
@@ -44,7 +44,7 @@ public class DiagnosticCommand extends ACARSCommand {
 		
 		// Check user access
 		Pilot usr = env.getOwner();
-		if (!usr.isInRole("Admin")) {
+		if (!usr.isInRole("HR")) {
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			ackMsg.setEntry("error", "Insufficient Access");
 			ctx.push(ackMsg, env.getConnectionID());
@@ -102,17 +102,14 @@ public class DiagnosticCommand extends ACARSCommand {
 
 			// Block an IP address or Hostname
 			case DiagnosticMessage.REQ_BLOCK:
-
-				// Get the list of blocked connections and add the address
-				Collection blockedAddrs = (Collection) SystemData.getObject(NetworkReader.BLOCKADDR_LIST);
-				blockedAddrs.add(msg.getRequestData());
 				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
 
 				// Kick any connections from this address
 				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
-					if ((blockedAddrs.contains(ac.getRemoteAddr())) || (blockedAddrs.contains(ac.getRemoteHost()))) {
+					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
 						MessageWriter.remove(ac.getID());
+						UserBlocker.ban(ac.getRemoteAddr(), ac.getUser());
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 						
 						// Save the QUIT message
