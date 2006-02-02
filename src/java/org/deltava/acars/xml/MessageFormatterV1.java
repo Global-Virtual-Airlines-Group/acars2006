@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Delta Virtual Airlines. All Rights Reserved.
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -29,10 +29,10 @@ class MessageFormatterV1 implements MessageFormatter {
 	private static final int PROTOCOL_VERSION = 1;
 
 	// Number formatters
-	private static final DecimalFormat _mf = new DecimalFormat("0.00");
-	private static final DecimalFormat _nxf = new DecimalFormat("#00.0");
-	private static final DecimalFormat _hdgf = new DecimalFormat("000");
-	private static final DecimalFormat _dgf = new DecimalFormat("##0.0000");
+	private final DecimalFormat _mf = new DecimalFormat("0.00");
+	private final DecimalFormat _nxf = new DecimalFormat("#00.0");
+	private final DecimalFormat _hdgf = new DecimalFormat("000");
+	private final DecimalFormat _dgf = new DecimalFormat("##0.0000");
 
 	MessageFormatterV1() {
 		super();
@@ -133,6 +133,19 @@ class MessageFormatterV1 implements MessageFormatter {
 		} catch (Exception e) {
 			throw new XMLException("Error formatting text message - " + e.getMessage(), e);
 		}
+	}
+	
+	private Element formatAirport(Airport a, String eName) {
+		Element ae = new Element(eName);
+		if (a != null) {
+			ae.setAttribute("name", a.getName());
+			ae.setAttribute("icao", a.getICAO());
+			ae.setAttribute("iata", a.getIATA());
+			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
+			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
+		}
+		
+		return ae;
 	}
 
 	private Element formatPosition(PositionMessage msg) throws XMLException {
@@ -267,6 +280,14 @@ class MessageFormatterV1 implements MessageFormatter {
 				e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 			}
+			
+			// Display flight-specific stuff
+			InfoMessage inf = con.getFlightInfo();
+			if (inf != null) {
+				e.addContent(XMLUtils.createElement("flightCode", inf.getFlightCode()));
+				e.addContent(formatAirport(inf.getAirportD(), "airportD"));
+				e.addContent(formatAirport(inf.getAirportA(), "airportA"));
+			}
 
 			// Add connection specific stuff
 			e.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
@@ -400,13 +421,7 @@ class MessageFormatterV1 implements MessageFormatter {
 				} else if (rsp instanceof Airport) {
 					Airport a = (Airport) rsp;
 					Element aList = getData(e, "airports");
-					Element ae = new Element("airport");
-					ae.setAttribute("name", a.getName());
-					ae.setAttribute("icao", a.getICAO());
-					ae.setAttribute("iata", a.getIATA());
-					ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
-					ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
-					aList.addContent(ae);
+					aList.addContent(formatAirport(a, "airport"));
 				} else if (rsp instanceof Runway) {
 					Runway r = (Runway) rsp;
 					Element rwyE = getData(e, "runways");
