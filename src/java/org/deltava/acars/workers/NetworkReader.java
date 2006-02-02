@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -12,8 +12,11 @@ import org.deltava.acars.beans.*;
 
 import org.deltava.acars.message.QuitMessage;
 
+import org.deltava.acars.security.UserBlocker;
+
 import org.deltava.acars.xml.MessageWriter;
 import org.deltava.acars.xml.XMLException;
+
 import org.deltava.beans.acars.ServerStats;
 
 import org.deltava.util.*;
@@ -57,6 +60,13 @@ public final class NetworkReader extends Worker {
 		// Check if the address is on the block list
 		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
 			log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
+			con.close();
+			return;
+		}
+		
+		// Check if the address is from a banned user
+		if (UserBlocker.isBanned(con.getRemoteAddr())) {
+			log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
 			con.close();
 			return;
 		}

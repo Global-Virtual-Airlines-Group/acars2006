@@ -1,4 +1,4 @@
-// Copyright (c) 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -18,6 +18,7 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.Authenticator;
+import org.deltava.acars.security.UserBlocker;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -73,8 +74,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			GetPilot pdao = new GetPilot(c);
 			pdao.setQueryMax(1);
 			usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
-			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
-				throw new SecurityException("Unknown User ID");
+			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || UserBlocker.isBanned(usr))
+				throw new SecurityException();
 			
 			// Get the User location data
 			GetUserData udao = new GetUserData(c);
@@ -88,6 +89,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if ((usr != null) && usr.getNoACARS()) {
 				errMsg.setEntry("error", "ACARS Server access disabled");
+			} else if (UserBlocker.isBanned(usr)) {
+				errMsg.setEntry("error", "ACARS Server temporary lockout");
 			} else {
 				errMsg.setEntry("error", "Authentication Failed");
 			}
