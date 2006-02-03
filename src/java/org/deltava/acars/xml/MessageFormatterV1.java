@@ -285,8 +285,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			InfoMessage inf = con.getFlightInfo();
 			if (inf != null) {
 				e.addContent(XMLUtils.createElement("flightCode", inf.getFlightCode()));
-				e.addContent(formatAirport(inf.getAirportD(), "airportD"));
-				e.addContent(formatAirport(inf.getAirportA(), "airportA"));
+				e.addContent(XMLUtils.createElement("flightEQ", inf.getEquipmentType()));
+				e.addContent(XMLUtils.createElement("airportD", inf.getAirportD().getICAO()));
+				e.addContent(XMLUtils.createElement("airportA", inf.getAirportA().getICAO()));
 			}
 
 			// Add connection specific stuff
