@@ -4,8 +4,9 @@ package org.deltava.acars.security;
 import java.util.Date;
 
 import org.deltava.beans.Person;
+import org.deltava.beans.system.UserData;
 
-import org.deltava.util.cache.ExpiringCacheable;
+import org.deltava.acars.beans.ACARSConnection;
 
 /**
  * A bean to track temporarily banned ACARS users.
@@ -14,29 +15,43 @@ import org.deltava.util.cache.ExpiringCacheable;
  * @since 1.0
  */
 
-public class BannedUser implements ExpiringCacheable, Comparable {
+public class BannedUser implements Comparable {
 	
 	private String _remoteAddr;
-	private int _dbID;
+	private String _remoteHost;
 	private Date _expiryTime;
+	private Person _usr;
+	private UserData _usrData;
 
 	/**
 	 * Creates a new banned user bean.
 	 * @param remoteAddr the remote IP address
 	 * @param usr the Person bean, or null
 	 */
-	public BannedUser(String remoteAddr, Person usr) {
+	public BannedUser(ACARSConnection ac) {
 		super();
-		_remoteAddr = remoteAddr;
-		_dbID = (usr == null) ? 0 : usr.getID();
+		_remoteAddr = ac.getRemoteAddr();
+		_remoteHost = ac.getRemoteHost();
+		_usr = ac.getUser();
+		_usrData = ac.getUserData();
 	}
 	
 	/**
 	 * Returns the IP address of the banned user.
 	 * @return the IP address
+	 * @see BannedUser#getRemoteHost()
 	 */
 	public String getRemoteAddr() {
 		return _remoteAddr;
+	}
+	
+	/**
+	 * Returns the host name of the banned user.
+	 * @return the host name
+	 * @see BannedUser#getRemoteAddr()
+	 */
+	public String getRemoteHost() {
+		return _remoteHost;
 	}
 	
 	/**
@@ -49,11 +64,29 @@ public class BannedUser implements ExpiringCacheable, Comparable {
 	}
 	
 	/**
+	 * Returns the user bean of the banned user.
+	 * @return the user bean, or null
+	 * @see BannedUser#getUserData()
+	 */
+	public Person getUser() {
+		return _usr;
+	}
+	
+	/**
+	 * Returns the cross-database location bean of the banned user.
+	 * @return the userData bean, or null
+	 * @see BannedUser#getUser()
+	 */
+	public UserData getUserData() {
+		return _usrData;
+	}
+	
+	/**
 	 * Returns the database ID of the banned user.
-	 * @return the database ID, or zero
+	 * @return the user's database ID, or 0
 	 */
 	public int getID() {
-		return _dbID;
+		return (_usrData == null) ? 0 : _usrData.getID();
 	}
 	
 	/**
@@ -66,19 +99,11 @@ public class BannedUser implements ExpiringCacheable, Comparable {
 	}
 
 	/**
-	 * Returns the database ID, or the IP address if no user specified.
-	 * @see org.deltava.util.cache.Cacheable#cacheKey()
-	 */
-	public Object cacheKey() {
-		return (_dbID == 0) ? _remoteAddr : new Integer(_dbID);
-	}
-	
-	/**
 	 * Checks equality by comparing remote Addresses and database ID.
 	 */
 	public boolean equals(Object o) {
 		BannedUser usr2 = (BannedUser) o;
-		return (_remoteAddr.equals(usr2._remoteAddr) && (_dbID == usr2._dbID));
+		return (_remoteAddr.equals(usr2._remoteAddr) && (_usrData.getID() == usr2._usrData.getID()));
 	}
 
 	/**

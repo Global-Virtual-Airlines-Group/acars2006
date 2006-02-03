@@ -6,6 +6,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Person;
+import org.deltava.acars.beans.ACARSConnection;
 
 import org.deltava.util.system.SystemData;
 
@@ -25,16 +26,16 @@ public class UserBlocker {
 	private UserBlocker() {
 	}
 	
-	public static synchronized void ban(String addr, Person p) {
-		if (isBanned(addr))
-			log.warn(addr + " already banned");
-		else if (isBanned(p))
-			log.warn(p.getName() + " already banned");
+	public static synchronized void ban(ACARSConnection con) {
+		if (isBanned(con.getRemoteAddr()))
+			log.warn(con.getRemoteAddr() + " already banned");
+		else if (isBanned(con.getUser()))
+			log.warn(con.getUser().getName() + " already banned");
 		
 		// Create the new banned user entry
 		Calendar cld = Calendar.getInstance();
 		cld.add(Calendar.MINUTE, SystemData.getInt("acars.ban_length", 15));
-		BannedUser usr = new BannedUser(addr, p);
+		BannedUser usr = new BannedUser(con);
 		usr.setExpiryDate(cld.getTime());
 		_users.add(usr);
 	}
