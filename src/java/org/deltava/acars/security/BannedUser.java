@@ -67,7 +67,7 @@ public class BannedUser implements ExpiringCacheable, Comparable {
 
 	/**
 	 * Returns the database ID, or the IP address if no user specified.
-	 * @see Cacheable#cacheKey()
+	 * @see org.deltava.util.cache.Cacheable#cacheKey()
 	 */
 	public Object cacheKey() {
 		return (_dbID == 0) ? _remoteAddr : new Integer(_dbID);
