@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -13,6 +13,8 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.message.*;
+import org.deltava.acars.security.*;
+
 import org.deltava.acars.util.RouteEntryHelper;
 
 /**
@@ -110,10 +112,10 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 * Returns network data in a format suitable for Google Maps.
 	 * @return a Collection of MapEntry beans
 	 */
-	public Collection getMapEntries() {
+	public Collection<RouteEntry> getMapEntries() {
 		Set<RouteEntry> results = new HashSet<RouteEntry>();
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection con = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
 			if (re != null)
 				results.add(re);
@@ -128,6 +130,14 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 */
 	public Collection<ACARSConnection> getPoolInfo() {
 		return new ArrayList<ACARSConnection>(_cons);
+	}
+	
+	/**
+	 * Returns banned user data to a web application.
+	 * @return a Collection of BannedUser beans
+	 */
+	public Collection<BannedUser> getBanInfo() {
+		return UserBlocker.getBans();
 	}
 
 	/**

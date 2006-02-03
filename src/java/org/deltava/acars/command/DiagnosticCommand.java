@@ -109,7 +109,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
 						MessageWriter.remove(ac.getID());
-						UserBlocker.ban(ac.getRemoteAddr(), ac.getUser());
+						UserBlocker.ban(ac);
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 						
 						// Save the QUIT message
