@@ -178,6 +178,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
 			ackMsg.setEntry("unrestricted", "true");
+		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
+			ackMsg.setEntry("noMsgs", "true");
 
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID());
