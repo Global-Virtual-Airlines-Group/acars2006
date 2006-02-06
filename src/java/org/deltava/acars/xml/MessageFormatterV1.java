@@ -279,6 +279,7 @@ class MessageFormatterV1 implements MessageFormatter {
 				e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
 				e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
+				e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 			}
 			
 			// Display flight-specific stuff
@@ -365,6 +366,7 @@ class MessageFormatterV1 implements MessageFormatter {
 					e.addContent(XMLUtils.createElement("hours", String.valueOf(userInfo.getHours())));
 					e.addContent(XMLUtils.createElement("legs", String.valueOf(userInfo.getLegs())));
 					e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(userInfo.getCreatedOn(), "MMMM dd, yyyy")));
+					e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(userInfo.getRoles(), ",")));
 					Element dpe = null;
 					switch (msg.getRequestType()) {
 						case DataMessage.REQ_ADDUSER:

@@ -6,8 +6,8 @@ import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.Pilot;
-import org.deltava.beans.StatusUpdate;
+import org.deltava.beans.*;
+import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -88,6 +88,23 @@ public class DiagnosticCommand extends ACARSCommand {
 						// Write the KICK record
 						SetStatusUpdate udao = new SetStatusUpdate(con);
 						udao.write(upd);
+						
+						// Get the pilot record
+						GetPilot pdao = new GetPilot(con);
+						GetUserData uddao = new GetUserData(con);
+						UserData ud = uddao.get(ac.getUserData().getID());
+						Pilot p = pdao.get(ud);
+						
+						// Restrict ACARS access
+						if (p != null) {
+							p.setACARSRestriction(Pilot.ACARS_RESTRICT);
+							
+							// Update the pilot record
+							SetPilot pwdao = new SetPilot(con);
+							pwdao.write(p, ud.getDB());
+						} else {
+							log.warn("Cannot update Pilot record for " + usr.getName());
+						}
 					} catch (DAOException de) {
 						log.error("Cannot log KICK - " + de.getMessage(), de);
 					} finally {
@@ -137,6 +154,23 @@ public class DiagnosticCommand extends ACARSCommand {
 							// Write the KICK record
 							SetStatusUpdate udao = new SetStatusUpdate(con);
 							udao.write(upd);
+							
+							// Get the pilot record
+							GetPilot pdao = new GetPilot(con);
+							GetUserData uddao = new GetUserData(con);
+							UserData ud = uddao.get(ac.getUserData().getID());
+							Pilot p = pdao.get(ud);
+							
+							// Restrict ACARS access
+							if (p != null) {
+								p.setACARSRestriction(Pilot.ACARS_RESTRICT);
+								
+								// Update the pilot record
+								SetPilot pwdao = new SetPilot(con);
+								pwdao.write(p, ud.getDB());
+							} else {
+								log.warn("Cannot update Pilot record for " + usr.getName());
+							}
 						} catch (DAOException de) {
 							log.error("Cannot log BLOCK - " + de.getMessage(), de);
 						} finally {

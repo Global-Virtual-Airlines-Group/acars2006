@@ -87,7 +87,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			if ((usr != null) && usr.getNoACARS()) {
+			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK)) {
 				errMsg.setEntry("error", "ACARS Server access disabled");
 			} else if (UserBlocker.isBanned(usr)) {
 				errMsg.setEntry("error", "ACARS Server temporary lockout");
@@ -174,8 +174,10 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (latestBuild > msg.getClientBuild())
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 		
-		// Set roles
+		// Set roles and if we are unrestricted
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
+		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
+			ackMsg.setEntry("unrestricted", "true");
 
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID());
