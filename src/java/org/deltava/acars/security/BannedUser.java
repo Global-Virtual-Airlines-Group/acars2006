@@ -25,8 +25,7 @@ public class BannedUser implements Comparable {
 
 	/**
 	 * Creates a new banned user bean.
-	 * @param remoteAddr the remote IP address
-	 * @param usr the Person bean, or null
+	 * @param ac the ACARS connection to ban
 	 */
 	public BannedUser(ACARSConnection ac) {
 		super();
