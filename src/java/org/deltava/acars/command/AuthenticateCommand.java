@@ -1,12 +1,12 @@
 // Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.util.Collection;
+import java.util.*;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.acars.ServerStats;
 import org.deltava.beans.system.*;
 
@@ -67,6 +67,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		UserData ud = null;
 		Pilot usr = null;
+		List<FlightReport> dFlights = null;
 		try {
 			Connection c = ctx.getConnection(true);
 
@@ -84,6 +85,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			auth.authenticate(usr, msg.getPassword());
+			
+			// Get any draft PIREPs
+			GetFlightReports frdao = new GetFlightReports(c);
+			dFlights = frdao.getDraftReports(usr.getID(), null, null, ud.getDB());
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
@@ -180,6 +185,13 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
+		
+		// If we have draft PIREPs, add their information and database ID
+		for (Iterator<FlightReport> i = dFlights.iterator(); i.hasNext(); ) {
+			FlightReport fr = i.next();
+			String desc = fr.getFlightCode() + " - (" + fr.getAirportD() + " - " + fr.getAirportA() + ")";
+			ackMsg.setEntry("pirep-" + StringUtils.formatHex(fr.getID()), desc);
+		}
 
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID());

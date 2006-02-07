@@ -28,10 +28,11 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_CHARTS = 12;
 	public static final int REQ_ATCINFO = 13;
 	public static final int REQ_BUSY = 14;
+	public static final int REQ_DRAFTPIREP = 15;
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid", "pvtvox",
-		"eqList", "apList", "aList", "charts", "atc" , "busy"};
+		"eqList", "apList", "aList", "charts", "atc" , "busy", "draft"};
 
 	/**
 	 * @param type

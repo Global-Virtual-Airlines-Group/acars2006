@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 
 import org.jdom.Element;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.servinfo.Controller;
@@ -410,6 +410,20 @@ class MessageFormatterV1 implements MessageFormatter {
 					ce.setAttribute("name", c.getName());
 					ce.setAttribute("id", String.valueOf(c.getID()));
 					cList.addContent(ce);
+				} else if (rsp instanceof FlightReport) {
+					FlightReport fr = (FlightReport) rsp;
+					Element fList = getData(e, "pireps");
+					Element pe = new Element("pirep");
+					pe.setAttribute("code", fr.getFlightCode());
+					pe.setAttribute("eqType", fr.getEquipmentType());
+					pe.setAttribute("airportA", fr.getAirportA().getICAO());
+					pe.setAttribute("airportD", fr.getAirportD().getICAO());
+					if (fr.hasAttribute(FlightReport.ATTR_VATSIM))
+						pe.setAttribute("network", "VATSIM");
+					else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
+						pe.setAttribute("network", "IVAO");
+					
+					fList.addContent(pe);
 				} else if (rsp instanceof Controller) {
 					Controller ctr = (Controller) rsp;
 					Element ctrList = getData(e, "atc");
