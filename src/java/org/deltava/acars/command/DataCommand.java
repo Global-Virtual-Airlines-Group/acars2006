@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.beans.FlightReport;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.servinfo.*;
 import org.deltava.beans.navdata.*;
@@ -20,9 +21,11 @@ import org.deltava.comparators.AirportComparator;
 import org.deltava.dao.*;
 import org.deltava.dao.http.GetServInfo;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS server command to handle data requests.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -181,8 +184,8 @@ public class DataCommand extends ACARSCommand {
 
 					// Get the DAO and the charts
 					GetChart dao = new GetChart(con);
-					Collection charts = dao.getCharts(a);
-					for (Iterator ci = charts.iterator(); ci.hasNext();)
+					Collection<Chart> charts = dao.getCharts(a);
+					for (Iterator<Chart> ci = charts.iterator(); ci.hasNext();)
 						dataRsp.addResponse(ci.next());
 				} catch (DAOException de) {
 					log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
@@ -193,6 +196,41 @@ public class DataCommand extends ACARSCommand {
 					ctx.release();
 				}
 
+				break;
+				
+			// Get draft PIREP info
+			case DataMessage.REQ_DRAFTPIREP :
+				// Prepopulate the error message - I'm such a pessimist
+				AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+				errMsg.setEntry("error", "Invalid Flight Report - " + msg.getFlag("id"));
+				
+				// Parse the ID
+				int id = 0;
+				try {
+					id = StringUtils.parseHex(msg.getFlag("id"));
+				} catch (NumberFormatException nfe) {
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+					return;
+				}
+				
+				try {
+					Connection con = ctx.getConnection();
+					
+					// Get the DAO and the flight report
+					GetFlightReports frdao = new GetFlightReports(con);
+					FlightReport fr = frdao.get(id, ctx.getACARSConnection().getUserData().getDB());
+					if ((fr != null) && (fr.getStatus() == FlightReport.DRAFT))
+						dataRsp.addResponse(fr);
+					else
+						ctx.push(errMsg, ctx.getACARSConnection().getID());
+				} catch (DAOException de) {
+					log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);
+					errMsg.setEntry("error", "Cannot load draft Flight Report");
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+				} finally {
+					ctx.release();
+				}
+				
 				break;
 
 			// Get navaid/runway info
@@ -232,9 +270,9 @@ public class DataCommand extends ACARSCommand {
 					}
 				} catch (Exception e) {
 					log.error("Error loading navaid " + msg.getFlag("id") + " - " + e.getMessage(), e);
-					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-					errMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
-					ctx.push(errMsg, ctx.getACARSConnection().getID());
+					AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
+					ctx.push(errorMsg, ctx.getACARSConnection().getID());
 				} finally {
 					ctx.release();
 				}
