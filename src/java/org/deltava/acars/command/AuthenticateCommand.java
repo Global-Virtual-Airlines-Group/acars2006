@@ -67,7 +67,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		UserData ud = null;
 		Pilot usr = null;
-		List<FlightReport> dFlights = null;
 		try {
 			Connection c = ctx.getConnection(true);
 
@@ -85,10 +84,6 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			auth.authenticate(usr, msg.getPassword());
-			
-			// Get any draft PIREPs
-			GetFlightReports frdao = new GetFlightReports(c);
-			dFlights = frdao.getDraftReports(usr.getID(), null, null, ud.getDB());
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
@@ -186,13 +181,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
 		
-		// If we have draft PIREPs, add their information and database ID
-		for (Iterator<FlightReport> i = dFlights.iterator(); i.hasNext(); ) {
-			FlightReport fr = i.next();
-			String desc = fr.getFlightCode() + " - (" + fr.getAirportD() + " - " + fr.getAirportA() + ")";
-			ackMsg.setEntry("pirep-" + StringUtils.formatHex(fr.getID()), desc);
-		}
-
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID());
 		

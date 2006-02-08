@@ -21,7 +21,6 @@ import org.deltava.comparators.AirportComparator;
 import org.deltava.dao.*;
 import org.deltava.dao.http.GetServInfo;
 
-import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -48,7 +47,7 @@ public class DataCommand extends ACARSCommand {
 		ACARSConnection ac = ctx.getACARSConnection();
 
 		// Get the connections to process
-		Iterator i = ctx.getACARSConnections(msg.getFilter()).iterator();
+		Iterator<ACARSConnection> i = ctx.getACARSConnections(msg.getFilter()).iterator();
 
 		// Create the response
 		DataResponseMessage dataRsp = new DataResponseMessage(env.getOwner(), msg.getRequestType());
@@ -58,7 +57,7 @@ public class DataCommand extends ACARSCommand {
 			// Get all of the pilot info stuff
 			case DataMessage.REQ_PLIST:
 				while (i.hasNext()) {
-					ACARSConnection c = (ACARSConnection) i.next();
+					ACARSConnection c = i.next();
 					dataRsp.addResponse(c.getPosition());
 				}
 
@@ -66,17 +65,17 @@ public class DataCommand extends ACARSCommand {
 
 			case DataMessage.REQ_BUSY:
 				while (i.hasNext()) {
-					ACARSConnection c = (ACARSConnection) i.next();
+					ACARSConnection c = i.next();
 					c.setUserBusy(Boolean.valueOf(msg.getFlag("isBusy")).booleanValue());
 					dataRsp.addResponse(c);
 				}
-				
+
 				// Push the update to everyone else
 				DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_BUSY);
 				drmsg.addResponse(ac);
 				ctx.pushAll(drmsg, env.getConnectionID());
 				break;
-				
+
 			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
 			case DataMessage.REQ_PILOTINFO:
@@ -87,15 +86,16 @@ public class DataCommand extends ACARSCommand {
 
 			// Get equipment list
 			case DataMessage.REQ_EQLIST:
-				Set<String> eqTypes = new TreeSet<String>((Collection<? extends String>) SystemData.getObject("eqtypes"));
+				Set<String> eqTypes = new TreeSet<String>((Collection<? extends String>) SystemData
+						.getObject("eqtypes"));
 				dataRsp.addResponse("eqtype", eqTypes);
 				break;
 
 			// Get airline list
 			case DataMessage.REQ_ALLIST:
 				Map airlines = (Map) SystemData.getObject("airlines");
-				for (i = airlines.values().iterator(); i.hasNext();) {
-					Airline a = (Airline) i.next();
+				for (Iterator<Airline> ai = airlines.values().iterator(); ai.hasNext();) {
+					Airline a = ai.next();
 					dataRsp.addResponse(a.getCode(), a.getName());
 				}
 
@@ -106,8 +106,8 @@ public class DataCommand extends ACARSCommand {
 				Map allAirports = (Map) SystemData.getObject("airports");
 				Set<Airport> airports = new TreeSet<Airport>(new AirportComparator<Airport>(AirportComparator.NAME));
 				airports.addAll(allAirports.values());
-				for (i = airports.iterator(); i.hasNext();) {
-					Airport a = (Airport) i.next();
+				for (Iterator<Airport> ai = airports.iterator(); ai.hasNext();) {
+					Airport a = ai.next();
 					dataRsp.addResponse(a);
 				}
 
@@ -117,13 +117,13 @@ public class DataCommand extends ACARSCommand {
 			case DataMessage.REQ_PVTVOX:
 				dataRsp.addResponse("url", SystemData.get("airline.voice.url"));
 				break;
-				
+
 			// Get controller info
 			case DataMessage.REQ_ATCINFO:
 				String network = msg.getFlag("network").toLowerCase();
 				if ("offline".equals(network))
 					break;
-				
+
 				NetworkInfo info = null;
 				try {
 					// Connect to info URL
@@ -133,7 +133,7 @@ public class DataCommand extends ACARSCommand {
 					GetServInfo sdao = new GetServInfo(urlcon);
 					NetworkStatus status = sdao.getStatus(network);
 					urlcon.disconnect();
-					
+
 					// Get network status
 					urlcon = ctx.getURL(status.getDataURL());
 					GetServInfo idao = new GetServInfo(urlcon);
@@ -143,7 +143,7 @@ public class DataCommand extends ACARSCommand {
 				} catch (Exception e) {
 					log.warn("Error retrieving " + network.toUpperCase() + " data - " + e.getMessage());
 				}
-				
+
 				// Filter the controllers based on range from position
 				if (info != null) {
 					int range = 500;
@@ -152,18 +152,19 @@ public class DataCommand extends ACARSCommand {
 					} catch (Exception e) {
 						// empty
 					}
-					
-					Collection<Controller> ctrs = (ac.getPosition() == null) ? info.getControllers() : info.getControllers(ac.getPosition(), range);
-					for (Iterator<Controller> ci = ctrs.iterator(); ci.hasNext(); )
+
+					Collection<Controller> ctrs = (ac.getPosition() == null) ? info.getControllers() : info
+							.getControllers(ac.getPosition(), range);
+					for (Iterator<Controller> ci = ctrs.iterator(); ci.hasNext();)
 						dataRsp.addResponse(ci.next());
 				}
-					
+
 				break;
 
 			// Get flight information
 			case DataMessage.REQ_ILIST:
 				while (i.hasNext()) {
-					ACARSConnection c = (ACARSConnection) i.next();
+					ACARSConnection c = i.next();
 					dataRsp.addResponse(c.getFlightInfo());
 				}
 
@@ -197,40 +198,29 @@ public class DataCommand extends ACARSCommand {
 				}
 
 				break;
-				
+
 			// Get draft PIREP info
-			case DataMessage.REQ_DRAFTPIREP :
-				// Prepopulate the error message - I'm such a pessimist
-				AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-				errMsg.setEntry("error", "Invalid Flight Report - " + msg.getFlag("id"));
-				
-				// Parse the ID
-				int id = 0;
-				try {
-					id = StringUtils.parseHex(msg.getFlag("id"));
-				} catch (NumberFormatException nfe) {
-					ctx.push(errMsg, ctx.getACARSConnection().getID());
-					return;
-				}
-				
+			case DataMessage.REQ_DRAFTPIREP:
 				try {
 					Connection con = ctx.getConnection();
-					
+
 					// Get the DAO and the flight report
+					String db = ctx.getACARSConnection().getUserData().getDB();
 					GetFlightReports frdao = new GetFlightReports(con);
-					FlightReport fr = frdao.get(id, ctx.getACARSConnection().getUserData().getDB());
-					if ((fr != null) && (fr.getStatus() == FlightReport.DRAFT))
+					Collection<FlightReport> dFlights = frdao.getDraftReports(env.getOwner().getID(), null, null, db);
+					for (Iterator<FlightReport> fi = dFlights.iterator(); fi.hasNext();) {
+						FlightReport fr = fi.next();
 						dataRsp.addResponse(fr);
-					else
-						ctx.push(errMsg, ctx.getACARSConnection().getID());
+					}
 				} catch (DAOException de) {
 					log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 					errMsg.setEntry("error", "Cannot load draft Flight Report");
 					ctx.push(errMsg, ctx.getACARSConnection().getID());
 				} finally {
 					ctx.release();
 				}
-				
+
 				break;
 
 			// Get navaid/runway info
@@ -286,7 +276,7 @@ public class DataCommand extends ACARSCommand {
 		// Push the response
 		ctx.push(dataRsp, env.getConnectionID());
 	}
-	
+
 	/**
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
