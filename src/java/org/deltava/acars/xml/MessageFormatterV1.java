@@ -86,10 +86,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("id", Long.toHexString(msg.getParentID()).toUpperCase());
 
 			// Display additional elements
-			Iterator i = msg.getEntryNames();
-			while (i.hasNext()) {
-				String eName = (String) i.next();
-				e.addContent(XMLUtils.createElement(eName, msg.getEntry(eName)));
+			for (Iterator<String> i = msg.getEntryNames().iterator(); i.hasNext(); ) {
+				String eName = i.next();
+				e.addContent(XMLUtils.createElement(eName, msg.getEntry(eName), true));
 			}
 
 			// Return the element
@@ -105,9 +104,9 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 			e.setAttribute("msgtype", "text");
 			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
-			for (Iterator i = msg.getMsgs().iterator(); i.hasNext();) {
-				String msgText = (String) i.next();
-				e.addContent(XMLUtils.createElement("text", msgText));
+			for (Iterator<String> i = msg.getMsgs().iterator(); i.hasNext();) {
+				String msgText = i.next();
+				e.addContent(XMLUtils.createElement("text", msgText, true));
 			}
 
 			return e;
@@ -414,10 +413,14 @@ class MessageFormatterV1 implements MessageFormatter {
 					FlightReport fr = (FlightReport) rsp;
 					Element fList = getData(e, "pireps");
 					Element pe = new Element("pirep");
-					pe.setAttribute("code", fr.getFlightCode());
-					pe.setAttribute("eqType", fr.getEquipmentType());
-					pe.setAttribute("airportA", fr.getAirportA().getICAO());
-					pe.setAttribute("airportD", fr.getAirportD().getICAO());
+					pe.setAttribute("id", StringUtils.formatHex(fr.getID()));
+					pe.setAttribute("airline", fr.getAirline().getCode());
+					pe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
+					pe.setAttribute("leg", String.valueOf(fr.getLeg()));
+					pe.addContent(XMLUtils.createElement("eqType", fr.getEquipmentType()));
+					pe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
+					pe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
+					pe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 					if (fr.hasAttribute(FlightReport.ATTR_VATSIM))
 						pe.setAttribute("network", "VATSIM");
 					else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
