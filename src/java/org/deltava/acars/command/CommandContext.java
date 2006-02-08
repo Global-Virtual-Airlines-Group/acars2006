@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -17,6 +17,7 @@ import org.deltava.jdbc.*;
 import org.deltava.util.system.SystemData;
 
 /**
+ * The ACARS command context object.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -75,7 +76,7 @@ public class CommandContext {
 		return _ac;
 	}
 
-	public Collection getACARSConnections(String pilotID) {
+	public Collection<ACARSConnection> getACARSConnections(String pilotID) {
 		return _pool.get(pilotID);
 	}
 

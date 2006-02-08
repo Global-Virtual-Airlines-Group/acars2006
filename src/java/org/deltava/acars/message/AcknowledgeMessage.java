@@ -1,7 +1,4 @@
-/*
- * Created on Feb 7, 2004
- *
- */
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -9,12 +6,16 @@ import java.util.*;
 import org.deltava.beans.Pilot;
 
 /**
- * @author Luke J. Kolin
+ * An ACARS Acknowledgement message.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
  */
+
 public class AcknowledgeMessage extends AbstractMessage {
 
 	private long _parent;
-	private Map<String, String> _msgs = new HashMap<String, String>();
+	private Map<String, String> _msgs = new LinkedHashMap<String, String>();
 
 	public AcknowledgeMessage(Pilot msgFrom, long parentID) {
 		super(Message.MSG_ACK, msgFrom);
@@ -29,8 +30,8 @@ public class AcknowledgeMessage extends AbstractMessage {
 		return _msgs.get(eName);
 	}
 	
-	public Iterator getEntryNames() {
-		return _msgs.keySet().iterator();
+	public Collection<String> getEntryNames() {
+		return _msgs.keySet();
 	}
 	
 	public void setEntry(String eName, String eValue) {
