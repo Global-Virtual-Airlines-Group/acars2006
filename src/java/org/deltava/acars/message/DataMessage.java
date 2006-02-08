@@ -32,7 +32,7 @@ public abstract class DataMessage extends AbstractMessage {
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid", "pvtvox",
-		"eqList", "apList", "aList", "charts", "atc" , "busy", "draft"};
+		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep"};
 
 	/**
 	 * @param type
