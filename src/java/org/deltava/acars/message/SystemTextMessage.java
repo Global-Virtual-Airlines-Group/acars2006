@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright (c) 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.*;
 
 public class SystemTextMessage extends AbstractMessage {
 	
-	private List<String> _msgs;
+	private Collection<String> _msgs;
 
 	public SystemTextMessage() {
 		super(Message.MSG_SYSTEM, null);
@@ -27,7 +27,7 @@ public class SystemTextMessage extends AbstractMessage {
 		_msgs.addAll(msgs);
 	}
 	
-	public Collection getMsgs() {
+	public Collection<String> getMsgs() {
 		return _msgs;
 	}
 }
