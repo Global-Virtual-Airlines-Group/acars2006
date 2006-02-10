@@ -176,6 +176,7 @@ class MessageParserV1 implements MessageParser {
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
+			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setNoFlood(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());

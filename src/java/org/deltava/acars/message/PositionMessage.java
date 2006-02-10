@@ -41,6 +41,7 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	private int fuelRemaining;
 	private double n1;
 	private double n2;
+	private int _fuelFlow;
 	
 	// Wind information
 	private int _windHeading;
@@ -100,6 +101,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public double getBank() {
 		return bank;
+	}
+	
+	public int getFuelFlow() {
+		return _fuelFlow;
 	}
 	
 	public int getWindSpeed() {
@@ -210,6 +215,11 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	public void setBank(double b) {
 		if ((b >= -99) && (b <= 99))
 			bank = b;
+	}
+	
+	public void setFuelFlow(int flow) {
+		if ((flow >= 0) && (flow < 120000))
+			_fuelFlow = flow;
 	}
 
 	public void setLatitude(double l) {
