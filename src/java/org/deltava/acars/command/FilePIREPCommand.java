@@ -143,6 +143,8 @@ public class FilePIREPCommand extends ACARSCommand {
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
 					wdao.write(usrLoc.getDB(), cr);
+				} else {
+					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
 				}
 			}
 
