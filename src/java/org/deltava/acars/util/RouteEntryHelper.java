@@ -121,6 +121,7 @@ public class RouteEntryHelper {
       result.setN1(msg.getN1());
       result.setN2(msg.getN2());
       result.setMach(msg.getMach());
+      result.setFuelFlow(msg.getFuelFlow());
       
       // Build airports
       StringBuilder buf = new StringBuilder(imsg.getAirportD().getName());
