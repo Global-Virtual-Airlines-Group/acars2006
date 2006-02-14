@@ -11,6 +11,7 @@ import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.servinfo.Controller;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.ts2.Server;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -457,6 +458,14 @@ class MessageFormatterV1 implements MessageFormatter {
 				} else if (rsp instanceof NavigationRadioBean) {
 					Element navE = getData(e, "navaid");
 					navE.addContent(formatNavaid((NavigationRadioBean) rsp));
+				} else if (rsp instanceof Server) {
+					Server srv = (Server) rsp;
+					Element srvsE = getData(e, "ts2servers");
+					Element srvE = new Element("ts2server");
+					srvE.setAttribute("port", String.valueOf(srv.getPort()));
+					srvE.setAttribute("name", srv.getName());
+					srvE.addContent(XMLUtils.createElement("desc", srv.getDescription()));
+					srvsE.addContent(srvE);
 				} else if (rsp instanceof DataResponseMessage.DataElement) {
 					DataResponseMessage.DataElement de = (DataResponseMessage.DataElement) rsp;
 					Element iE = getData(e, "info");
