@@ -36,4 +36,8 @@ public class TextMessage extends AbstractMessage {
 	public void setRecipient(String msgTo) {
 		_recipient = msgTo;
 	}
+	
+	public void setText(String txt) {
+		_text = txt;
+	}
 }
