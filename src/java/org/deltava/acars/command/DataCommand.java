@@ -15,6 +15,7 @@ import org.deltava.beans.FlightReport;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.servinfo.*;
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.ts2.Server;
 
 import org.deltava.comparators.AirportComparator;
 
@@ -76,6 +77,25 @@ public class DataCommand extends ACARSCommand {
 				ctx.pushAll(drmsg, env.getConnectionID());
 				break;
 
+			case DataMessage.REQ_TS2SERVERS:
+				try {
+					Connection con = ctx.getConnection();
+					
+					// Get the DAO and the server info
+					GetTS2Data dao = new GetTS2Data(con);
+					Collection<Server> srvs = dao.getServers(env.getOwner().getRoles());
+					for (Iterator<Server> si = srvs.iterator(); si.hasNext(); ) {
+						Server srv = si.next();
+						dataRsp.addResponse(srv);
+					}
+				} catch (DAOException de) {
+					log.error("Error loading TS2 Server datas - " + de.getMessage(), de);
+				} finally {
+					ctx.release();
+				}
+				
+				break;
+				
 			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
 			case DataMessage.REQ_PILOTINFO:
