@@ -31,6 +31,10 @@ public class PositionCommand extends ACARSCommand {
 		// Get the Message and the ACARS Connection
 		PositionMessage msg = (PositionMessage) env.getMessage();
 		ACARSConnection con = ctx.getACARSConnection();
+		if (con == null) {
+			log.warn("Missing Connection for " + env.getOwnerID());
+			return;
+		}
 
 		// Create the ack message and envelope
 		AcknowledgeMessage ackMsg = null;
