@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -36,20 +36,22 @@ public class InfoCommand extends ACARSCommand {
 		// Get the message
 		InfoMessage msg = (InfoMessage) env.getMessage();
 		String flightType = msg.isOffline() ? "Offline" : "Online";
-		
+
 		// Check if we already have a flight ID and are requesting a new one
 		boolean assignID = (msg.getFlightID() == 0);
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
 		UserData usrLoc = con.getUserData();
-		
+
+		// Build the acknowledge message
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+
 		// Check for a duplicate Flight ID request
 		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && (!curInfo.isComplete())) {
-		   msg.setFlightID(curInfo.getFlightID());
-		   log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
+			msg.setFlightID(curInfo.getFlightID());
+			log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
 
-		   // Send back the acknowledgement
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			// Send back the acknowledgement
 			ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
@@ -58,28 +60,30 @@ public class InfoCommand extends ACARSCommand {
 		// Write the info to the database
 		try {
 			Connection c = ctx.getConnection();
-			
+
 			// If we're requesting a specific ID, make sure we used to own it
 			if (!assignID) {
-			   GetACARSData rdao = new GetACARSData(c);
-			   FlightInfo info = rdao.getInfo(msg.getFlightID());
-			   if (info == null) {
-			      log.warn(env.getOwnerID() + " requesting invalid Flight " + msg.getFlightID());
-			      assignID = true;
-			      msg.setFlightID(0);
-			   } else if (info.getPilotID() != env.getOwner().getID()) {
-			      log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
-			      assignID = true;
-			      msg.setFlightID(0);
-			   }
+				GetACARSData rdao = new GetACARSData(c);
+				FlightInfo info = rdao.getInfo(msg.getFlightID());
+				if (info == null) {
+					log.warn(env.getOwnerID() + " requesting invalid Flight " + msg.getFlightID());
+					assignID = true;
+					msg.setFlightID(0);
+				} else if (info.getPilotID() != env.getOwner().getID()) {
+					log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
+					assignID = true;
+					msg.setFlightID(0);
+				}
 			}
-			
+
 			// Look for a checkride record
 			GetExam exdao = new GetExam(c);
 			CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), msg.getEquipmentType(), Test.NEW);
+			msg.setCheckRide(cr != null);
+			ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
 			if (cr != null)
-				msg.setCheckRide(true);
-			
+				ackMsg.setEntry("crName", cr.getName());
+
 			// Write the flight information
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());
@@ -88,18 +92,16 @@ public class InfoCommand extends ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-		
+
 		// Log returned flight id
 		if (assignID) {
 			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
 		} else {
-		   log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
+			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 		}
 
 		// Create the ack message and envelope - these are always acknowledged
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
-		ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
 		ctx.push(ackMsg, env.getConnectionID());
 
 		// Set the info for the connection and write it to the database
