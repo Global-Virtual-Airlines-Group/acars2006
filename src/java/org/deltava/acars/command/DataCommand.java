@@ -53,6 +53,7 @@ public class DataCommand extends ACARSCommand {
 		// Create the response
 		DataResponseMessage dataRsp = new DataResponseMessage(env.getOwner(), msg.getRequestType());
 		log.info("Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from " + env.getOwnerID());
+		ctx.setMessage("Processing Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from " + env.getOwnerID());
 
 		switch (msg.getRequestType()) {
 			// Get all of the pilot info stuff
