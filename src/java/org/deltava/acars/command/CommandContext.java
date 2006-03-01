@@ -2,9 +2,6 @@
 package org.deltava.acars.command;
 
 import java.util.*;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
@@ -54,14 +51,6 @@ public class CommandContext {
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		_con = cp.getConnection(isSystem);
 		return _con;
-	}
-	
-	/**
-	 * Helper method to open a connection to a particular URL.
-	 */
-	public HttpURLConnection getURL(String dataURL) throws IOException {
-		URL url = new URL(dataURL);
-		return (HttpURLConnection) url.openConnection();
 	}
 
 	public void release() {
