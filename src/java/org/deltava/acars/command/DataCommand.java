@@ -1,8 +1,7 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
-import java.net.HttpURLConnection;
 
 import java.sql.Connection;
 
@@ -10,6 +9,8 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+
+import org.deltava.acars.util.ServInfoLoader;
 
 import org.deltava.beans.FlightReport;
 import org.deltava.beans.schedule.*;
@@ -20,8 +21,8 @@ import org.deltava.beans.ts2.Server;
 import org.deltava.comparators.AirportComparator;
 
 import org.deltava.dao.*;
-import org.deltava.dao.http.GetServInfo;
 
+import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -34,6 +35,11 @@ import org.deltava.util.system.SystemData;
 public class DataCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(DataCommand.class);
+
+	private static Map<String, Thread> _loaders = new HashMap<String, Thread>();
+
+	private static final ExpiringCache _networkCache = new ExpiringCache(3, 7200);
+	private static final ExpiringCache _servInfoCache = new ExpiringCache(3, 240);
 
 	/**
 	 * Executes the command.
@@ -53,7 +59,8 @@ public class DataCommand extends ACARSCommand {
 		// Create the response
 		DataResponseMessage dataRsp = new DataResponseMessage(env.getOwner(), msg.getRequestType());
 		log.info("Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from " + env.getOwnerID());
-		ctx.setMessage("Processing Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from " + env.getOwnerID());
+		ctx.setMessage("Processing Data Request (" + DataMessage.REQ_TYPES[msg.getRequestType()] + ") from "
+				+ env.getOwnerID());
 
 		switch (msg.getRequestType()) {
 			// Get all of the pilot info stuff
@@ -81,11 +88,11 @@ public class DataCommand extends ACARSCommand {
 			case DataMessage.REQ_TS2SERVERS:
 				try {
 					Connection con = ctx.getConnection();
-					
+
 					// Get the DAO and the server info
 					GetTS2Data dao = new GetTS2Data(con);
 					Collection<Server> srvs = dao.getServers(env.getOwner().getRoles());
-					for (Iterator<Server> si = srvs.iterator(); si.hasNext(); ) {
+					for (Iterator<Server> si = srvs.iterator(); si.hasNext();) {
 						Server srv = si.next();
 						dataRsp.addResponse(srv);
 					}
@@ -94,9 +101,9 @@ public class DataCommand extends ACARSCommand {
 				} finally {
 					ctx.release();
 				}
-				
+
 				break;
-				
+
 			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
 			case DataMessage.REQ_PILOTINFO:
@@ -145,37 +152,30 @@ public class DataCommand extends ACARSCommand {
 				if ("offline".equals(network))
 					break;
 
-				NetworkInfo info = null;
-				try {
-					// Connect to info URL
-					HttpURLConnection urlcon = ctx.getURL(SystemData.get("online." + network + ".status_url"));
+				// Get the network info from the cache
+				NetworkInfo info = (NetworkInfo) _servInfoCache.get(network, true);
+				ServInfoLoader loader = new ServInfoLoader(SystemData.get("online." + network + ".status_url"), network);
+				loader.setCaches(_networkCache, _servInfoCache);
 
-					// Get network URLs
-					GetServInfo sdao = new GetServInfo(urlcon);
-					NetworkStatus status = sdao.getStatus(network);
-					urlcon.disconnect();
-
-					// Get network status
-					urlcon = ctx.getURL(status.getDataURL());
-					GetServInfo idao = new GetServInfo(urlcon);
-					idao.setBufferSize(40960);
-					info = idao.getInfo(network);
-					urlcon.disconnect();
-				} catch (Exception e) {
-					log.warn("Error retrieving " + network.toUpperCase() + " data - " + e.getMessage());
+				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
+				if (info == null) {
+					loader.run();
+				} else if (_servInfoCache.isExpired(network)) {
+					synchronized (_loaders) {
+						Thread t = _loaders.get(network);
+						if ((t == null) || (!t.isAlive())) {
+							t = new Thread(loader, network + " ServInfo Loader");
+							_loaders.put(network, t);
+							t.start();
+						} else if (t.isAlive()) {
+							log.warn("Already loading " + network + " information");
+						}
+					}
 				}
 
 				// Filter the controllers based on range from position
 				if (info != null) {
-					int range = 500;
-					try {
-						range = Integer.parseInt(msg.getFlag("range"));
-					} catch (Exception e) {
-						// empty
-					}
-
-					Collection<Controller> ctrs = (ac.getPosition() == null) ? info.getControllers() : info
-							.getControllers(ac.getPosition(), range);
+					Collection<Controller> ctrs = info.getControllers(ac.getPosition());
 					for (Iterator<Controller> ci = ctrs.iterator(); ci.hasNext();)
 						dataRsp.addResponse(ci.next());
 				}
