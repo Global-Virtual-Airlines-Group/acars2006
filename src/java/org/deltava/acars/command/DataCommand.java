@@ -160,6 +160,7 @@ public class DataCommand extends ACARSCommand {
 				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
 				if (info == null) {
 					loader.run();
+					info = loader.getInfo();
 				} else if (_servInfoCache.isExpired(network)) {
 					synchronized (_loaders) {
 						Thread t = _loaders.get(network);
