@@ -30,6 +30,8 @@ public class ServInfoLoader implements Runnable {
 	private Cache _statusCache;
 	private Cache _infoCache;
 	
+	private NetworkInfo _info;
+	
 	/**
 	 * Initializes the worker.
 	 * @param url the network status URL
@@ -62,6 +64,14 @@ public class ServInfoLoader implements Runnable {
 			log.error("Error getting HTTP connection " + ie.getMessage(), ie);
 			return null;
 		}
+	}
+	
+	/**
+	 * Returns the retrieved network traffic information. 
+	 * @return the NetworkInfo bean
+	 */
+	public NetworkInfo getInfo() {
+		return _info;
 	}
 
 	/**
@@ -102,8 +112,8 @@ public class ServInfoLoader implements Runnable {
 		idao.setUseCache(false);
 		idao.setBufferSize(40960);
 		try {
-			NetworkInfo info = idao.getInfo(_network);
-			_infoCache.add(info);
+			_info = idao.getInfo(_network);
+			_infoCache.add(_info);
 		} catch (DAOException de) {
 			log.error("Error loading " + _network.toUpperCase() + " info - " + de.getMessage(), de);
 		} finally {
