@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -28,6 +28,11 @@ import org.deltava.util.system.SystemData;
  */
 
 public abstract class ServerDaemon {
+	
+	/**
+	 * Maximum task execution time.
+	 */
+	protected static final long MAX_EXEC = 60000;
  	
  	protected static Logger log = null;
  	

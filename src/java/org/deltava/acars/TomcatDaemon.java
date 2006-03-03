@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -21,41 +21,49 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 	public void run() {
 
-		// Initialize the logger
+		// Initialize the logger, connection pool and server tasks
 		log = Logger.getLogger("ACARSDaemon");
-
-		// Init the connection pool
 		initACARSConnectionPool();
-
-		// Init the server tasks
 		initTasks();
 
 		// Log the start of the loop
 		log.info("Started");
-		ThreadUtils.sleep(10000);
+		ThreadUtils.sleep(5000);
 
 		// Start looping
 		while (!Thread.currentThread().isInterrupted()) {
-			// Go to sleep for a while - if interrupted, shut down the loop
 			try {
 				// Check all of the threads
-				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext(); ) {
-					Worker w =  i.next();
+				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
+					Worker w = i.next();
+					WorkerStatus ws = w.getStatus();
 
 					// Get the thread status
 					Thread t = _threads.get(w);
-					w.getStatus().setAlive(t.isAlive());
+					ws.setAlive(t.isAlive());
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
-						
+
+						// Restart the worker thread
+						Thread wt = new Thread(_workers, w, w.getName());
+						_threads.put(w, wt);
+						wt.start();
+					} else if (ws.getExecutionTime() > MAX_EXEC) {
+						log.warn(t.getName() + " stuck for " + ws.getExecutionTime() + "ms, restarting");
+						log.warn("Last activity - " + ws.getMessage());
+
+						// Kill the worker thread
+						ThreadUtils.kill(t, 1000);
+
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
 						_threads.put(w, wt);
 						wt.start();
 					}
 				}
-				
-				Thread.sleep(45000);
+
+				// Go to sleep for a while - if interrupted, shut down the loop
+				Thread.sleep(10000);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
@@ -63,22 +71,16 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 			}
 		}
 
-		// Interrupt the threads
-		_workers.interrupt();
-
 		// Try to close the workers down
+		_workers.interrupt();
 		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
 			Worker w = i.next();
 
 			// Wait for the thread to die if it hasn't yet
 			Thread t = _threads.get(w);
-			try {
-				if (t.isAlive())
-					t.join(500);
-			} catch (InterruptedException ie) {
-			}
+			ThreadUtils.kill(t, 500);
 
-			//Close the thread
+			// Close the thread
 			log.debug("Stopping " + w.getName());
 			w.close();
 		}
@@ -86,14 +88,18 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 		// Display shutdown message
 		log.info("Terminated");
 	}
-	
+
+	/**
+	 * Returns worker status to the web application.
+	 * @see ACARSWorkerInfo#getWorkers()
+	 */
 	public Collection<WorkerStatus> getWorkers() {
-		Set<WorkerStatus> results = new TreeSet<WorkerStatus>();
-		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext(); ) {
+		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
+		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
 			Worker w = i.next();
 			results.add(w.getStatus());
 		}
-		
+
 		return results;
 	}
 }

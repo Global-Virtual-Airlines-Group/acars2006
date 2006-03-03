@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Resever.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.Iterator;
@@ -28,6 +28,8 @@ public final class InputTranslator extends Worker {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
+			_status.execute();
+			
 			// Process stuff on the input stack
 			while (MessageStack.RAW_INPUT.hasNext()) {
 				Envelope env = MessageStack.RAW_INPUT.pop();
@@ -62,7 +64,7 @@ public final class InputTranslator extends Worker {
 			}
 
 			// Log execution
-			_status.execute();
+			_status.complete();
 			_status.setMessage("Idle");
 
 			// Wait until something is on the input stack or we get interrupted
