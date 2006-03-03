@@ -29,7 +29,7 @@ public class LogicProcessor extends Worker {
 
 	private ACARSConnectionPool _pool;
 	private static Map<Integer, ACARSCommand> _commands;
-
+	
 	public LogicProcessor(int threadID) {
 		super("Message Processor #" + threadID, LogicProcessor.class.getName() + "-" + threadID);
 	}
@@ -183,8 +183,9 @@ public class LogicProcessor extends Worker {
 			while (MessageStack.MSG_INPUT.hasNext()) {
 				Envelope env = MessageStack.MSG_INPUT.pop();
 				try {
-					process(env);
 					_status.execute();
+					process(env);
+					_status.complete();
 				} catch (Exception e) {
 					log.error("Error Processing Message from " + env.getOwnerID() + " - " + e.getMessage(), e);
 				}
@@ -201,12 +202,15 @@ public class LogicProcessor extends Worker {
 			MessageStack.MSG_OUTPUT.wakeup();
 
 			// Check if we need to flush the position/message caches
+			
 			_status.setMessage("Checking Message/Position Caches");
 			synchronized (LogicProcessor.class) {
+				_status.execute();
 				if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH))
 					flushPositionCache();
 				else if (TextMessageCache.isDirty() && (TextMessageCache.getFlushInterval() > CACHE_FLUSH))
 					flushMessageCache();
+				_status.complete();
 			}
 
 			// Wait on the input queue for 5 seconds if we haven't already been interrupted

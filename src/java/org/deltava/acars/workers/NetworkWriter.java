@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import org.deltava.acars.beans.*;
@@ -38,6 +38,8 @@ public class NetworkWriter extends Worker {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
+			_status.execute();
+			
 			// Loop through the raw output stack
 			while (MessageStack.RAW_OUTPUT.hasNext()) {
 				Envelope env = MessageStack.RAW_OUTPUT.pop();
@@ -54,7 +56,7 @@ public class NetworkWriter extends Worker {
 			}
 
 			// Log execution
-			_status.execute();
+			_status.complete();
 			_status.setMessage("Idle");
 
 			// Wait until something is on the bean output stack or we get interrupted

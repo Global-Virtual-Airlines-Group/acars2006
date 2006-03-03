@@ -187,6 +187,7 @@ public final class NetworkReader extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
 			_status.setMessage("Listening for new Connection");
+			_status.execute();
 			try {
 				_cSelector.select(SystemData.getInt("acars.sleep"));
 			} catch (IOException ie) {
@@ -234,7 +235,7 @@ public final class NetworkReader extends Worker {
 				}
 
 				// Log executiuon
-				_status.execute();
+				_status.complete();
 			}
 		}
 

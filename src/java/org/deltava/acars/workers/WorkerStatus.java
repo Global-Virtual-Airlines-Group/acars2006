@@ -1,3 +1,4 @@
+// Copyright (c) 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import org.deltava.beans.ViewEntry;
@@ -20,6 +21,9 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 	
 	public static final String[] STATUS_NAME = {"Unknown", "Shutdown Request", "Recycle Request", "Error",
 		"Starting", "Initializing" };
+	
+	private long _execStartTime;
+	private long _execStopTime;
 	
 	private String _name;
 	private String _msg;
@@ -69,14 +73,31 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 	}
 	
 	synchronized void execute() {
+		_execStartTime = System.currentTimeMillis();
+		_execStopTime = 0;
+	}
+	
+	synchronized void complete() {
+		_execStopTime = System.currentTimeMillis();
 		_execCount++;
 	}
 	
+	public synchronized long getExecutionTime() {
+		return ((_execStopTime == 0) ? System.currentTimeMillis() : _execStopTime) - _execStartTime;
+	}
+	
+	/**
+	 * Compares two workers by comparing their names.
+	 * @see Comparable#compareTo(Object)
+	 */
 	public int compareTo(Object o2) {
 		WorkerStatus ws2 = (WorkerStatus) o2;
 		return _name.compareTo(ws2._name);
 	}
 	
+	/**
+	 * Returns the worker name.
+	 */
 	public String toString() {
 		return _name;
 	}

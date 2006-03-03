@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.Iterator;
@@ -25,6 +26,8 @@ public final class OutputDispatcher extends Worker {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
+			_status.execute();
+
 			// Translate and dispatch the messages on the bean output stack
 			while (MessageStack.MSG_OUTPUT.hasNext()) {
 				Envelope env = MessageStack.MSG_OUTPUT.pop();
@@ -44,7 +47,7 @@ public final class OutputDispatcher extends Worker {
 			// Dump the messages to the output stack
 			if (MessageWriter.hasMessages()) {
 				_status.setMessage("Pushing messages to XML Output Stack");
-				for (Iterator<Envelope> i = MessageWriter.getMessages().iterator(); i.hasNext(); ) {
+				for (Iterator<Envelope> i = MessageWriter.getMessages().iterator(); i.hasNext();) {
 					Envelope env = i.next();
 					MessageStack.RAW_OUTPUT.push(env);
 					ServerStats.msgOut(String.valueOf(env.getMessage()).length());
@@ -52,8 +55,9 @@ public final class OutputDispatcher extends Worker {
 
 				// Reset the message writer's internal documents
 				MessageWriter.reset();
-				
-				// Wake up a single thread waiting for something on the formatted input stack, or multiple if multiple messages waiting
+
+				// Wake up a single thread waiting for something on the formatted input stack, or multiple if multiple
+				// messages waiting
 				if (MessageStack.RAW_OUTPUT.size() == 1) {
 					synchronized (MessageStack.RAW_OUTPUT) {
 						MessageStack.RAW_OUTPUT.notify();
@@ -62,9 +66,9 @@ public final class OutputDispatcher extends Worker {
 					MessageStack.RAW_OUTPUT.wakeup();
 				}
 			}
-			
+
 			// Log execution
-			_status.execute();
+			_status.complete();
 			_status.setMessage("Idle");
 
 			// Wait until something is on the bean output stack or we get interrupted
