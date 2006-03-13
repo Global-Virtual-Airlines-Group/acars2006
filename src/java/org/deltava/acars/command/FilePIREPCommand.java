@@ -51,6 +51,11 @@ public class FilePIREPCommand extends ACARSCommand {
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
 		
+		// Convert the date into the user's local time zone
+		DateTime dt = new DateTime(afr.getDate());
+		dt.convertTo(ac.getUser().getTZ());
+		afr.setDate(dt.getDate());
+		
 		// If we have no flight info, then push it back
 		if (info == null) {
 			log.warn("No Flight Information found for ACARS Connection");
