@@ -12,6 +12,7 @@ import org.deltava.dao.DAOException;
 import org.deltava.dao.http.GetServInfo;
 
 import org.deltava.util.cache.Cache;
+import org.deltava.util.http.HttpTimeoutHandler;
 
 /**
  * A worker thread to asynchronously load ServInfo data.
@@ -58,7 +59,7 @@ public class ServInfoLoader implements Runnable {
 	 */
 	private HttpURLConnection getURL(String dataURL) {
 		try {
-			URL url = new URL(dataURL);
+			URL url = new URL(null, dataURL, new HttpTimeoutHandler(750));
 			return (HttpURLConnection) url.openConnection();
 		} catch (IOException ie) {
 			log.error("Error getting HTTP connection " + ie.getMessage(), ie);
