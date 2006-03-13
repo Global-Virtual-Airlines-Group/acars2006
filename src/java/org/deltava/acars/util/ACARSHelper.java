@@ -43,7 +43,6 @@ public class ACARSHelper {
       ACARSFlightReport afr = new ACARSFlightReport(fr.getAirline(), fr.getFlightNumber(), fr.getLeg());
       afr.setEquipmentType(fr.getEquipmentType());
       afr.setDate(fr.getDate());
-      afr.setCreatedOn(fr.getCreatedOn());
       afr.setAirportD(fr.getAirportD());
       afr.setAirportA(fr.getAirportA());
       afr.setAttributes(fr.getAttributes());

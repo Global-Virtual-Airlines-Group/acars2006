@@ -314,7 +314,6 @@ class MessageParserV1 implements MessageParser {
 			afr.setStatus(FlightReport.SUBMITTED);
 			afr.setEquipmentType(_el.getChildTextTrim("eqType"));
 			afr.setDate(new Date());
-			afr.setCreatedOn(afr.getDate());
 			afr.setSubmittedOn(afr.getDate());
 			afr.setAirportD(getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(getAirport(_el.getChildTextTrim("airportA").toUpperCase()));
