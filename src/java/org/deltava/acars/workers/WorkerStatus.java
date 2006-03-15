@@ -20,7 +20,7 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 	public static final int STATUS_INIT = 5;
 	
 	public static final String[] STATUS_NAME = {"Unknown", "Shutdown Request", "Recycle Request", "Error",
-		"Starting", "Initializing" };
+		"Started", "Initializing" };
 	
 	private long _execStartTime;
 	private long _execStopTime;
