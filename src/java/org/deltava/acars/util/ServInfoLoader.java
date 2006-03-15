@@ -59,7 +59,7 @@ public class ServInfoLoader implements Runnable {
 	 */
 	private HttpURLConnection getURL(String dataURL) {
 		try {
-			URL url = new URL(null, dataURL, new HttpTimeoutHandler(750));
+			URL url = new URL(null, dataURL, new HttpTimeoutHandler(1750));
 			return (HttpURLConnection) url.openConnection();
 		} catch (IOException ie) {
 			log.error("Error getting HTTP connection " + ie.getMessage(), ie);
@@ -116,7 +116,12 @@ public class ServInfoLoader implements Runnable {
 			_info = idao.getInfo(_network);
 			_infoCache.add(_info);
 		} catch (DAOException de) {
-			log.error("Error loading " + _network.toUpperCase() + " info - " + de.getMessage(), de);
+			Throwable re = de.getCause();
+			if (re instanceof SocketTimeoutException) {
+				log.warn("HTTP Timeout connecting to " + con.getURL().toString());
+			} else {
+				log.error("Error loading " + _network.toUpperCase() + " info - " + de.getMessage(), de);
+			}
 		} finally {
 			con.disconnect();
 		}
