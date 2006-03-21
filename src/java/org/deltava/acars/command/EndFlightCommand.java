@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Date;
@@ -32,9 +32,11 @@ public class EndFlightCommand extends ACARSCommand {
 	 */
 	public void execute(CommandContext ctx, Envelope env) {
 
-		// Get the message
-		ACARSConnection con = ctx.getACARSConnection();
+		// Get the message and the connection
 		EndFlightMessage msg = (EndFlightMessage) env.getMessage();
+		ACARSConnection con = ctx.getACARSConnection();
+		if (con == null)
+			return;
 		
 		// Create the ack message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
