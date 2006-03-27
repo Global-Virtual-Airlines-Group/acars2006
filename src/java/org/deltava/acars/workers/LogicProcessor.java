@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -18,6 +19,7 @@ import org.deltava.dao.DAOException;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS Worker thread to process messages.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -56,6 +58,7 @@ public class LogicProcessor extends Worker {
 			_commands.put(new Integer(Message.MSG_PIREP), new FilePIREPCommand());
 			_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
 			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
+			_commands.put(new Integer(Message.MSG_DIAG), new DispatchCommand());
 			log.info("Loaded " + _commands.size() + " commands");
 		}
 	}
