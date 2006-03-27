@@ -1,8 +1,10 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
 import java.text.DecimalFormat;
+
+import org.apache.log4j.Logger;
 
 import org.jdom.Element;
 
@@ -27,6 +29,8 @@ import org.deltava.util.*;
 
 class MessageFormatterV1 implements MessageFormatter {
 
+	private static final Logger log = Logger.getLogger(MessageFormatter.class);
+
 	private static final int PROTOCOL_VERSION = 1;
 
 	// Number formatters
@@ -46,95 +50,111 @@ class MessageFormatterV1 implements MessageFormatter {
 	public Element format(Message msgBean) throws XMLException {
 
 		// Run a different function depending on the bean type
-		switch (msgBean.getType()) {
-			case Message.MSG_ACK:
-				return formatAck((AcknowledgeMessage) msgBean);
+		try {
+			switch (msgBean.getType()) {
+				case Message.MSG_ACK:
+					return formatAck((AcknowledgeMessage) msgBean);
 
-			case Message.MSG_DATARSP:
-				return formatDataRsp((DataResponseMessage) msgBean);
+				case Message.MSG_DATARSP:
+					return formatDataRsp((DataResponseMessage) msgBean);
 
-			case Message.MSG_DIAG:
-				return formatDiag((DiagnosticMessage) msgBean);
+				case Message.MSG_DIAG:
+					return formatDiag((DiagnosticMessage) msgBean);
 
-			case Message.MSG_INFO:
-				return formatInfo((InfoMessage) msgBean);
+				case Message.MSG_DISPATCH:
+					return formatDispatch((DispatchMessage) msgBean);
 
-			case Message.MSG_POSITION:
-				return formatPosition((PositionMessage) msgBean);
+				case Message.MSG_INFO:
+					return formatInfo((InfoMessage) msgBean);
 
-			case Message.MSG_SYSTEM:
-				return formatSystem((SystemTextMessage) msgBean);
+				case Message.MSG_POSITION:
+					return formatPosition((PositionMessage) msgBean);
 
-			case Message.MSG_TEXT:
-				return formatText((TextMessage) msgBean);
+				case Message.MSG_SYSTEM:
+					return formatSystem((SystemTextMessage) msgBean);
 
-			// if for some reason we get a raw message ignore it
-			case Message.MSG_RAW:
-			case Message.MSG_QUIT:
-				return null;
+				case Message.MSG_TEXT:
+					return formatText((TextMessage) msgBean);
 
-			default:
-				throw new XMLException("Invalid message type - " + msgBean.getType());
+				// if for some reason we get a raw message ignore it
+				case Message.MSG_RAW:
+				case Message.MSG_QUIT:
+					return null;
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new XMLException("Error formatting " + msgBean.getType() + " message - " + e.getMessage(), e);
 		}
+
+		throw new XMLException("Invalid message type - " + msgBean.getType());
 	}
 
 	private Element formatAck(AcknowledgeMessage msg) throws XMLException {
 
-		try {
-			// Create the element and the type
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
-			e.setAttribute("id", Long.toHexString(msg.getParentID()).toUpperCase());
+		// Create the element and the type
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+		e.setAttribute("id", Long.toHexString(msg.getParentID()).toUpperCase());
 
-			// Display additional elements
-			for (Iterator<String> i = msg.getEntryNames().iterator(); i.hasNext(); ) {
-				String eName = i.next();
-				e.addContent(XMLUtils.createElement(eName, msg.getEntry(eName), true));
-			}
-
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting acknowledge message - " + e.getMessage(), e);
+		// Display additional elements
+		for (Iterator<String> i = msg.getEntryNames().iterator(); i.hasNext();) {
+			String eName = i.next();
+			e.addContent(XMLUtils.createElement(eName, msg.getEntry(eName), true));
 		}
+
+		// Return the element
+		return e;
+	}
+
+	private Element formatDispatch(DispatchMessage msg) throws XMLException {
+		
+		// Create the element
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+		
+		// Write the elements
+		e.addContent(XMLUtils.createElement("flightCode", msg.getFlightCode()));
+		e.addContent(XMLUtils.createElement("leg", String.valueOf(msg.getLeg())));
+		e.addContent(XMLUtils.createElement("eqType", msg.getEquipmentType()));
+		e.addContent(formatAirport(msg.getAirportD(), "airportD"));
+		e.addContent(formatAirport(msg.getAirportA(), "airportA"));
+		e.addContent(formatAirport(msg.getAirportL(), "airportL"));
+		e.addContent(XMLUtils.createElement("route", msg.getRoute()));
+		e.addContent(XMLUtils.createElement("fuel", String.valueOf(msg.getFuel())));
+		e.addContent(XMLUtils.createElement("fuel", StringUtils.format(msg.getTXCode(), "0000")));
+		return e;
 	}
 
 	private Element formatSystem(SystemTextMessage msg) throws XMLException {
-		try {
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
-			e.setAttribute("msgtype", "text");
-			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
-			for (Iterator<String> i = msg.getMsgs().iterator(); i.hasNext();) {
-				String msgText = i.next();
-				e.addContent(XMLUtils.createElement("text", msgText, true));
-			}
 
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting text message - " + e.getMessage(), e);
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+		e.setAttribute("msgtype", "text");
+		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		for (Iterator<String> i = msg.getMsgs().iterator(); i.hasNext();) {
+			String msgText = i.next();
+			e.addContent(XMLUtils.createElement("text", msgText, true));
 		}
+
+		return e;
 	}
 
 	private Element formatText(TextMessage msg) throws XMLException {
-		try {
-			// Create the element and the type
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			// Set information about the message
-			e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
-			e.addContent(XMLUtils.createElement("text", msg.getText()));
-			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
-			if (!msg.isPublic())
-				e.addContent(XMLUtils.createElement("to", msg.getRecipient()));
+		// Create the element and the type
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting text message - " + e.getMessage(), e);
-		}
+		// Set information about the message
+		e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
+		e.addContent(XMLUtils.createElement("text", msg.getText()));
+		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		if (!msg.isPublic())
+			e.addContent(XMLUtils.createElement("to", msg.getRecipient()));
+
+		return e;
 	}
-	
+
 	private Element formatAirport(Airport a, String eName) {
 		Element ae = new Element(eName);
 		if (a != null) {
@@ -144,170 +164,153 @@ class MessageFormatterV1 implements MessageFormatter {
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 		}
-		
+
 		return ae;
 	}
 
 	private Element formatPosition(PositionMessage msg) throws XMLException {
 
-		try {
-			// Create the element and the type
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+		// Create the element and the type
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			// Set element information
-			e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
-			synchronized (_dgf) {
-				e.addContent(XMLUtils.createElement("lat", _dgf.format(msg.getLatitude())));
-				e.addContent(XMLUtils.createElement("lon", _dgf.format(msg.getLongitude())));
-			}
-			e.addContent(XMLUtils.createElement("hdg", _hdgf.format(msg.getHeading())));
-			e.addContent(XMLUtils.createElement("msl", String.valueOf(msg.getAltitude())));
-			e.addContent(XMLUtils.createElement("agl", String.valueOf(msg.getRadarAltitude())));
-			e.addContent(XMLUtils.createElement("mach", _mf.format(msg.getMach())));
-			e.addContent(XMLUtils.createElement("air_speed", String.valueOf(msg.getAspeed())));
-			e.addContent(XMLUtils.createElement("ground_speed", String.valueOf(msg.getGspeed())));
-			e.addContent(XMLUtils.createElement("vert_speed", String.valueOf(msg.getVspeed())));
-			e.addContent(XMLUtils.createElement("fuel", String.valueOf(msg.getFuelRemaining())));
-			e.addContent(XMLUtils.createElement("flaps", String.valueOf(msg.getFlaps())));
-			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
-			synchronized (_nxf) {
-				e.addContent(XMLUtils.createElement("avg_n1", _nxf.format(msg.getN1())));
-				e.addContent(XMLUtils.createElement("avg_n2", _nxf.format(msg.getN2())));
-			}
-
-			// Create optional elements
-			if (msg.isFlagSet(ACARSFlags.FLAG_AFTERBURNER))
-				e.addContent(XMLUtils.createElement("afterburner", "1"));
-			if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED))
-				e.addContent(XMLUtils.createElement("paused", "1"));
-			if (msg.isFlagSet(ACARSFlags.FLAG_SLEW))
-				e.addContent(XMLUtils.createElement("slew", "1"));
-			if (msg.getSimRate() != 1)
-				e.addContent(XMLUtils.createElement("simrate", String.valueOf(msg.getSimRate())));
-
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting position message - " + e.getMessage(), e);
+		// Set element information
+		e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
+		synchronized (_dgf) {
+			e.addContent(XMLUtils.createElement("lat", _dgf.format(msg.getLatitude())));
+			e.addContent(XMLUtils.createElement("lon", _dgf.format(msg.getLongitude())));
 		}
+		e.addContent(XMLUtils.createElement("hdg", _hdgf.format(msg.getHeading())));
+		e.addContent(XMLUtils.createElement("msl", String.valueOf(msg.getAltitude())));
+		e.addContent(XMLUtils.createElement("agl", String.valueOf(msg.getRadarAltitude())));
+		e.addContent(XMLUtils.createElement("mach", _mf.format(msg.getMach())));
+		e.addContent(XMLUtils.createElement("air_speed", String.valueOf(msg.getAspeed())));
+		e.addContent(XMLUtils.createElement("ground_speed", String.valueOf(msg.getGspeed())));
+		e.addContent(XMLUtils.createElement("vert_speed", String.valueOf(msg.getVspeed())));
+		e.addContent(XMLUtils.createElement("fuel", String.valueOf(msg.getFuelRemaining())));
+		e.addContent(XMLUtils.createElement("flaps", String.valueOf(msg.getFlaps())));
+		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		synchronized (_nxf) {
+			e.addContent(XMLUtils.createElement("avg_n1", _nxf.format(msg.getN1())));
+			e.addContent(XMLUtils.createElement("avg_n2", _nxf.format(msg.getN2())));
+		}
+
+		// Create optional elements
+		if (msg.isFlagSet(ACARSFlags.FLAG_AFTERBURNER))
+			e.addContent(XMLUtils.createElement("afterburner", "1"));
+		if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED))
+			e.addContent(XMLUtils.createElement("paused", "1"));
+		if (msg.isFlagSet(ACARSFlags.FLAG_SLEW))
+			e.addContent(XMLUtils.createElement("slew", "1"));
+		if (msg.getSimRate() != 1)
+			e.addContent(XMLUtils.createElement("simrate", String.valueOf(msg.getSimRate())));
+
+		// Return the element
+		return e;
 	}
 
 	private Element formatInfo(InfoMessage msg) throws XMLException {
 
-		try {
-			// Create the element and the type
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+		// Create the element and the type
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			// Set element information
-			e.addContent(XMLUtils.createElement("id", msg.getSenderID()));
-			e.addContent(XMLUtils.createElement("name", msg.getSender().getName()));
-			e.addContent(XMLUtils.createElement("equipment", msg.getEquipmentType()));
-			e.addContent(XMLUtils.createElement("flight_num", msg.getFlightCode()));
-			e.addContent(XMLUtils.createElement("dep_apt", msg.getAirportD().getICAO()));
-			e.addContent(XMLUtils.createElement("arr_apt", msg.getAirportA().getICAO()));
-			e.addContent(XMLUtils.createElement("cruise_alt", msg.getAltitude()));
-			e.addContent(XMLUtils.createElement("route", msg.getAllWaypoints()));
-			e.addContent(XMLUtils.createElement("remarks", msg.getComments()));
-			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		// Set element information
+		e.addContent(XMLUtils.createElement("id", msg.getSenderID()));
+		e.addContent(XMLUtils.createElement("name", msg.getSender().getName()));
+		e.addContent(XMLUtils.createElement("equipment", msg.getEquipmentType()));
+		e.addContent(XMLUtils.createElement("flight_num", msg.getFlightCode()));
+		e.addContent(XMLUtils.createElement("dep_apt", msg.getAirportD().getICAO()));
+		e.addContent(XMLUtils.createElement("arr_apt", msg.getAirportA().getICAO()));
+		e.addContent(XMLUtils.createElement("cruise_alt", msg.getAltitude()));
+		e.addContent(XMLUtils.createElement("route", msg.getAllWaypoints()));
+		e.addContent(XMLUtils.createElement("remarks", msg.getComments()));
+		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting info message - " + e.getMessage(), e);
-		}
+		// Return the element
+		return e;
 	}
 
 	private Element formatDiag(DiagnosticMessage msg) throws XMLException {
-		try {
-			// Create the element and the type
-			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
-			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			// Save the type
-			e.addContent(XMLUtils.createElement("reqtype", Message.MSG_TYPES[msg.getRequestType()]));
-			e.addContent(XMLUtils.createElement("reqData", msg.getRequestData()));
-			e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		// Create the element and the type
+		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
+		e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
 
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting diagnostic message - " + e.getMessage(), e);
-		}
+		// Save the type
+		e.addContent(XMLUtils.createElement("reqtype", Message.MSG_TYPES[msg.getRequestType()]));
+		e.addContent(XMLUtils.createElement("reqData", msg.getRequestData()));
+		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+
+		// Return the element
+		return e;
 	}
 
 	private Element formatNavaid(NavigationRadioBean nav) throws XMLException {
-		try {
-			// Create the element
-			Element e = new Element("navaid");
 
-			// Get the navaid info
-			NavigationDataBean navaid = nav.getNavaid();
+		// Create the element
+		Element e = new Element("navaid");
 
-			// Add navaid info
-			e.addContent(XMLUtils.createElement("radio", nav.getRadio()));
-			e.addContent(XMLUtils.createElement("type", navaid.getTypeName()));
-			e.addContent(XMLUtils.createElement("code", navaid.getCode()));
-			if (navaid instanceof VOR) {
-				e.addContent(XMLUtils.createElement("freq", ((VOR) navaid).getFrequency()));
-				e.addContent(XMLUtils.createElement("hdg", nav.getHeading()));
-			}
+		// Get the navaid info
+		NavigationDataBean navaid = nav.getNavaid();
 
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting navaid info message - " + e.getMessage(), e);
+		// Add navaid info
+		e.addContent(XMLUtils.createElement("radio", nav.getRadio()));
+		e.addContent(XMLUtils.createElement("type", navaid.getTypeName()));
+		e.addContent(XMLUtils.createElement("code", navaid.getCode()));
+		if (navaid instanceof VOR) {
+			e.addContent(XMLUtils.createElement("freq", ((VOR) navaid).getFrequency()));
+			e.addContent(XMLUtils.createElement("hdg", nav.getHeading()));
 		}
+
+		// Return the element
+		return e;
 	}
 
 	private Element formatConnection(ACARSConnection con) throws XMLException {
-		try {
-			// Create the element
-			Element e = new Element("Pilot");
 
-			// Display user-specific stuff
-			if (con.isAuthenticated()) {
-				Pilot usr = con.getUser();
-				e.setAttribute("id", usr.getPilotCode());
-				e.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
-				e.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
-				e.addContent(XMLUtils.createElement("name", usr.getName()));
-				e.addContent(XMLUtils.createElement("eqtype", usr.getEquipmentType()));
-				e.addContent(XMLUtils.createElement("rank", usr.getRank()));
-				e.addContent(XMLUtils.createElement("hours", String.valueOf(usr.getHours())));
-				e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
-				e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
-				e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
-				e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
-			}
-			
-			// Display flight-specific stuff
-			InfoMessage inf = con.getFlightInfo();
-			if (inf != null) {
-				e.addContent(XMLUtils.createElement("flightCode", inf.getFlightCode()));
-				e.addContent(XMLUtils.createElement("flightEQ", inf.getEquipmentType()));
-				e.addContent(XMLUtils.createElement("airportD", inf.getAirportD().getICAO()));
-				e.addContent(XMLUtils.createElement("airportA", inf.getAirportA().getICAO()));
-			}
+		// Create the element
+		Element e = new Element("Pilot");
 
-			// Add connection specific stuff
-			e.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
-			e.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientVersion())));
-			e.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
-			e.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
-			e.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
-			e.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
-			e.addContent(XMLUtils.createElement("input", String.valueOf(con.getBytesIn())));
-			e.addContent(XMLUtils.createElement("output", String.valueOf(con.getBytesOut())));
-			e.addContent(XMLUtils.createElement("msginput", String.valueOf(con.getMsgsIn())));
-			e.addContent(XMLUtils.createElement("msgoutput", String.valueOf(con.getMsgsOut())));
-
-			// Return the element
-			return e;
-		} catch (Exception e) {
-			throw new XMLException("Error formatting user info message - " + e.getMessage(), e);
+		// Display user-specific stuff
+		if (con.isAuthenticated()) {
+			Pilot usr = con.getUser();
+			e.setAttribute("id", usr.getPilotCode());
+			e.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
+			e.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
+			e.addContent(XMLUtils.createElement("name", usr.getName()));
+			e.addContent(XMLUtils.createElement("eqtype", usr.getEquipmentType()));
+			e.addContent(XMLUtils.createElement("rank", usr.getRank()));
+			e.addContent(XMLUtils.createElement("hours", String.valueOf(usr.getHours())));
+			e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
+			e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
+			e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
+			e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 		}
+
+		// Display flight-specific stuff
+		InfoMessage inf = con.getFlightInfo();
+		if (inf != null) {
+			e.addContent(XMLUtils.createElement("flightCode", inf.getFlightCode()));
+			e.addContent(XMLUtils.createElement("flightEQ", inf.getEquipmentType()));
+			e.addContent(XMLUtils.createElement("airportD", inf.getAirportD().getICAO()));
+			e.addContent(XMLUtils.createElement("airportA", inf.getAirportA().getICAO()));
+		}
+
+		// Add connection specific stuff
+		e.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
+		e.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientVersion())));
+		e.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
+		e.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
+		e.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
+		e.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
+		e.addContent(XMLUtils.createElement("input", String.valueOf(con.getBytesIn())));
+		e.addContent(XMLUtils.createElement("output", String.valueOf(con.getBytesOut())));
+		e.addContent(XMLUtils.createElement("msginput", String.valueOf(con.getMsgsIn())));
+		e.addContent(XMLUtils.createElement("msgoutput", String.valueOf(con.getMsgsOut())));
+
+		// Return the element
+		return e;
 	}
 
 	private Element getData(Element cmd, String rspType) {
@@ -365,7 +368,8 @@ class MessageFormatterV1 implements MessageFormatter {
 					pe.addContent(XMLUtils.createElement("rank", userInfo.getRank()));
 					e.addContent(XMLUtils.createElement("hours", String.valueOf(userInfo.getHours())));
 					e.addContent(XMLUtils.createElement("legs", String.valueOf(userInfo.getLegs())));
-					e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(userInfo.getCreatedOn(), "MMMM dd, yyyy")));
+					e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(userInfo.getCreatedOn(),
+							"MMMM dd, yyyy")));
 					e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(userInfo.getRoles(), ",")));
 					Element dpe = null;
 					switch (msg.getRequestType()) {
@@ -377,7 +381,7 @@ class MessageFormatterV1 implements MessageFormatter {
 							dpe = getData(e, "delpilots");
 							break;
 					}
-					
+
 					if (dpe != null)
 						dpe.addContent(pe);
 				} else if (rsp instanceof ACARSConnection) {
@@ -387,7 +391,7 @@ class MessageFormatterV1 implements MessageFormatter {
 						case DataMessage.REQ_BUSY:
 							pList = getData(e, "addpilots");
 							break;
-							
+
 						case DataMessage.REQ_USRLIST:
 							pList = getData(e, "pilotlist");
 							break;
@@ -426,7 +430,7 @@ class MessageFormatterV1 implements MessageFormatter {
 						pe.setAttribute("network", "VATSIM");
 					else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
 						pe.setAttribute("network", "IVAO");
-					
+
 					fList.addContent(pe);
 				} else if (rsp instanceof Controller) {
 					Controller ctr = (Controller) rsp;

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -20,6 +20,7 @@ import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
+ * A parser for ACARS Protocol v1 messages.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -107,6 +108,9 @@ class MessageParserV1 implements MessageParser {
 
 			case Message.MSG_PIREP:
 				return parsePIREP();
+				
+			case Message.MSG_DISPATCH:
+				return parseDispatch();
 
 			case Message.MSG_ENDFLIGHT:
 				return new EndFlightMessage(_user);
@@ -271,6 +275,20 @@ class MessageParserV1 implements MessageParser {
 		// Set the request type
 		msg.setRequestType(getChildText("reqtype", ""));
 		msg.setRequestData(getChildText("reqdata", null));
+		return msg;
+	}
+	
+	private Message parseDispatch() {
+		
+		// Create the bean
+		DispatchMessage msg = new DispatchMessage(_user, getChildText("to", "???"));
+		msg.setFlightCode(getChildText("flightCode", "???"));
+		try {
+			msg.setLeg(Integer.parseInt(getChildText("leg", "1")));
+		} catch (NumberFormatException nfe) {
+			msg.setLeg(1);
+		}
+
 		return msg;
 	}
 
