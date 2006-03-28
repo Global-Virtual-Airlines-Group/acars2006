@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.dao.DAOException;
-import org.deltava.dao.http.GetServInfo;
+import org.deltava.dao.file.GetServInfo;
 
 import org.deltava.util.cache.Cache;
 import org.deltava.util.http.HttpTimeoutHandler;
@@ -88,9 +88,9 @@ public class ServInfoLoader implements Runnable {
 
 		// Get the network URLs
 		NetworkStatus status = null;
-		GetServInfo sdao = new GetServInfo(con);
-		sdao.setUseCache(false);
 		try {
+			GetServInfo sdao = new GetServInfo(con);
+			sdao.setUseCache(false);
 			status = sdao.getStatus(_network);
 			_statusCache.add(status);
 		} catch (DAOException de) {
@@ -109,10 +109,10 @@ public class ServInfoLoader implements Runnable {
 			return;
 		
 		// Get the network info
-		GetServInfo idao = new GetServInfo(con);
-		idao.setUseCache(false);
-		idao.setBufferSize(40960);
 		try {
+			GetServInfo idao = new GetServInfo(con);
+			idao.setUseCache(false);
+			idao.setBufferSize(40960);
 			_info = idao.getInfo(_network);
 			_infoCache.add(_info);
 		} catch (DAOException de) {
