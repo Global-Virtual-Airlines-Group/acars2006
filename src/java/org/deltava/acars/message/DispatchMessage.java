@@ -34,8 +34,6 @@ public class DispatchMessage extends AbstractMessage {
 	 * Creates a new Dispatch data message.
 	 * @param msgFrom the originator
 	 * @param recipient the recipient
-	 * @param flightCode the flight code
-	 * @param leg the flight leg
 	 */
 	public DispatchMessage(Pilot msgFrom, String recipient) {
 		super(Message.MSG_DISPATCH, msgFrom);
