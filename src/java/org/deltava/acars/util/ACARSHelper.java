@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.text.*;
@@ -6,11 +6,8 @@ import java.util.*;
 
 import org.jdom.*;
 
-import org.deltava.beans.ACARSFlightReport;
-import org.deltava.beans.FlightReport;
-
-import org.deltava.beans.schedule.Airline;
-import org.deltava.beans.schedule.GeoPosition;
+import org.deltava.beans.*;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.util.system.SystemData;
 
@@ -119,11 +116,11 @@ public class ACARSHelper {
 
       // Get the online network
       String network = p.getProperty("network");
-      if ("VATSIM".equals(network)) {
+      if (OnlineNetwork.VATSIM.equals(network)) {
          afr.setAttribute(FlightReport.ATTR_VATSIM, true);
-      } else if ("IVAO".equals(network)) {
+      } else if (OnlineNetwork.IVAO.equals(network)) {
          afr.setAttribute(FlightReport.ATTR_IVAO, true);
-      } else if ("FPI".equals(network)) {
+      } else if (OnlineNetwork.FPI.equals(network)) {
          afr.setAttribute(FlightReport.ATTR_FPI, true);
       }
 
