@@ -342,11 +342,11 @@ class MessageParserV1 implements MessageParser {
 
 			// Get the online network
 			String network = getChildText("network", "Offline").toUpperCase();
-			if ("VATSIM".equals(network)) {
+			if (OnlineNetwork.VATSIM.equals(network)) {
 				afr.setAttribute(FlightReport.ATTR_VATSIM, true);
-			} else if ("IVAO".equals(network)) {
+			} else if (OnlineNetwork.IVAO.equals(network)) {
 				afr.setAttribute(FlightReport.ATTR_IVAO, true);
-			} else if ("FPI".equals(network)) {
+			} else if (OnlineNetwork.FPI.equals(network)) {
 				afr.setAttribute(FlightReport.ATTR_FPI, true);
 			}
 

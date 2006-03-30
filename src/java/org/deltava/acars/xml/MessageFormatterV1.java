@@ -427,9 +427,11 @@ class MessageFormatterV1 implements MessageFormatter {
 					pe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 					pe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 					if (fr.hasAttribute(FlightReport.ATTR_VATSIM))
-						pe.setAttribute("network", "VATSIM");
+						pe.setAttribute("network", OnlineNetwork.VATSIM);
 					else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
-						pe.setAttribute("network", "IVAO");
+						pe.setAttribute("network", OnlineNetwork.IVAO);
+					else if (fr.hasAttribute(FlightReport.ATTR_FPI))
+						pe.setAttribute("network", OnlineNetwork.FPI);
 
 					fList.addContent(pe);
 				} else if (rsp instanceof Controller) {
