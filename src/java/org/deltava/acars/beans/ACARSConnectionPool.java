@@ -123,6 +123,22 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 		return results;
 	}
+	
+	/**
+	 * Returns the flight IDs of all active flights.
+	 * @return a Collection of Integer flight IDs
+	 */
+	public Collection<Integer> getFlightIDs() {
+		Collection<Integer> results = new HashSet<Integer>();
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
+			int id = con.getFlightID();
+			if (id != 0)
+				results.add(new Integer(id));
+		}
+		
+		return results;
+	}
 
 	/**
 	 * Returns Connection Pool data to a web application.
