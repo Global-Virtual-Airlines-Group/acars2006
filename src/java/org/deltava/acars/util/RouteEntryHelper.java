@@ -68,6 +68,33 @@ public class RouteEntryHelper {
 				return BLUE;
 			}
 		}
+		
+		public final String getInfoBox() {
+			StringBuilder buf = new StringBuilder(_usr.getRank());
+			buf.append(", ");
+			buf.append(_usr.getEquipmentType());
+			buf.append("<br />");
+			if (!StringUtils.isEmpty(_flightNumber)) {
+				buf.append("<br />Flight <b>");
+				buf.append(_flightNumber);
+				buf.append("</b> - <span class=\"sec bld\">");
+			}
+
+			buf.append(_eqType);
+			buf.append("</span> (Build ");
+			buf.append(String.valueOf(_clientBuild));
+			buf.append(")<br />From: ");
+			buf.append(_airportD.getName());
+			buf.append(" (");
+			buf.append(_airportD.getICAO());
+			buf.append(")<br />To: ");
+			buf.append(_airportA.getName());
+			buf.append(" (");
+			buf.append(_airportA.getICAO());
+			buf.append(")<br /><br />");
+			buf.append(super.getInfoBox());
+			return buf.toString();
+		}
 
 		public final List<String> getTabNames() {
 			return TAB_NAMES;
@@ -110,19 +137,6 @@ public class RouteEntryHelper {
 			
 			// Add Flight information
 			results.add(super.getInfoBox());
-			
-			// Add zoom data
-			buf = new StringBuilder("<div id=\"mapBlowupBox\" style=\"height: 150px; width: 170px;\" />\n");
-			buf.append("<script language=\"JavaScript\" type=\"text/javascript\">\n");
-			buf.append("renderBlowup(");
-			buf.append(StringUtils.format(getLatitude(), "##0.00000"));
-			buf.append(',');
-			buf.append(StringUtils.format(getLongitude(), "##0.00000"));
-			buf.append(',');
-			buf.append(getIconColor());
-			buf.append(",11);\n");
-			buf.append("</script></div>");
-			//results.add(buf.toString());
 			return results;
 		}
 	}
