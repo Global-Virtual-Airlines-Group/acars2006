@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2004,2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -12,6 +12,7 @@ import org.deltava.acars.util.PositionCache;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS server command to process position updates.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -33,6 +34,9 @@ public class PositionCommand extends ACARSCommand {
 		ACARSConnection con = ctx.getACARSConnection();
 		if (con == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
+			return;
+		} else if (con.getIsDispatch()) {
+			log.warn("Dispatch Client sending Position Report!");
 			return;
 		}
 

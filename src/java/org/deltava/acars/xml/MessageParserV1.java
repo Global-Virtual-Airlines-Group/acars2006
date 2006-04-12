@@ -137,6 +137,7 @@ class MessageParserV1 implements MessageParser {
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
+		msg.setDispatch(Boolean.valueOf(getChildText("dispatch", null)).booleanValue());
 		try {
 			msg.setClientBuild(Integer.parseInt(getChildText("build", "0")));	
 		} catch (NumberFormatException nfe) {

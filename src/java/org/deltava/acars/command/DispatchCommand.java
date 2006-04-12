@@ -31,7 +31,8 @@ public class DispatchCommand extends ACARSCommand {
 		// Get the inbound message and the owner
 		Pilot usr = env.getOwner();
 		DispatchMessage msg = (DispatchMessage) env.getMessage();
-		if ((usr == null) || (!usr.isInRole("Dispatch"))) {
+		ACARSConnection con = ctx.getACARSConnection();
+		if ((usr == null) || (con == null) || (!con.getIsDispatch())) {
 			log.warn("Unauthorized dispatch message from " + env.getConnectionID());
 			return;
 		}

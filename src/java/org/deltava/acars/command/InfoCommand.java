@@ -42,6 +42,10 @@ public class InfoCommand extends ACARSCommand {
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
 		UserData usrLoc = con.getUserData();
+		if (con.getIsDispatch()) {
+			log.warn("Dispatch Client requesting flight ID!");
+			return;
+		}
 
 		// Build the acknowledge message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
