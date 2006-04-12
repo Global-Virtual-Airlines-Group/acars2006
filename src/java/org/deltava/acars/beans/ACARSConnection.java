@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -12,7 +12,7 @@ import java.nio.charset.*;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.message.*;
@@ -21,9 +21,13 @@ import org.deltava.acars.xml.ProtocolInfo;
 import org.deltava.util.system.SystemData;
 
 /**
- * @author Luke J. Kolin
+ * An ACARS server connection.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
  */
-public class ACARSConnection implements Serializable, Comparable {
+
+public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
 	private static final int MAX_WRITE_ATTEMPTS = 12;
@@ -36,6 +40,7 @@ public class ACARSConnection implements Serializable, Comparable {
 	private String _remoteHost;
 	private int _protocolVersion = 1;
 	private int _clientVersion;
+	private boolean _isDispatch;
 
 	// Input/output network buffers
 	private ByteBuffer _iBuffer;
@@ -186,6 +191,10 @@ public class ACARSConnection implements Serializable, Comparable {
 	public int getProtocolVersion() {
 		return _protocolVersion;
 	}
+	
+	public boolean getIsDispatch() {
+		return _isDispatch;
+	}
 
 	public int getClientVersion() {
 		return _clientVersion;
@@ -237,8 +246,12 @@ public class ACARSConnection implements Serializable, Comparable {
 	}
 
 	public void setClientVersion(int ver) {
-		if (ver > 50)
+		if (ver > 0)
 			_clientVersion = ver;
+	}
+	
+	public void setIsDispatch(boolean isDispatch) {
+		_isDispatch = isDispatch;
 	}
 
 	public void setUser(Pilot p) {
@@ -251,6 +264,10 @@ public class ACARSConnection implements Serializable, Comparable {
 
 	public void setUserLocation(UserData ud) {
 		_userData = ud;
+	}
+	
+	public String getRowClassName() {
+		return _isDispatch ? "opt2" : null;
 	}
 
 	public int compareTo(Object o2) {

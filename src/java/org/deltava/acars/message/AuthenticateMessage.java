@@ -1,17 +1,20 @@
-/*
- * Created on Feb 6, 2004
- */
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 /**
- * @author Luke J. Kolin
+ * An ACARS authentication message bean.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
  */
+
 public final class AuthenticateMessage extends AbstractMessage {
 
 	private String _userID;
 	private String _pwd;
 	private int _protocolVersion = 1;
 	private int _build;
+	private boolean _isDispatch;
 
 	public AuthenticateMessage(String id, String password) {
 		super(Message.MSG_AUTH, null);
@@ -35,6 +38,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _protocolVersion;
 	}
 	
+	public boolean isDispatch() {
+		return _isDispatch;
+	}
+	
 	public final boolean isAnonymous() {
 		return true;
 	}
@@ -46,5 +53,9 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setClientBuild(int buildNumber) {
 	   _build = buildNumber;
+	}
+	
+	public void setDispatch(boolean isDispatch) {
+		_isDispatch = isDispatch;
 	}
 }

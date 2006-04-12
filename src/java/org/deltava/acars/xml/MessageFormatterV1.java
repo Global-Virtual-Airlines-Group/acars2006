@@ -285,6 +285,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
 			e.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 			e.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
+			e.addContent(XMLUtils.createElement("isDispatch", String.valueOf(con.getIsDispatch())));
 			e.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 		}
 

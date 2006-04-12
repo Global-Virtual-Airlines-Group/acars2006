@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -51,7 +51,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		
 		// Check the minimum build number
-		int minBuild = SystemData.getInt("acars.build.minimum");
+		int minBuild = SystemData.getInt(msg.isDispatch() ? "acars.build.dispatch" : "acars.build.minimum");
 		if (msg.getClientBuild() < minBuild) {
 		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 		   errMsg.setEntry("error", "Obsolete Build - Use Build " + minBuild +" or newer");
@@ -77,6 +77,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || UserBlocker.isBanned(usr))
 				throw new SecurityException();
 			
+			// Check dispatch access
+			if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
+				throw new SecurityException("Invalid dispatch access");
+			
 			// Get the User location data
 			GetUserData udao = new GetUserData(c);
 			ud = udao.get(usr.getID());
@@ -91,6 +95,8 @@ public class AuthenticateCommand extends ACARSCommand {
 				errMsg.setEntry("error", "ACARS Server access disabled");
 			} else if (UserBlocker.isBanned(usr)) {
 				errMsg.setEntry("error", "ACARS Server temporary lockout");
+			} else if (msg.isDispatch() && (!usr.isInRole("Dispatch"))) {
+				errMsg.setEntry("error", "Dispatch not authorized");
 			} else {
 				errMsg.setEntry("error", "Authentication Failed");
 			}
@@ -132,6 +138,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
+		con.setIsDispatch(msg.isDispatch());
 		
 		// Log successful authentication
 		ServerStats.authenticate();

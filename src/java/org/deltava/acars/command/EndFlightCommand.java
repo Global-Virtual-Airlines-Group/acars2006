@@ -35,7 +35,7 @@ public class EndFlightCommand extends ACARSCommand {
 		// Get the message and the connection
 		EndFlightMessage msg = (EndFlightMessage) env.getMessage();
 		ACARSConnection con = ctx.getACARSConnection();
-		if (con == null)
+		if ((con == null) || con.getIsDispatch())
 			return;
 		
 		// Create the ack message

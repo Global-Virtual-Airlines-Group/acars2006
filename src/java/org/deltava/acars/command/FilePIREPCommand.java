@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -42,6 +42,8 @@ public class FilePIREPCommand extends ACARSCommand {
 		// Get the Message and the ACARS connection
 		FlightReportMessage msg = (FlightReportMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
+		if ((ac == null) || ac.getIsDispatch())
+			return;
 		
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
