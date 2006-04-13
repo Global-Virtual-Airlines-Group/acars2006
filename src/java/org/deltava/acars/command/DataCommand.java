@@ -73,11 +73,7 @@ public class DataCommand extends ACARSCommand {
 				break;
 
 			case DataMessage.REQ_BUSY:
-				while (i.hasNext()) {
-					ACARSConnection c = i.next();
-					c.setUserBusy(Boolean.valueOf(msg.getFlag("isBusy")).booleanValue());
-					dataRsp.addResponse(c);
-				}
+				ac.setUserBusy(Boolean.valueOf(msg.getFlag("isBusy")).booleanValue());
 
 				// Push the update to everyone else
 				DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_BUSY);
