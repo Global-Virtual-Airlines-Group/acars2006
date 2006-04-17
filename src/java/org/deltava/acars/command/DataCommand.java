@@ -78,7 +78,7 @@ public class DataCommand extends ACARSCommand {
 				// Push the update to everyone else
 				DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_BUSY);
 				drmsg.addResponse(ac);
-				ctx.pushAll(drmsg, env.getConnectionID());
+				ctx.pushAll(drmsg, 0);
 				break;
 
 			case DataMessage.REQ_TS2SERVERS:
