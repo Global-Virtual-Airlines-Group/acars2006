@@ -1,7 +1,7 @@
 // Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 import org.apache.log4j.Logger;
@@ -104,7 +104,8 @@ public class ServInfoLoader implements Runnable {
 			return;
 
 		// Get network status
-		con = getURL(status.getDataURL());
+		NetworkDataURL nd = status.getDataURL(false);
+		con = getURL(nd.getURL());
 		if (con == null)
 			return;
 		
@@ -115,10 +116,14 @@ public class ServInfoLoader implements Runnable {
 			idao.setBufferSize(40960);
 			_info = idao.getInfo(_network);
 			_infoCache.add(_info);
+			nd.logUsage(true);
 		} catch (DAOException de) {
+			nd.logUsage(false);
 			Throwable re = de.getCause();
 			if (re instanceof SocketTimeoutException) {
 				log.warn("HTTP Timeout connecting to " + con.getURL().toString());
+			} else if (re instanceof FileNotFoundException) {
+				log.error("File not found " + re.getMessage());
 			} else {
 				log.error("Error loading " + _network.toUpperCase() + " info - " + de.getMessage(), de);
 			}
