@@ -58,7 +58,7 @@ public class LogicProcessor extends Worker {
 			_commands.put(new Integer(Message.MSG_PIREP), new FilePIREPCommand());
 			_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
 			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
-			_commands.put(new Integer(Message.MSG_DIAG), new DispatchCommand());
+			_commands.put(new Integer(Message.MSG_DISPATCH), new DispatchCommand());
 			log.info("Loaded " + _commands.size() + " commands");
 		}
 	}
