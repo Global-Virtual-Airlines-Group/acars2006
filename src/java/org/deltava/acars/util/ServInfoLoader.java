@@ -90,9 +90,10 @@ public class ServInfoLoader implements Runnable {
 		NetworkStatus status = null;
 		try {
 			GetServInfo sdao = new GetServInfo(con);
-			sdao.setUseCache(false);
+			sdao.setUseCache(true);
 			status = sdao.getStatus(_network);
-			_statusCache.add(status);
+			if (!status.getCached())
+				_statusCache.add(status);
 		} catch (DAOException de) {
 			log.error("Error loading " + _network.toUpperCase() + " status - " + de.getMessage(), de);
 		} finally {
