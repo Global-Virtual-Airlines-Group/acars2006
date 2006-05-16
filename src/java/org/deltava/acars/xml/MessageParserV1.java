@@ -177,6 +177,8 @@ class MessageParserV1 implements MessageParser {
 			msg.setFuelRemaining(Integer.parseInt(getChildText(e, "fuel", "0")));
 			msg.setFlaps(Integer.parseInt(getChildText(e, "flaps", "0")));
 			msg.setFlags(Integer.parseInt(getChildText(e, "flags", "0")));
+			msg.setAngleOfAttack(Double.parseDouble(getChildText(e, "aoa", "0")));
+			msg.setG(Double.parseDouble(getChildText(e, "g", "0")));
 			msg.setN1(Double.parseDouble(getChildText(e, "n1", "0")));
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
