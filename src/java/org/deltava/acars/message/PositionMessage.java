@@ -42,6 +42,8 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	private double n1;
 	private double n2;
 	private int _fuelFlow;
+	private double _gForce;
+	private double _angleOfAttack;
 	
 	// Wind information
 	private int _windHeading;
@@ -72,11 +74,15 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	}
 	
 	public int getAltitude() {
-		return this.altitude;
+		return altitude;
 	}
 	
 	public int getAspeed() {
 		return aspeed;
+	}
+	
+	public double getAngleOfAttack() {
+		return _angleOfAttack;
 	}
 	
 	public int getFuelRemaining() {
@@ -164,6 +170,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	   return flags;
 	}
 	
+	public double getG() {
+		return _gForce;
+	}
+	
 	public boolean isFlagSet(int mask) {
 	   return ((flags & mask) != 0);
 	}
@@ -187,6 +197,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 			this.aspeed = i;
 	}
 	
+	public void setAngleOfAttack(double aoa) {
+		_angleOfAttack = aoa;
+	}
+	
 	public void setFuelRemaining(int fr) {
 		if (fr >= 0)
 			this.fuelRemaining = fr;
@@ -200,6 +214,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	public void setGspeed(int i) {
 		if ((i >= -30) && (i <= 3000))
 			gspeed = i;
+	}
+	
+	public void setG(double gForce) {
+		_gForce = gForce;
 	}
 
 	public void setHeading(int i) {
