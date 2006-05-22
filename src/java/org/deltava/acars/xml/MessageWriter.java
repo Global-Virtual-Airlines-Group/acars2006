@@ -24,7 +24,7 @@ public class MessageWriter implements java.io.Serializable {
 	
 	private static final Logger log = Logger.getLogger(MessageWriter.class);
 	
-	private static final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat());
+	private static final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("ISO-8859-1"));
 
 	// Keeps track of XML documents, formatters and users who have msgs waiting
 	private static Map<Long, Document> _xdocs = new HashMap<Long, Document>();
@@ -116,7 +116,7 @@ public class MessageWriter implements java.io.Serializable {
 		Long CID = new Long(cid);
 		Document doc = _xdocs.get(CID);
 		if (doc == null)
-			throw new XMLException("Connection " + Long.toHexString(cid).toUpperCase() + " disconnected");
+			throw new XMLException("Connection " + Long.toHexString(cid) + " disconnected");
 			
 		// Get the message formatter for that user
 		MessageFormatter fmt = _formatters.get(CID);
