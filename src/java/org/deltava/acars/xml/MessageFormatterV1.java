@@ -450,6 +450,13 @@ class MessageFormatterV1 implements MessageFormatter {
 					Airport a = (Airport) rsp;
 					Element aList = getData(e, "airports");
 					aList.addContent(formatAirport(a, "airport"));
+				} else if (rsp instanceof Airline) {
+					Airline al = (Airline) rsp;
+					Element aList = getData(e, "airlines");
+					Element ae = new Element("airline");
+					ae.setAttribute("code", al.getCode());
+					ae.setAttribute("name", al.getName());
+					aList.addContent(ae);
 				} else if (rsp instanceof Runway) {
 					Runway r = (Runway) rsp;
 					Element rwyE = getData(e, "runways");
