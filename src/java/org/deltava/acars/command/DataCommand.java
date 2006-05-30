@@ -13,6 +13,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.util.ServInfoLoader;
 
 import org.deltava.beans.FlightReport;
+import org.deltava.beans.system.UserData;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.servinfo.*;
 import org.deltava.beans.navdata.*;
@@ -117,10 +118,14 @@ public class DataCommand extends ACARSCommand {
 
 			// Get airline list
 			case DataMessage.REQ_ALLIST:
+				UserData usrData = ac.getUserData();
+				
+				// Only retrieve airlines applicable to the specific user
 				Map airlines = (Map) SystemData.getObject("airlines");
 				for (Iterator<Airline> ai = airlines.values().iterator(); ai.hasNext();) {
 					Airline a = ai.next();
-					dataRsp.addResponse(a.getCode(), a.getName());
+					if (a.getApplications().contains(usrData.getAirlineCode()))
+						dataRsp.addResponse(a);
 				}
 
 				break;
