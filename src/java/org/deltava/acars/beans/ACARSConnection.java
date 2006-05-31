@@ -6,7 +6,7 @@ import java.net.*;
 import java.util.*;
 
 import java.nio.*;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 
 import java.nio.charset.*;
 
@@ -361,10 +361,17 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		if ((_oBuffer == null) || (msg == null))
 			return;
 		
+		// Get write selector
+		Selector wSelector = null;
+		
 		int ofs = 0;
 		int writeCount = 0;
 		byte[] msgBytes = msg.getBytes();
 		try {
+			// Register a selection key for write operations
+			wSelector = Selector.open();
+			_channel.register(wSelector, SelectionKey.OP_WRITE);
+			
 			// Keep writing until the message is done
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
@@ -376,10 +383,14 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 					ofs++;
 				}
 
-				// Flip the buffer
+				// Flip the buffer and write if we can
 				_oBuffer.flip();
-				while (_oBuffer.hasRemaining())
-					_channel.write(_oBuffer);
+				while (_oBuffer.hasRemaining()) {
+					if (wSelector.select(200) > 0)
+						_channel.write(_oBuffer);
+					else
+						throw new IOException("Connection lost");
+				}
 			}
 
 			// Update statistics
@@ -391,6 +402,12 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 			log.warn("Error writing to channel - " + ie.getMessage());
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
+		} finally {
+			try {
+				wSelector.close();
+			} catch (Exception e) {
+				//empty
+			}
 		}
 
 		// Warn if too many attempts
