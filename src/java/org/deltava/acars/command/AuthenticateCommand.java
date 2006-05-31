@@ -181,8 +181,9 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (latestBuild > msg.getClientBuild())
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 		
-		// Set roles and if we are unrestricted
+		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
+		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
