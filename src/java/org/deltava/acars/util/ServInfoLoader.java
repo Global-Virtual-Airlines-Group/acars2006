@@ -95,7 +95,7 @@ public class ServInfoLoader implements Runnable {
 			if (!status.getCached())
 				_statusCache.add(status);
 		} catch (DAOException de) {
-			log.error("Error loading " + _network.toUpperCase() + " status - " + de.getMessage(), de);
+			log.error("Error loading " + _network.toUpperCase() + " status - " + de.getMessage(), de.getLogStackDump() ? de : null);
 		} finally {
 			con.disconnect();
 		}
