@@ -86,7 +86,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		try {
 			sc.configureBlocking(false);
 			_wSelector = Selector.open();
-			_channel.register(_wSelector, SelectionKey.OP_WRITE);
+			sc.register(_wSelector, SelectionKey.OP_WRITE);
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress(), ie);
@@ -385,9 +385,10 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(200) > 0)
+					if (_wSelector.select(200) > 0) {
 						_channel.write(_oBuffer);
-					else
+						_wSelector.selectedKeys().clear();
+					} else
 						throw new IOException("Connection lost");
 				}
 			}
