@@ -36,6 +36,8 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
 
 	private SocketChannel _channel;
+	private Selector _wSelector;
+	
 	private InetAddress _remoteAddr;
 	private String _remoteHost;
 	private int _protocolVersion = 1;
@@ -80,9 +82,11 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		// Get IP Address information
 		_remoteAddr = sc.socket().getInetAddress();
 
-		// Turn off blocking
+		// Turn off blocking and get a write selector
 		try {
 			sc.configureBlocking(false);
+			_wSelector = Selector.open();
+			_channel.register(_wSelector, SelectionKey.OP_WRITE);
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress(), ie);
@@ -108,6 +112,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 
 		// Close the socket
 		try {
+			_wSelector.close();
 			_channel.close();
 		} catch (Exception e) {
 		}
@@ -360,18 +365,12 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	protected final synchronized void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
-		
-		// Get write selector
-		Selector wSelector = null;
-		
-		int ofs = 0;
+
 		int writeCount = 0;
-		byte[] msgBytes = msg.getBytes();
 		try {
-			// Register a selection key for write operations
-			wSelector = Selector.open();
-			_channel.register(wSelector, SelectionKey.OP_WRITE);
-			
+			int ofs = 0;
+			byte[] msgBytes = msg.getBytes();
+
 			// Keep writing until the message is done
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
@@ -386,7 +385,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (wSelector.select(200) > 0)
+					if (_wSelector.select(200) > 0)
 						_channel.write(_oBuffer);
 					else
 						throw new IOException("Connection lost");
@@ -402,12 +401,6 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 			log.warn("Error writing to channel - " + ie.getMessage());
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
-		} finally {
-			try {
-				wSelector.close();
-			} catch (Exception e) {
-				//empty
-			}
 		}
 
 		// Warn if too many attempts
