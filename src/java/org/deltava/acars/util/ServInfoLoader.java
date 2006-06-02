@@ -123,6 +123,8 @@ public class ServInfoLoader implements Runnable {
 			Throwable re = de.getCause();
 			if (re instanceof SocketTimeoutException) {
 				log.warn("HTTP Timeout connecting to " + con.getURL().toString());
+			} else if (re instanceof ConnectException) {
+				log.warn("Connection to " + con.getURL().toString() + " refused");
 			} else if (re instanceof FileNotFoundException) {
 				log.error("File not found " + re.getMessage());
 			} else {
