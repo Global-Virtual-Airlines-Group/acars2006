@@ -174,6 +174,8 @@ public class RouteEntryHelper {
 		result.setFuelFlow(msg.getFuelFlow());
 		result.setAirportD(imsg.getAirportD());
 		result.setAirportA(imsg.getAirportA());
+		result.setAOA(msg.getAngleOfAttack());
+		result.setG(msg.getG());
 		return result;
 	}
 }
