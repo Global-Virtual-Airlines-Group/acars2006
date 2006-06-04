@@ -22,8 +22,8 @@ import org.deltava.beans.ts2.Server;
 import org.deltava.comparators.AirportComparator;
 
 import org.deltava.dao.*;
+import org.deltava.dao.file.GetServInfo;
 
-import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -38,9 +38,6 @@ public class DataCommand extends ACARSCommand {
 	private static final Logger log = Logger.getLogger(DataCommand.class);
 
 	private static Map<String, Thread> _loaders = new HashMap<String, Thread>();
-
-	private static final ExpiringCache _networkCache = new ExpiringCache(3, 7200);
-	private static final ExpiringCache _servInfoCache = new ExpiringCache(3, 240);
 
 	/**
 	 * Executes the command.
@@ -149,23 +146,24 @@ public class DataCommand extends ACARSCommand {
 
 			// Get controller info
 			case DataMessage.REQ_ATCINFO:
-				String network = msg.getFlag("network").toLowerCase();
-				if ("offline".equals(network))
+				String network = msg.getFlag("network").toUpperCase();
+				if ("OFFLINE".equals(network))
 					break;
 
 				// Get the network info from the cache
-				NetworkInfo info = (NetworkInfo) _servInfoCache.get(network, true);
-				ServInfoLoader loader = new ServInfoLoader(SystemData.get("online." + network + ".status_url"), network);
-				loader.setCaches(_networkCache, _servInfoCache);
+				NetworkInfo info = GetServInfo.getCachedInfo(network);
+				ServInfoLoader loader = new ServInfoLoader(SystemData.get("online." + network.toLowerCase() + ".status_url"), network);
 
 				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
 				if (info == null) {
+					log.info("Loading " + network + " data in main thread");
 					loader.run();
 					info = loader.getInfo();
-				} else if (_servInfoCache.isExpired(network)) {
+				} else if (info.getExpired()) {
 					synchronized (_loaders) {
 						Thread t = _loaders.get(network);
 						if ((t == null) || (!t.isAlive())) {
+							log.info("Spawning new ServInfo load thread");
 							t = new Thread(loader, network + " ServInfo Loader");
 							_loaders.put(network, t);
 							t.start();
@@ -173,7 +171,8 @@ public class DataCommand extends ACARSCommand {
 							log.warn("Already loading " + network + " information");
 						}
 					}
-				}
+				} else
+					log.info("Using cached " + network + " network data");
 
 				// Filter the controllers based on range from position
 				if (info != null) {

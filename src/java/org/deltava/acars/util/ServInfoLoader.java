@@ -11,7 +11,6 @@ import org.deltava.beans.servinfo.*;
 import org.deltava.dao.DAOException;
 import org.deltava.dao.file.GetServInfo;
 
-import org.deltava.util.cache.Cache;
 import org.deltava.util.http.HttpTimeoutHandler;
 
 /**
@@ -28,9 +27,6 @@ public class ServInfoLoader implements Runnable {
 	private String _url;
 	private String _network;
 
-	private Cache _statusCache;
-	private Cache _infoCache;
-	
 	private NetworkInfo _info;
 	
 	/**
@@ -42,16 +38,6 @@ public class ServInfoLoader implements Runnable {
 		super();
 		_url = url;
 		_network = networkName;
-	}
-	
-	/**
-	 * Sets the data caches that the results will be stored in.
-	 * @param statusCache the network status cache
-	 * @param infoCache the network client cache
-	 */
-	public void setCaches(Cache statusCache, Cache infoCache) {
-		_statusCache = statusCache;
-		_infoCache = infoCache;
 	}
 	
 	/**
@@ -92,8 +78,8 @@ public class ServInfoLoader implements Runnable {
 			GetServInfo sdao = new GetServInfo(con);
 			sdao.setUseCache(true);
 			status = sdao.getStatus(_network);
-			if (!status.getCached())
-				_statusCache.add(status);
+			if (status.getCached())
+				log.info("Using cached " + _network + " network status");
 		} catch (DAOException de) {
 			log.error("Error loading " + _network.toUpperCase() + " status - " + de.getMessage(), de.getLogStackDump() ? de : null);
 		} finally {
@@ -113,11 +99,13 @@ public class ServInfoLoader implements Runnable {
 		// Get the network info
 		try {
 			GetServInfo idao = new GetServInfo(con);
-			idao.setUseCache(false);
+			idao.setUseCache(true);
 			idao.setBufferSize(40960);
 			_info = idao.getInfo(_network);
-			_infoCache.add(_info);
-			nd.logUsage(true);
+			if (_info.getCached())
+				log.info("Using cached " + _network + " connection data");
+			else
+				nd.logUsage(true);
 		} catch (DAOException de) {
 			nd.logUsage(false);
 			Throwable re = de.getCause();
@@ -133,5 +121,8 @@ public class ServInfoLoader implements Runnable {
 		} finally {
 			con.disconnect();
 		}
+		
+		// Log status info
+		log.info("ServInfo load complete - " + nd);
 	}
 }
