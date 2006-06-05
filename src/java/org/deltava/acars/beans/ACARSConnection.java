@@ -366,7 +366,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		if ((_oBuffer == null) || (msg == null))
 			return;
 
-		int writeCount = 0;
+		int writeCount = 1;
 		try {
 			int ofs = 0;
 			byte[] msgBytes = msg.getBytes();
@@ -408,9 +408,5 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		// Update statistics
 		_lastActivityTime = System.currentTimeMillis();
 		_bufferWrites += writeCount;
-
-		// Warn if too many attempts
-		if (writeCount > MAX_WRITE_ATTEMPTS)
-			log.warn("Excessive number of buffer writes - " + writeCount);
 	}
 }
