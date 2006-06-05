@@ -30,7 +30,7 @@ import org.deltava.util.system.SystemData;
 public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
-	private static final int MAX_WRITE_ATTEMPTS = 12;
+	private static final int MAX_WRITE_ATTEMPTS = 8;
 
 	// Byte byffer decoder and character set
 	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
@@ -374,7 +374,6 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 			// Keep writing until the message is done
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
-				writeCount++;
 
 				// Keep writing to the buffer
 				while ((ofs < msgBytes.length) && (_oBuffer.remaining() > 0)) {
@@ -388,21 +387,27 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 					if (_wSelector.select(200) > 0) {
 						_channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
-					} else
-						throw new IOException("Connection lost");
+						if (writeCount > 2)
+							writeCount--;
+					} else {
+						writeCount++;
+						if (writeCount >= MAX_WRITE_ATTEMPTS)
+							throw new IOException("Write timeout - " + _channel.socket());
+					}
 				}
 			}
 
-			// Update statistics
-			_lastActivityTime = System.currentTimeMillis();
-			_msgsOut++;
 			_bytesOut += ofs;
-			_bufferWrites += writeCount;
+			_msgsOut++;
 		} catch (IOException ie) {
 			log.warn("Error writing to channel - " + ie.getMessage());
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
+		
+		// Update statistics
+		_lastActivityTime = System.currentTimeMillis();
+		_bufferWrites += writeCount;
 
 		// Warn if too many attempts
 		if (writeCount > MAX_WRITE_ATTEMPTS)
