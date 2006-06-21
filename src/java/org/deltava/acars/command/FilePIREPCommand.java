@@ -107,7 +107,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, true);
 			
 			// Check for historic aircraft
-			List historicEQ = (List) SystemData.getObject("eqTypes.historic");
+			List historicEQ = (List) SystemData.getObject("eqtypes.historic");
 			afr.setAttribute(FlightReport.ATTR_HISTORIC, historicEQ.contains(afr.getEquipmentType()));
 
 			// Check the schedule database and check the route pair
