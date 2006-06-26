@@ -67,8 +67,9 @@ public class PositionCommand extends ACARSCommand {
 			if (pmAge >= SystemData.getInt("acars.position_interval")) {
 				boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED) || msg.isFlagSet(ACARSFlags.FLAG_SLEW);
 				if (!isPaused) {
-					PositionCache.push(msg, con.getID(), con.getFlightID());
 					con.setPosition(msg);
+					if (msg.isLogged())
+						PositionCache.push(msg, con.getID(), con.getFlightID());
 				} else {
 					con.setPosition(null);					
 				}
