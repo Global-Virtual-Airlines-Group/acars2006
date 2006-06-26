@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -10,6 +11,7 @@ import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.util.StringUtils;
 
 /**
+ * An ACARS position report message.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -44,18 +46,19 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	private int _fuelFlow;
 	private double _gForce;
 	private double _angleOfAttack;
+	private int flaps;
 	
 	// Wind information
 	private int _windHeading;
 	private int _windSpeed;
 	
-	private int flaps;
 	private int flags;
 	private int simRate = 1;
 
 	// Flight phase
 	private int phase;
 	private boolean _noFlood;
+	private boolean _isLogged;
 	
 	// Date
 	private Date _dt;
@@ -161,6 +164,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	public boolean getNoFlood() {
 		return _noFlood;
 	}
+	
+	public boolean isLogged() {
+		return _isLogged;
+	}
 
 	public int getVspeed() {
 		return vspeed;
@@ -180,6 +187,10 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	
 	public void setNoFlood(boolean noFlood) {
 		_noFlood = noFlood;
+	}
+	
+	public void setLogged(boolean isLogged) {
+		_isLogged = isLogged;
 	}
 	
 	public void setDate(Date dt) {
