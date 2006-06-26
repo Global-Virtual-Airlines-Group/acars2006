@@ -101,8 +101,12 @@ public class DataCommand extends ACARSCommand {
 			// Get Pilot/position info
 			case DataMessage.REQ_USRLIST:
 			case DataMessage.REQ_PILOTINFO:
-				while (i.hasNext())
-					dataRsp.addResponse(i.next());
+				boolean showHidden = ctx.getACARSConnection().getUser().isInRole("HR");
+				while (i.hasNext()) {
+					ACARSConnection acon = i.next();
+					if (showHidden || (!acon.getUserHidden()))
+						dataRsp.addResponse(acon);
+				}
 
 				break;
 

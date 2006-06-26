@@ -139,6 +139,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
 		con.setIsDispatch(msg.isDispatch());
+		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		
 		// Log successful authentication
 		ServerStats.authenticate();
@@ -173,7 +174,14 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Tell everybody else that someone has logged on
 		DataResponseMessage drMsg = new DataResponseMessage(usr, DataMessage.REQ_ADDUSER);
 		drMsg.addResponse(con);
-		ctx.pushAll(drMsg, con.getID());
+		if (con.getUserHidden()) {
+			for (Iterator<ACARSConnection> i  = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext(); ) {
+				ACARSConnection ac = i.next();
+				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
+					ctx.push(drMsg, ac.getID());
+			}
+		} else
+			ctx.pushAll(drMsg, con.getID());
 		
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
@@ -203,6 +211,10 @@ public class AuthenticateCommand extends ACARSCommand {
 		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");
 		if (systemMsgs != null)
 			sysMsg.addMessages(systemMsgs);
+		
+		// Add hidden notice
+		if (con.getUserHidden())
+			sysMsg.addMessage("You are in STEALTH mode and do not appear in the connections list.");
 		
 		// Send the message
 		ctx.push(sysMsg, env.getConnectionID());

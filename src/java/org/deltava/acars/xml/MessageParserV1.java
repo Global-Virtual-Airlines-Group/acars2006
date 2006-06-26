@@ -138,6 +138,7 @@ class MessageParserV1 implements MessageParser {
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
 		msg.setDispatch(Boolean.valueOf(getChildText("dispatch", null)).booleanValue());
+		msg.setHidden(Boolean.valueOf(getChildText("stealth", null)).booleanValue());
 		try {
 			msg.setClientBuild(Integer.parseInt(getChildText("build", "0")));	
 		} catch (NumberFormatException nfe) {
