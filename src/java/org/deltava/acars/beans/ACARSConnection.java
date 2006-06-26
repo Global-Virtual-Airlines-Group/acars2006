@@ -59,6 +59,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
 	private boolean _isUserBusy;
+	private boolean _isUserHidden;
 
 	// Activity monitors
 	private long _startTime;
@@ -176,6 +177,10 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	public boolean getUserBusy() {
 		return _isUserBusy;
 	}
+	
+	public boolean getUserHidden() {
+		return _isUserHidden;
+	}
 
 	public long getLastActivity() {
 		return _lastActivityTime;
@@ -265,6 +270,10 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	
 	public void setUserBusy(boolean isBusy) {
 		_isUserBusy = isBusy;
+	}
+	
+	public void setUserHidden(boolean isHidden) {
+		_isUserHidden = isHidden;
 	}
 
 	public void setUserLocation(UserData ud) {

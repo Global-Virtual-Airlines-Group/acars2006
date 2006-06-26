@@ -228,6 +228,7 @@ public final class NetworkReader extends Worker {
 							log.debug("QUIT Message from " + con.getUser().getName());
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
+							qmsg.setHidden(con.getUserHidden());
 							MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
 							MessageStack.MSG_INPUT.wakeup();
 						}

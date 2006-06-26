@@ -15,6 +15,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private int _protocolVersion = 1;
 	private int _build;
 	private boolean _isDispatch;
+	private boolean _isHidden;
 
 	public AuthenticateMessage(String id, String password) {
 		super(Message.MSG_AUTH, null);
@@ -42,6 +43,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _isDispatch;
 	}
 	
+	public boolean isHidden() {
+		return _isHidden;
+	}
+	
 	public final boolean isAnonymous() {
 		return true;
 	}
@@ -57,5 +62,9 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setDispatch(boolean isDispatch) {
 		_isDispatch = isDispatch;
+	}
+	
+	public void setHidden(boolean isHidden) {
+		_isHidden = isHidden;
 	}
 }

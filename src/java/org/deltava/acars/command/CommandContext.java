@@ -1,4 +1,4 @@
-// Copyright (c) 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -74,8 +74,8 @@ public class CommandContext {
 	}
 
 	public void pushAll(Message msg, long skipThisConID) {
-		for (Iterator i = _pool.getAll().iterator(); i.hasNext();) {
-			ACARSConnection c = (ACARSConnection) i.next();
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID)) {
 				Envelope env = new Envelope(msg, c.getID());
 				MessageStack.MSG_OUTPUT.push(env);
