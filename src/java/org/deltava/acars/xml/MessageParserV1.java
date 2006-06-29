@@ -373,11 +373,9 @@ class MessageParserV1 implements MessageParser {
 				afr.setTaxiWeight(Integer.parseInt(getChildText("taxiWeight", "1")));
 				afr.setTakeoffFuel(Integer.parseInt(getChildText("takeoffFuel", "0")));
 				afr.setTakeoffWeight(Integer.parseInt(getChildText("takeoffWeight", "1")));
-				afr.setTakeoffN1(Double.parseDouble(getChildText("takeoffN1", "0")));
 				afr.setTakeoffSpeed(Integer.parseInt(getChildText("takeoffSpeed", "0")));
 				afr.setLandingFuel(Integer.parseInt(getChildText("landingFuel", "0")));
 				afr.setLandingWeight(Integer.parseInt(getChildText("landingWeight", "1")));
-				afr.setLandingN1(Double.parseDouble(getChildText("landingN1", "0")));
 				afr.setLandingSpeed(Integer.parseInt(getChildText("landingSpeed", "0")));
 				afr.setLandingVSpeed(Integer.parseInt(getChildText("landingVSpeed", "-1")));
 				afr.setGateFuel(Integer.parseInt(getChildText("gateFuel", "0")));
@@ -385,12 +383,23 @@ class MessageParserV1 implements MessageParser {
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid Weight/Speed - " + nfe.getMessage());
 			}
-
-			// Load the 1X/2X/4X times
+			
+			// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
 			try {
-				afr.setTime1X(Integer.parseInt(getChildText("time1X", "0")));
-				afr.setTime2X(Integer.parseInt(getChildText("time2X", "0")));
-				afr.setTime4X(Integer.parseInt(getChildText("time4X", "0")));
+				afr.setTakeoffN1(Double.parseDouble(getChildText("takeoffN1", "0")));
+				afr.setLandingN1(Double.parseDouble(getChildText("landingN1", "0")));
+			} catch (NumberFormatException nfe) {
+				throw new IllegalArgumentException("Invalid N1 - " + nfe.getMessage());
+			} catch (IllegalArgumentException iae) {
+				
+			}
+
+			// Load the 0X/1X/2X/4X times
+			try {
+				afr.setTime(0, Integer.parseInt(getChildText("time0X", "0")));
+				afr.setTime(1, Integer.parseInt(getChildText("time1X", "0")));
+				afr.setTime(2, Integer.parseInt(getChildText("time2X", "0")));
+				afr.setTime(4, Integer.parseInt(getChildText("time4X", "0")));
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid time - " + nfe.getMessage());
 			}
