@@ -189,6 +189,7 @@ class MessageParserV1 implements MessageParser {
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setNoFlood(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
+			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}

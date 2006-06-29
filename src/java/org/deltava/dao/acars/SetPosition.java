@@ -20,7 +20,8 @@ public final class SetPosition extends DAO {
 	// SQL prepared statement syntax
 	private static final String SQL = 	"INSERT INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
 		+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, "
-		+ "WIND_HDG, WIND_SPEED, AOA, GFORCE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+		+ "?, ?, ?, ?)";
 	
 	/**
 	 * Initializes the Data Access Object.
@@ -78,6 +79,7 @@ public final class SetPosition extends DAO {
 			_ps.setInt(24, msg.getWindSpeed());
 			_ps.setDouble(25, msg.getAngleOfAttack());
 			_ps.setDouble(26, msg.getG());
+			_ps.setInt(27, msg.getFrameRate());
 			
 			// execute the statement
 			_ps.addBatch();
