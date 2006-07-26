@@ -50,9 +50,11 @@ public class EndFlightCommand extends ACARSCommand {
 			return;
 		}
 		
-		// If the flight was already ended, then abort
-		if (iMsg.getEndTime() != null)
+		// If the flight was already ended, then just send the ACK and abort
+		if (iMsg.getEndTime() != null) {
+			ctx.push(ackMsg, env.getConnectionID());
 			return;
+		}
 
 		// Write the info to the database
 		iMsg.setComplete(true);
