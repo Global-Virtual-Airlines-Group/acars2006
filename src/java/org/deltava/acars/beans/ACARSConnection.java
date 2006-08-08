@@ -393,10 +393,10 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(200) > 0) {
+					if (_wSelector.select(250) > 0) {
 						_channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
-						if (writeCount > 2)
+						if (writeCount > 4)
 							writeCount--;
 					} else {
 						writeCount++;
