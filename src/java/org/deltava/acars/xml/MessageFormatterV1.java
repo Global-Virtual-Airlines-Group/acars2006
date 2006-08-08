@@ -261,6 +261,8 @@ class MessageFormatterV1 implements MessageFormatter {
 		if (navaid instanceof VOR) {
 			e.addContent(XMLUtils.createElement("freq", ((VOR) navaid).getFrequency()));
 			e.addContent(XMLUtils.createElement("hdg", nav.getHeading()));
+		} else if (navaid instanceof NDB) {
+			e.addContent(XMLUtils.createElement("freq", ((NDB) navaid).getFrequency()));
 		}
 
 		// Return the element
