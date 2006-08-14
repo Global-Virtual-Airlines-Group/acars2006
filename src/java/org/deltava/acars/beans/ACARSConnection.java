@@ -371,7 +371,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		_isWriting = false;
 	}
 
-	protected final synchronized void write(String msg) {
+	protected synchronized void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
 

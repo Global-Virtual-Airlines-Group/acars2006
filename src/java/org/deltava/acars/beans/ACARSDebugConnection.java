@@ -1,11 +1,10 @@
-// Copyright (c) 2005 Delta Virtual Airlines. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
 import java.net.*;
 
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 
 /**
  * An ACARS Connection that dumps messages to a text file.
@@ -27,7 +26,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 		} catch (IOException ie) {
 			log.warn("Error creating debug file " + debugFile.getAbsolutePath());
 		}
-		
+
 		// Log connection info
 		InetAddress addr = sc.socket().getInetAddress();
 		_debugWriter.println("Connection to " + addr.getHostAddress() + "(" + addr.getHostName() + ")");
@@ -40,7 +39,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 	 */
 	public void close() {
 		super.close();
-		
+
 		// Log connection close
 		_debugWriter.println("*****");
 		_debugWriter.println("Closed on " + new java.util.Date());
@@ -64,17 +63,14 @@ public class ACARSDebugConnection extends ACARSConnection {
 	}
 
 	/**
-	 * Flushes pending messages message on the connection.
+	 * Writes a message to the connection.
+	 * @param msg the message string
 	 */
-	public final void flush() {
-		for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
-			String msg = i.next();
-			i.remove();
-			_debugWriter.println("-- out");
-			_debugWriter.println(msg);
-			_debugWriter.println();
-			_debugWriter.flush();
-			write(msg);
-		}
+	protected final void write(String msg) {
+		_debugWriter.println("-- out");
+		_debugWriter.println(msg);
+		_debugWriter.println();
+		super.write(msg);
+		_debugWriter.flush();
 	}
 }
