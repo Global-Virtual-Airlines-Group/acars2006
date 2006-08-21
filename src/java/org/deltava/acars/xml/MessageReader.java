@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.io.*;
@@ -22,7 +23,7 @@ import org.deltava.util.StringUtils;
  * @since 1.0
  */
 
-public class MessageReader implements Serializable {
+public class MessageReader {
 	
 	private static final Logger log = Logger.getLogger(MessageReader.class);
 
@@ -38,12 +39,15 @@ public class MessageReader implements Serializable {
 			return;
 		
 		// Build the XML document from the string
-		SAXBuilder builder = new SAXBuilder();
+		String msg = String.valueOf(env.getMessage());
 		try {
-			_xdoc = builder.build(new StringReader((String) env.getMessage()));
+			SAXBuilder builder = new SAXBuilder();
+			_xdoc = builder.build(new StringReader(msg));
 			log.debug(env.getMessage());
 		} catch (Exception e) {
-			throw new XMLException(e.getMessage(), e);
+			XMLException xe = new XMLException(e.getMessage());
+			xe.setXML(msg);
+			throw xe;
 		}
 		
 		// Get information from the envelope
