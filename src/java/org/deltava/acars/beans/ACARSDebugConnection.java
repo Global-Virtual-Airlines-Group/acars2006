@@ -3,6 +3,7 @@ package org.deltava.acars.beans;
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 
 import java.nio.channels.SocketChannel;
 
@@ -55,7 +56,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 		String msg = super.read();
 
 		// Dump the message
-		_debugWriter.println("-- in");
+		_debugWriter.println("-- in " + new Date());
 		_debugWriter.println(msg);
 		_debugWriter.println();
 		_debugWriter.flush();
@@ -67,7 +68,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 	 * @param msg the message string
 	 */
 	protected final void write(String msg) {
-		_debugWriter.println("-- out");
+		_debugWriter.println("-- out " + new Date());
 		_debugWriter.println(msg);
 		_debugWriter.println();
 		super.write(msg);
