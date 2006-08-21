@@ -5,8 +5,6 @@ import java.util.*;
 import java.text.*;
 
 import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
 import org.apache.log4j.Logger;
 
@@ -16,7 +14,7 @@ import org.deltava.acars.util.ACARSHelper;
 
 import org.deltava.beans.schedule.Airport;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -407,8 +405,7 @@ class MessageParserV1 implements MessageParser {
 			// Save the PIREP
 			msg.setPIREP(afr);
 		} catch (Exception e) {
-			XMLOutputter xmlOut = new XMLOutputter(Format.getPrettyFormat());
-			log.error(xmlOut.outputString(_el), e);
+			log.error(XMLUtils.format(_el), e);
 			throw new XMLException(e.getMessage());
 		}
 
