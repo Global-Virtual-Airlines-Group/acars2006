@@ -65,8 +65,7 @@ public class PositionCommand extends ACARSCommand {
 			// Check for position flood
 			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
 			if (pmAge >= SystemData.getInt("acars.position_interval")) {
-				boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED) || msg.isFlagSet(ACARSFlags.FLAG_SLEW);
-				if (!isPaused) {
+				if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 					con.setPosition(msg);
 					if (msg.isLogged())
 						PositionCache.push(msg, con.getID(), con.getFlightID());
