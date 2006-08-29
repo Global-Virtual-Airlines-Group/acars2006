@@ -200,8 +200,6 @@ class MessageFormatterV1 implements MessageFormatter {
 			e.addContent(XMLUtils.createElement("afterburner", "1"));
 		if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED))
 			e.addContent(XMLUtils.createElement("paused", "1"));
-		if (msg.isFlagSet(ACARSFlags.FLAG_SLEW))
-			e.addContent(XMLUtils.createElement("slew", "1"));
 		if (msg.getSimRate() != 1)
 			e.addContent(XMLUtils.createElement("simrate", String.valueOf(msg.getSimRate())));
 
