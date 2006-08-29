@@ -50,11 +50,22 @@ public class AuthenticateCommand extends ACARSCommand {
 		   return;
 		}
 		
+		// Get the minimum build number
+		int minBuild = 0;
+		if (msg.isDispatch())
+			minBuild = SystemData.getInt("acars.build.dispatch");
+		else {
+			Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
+			if (minBuilds != null) {
+				String ver = StringUtils.replace(msg.getVersion(), ".", "_");
+				minBuild = StringUtils.parse((String) minBuilds.get(ver), 0);
+			}
+		}
+		
 		// Check the minimum build number
-		int minBuild = SystemData.getInt(msg.isDispatch() ? "acars.build.dispatch" : "acars.build.minimum");
 		if (msg.getClientBuild() < minBuild) {
 		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-		   errMsg.setEntry("error", "Obsolete Build - Use Build " + minBuild +" or newer");
+		   errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild +" or newer");
 		   ctx.push(errMsg, env.getConnectionID());
 		   return;
 		}

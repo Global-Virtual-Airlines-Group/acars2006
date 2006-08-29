@@ -2,7 +2,7 @@
 package org.deltava.acars.message;
 
 /**
- * An ACARS authentication message bean.
+ * An ACARS authentication message.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -14,6 +14,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private String _pwd;
 	private int _protocolVersion = 1;
 	private int _build;
+	private String _version;
 	private boolean _isDispatch;
 	private boolean _isHidden;
 
@@ -25,6 +26,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public int getClientBuild() {
 	   return _build;
+	}
+	
+	public String getVersion() {
+		return _version;
 	}
 	
 	public String getUserID() {
@@ -58,6 +63,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setClientBuild(int buildNumber) {
 	   _build = buildNumber;
+	}
+	
+	public void setVersion(String ver) {
+		_version = ver;
 	}
 	
 	public void setDispatch(boolean isDispatch) {
