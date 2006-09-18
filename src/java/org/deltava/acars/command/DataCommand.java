@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.acars.util.ServInfoLoader;
 
 import org.deltava.beans.FlightReport;
 import org.deltava.beans.system.UserData;
@@ -24,6 +23,8 @@ import org.deltava.comparators.AirportComparator;
 import org.deltava.dao.*;
 import org.deltava.dao.file.GetServInfo;
 
+import org.deltava.util.ThreadUtils;
+import org.deltava.util.servinfo.ServInfoLoader;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -36,8 +37,6 @@ import org.deltava.util.system.SystemData;
 public class DataCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(DataCommand.class);
-
-	private static Map<String, Thread> _loaders = new HashMap<String, Thread>();
 
 	/**
 	 * Executes the command.
@@ -161,22 +160,39 @@ public class DataCommand extends ACARSCommand {
 				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
 				if (info == null) {
 					log.info("Loading " + network + " data in main thread");
-					loader.run();
-					info = loader.getInfo();
-				} else if (info.getExpired()) {
-					synchronized (_loaders) {
-						Thread t = _loaders.get(network);
-						if ((t == null) || (!t.isAlive())) {
-							log.info("Spawning new ServInfo load thread");
-							t = new Thread(loader, network + " ServInfo Loader");
-							_loaders.put(network, t);
-							t.start();
-						} else if (t.isAlive()) {
-							log.warn("Already loading " + network + " information");
-						}
+					Thread t = null;
+					synchronized (ServInfoLoader.class) {
+						t = new Thread(loader, network + " ServInfo Loader");
+						t.setDaemon(true);
+						t.setPriority(Math.max(Thread.MIN_PRIORITY, Thread.currentThread().getPriority() - 1));
+						ServInfoLoader.addLoader(network, t);
 					}
-				} else
-					log.info("Using cached " + network + " network data");
+
+					// Wait for the thread to exit
+					int totalTime = 0;
+					while (ThreadUtils.isAlive(t) && (totalTime < 10000)) {
+						totalTime += 250;
+						ThreadUtils.sleep(250);
+					}
+
+					// If the thread hasn't died, then kill it
+					if (totalTime >= 10000) {
+						ThreadUtils.kill(t, 1000);
+						info = new NetworkInfo(network);
+					} else
+						info = loader.getInfo();
+				} else if (info.getExpired()) {
+					synchronized (ServInfoLoader.class) {
+						if (!ServInfoLoader.isLoading(network)) {
+							log.info("Spawning new ServInfo load thread");
+							Thread t = new Thread(loader, network + " ServInfo Loader");
+							t.setDaemon(true);
+							t.setPriority(Math.max(Thread.MIN_PRIORITY, Thread.currentThread().getPriority() - 1));
+							ServInfoLoader.addLoader(network, t);
+						} else
+							log.warn("Already loading " + network + " information");
+					}
+				}
 
 				// Filter the controllers based on range from position
 				if (info != null) {
