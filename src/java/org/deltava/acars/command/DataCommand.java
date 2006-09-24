@@ -158,7 +158,7 @@ public class DataCommand extends ACARSCommand {
 				ServInfoLoader loader = new ServInfoLoader(SystemData.get("online." + network.toLowerCase() + ".status_url"), network);
 
 				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
-				if (info == null) {
+				if ((info == null) && (!ServInfoLoader.isLoading(network))) {
 					log.info("Loading " + network + " data in main thread");
 					Thread t = null;
 					synchronized (ServInfoLoader.class) {
@@ -181,6 +181,8 @@ public class DataCommand extends ACARSCommand {
 						info = new NetworkInfo(network);
 					} else
 						info = loader.getInfo();
+				} else if (info == null) {
+					info = new NetworkInfo(network);
 				} else if (info.getExpired()) {
 					synchronized (ServInfoLoader.class) {
 						if (!ServInfoLoader.isLoading(network)) {
