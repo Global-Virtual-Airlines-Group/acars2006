@@ -155,7 +155,7 @@ public class DataCommand extends ACARSCommand {
 
 				// Get the network info from the cache
 				NetworkInfo info = GetServInfo.getCachedInfo(network);
-				ServInfoLoader loader = new ServInfoLoader(SystemData.get("online." + network.toLowerCase() + ".status_url"), network);
+				ServInfoLoader loader = new ServInfoLoader(network);
 
 				// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
 				if ((info == null) && (!ServInfoLoader.isLoading(network))) {
