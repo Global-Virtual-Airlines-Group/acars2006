@@ -124,7 +124,7 @@ public class DataCommand extends ACARSCommand {
 				Map airlines = (Map) SystemData.getObject("airlines");
 				for (Iterator<Airline> ai = airlines.values().iterator(); ai.hasNext();) {
 					Airline a = ai.next();
-					if (a.getApplications().contains(usrData.getAirlineCode()))
+					if (a.getActive() && a.getApplications().contains(usrData.getAirlineCode()))
 						dataRsp.addResponse(a);
 				}
 
