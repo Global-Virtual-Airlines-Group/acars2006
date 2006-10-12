@@ -1,10 +1,11 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
 import org.deltava.util.StringUtils;
 
 /**
+ * An ACARS data message.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -30,19 +31,27 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_BUSY = 14;
 	public static final int REQ_DRAFTPIREP = 15;
 	public static final int REQ_TS2SERVERS = 16;
+	public static final int REQ_SCHED = 17;
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "pilot", "navaid", "pvtvox",
-		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers"};
+		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched"};
 
 	/**
-	 * @param type
-	 * @param msgFrom
+	 * Creates the message.
+	 * @param type the message type
+	 * @param msgFrom the originating user
 	 */
 	public DataMessage(int type, Pilot msgFrom) {
 		super(type, msgFrom);
 	}
 	
+	/**
+	 * Returns the request type.
+	 * @return the request type code
+	 * @see DataMessage#setRequestType(int)
+	 * @see DataMessage#setRequestType(String)
+	 */
 	public int getRequestType() {
 		return _reqType;
 	}
