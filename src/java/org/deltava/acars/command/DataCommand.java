@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-
 import org.deltava.beans.FlightReport;
 import org.deltava.beans.system.UserData;
 import org.deltava.beans.schedule.*;
@@ -23,7 +22,7 @@ import org.deltava.comparators.AirportComparator;
 import org.deltava.dao.*;
 import org.deltava.dao.file.GetServInfo;
 
-import org.deltava.util.ThreadUtils;
+import org.deltava.util.*;
 import org.deltava.util.servinfo.ServInfoLoader;
 import org.deltava.util.system.SystemData;
 
@@ -265,6 +264,45 @@ public class DataCommand extends ACARSCommand {
 					ctx.release();
 				}
 
+				break;
+				
+			// Get schedule info
+			case DataMessage.REQ_SCHED:
+				
+				// Build the schedule search crtieria
+				Airline al = SystemData.getAirline(msg.getFlag("airline"));
+				ScheduleSearchCriteria sc = new ScheduleSearchCriteria(al, StringUtils.parse(msg.getFlag("flightNum"), 0), 0);
+				sc.setAirportD(SystemData.getAirport(msg.getFlag("airportD")));
+				sc.setAirportA(SystemData.getAirport(msg.getFlag("airportA")));
+				sc.setHourD(StringUtils.parse(msg.getFlag("hourD"), -1));
+				sc.setHourA(StringUtils.parse(msg.getFlag("hourA"), -1));
+				sc.setMaxResults(StringUtils.parse(msg.getFlag("maxResults"), 0));
+				sc.setDistance(StringUtils.parse(msg.getFlag("distance"), 0));
+				sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
+				if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 100))
+					sc.setMaxResults(40);
+				
+				try {
+					Connection con = ctx.getConnection();
+					
+					// Get the schedule search DAO
+					GetSchedule sdao = new GetSchedule(con);
+					sdao.setQueryMax(sc.getMaxResults());
+					Collection<ScheduleEntry> entries = sdao.search(sc, "RAND()");
+					for (Iterator<ScheduleEntry> ei = entries.iterator(); ei.hasNext(); ) {
+						ScheduleEntry entry = ei.next();
+						dataRsp.addResponse(entry);
+					}
+					
+				} catch (DAOException de) {
+					log.error("Error searching Schedule - " + de.getMessage(), de);
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					errMsg.setEntry("error", "Cannot search Flight Schedule");
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+				} finally {
+					ctx.release();
+				}
+				
 				break;
 
 			// Get navaid/runway info
