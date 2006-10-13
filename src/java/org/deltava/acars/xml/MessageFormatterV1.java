@@ -138,6 +138,22 @@ class MessageFormatterV1 implements MessageFormatter {
 
 		return e;
 	}
+	
+	private Element formatSchedule(ScheduleEntry entry) throws XMLException {
+		Element se = new Element("flight");
+		se.setAttribute("code", entry.getFlightCode());
+		se.addContent(XMLUtils.createElement("airline", entry.getAirline().getCode()));
+		se.addContent(XMLUtils.createElement("flight", StringUtils.format(entry.getFlightNumber(), "000")));
+		se.addContent(XMLUtils.createElement("leg", String.valueOf(entry.getLeg())));
+		se.addContent(XMLUtils.createElement("eqType", entry.getEquipmentType()));
+		se.addContent(XMLUtils.createElement("timeD", StringUtils.format(entry.getTimeD(), "HH:mm")));
+		se.addContent(XMLUtils.createElement("timeA", StringUtils.format(entry.getTimeA(), "HH:mm")));
+		se.addContent(XMLUtils.createElement("distance", String.valueOf(entry.getDistance())));
+		se.addContent(XMLUtils.createElement("length", StringUtils.format(entry.getLength()  / 10.0f, "#0.0")));
+		se.addContent(formatAirport(entry.getAirportD(), "airportD"));
+		se.addContent(formatAirport(entry.getAirportA(), "airportA"));
+		return se;
+	}
 
 	private Element formatText(TextMessage msg) throws XMLException {
 
@@ -494,6 +510,10 @@ class MessageFormatterV1 implements MessageFormatter {
 							iE.addContent(XMLUtils.createElement(de.getName(), entryData));
 						}
 					}
+				} else if (rsp instanceof ScheduleEntry) {
+					ScheduleEntry se = (ScheduleEntry) rsp;
+					Element fList = getData(e, "flights");
+					fList.addContent(formatSchedule(se));
 				}
 			}
 
