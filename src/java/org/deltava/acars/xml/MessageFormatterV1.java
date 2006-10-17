@@ -350,6 +350,7 @@ class MessageFormatterV1 implements MessageFormatter {
 			// Create the element and the type
 			Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
 			e.setAttribute("type", Message.MSG_CODES[msg.getType()]);
+			e.setAttribute("id", Long.toHexString(msg.getParentID()).toUpperCase());
 
 			// Loop through the response and format them using existing formatters
 			Iterator i = msg.getResponse().iterator();
