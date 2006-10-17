@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -42,7 +42,8 @@ public class DataResponseMessage extends DataMessage {
 	}
 
 	// Response data
-	private List<Object> _rspData = new ArrayList<Object>();
+	private final List<Object> _rspData = new ArrayList<Object>();
+	private long _parent;
 
 	/**
 	 * Creates a new Data Response Message
@@ -57,6 +58,10 @@ public class DataResponseMessage extends DataMessage {
 	public DataResponseMessage(Pilot msgFrom, String rType) {
 		super(Message.MSG_DATARSP, msgFrom);
 		setRequestType(rType);
+	}
+	
+	public long getParentID() {
+		return _parent;
 	}
 
 	public void addResponse(Object obj) {
@@ -73,6 +78,11 @@ public class DataResponseMessage extends DataMessage {
 
 	public void addResponse(String name, Collection value) {
 		addResponse(new DataElement(name, value));
+	}
+	
+	public void setParentID(long parentID) {
+		if (parentID > 0)
+			_parent = parentID;
 	}
 
 	public Collection getResponse() {
