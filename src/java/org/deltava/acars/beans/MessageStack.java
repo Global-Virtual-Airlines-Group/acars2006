@@ -1,9 +1,10 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
 
 /**
+ * An ACARS server message stack
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -16,11 +17,10 @@ public class MessageStack implements Iterator {
    public static final MessageStack MSG_OUTPUT = new MessageStack();
    public static final MessageStack RAW_OUTPUT = new MessageStack();
    
-	private List<Envelope> _data;
+	private final List<Envelope> _data = new ArrayList<Envelope>();
 
 	private MessageStack() {
 		super();
-		_data = new ArrayList<Envelope>();
 	}
 
 	public synchronized void push(Envelope env) {

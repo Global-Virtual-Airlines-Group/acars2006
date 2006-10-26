@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.deltava.acars.message.TextMessage;
 
 public class TextMessageCache {
 
-	private static Set<TextMessageCacheEntry> _cache = new LinkedHashSet<TextMessageCacheEntry>();
+	private static final Collection<TextMessageCacheEntry> _cache = new LinkedHashSet<TextMessageCacheEntry>();
 	private static long _lastFlush;
 
 	public static class TextMessageCacheEntry {
