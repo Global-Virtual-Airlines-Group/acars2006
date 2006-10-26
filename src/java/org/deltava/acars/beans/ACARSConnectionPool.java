@@ -18,7 +18,7 @@ import org.deltava.acars.security.*;
 import org.deltava.acars.util.RouteEntryHelper;
 
 /**
- * A TCP/IP Connection Pool.
+ * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -33,8 +33,8 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
-	private List<ACARSConnection> _cons;
-	private List<ACARSConnection> _disCon;
+	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
+	private final List<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
@@ -48,11 +48,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 */
 	public ACARSConnectionPool(int mxSize) {
 		super();
-
-		// Init the maximum size and connection lists
 		_maxSize = (mxSize > 0) ? mxSize : -1;
-		_cons = new ArrayList<ACARSConnection>();
-		_disCon = new ArrayList<ACARSConnection>();
 	}
 
 	/**

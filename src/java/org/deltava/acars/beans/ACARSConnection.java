@@ -45,12 +45,12 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	private boolean _isDispatch;
 
 	// Input/output network buffers
-	private ByteBuffer _iBuffer;
-	private ByteBuffer _oBuffer;
+	private final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
+	private final ByteBuffer _oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 
 	// The the actual buffers for messages
-	private StringBuilder _msgBuffer;
-	protected List<String> _msgOutBuffer;
+	private final StringBuilder _msgBuffer = new StringBuilder();
+	protected final List<String> _msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
 
 	// Connection information
 	private long _id;
@@ -90,7 +90,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 			sc.register(_wSelector, SelectionKey.OP_WRITE);
 		} catch (IOException ie) {
 			// Log our error and shut the connection
-			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress(), ie);
+			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress());
 			try {
 				sc.close();
 			} catch (Exception e) {
@@ -98,20 +98,12 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 		} finally {
 			_channel = sc;
 		}
-
-		// Allocate the buffers and output stack for this channel
-		_msgBuffer = new StringBuilder();
-		_msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
-		_iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
-		_oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 	}
 
+	/**
+	 * Closes the connection.
+	 */
 	public void close() {
-		// Clear the buffers
-		_iBuffer = null;
-		_oBuffer = null;
-
-		// Close the socket
 		try {
 			_wSelector.close();
 			_channel.close();

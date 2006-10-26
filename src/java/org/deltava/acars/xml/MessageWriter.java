@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -27,10 +28,10 @@ public class MessageWriter implements java.io.Serializable {
 	private static final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("ISO-8859-1"));
 
 	// Keeps track of XML documents, formatters and users who have msgs waiting
-	private static Map<Long, Document> _xdocs = new HashMap<Long, Document>();
-	private static Map<Long, MessageFormatter> _formatters = new HashMap<Long, MessageFormatter>();
-	private static Map<Long, Pilot> _users = new HashMap<Long, Pilot>();
-	private static Set<Long> _dirty = new HashSet<Long>();
+	private static final Map<Long, Document> _xdocs = new HashMap<Long, Document>();
+	private static final Map<Long, MessageFormatter> _formatters = new HashMap<Long, MessageFormatter>();
+	private static final Map<Long, Pilot> _users = new HashMap<Long, Pilot>();
+	private static final Set<Long> _dirty = new HashSet<Long>();
 
 	// we're a singleton
 	private MessageWriter() {

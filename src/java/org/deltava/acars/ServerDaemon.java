@@ -37,8 +37,8 @@ public abstract class ServerDaemon {
  	protected static Logger log = null;
  	
  	// Worker tasks
- 	protected static ThreadGroup _workers;
- 	protected static Map<Worker, Thread> _threads;
+ 	protected static final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
+ 	protected static final Map<Worker, Thread> _threads = new LinkedHashMap<Worker, Thread>();
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -155,11 +155,9 @@ public abstract class ServerDaemon {
 		}
 		
  		// Set common priority for worker threads
- 		_workers = new ThreadGroup("ACARS Workers");
  		_workers.setDaemon(true);
 
  		// Turn the workers into threads
- 		_threads = new LinkedHashMap<Worker, Thread>();
  		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
  			Worker w = i.next();
  			Thread t = new Thread(_workers, w, w.getName());
