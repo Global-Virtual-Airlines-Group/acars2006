@@ -393,7 +393,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 					} else {
 						writeCount++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS)
-							throw new IOException("Write timeout - " + _channel.socket());
+							throw new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
 					}
 				}
 			}
