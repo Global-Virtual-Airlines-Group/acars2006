@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.testing.*;
+import org.deltava.beans.schedule.ScheduleEntry;
 import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
@@ -109,10 +110,16 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check for historic aircraft
 			List historicEQ = (List) SystemData.getObject("eqtypes.historic");
 			afr.setAttribute(FlightReport.ATTR_HISTORIC, historicEQ.contains(afr.getEquipmentType()));
+			
+			// Check if it's a Flight Academy flight
+			ctx.setMessage("Checking for Flight Academy flight");
+			GetSchedule sdao = new GetSchedule(con);
+			ScheduleEntry sEntry = sdao.get(afr);
+			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
+			afr.setAttribute(FlightReport.ATTR_ACADEMY, isAcademy);
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
-			GetSchedule sdao = new GetSchedule(con);
 			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA());
 			if (avgHours == 0) {
 				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
