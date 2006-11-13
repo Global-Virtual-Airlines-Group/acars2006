@@ -47,14 +47,16 @@ public final class OutputDispatcher extends Worker {
 			// Dump the messages to the output stack
 			if (MessageWriter.hasMessages()) {
 				_status.setMessage("Pushing messages to XML Output Stack");
-				for (Iterator<Envelope> i = MessageWriter.getMessages().iterator(); i.hasNext();) {
-					Envelope env = i.next();
-					MessageStack.RAW_OUTPUT.push(env);
-					ServerStats.msgOut(String.valueOf(env.getMessage()).length());
-				}
+				synchronized (MessageWriter.class) {
+					for (Iterator<Envelope> i = MessageWriter.getMessages().iterator(); i.hasNext();) {
+						Envelope env = i.next();
+						MessageStack.RAW_OUTPUT.push(env);
+						ServerStats.msgOut(String.valueOf(env.getMessage()).length());
+					}
 
-				// Reset the message writer's internal documents
-				MessageWriter.reset();
+					// Reset the message writer's internal documents
+					MessageWriter.reset();
+				}
 
 				// Wake up a single thread waiting for something on the formatted input stack, or multiple if multiple
 				// messages waiting
