@@ -104,7 +104,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setCaptEQType(promoEQ);
 			
 			// Check if the user is rated to fly the aircraft
-			if (!ac.getUser().getRatings().contains(afr.getEquipmentType()))
+			EquipmentType eq = eqdao.get(ac.getUser().getEquipmentType());
+			if (!ac.getUser().getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType()))
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			
 			// Check for historic aircraft
