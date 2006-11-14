@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ACARSRequest version="1" id="2BC49BF">
+	<CMD type="position">
+		<lat>39.47015</lat>
+		<lon>-122.32330</lon>
+		<msl>28005</msl>
+		<agl>27607</agl>
+		<hdg>337</hdg>
+		<aSpeed>332</aSpeed>
+		<gSpeed>448</gSpeed>
+		<vSpeed>-2</vSpeed>
+		<aoa>1.782</aoa>
+		<g>1.000</g>
+		<pitch>0.410</pitch>
+		<bank>0.270</bank>
+		<mach>0.811</mach>
+		<n1>91.2</n1>
+		<n2>91.8</n2>
+		<fuelFlow>14530</fuelFlow>
+		<phase>Airborne</phase>
+		<simrate>1</simrate>
+		<flaps>0</flaps>
+		<fuel>164780</fuel>
+		<weight>494725</weight>
+		<wHdg>276</wHdg>
+		<wSpeed>109</wSpeed>
+		<date><![CDATA[11/14/2006 10:21:27]]>
+		</date>
+		<flags>21504</flags>
+		<frameRate>11</frameRate>
+		<isLogged>false</isLogged>
+	</CMD>
+</ACARSRequest>
