@@ -240,6 +240,7 @@ class MessageFormatterV1 implements MessageFormatter {
 		e.addContent(XMLUtils.createElement("route", msg.getAllWaypoints()));
 		e.addContent(XMLUtils.createElement("remarks", msg.getComments()));
 		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
+		e.addContent(XMLUtils.createElement("scheduleValidated", String.valueOf(msg.isScheduleValidated())));
 
 		// Return the element
 		return e;
@@ -441,6 +442,7 @@ class MessageFormatterV1 implements MessageFormatter {
 					pe.setAttribute("airline", fr.getAirline().getCode());
 					pe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
 					pe.setAttribute("leg", String.valueOf(fr.getLeg()));
+					pe.setAttribute("assign", String.valueOf(fr.getDatabaseID(FlightReport.DBID_ASSIGN) != 0));
 					pe.addContent(XMLUtils.createElement("eqType", fr.getEquipmentType()));
 					pe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 					pe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
