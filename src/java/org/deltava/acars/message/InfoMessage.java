@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -6,7 +7,8 @@ import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.Airport;
 
 /**
- * @author Luke J. Kolin
+ * An ACARS Flight Information message.
+ * @author Luke
  * @version 1.0
  * @since 1.0
  */
@@ -32,9 +34,10 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _offlineFlight;
 	private boolean _flightComplete;
 	private boolean _checkRide;
+	private boolean _scheduleValidated;
 	
-	private Collection<String> _waypoints = new LinkedHashSet<String>();
-	private Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
+	private final Collection<String> _waypoints = new LinkedHashSet<String>();
+	private final Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
 	
 	// Constant for splitting waypoint lists
 	private final static String WAYPOINT_SPACER = " ";
@@ -124,6 +127,10 @@ public class InfoMessage extends AbstractMessage {
 		return _checkRide;
 	}
 	
+	public boolean isScheduleValidated() {
+		return _scheduleValidated;
+	}
+	
 	public synchronized void addPosition(PositionMessage pmsg) {
 		_offlinePositions.add(pmsg);
 	}
@@ -172,6 +179,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setCheckRide(boolean isCR) {
 		_checkRide = isCR;
+	}
+	
+	public void setScheduleValidated(boolean isOK) {
+		_scheduleValidated = isOK;
 	}
 	
 	public void setStartTime(Date dt) {

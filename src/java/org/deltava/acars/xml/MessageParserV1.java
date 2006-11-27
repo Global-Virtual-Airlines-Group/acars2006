@@ -235,11 +235,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setTime(_timeStamp);
 
 		// Check if we're loading an existing flight ID
-		try {
-			msg.setFlightID(Integer.parseInt(getChildText(e, "flight_id", "0")));
-		} catch (NumberFormatException nfe) {
-			msg.setFlightID(0);
-		}
+		msg.setFlightID(StringUtils.parse(getChildText(e, "flight_id", "0"), 0));
 
 		// Parse the start date/time
 		try {
@@ -264,6 +260,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setCheckRide(Boolean.valueOf(getChildText(e, "checkRide", "false")).booleanValue());
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
+		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
 		
 		// Load waypoints
 		String waypoints = getChildText(e, "route", "DIRECT");
