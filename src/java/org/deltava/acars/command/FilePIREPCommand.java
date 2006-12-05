@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.testing.*;
-import org.deltava.beans.schedule.ScheduleEntry;
+import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
@@ -109,8 +109,13 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			
 			// Check for historic aircraft
-			List historicEQ = (List) SystemData.getObject("eqtypes.historic");
-			afr.setAttribute(FlightReport.ATTR_HISTORIC, historicEQ.contains(afr.getEquipmentType()));
+			GetAircraft acdao = new GetAircraft(con);
+			Aircraft a = acdao.get(afr.getEquipmentType());
+			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null) && (a.getHistoric()));
+			
+			// Check for excessive distance
+			if (afr.getDistance() > a.getRange())
+				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
@@ -130,7 +135,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}
-
+			
 			// Start the transaction
 			con.setAutoCommit(false);
 

@@ -111,9 +111,19 @@ public class DataCommand extends ACARSCommand {
 
 			// Get equipment list
 			case DataMessage.REQ_EQLIST:
-				Set<String> eqTypes = new TreeSet<String>((Collection<? extends String>) SystemData
-						.getObject("eqtypes"));
-				dataRsp.addResponse("eqtype", eqTypes);
+				try {
+					Connection con = ctx.getConnection();
+					GetAircraft acdao = new GetAircraft(con);
+					dataRsp.addResponse("eqtype", acdao.getAircraftTypes());	
+				} catch (DAOException de) {
+					log.error("Error loading equipment types", de);
+					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+					errMsg.setEntry("error", "Cannot load equipment types");
+					ctx.push(errMsg, ctx.getACARSConnection().getID());
+				} finally {
+					ctx.release();
+				}
+				
 				break;
 
 			// Get airline list
