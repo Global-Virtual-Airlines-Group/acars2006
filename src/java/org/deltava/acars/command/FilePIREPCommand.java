@@ -188,7 +188,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				con.rollback();
 			} catch (Exception e2) {
 			} finally {
-				log.error(e.getMessage(), e);
+				log.error(ac.getUserID() + " - " + e.getMessage(), e);
 				ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 			}
 		} finally {
