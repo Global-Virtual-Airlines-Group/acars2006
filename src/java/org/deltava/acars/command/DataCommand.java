@@ -233,15 +233,20 @@ public class DataCommand extends ACARSCommand {
 					ctx.push(errMsg, ctx.getACARSConnection().getID());
 					return;
 				}
-
+				
+				// Check if we are not including PDF charts
+				boolean noPDF = Boolean.valueOf(msg.getFlag("noPDF")).booleanValue();
 				try {
 					Connection con = ctx.getConnection();
 
 					// Get the DAO and the charts
 					GetChart dao = new GetChart(con);
 					Collection<Chart> charts = dao.getCharts(a);
-					for (Iterator<Chart> ci = charts.iterator(); ci.hasNext();)
-						dataRsp.addResponse(ci.next());
+					for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
+						Chart ch = ci.next();
+						if ((ch.getImgType() != Chart.IMG_PDF) || !noPDF)
+							dataRsp.addResponse(ch);
+					}
 				} catch (DAOException de) {
 					log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
 					AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
