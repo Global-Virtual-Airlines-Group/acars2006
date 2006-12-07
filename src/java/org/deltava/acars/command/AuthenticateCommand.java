@@ -50,6 +50,14 @@ public class AuthenticateCommand extends ACARSCommand {
 		   return;
 		}
 		
+		// Check for invalid version
+		if ("v0.0".equals(msg.getVersion())) {
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", "Obsolete ACARS Client - No Version specified");
+			ctx.push(errMsg, env.getConnectionID());
+			return;
+		}
+		
 		// Get the minimum build number
 		int minBuild = 0;
 		if (msg.isDispatch())
