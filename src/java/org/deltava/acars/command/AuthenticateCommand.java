@@ -51,7 +51,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		
 		// Check for invalid version
-		if ("v0.0".equals(msg.getVersion())) {
+		// FIXME Build 82 handling
+		if ("v1.2".equals(msg.getVersion()) && (msg.getClientBuild() >= 80)) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Obsolete ACARS Client - No Version specified");
 			ctx.push(errMsg, env.getConnectionID());
