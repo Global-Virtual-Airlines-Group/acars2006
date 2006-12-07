@@ -135,7 +135,7 @@ class MessageParserV1 implements MessageParser {
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
-		msg.setVersion(getChildText("version", "v1.2"));
+		msg.setVersion(getChildText("version", "v0.0"));
 		msg.setDispatch(Boolean.valueOf(getChildText("dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText("stealth", null)).booleanValue());
 		try {
