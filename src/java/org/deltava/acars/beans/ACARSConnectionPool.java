@@ -328,9 +328,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 
 			// Close/Remove if found
 			if (c.equals(id)) {
-				if (c.isConnected())
-					c.close();
-
+				c.close();
 				return;
 			}
 		}
@@ -341,8 +339,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 		// Find the connection
 		int pos = _cons.indexOf(c);
 		if (pos != -1) {
-			if (c.isConnected())
-				c.close();
+			c.close();
 			_cons.remove(pos);
 		}
 	}

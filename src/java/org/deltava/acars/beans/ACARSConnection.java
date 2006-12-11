@@ -4,11 +4,11 @@ package org.deltava.acars.beans;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.locks.*;
 
 import java.nio.*;
-import java.nio.channels.*;
-
 import java.nio.charset.*;
+import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +30,7 @@ import org.deltava.util.system.SystemData;
 public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
-	private static final int MAX_WRITE_ATTEMPTS = 8;
+	private static final int MAX_WRITE_ATTEMPTS = 12;
 
 	// Byte byffer decoder and character set
 	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
@@ -64,7 +64,10 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	// Activity monitors
 	private long _startTime;
 	private long _lastActivityTime;
-	private volatile boolean _isWriting;
+	
+	// The write lock
+	private final ReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
+	private final Lock _wLock = _rwLock.writeLock();
 
 	// Statistics
 	private long _bytesIn;
@@ -350,19 +353,14 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
-		if (!_isWriting)
-			flush();
+		if (_wLock.tryLock()) {
+			for (int x = 0; x < _msgOutBuffer.size(); x++)
+				write(_msgOutBuffer.get(x));
+			
+			_wLock.unlock();
+		}
 	}
 	
-	private void flush() {
-		_isWriting = true;
-		for (int x = 0; x < _msgOutBuffer.size(); x++)
-			write(_msgOutBuffer.get(x));
-		
-		_msgOutBuffer.clear();
-		_isWriting = false;
-	}
-
 	protected synchronized void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
@@ -385,7 +383,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(250) > 0) {
+					if (_wSelector.select(200) > 0) {
 						_channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
