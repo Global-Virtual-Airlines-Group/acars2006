@@ -1,3 +1,4 @@
+// Copyright 2004, 2005, 2006 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -31,6 +32,12 @@ public final class SetInfo extends DAO {
 		super(c);
 	}
 	
+	/**
+	 * Writes a Flight Information entry to the database. <i>This call handles INSERTs and UPDATEs</i>
+	 * @param msg the InfoMessage bean
+	 * @param cid the connection ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
 	public void write(InfoMessage msg, long cid) throws DAOException {
 		try {
 			prepareStatement((msg.getFlightID() == 0) ? ISQL : USQL);
@@ -79,7 +86,7 @@ public final class SetInfo extends DAO {
 	      prepareStatement(sqlBuf.toString());
 	      _ps.setInt(1, flightID);
 	      _ps.setLong(2, cid);
-	      executeUpdate(force ? 1 : 0);
+	      executeUpdate(0);
 	   } catch (SQLException se) {
 	      throw new DAOException(se);
 	   }
