@@ -70,12 +70,12 @@ class MessageParserV1 implements MessageParser {
 		String tmp = e.getChildTextTrim(childName);
 		return (tmp == null) ? defaultValue : tmp;
 	}
-	
+
 	private Airport getAirport(String code) throws XMLException {
 		Airport a = SystemData.getAirport(code);
 		if (a == null)
 			throw new XMLException("Invalid Airport Code - " + code);
-		
+
 		return a;
 	}
 
@@ -106,7 +106,7 @@ class MessageParserV1 implements MessageParser {
 
 			case Message.MSG_PIREP:
 				return parsePIREP();
-				
+
 			case Message.MSG_DISPATCH:
 				return parseDispatch();
 
@@ -129,20 +129,16 @@ class MessageParserV1 implements MessageParser {
 		// Get the user ID and password and validate
 		String userID = getChildText("user", null);
 		String pwd = getChildText("password", null);
-		if ((userID == null) || (pwd == null))
+		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(pwd))
 			throw new XMLException("Missing userID/password");
-		
+
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setProtocolVersion(PROTOCOL_VERSION);
 		msg.setVersion(getChildText("version", "v1.2"));
 		msg.setDispatch(Boolean.valueOf(getChildText("dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText("stealth", null)).booleanValue());
-		try {
-			msg.setClientBuild(Integer.parseInt(getChildText("build", "0")));	
-		} catch (NumberFormatException nfe) {
-			throw new XMLException("Invalid Build Number - " + getChildText("build", ""), nfe);
-		}
+		msg.setClientBuild(StringUtils.parse(getChildText("build", "0"), 0));
 
 		// Return the bean
 		return msg;
@@ -243,11 +239,11 @@ class MessageParserV1 implements MessageParser {
 		} catch (Exception ex) {
 			msg.setStartTime(new Date(_timeStamp));
 		}
-		
+
 		// Load the flight code
 		String fCode = getChildText(e, "flight_num", SystemData.get("airline.code") + "001");
 		if (!Character.isLetter(fCode.charAt(0)))
-		   fCode = SystemData.get("airline.code") + fCode;
+			fCode = SystemData.get("airline.code") + fCode;
 
 		// Load the bean
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
@@ -261,7 +257,7 @@ class MessageParserV1 implements MessageParser {
 		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText("complete", "false")).booleanValue());
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
-		
+
 		// Load waypoints
 		String waypoints = getChildText(e, "route", "DIRECT");
 		msg.setWaypoints(StringUtils.strip(waypoints, ",\'\""));
@@ -279,9 +275,9 @@ class MessageParserV1 implements MessageParser {
 		msg.setRequestData(getChildText("reqdata", null));
 		return msg;
 	}
-	
+
 	private Message parseDispatch() {
-		
+
 		// Create the bean
 		DispatchMessage msg = new DispatchMessage(_user, getChildText("to", "???"));
 		msg.setFlightCode(getChildText("flightCode", "???"));
@@ -364,22 +360,18 @@ class MessageParserV1 implements MessageParser {
 			}
 
 			// Set the weights/speeds
-			try {
-				afr.setTaxiFuel(Integer.parseInt(getChildText("taxiFuel", "0")));
-				afr.setTaxiWeight(Integer.parseInt(getChildText("taxiWeight", "1")));
-				afr.setTakeoffFuel(Integer.parseInt(getChildText("takeoffFuel", "0")));
-				afr.setTakeoffWeight(Integer.parseInt(getChildText("takeoffWeight", "1")));
-				afr.setTakeoffSpeed(Integer.parseInt(getChildText("takeoffSpeed", "0")));
-				afr.setLandingFuel(Integer.parseInt(getChildText("landingFuel", "0")));
-				afr.setLandingWeight(Integer.parseInt(getChildText("landingWeight", "1")));
-				afr.setLandingSpeed(Integer.parseInt(getChildText("landingSpeed", "0")));
-				afr.setLandingVSpeed(Integer.parseInt(getChildText("landingVSpeed", "-1")));
-				afr.setGateFuel(Integer.parseInt(getChildText("gateFuel", "0")));
-				afr.setGateWeight(Integer.parseInt(getChildText("gateWeight", "1")));
-			} catch (NumberFormatException nfe) {
-				throw new IllegalArgumentException("Invalid Weight/Speed - " + nfe.getMessage());
-			}
-			
+			afr.setTaxiFuel(StringUtils.parse(getChildText("taxiFuel", "0"), 0));
+			afr.setTaxiWeight(StringUtils.parse(getChildText("taxiWeight", "1"), 0));
+			afr.setTakeoffFuel(StringUtils.parse(getChildText("takeoffFuel", "0"), 0));
+			afr.setTakeoffWeight(StringUtils.parse(getChildText("takeoffWeight", "1"), 0));
+			afr.setTakeoffSpeed(StringUtils.parse(getChildText("takeoffSpeed", "0"), 0));
+			afr.setLandingFuel(StringUtils.parse(getChildText("landingFuel", "0"), 0));
+			afr.setLandingWeight(StringUtils.parse(getChildText("landingWeight", "1"), 0));
+			afr.setLandingSpeed(StringUtils.parse(getChildText("landingSpeed", "0"), 0));
+			afr.setLandingVSpeed(StringUtils.parse(getChildText("landingVSpeed", "-1"), 0));
+			afr.setGateFuel(StringUtils.parse(getChildText("gateFuel", "0"), 0));
+			afr.setGateWeight(StringUtils.parse(getChildText("gateWeight", "1"), 0));
+
 			// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
 			try {
 				afr.setTakeoffN1(Double.parseDouble(getChildText("takeoffN1", "0")));
@@ -387,22 +379,19 @@ class MessageParserV1 implements MessageParser {
 			} catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException("Invalid N1 - " + nfe.getMessage());
 			} catch (IllegalArgumentException iae) {
-				
+
 			}
 
 			// Load the 0X/1X/2X/4X times
-			try {
-				afr.setTime(0, Integer.parseInt(getChildText("time0X", "0")));
-				afr.setTime(1, Integer.parseInt(getChildText("time1X", "0")));
-				afr.setTime(2, Integer.parseInt(getChildText("time2X", "0")));
-				afr.setTime(4, Integer.parseInt(getChildText("time4X", "0")));
-			} catch (NumberFormatException nfe) {
-				throw new IllegalArgumentException("Invalid time - " + nfe.getMessage());
-			}
+			afr.setTime(0, StringUtils.parse(getChildText("time0X", "0"), 0));
+			afr.setTime(1, StringUtils.parse(getChildText("time1X", "0"), 0));
+			afr.setTime(2, StringUtils.parse(getChildText("time2X", "0"), 0));
+			afr.setTime(4, StringUtils.parse(getChildText("time4X", "0"), 0));
 
 			// Save the PIREP
 			msg.setPIREP(afr);
 		} catch (Exception e) {
+			log.error("Error submitting PIREP from " + _user.getPilotCode());
 			log.error(XMLUtils.format(_el), e);
 			throw new XMLException(e.getMessage());
 		}
