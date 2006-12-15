@@ -354,12 +354,11 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
 		if (_wLock.tryLock()) {
-			for (Iterator<String> i = _msgOutBuffer.iterator(); i.hasNext(); ) {
-				String outMsg = i.next();
-				write(outMsg);
-				i.remove();
+			while (!_msgOutBuffer.isEmpty()) {
+				write(_msgOutBuffer.get(0));
+				_msgOutBuffer.remove(0);
 			}
-			
+
 			_wLock.unlock();
 		}
 	}
