@@ -60,7 +60,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		
 		// Get the minimum build number
-		int minBuild = 0;
+		int minBuild = Integer.MAX_VALUE;
 		if (msg.isDispatch())
 			minBuild = SystemData.getInt("acars.build.dispatch");
 		else {
@@ -74,7 +74,11 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Check the minimum build number
 		if (msg.getClientBuild() < minBuild) {
 		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-		   errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild +" or newer");
+		   if (minBuild == Integer.MAX_VALUE)
+			   errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
+		   else
+			   errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild +" or newer");
+		   
 		   ctx.push(errMsg, env.getConnectionID());
 		   return;
 		}
