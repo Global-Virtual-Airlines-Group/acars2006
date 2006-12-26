@@ -67,13 +67,8 @@ public final class InputTranslator extends Worker {
 			_status.complete();
 			_status.setMessage("Idle");
 
-			// Wait until something is on the input stack or we get interrupted
-			try {
-				MessageStack.RAW_INPUT.waitForActivity();
-			} catch (InterruptedException ie) {
-				log.info("Interrupted");
-				Thread.currentThread().interrupt();
-			}
+			// Wait until something is on the input stack
+			MessageStack.RAW_INPUT.waitForActivity();
 		}
 	}
 }

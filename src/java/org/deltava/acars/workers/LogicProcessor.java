@@ -27,8 +27,6 @@ import org.deltava.util.system.SystemData;
 
 public class LogicProcessor extends Worker {
 
-	private static final long CACHE_FLUSH = 30000;
-
 	private ACARSConnectionPool _pool;
 	private static Map<Integer, ACARSCommand> _commands;
 	
@@ -64,12 +62,14 @@ public class LogicProcessor extends Worker {
 	}
 
 	public synchronized void close() {
-		if (PositionCache.isDirty()) {
+		PositionCommand.CACHE.force();
+		if (PositionCommand.CACHE.isDirty()) {
 			log.info("Position Cache is Dirty - flushing");
 			flushPositionCache();
 		}
 
-		if (TextMessageCache.isDirty()) {
+		TextMessageCommand.CACHE.force();
+		if (TextMessageCommand.CACHE.isDirty()) {
 			log.info("Text Message Cache is Dirty - flushing");
 			flushMessageCache();
 		}
@@ -89,19 +89,17 @@ public class LogicProcessor extends Worker {
 			SetPosition dao = new SetPosition(c);
 
 			// Flush the cache
-			PositionCache.PositionCacheEntry ce = PositionCache.pop();
-			while (ce != null) {
+			Collection<MessageCache<PositionMessage>.CacheEntry> entries = PositionCommand.CACHE.drain();
+			for (Iterator<MessageCache<PositionMessage>.CacheEntry> i = entries.iterator(); i.hasNext(); ) {
+				MessageCache<PositionMessage>.CacheEntry ce = i.next();
 				try {
-					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getFlightID());
+					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
 				} catch (DAOException de) {
 					log.error("Error writing position - " + de.getMessage(), de);
 				}
-				
-				ce = PositionCache.pop();
 			}
 			
 			dao.release();
-			PositionCache.flush();
 		} catch (Exception e) {
 			log.error("Cannot flush Position Cache - " + e.getMessage());
 		} finally {
@@ -121,19 +119,17 @@ public class LogicProcessor extends Worker {
 			SetMessage dao = new SetMessage(c);
 
 			// Flush the cache
-			TextMessageCache.TextMessageCacheEntry ce = TextMessageCache.pop();
-			while (ce != null) {
+			Collection<MessageCache<TextMessage>.CacheEntry> entries = TextMessageCommand.CACHE.drain();
+			for (Iterator<MessageCache<TextMessage>.CacheEntry> i = entries.iterator(); i.hasNext(); ) {
+				MessageCache<TextMessage>.CacheEntry ce = i.next();
 				try {
-					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getRecipientID());
+					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
 				} catch (DAOException de) {
 					log.error("Error writing position - " + de.getMessage(), de);
 				}
-				
-				ce = TextMessageCache.pop();
 			}
 			
 			dao.release();
-			TextMessageCache.flush();
 		} catch (Exception e) {
 			log.error("Cannot flush Text Message Cache - " + e.getMessage());
 		} finally {
@@ -205,26 +201,20 @@ public class LogicProcessor extends Worker {
 			MessageStack.MSG_OUTPUT.wakeup();
 
 			// Check if we need to flush the position/message caches
-			
 			_status.setMessage("Checking Message/Position Caches");
 			synchronized (LogicProcessor.class) {
 				_status.execute();
-				if (PositionCache.isDirty() && (PositionCache.getFlushInterval() > CACHE_FLUSH))
+				if (PositionCommand.CACHE.isDirty())
 					flushPositionCache();
-				else if (TextMessageCache.isDirty() && (TextMessageCache.getFlushInterval() > CACHE_FLUSH))
+				else if (TextMessageCommand.CACHE.isDirty())
 					flushMessageCache();
+				
 				_status.complete();
 			}
 
-			// Wait on the input queue for 5 seconds if we haven't already been interrupted
+			// Wait on the input queue
 			_status.setMessage("Idle");
-			try {
-				MessageStack.MSG_INPUT.waitForActivity();
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
-			}
+			MessageStack.MSG_INPUT.waitForActivity();
 		}
-		
-		log.info("Interrupted");
 	}
 }

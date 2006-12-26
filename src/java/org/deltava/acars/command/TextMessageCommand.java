@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.beans.Pilot;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.acars.util.TextMessageCache;
+import org.deltava.acars.util.MessageCache;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -23,6 +23,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public class TextMessageCommand extends ACARSCommand {
+	
+	public static final MessageCache<TextMessage> CACHE = new MessageCache<TextMessage>(10, 30000);
 
 	private static final Logger log = Logger.getLogger(TextMessageCommand.class);
 	
@@ -80,6 +82,6 @@ public class TextMessageCommand extends ACARSCommand {
 		}
 		
 		// Cache the message
-		TextMessageCache.push(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
+		CACHE.push(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
 	}
 }

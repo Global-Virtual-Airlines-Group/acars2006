@@ -239,8 +239,5 @@ public final class NetworkReader extends Worker {
 				_status.complete();
 			}
 		}
-
-		// Mark the interrupt
-		log.info("Interrupted");
 	}
 }
