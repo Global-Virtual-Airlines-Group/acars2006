@@ -116,13 +116,14 @@ public class ACARSHelper {
 
 		// Get the online network
 		String network = p.getProperty("network");
-		if (OnlineNetwork.VATSIM.equals(network)) {
+		if (OnlineNetwork.VATSIM.equals(network))
 			afr.setAttribute(FlightReport.ATTR_VATSIM, true);
-		} else if (OnlineNetwork.IVAO.equals(network)) {
+		else if (OnlineNetwork.IVAO.equals(network))
 			afr.setAttribute(FlightReport.ATTR_IVAO, true);
-		} else if (OnlineNetwork.FPI.equals(network)) {
+		else if (OnlineNetwork.FPI.equals(network))
 			afr.setAttribute(FlightReport.ATTR_FPI, true);
-		}
+		else if (OnlineNetwork.INTVAS.equals(network))
+			afr.setAttribute(FlightReport.ATTR_INTVAS, true);
 
 		// Get the Flight Simulator version
 		switch (Integer.parseInt(p.getProperty("fs_ver"))) {

@@ -453,6 +453,8 @@ class MessageFormatterV1 implements MessageFormatter {
 						pe.setAttribute("network", OnlineNetwork.IVAO);
 					else if (fr.hasAttribute(FlightReport.ATTR_FPI))
 						pe.setAttribute("network", OnlineNetwork.FPI);
+					else if (fr.hasAttribute(FlightReport.ATTR_INTVAS))
+						pe.setAttribute("network", OnlineNetwork.INTVAS);
 
 					fList.addContent(pe);
 				} else if (rsp instanceof Controller) {
