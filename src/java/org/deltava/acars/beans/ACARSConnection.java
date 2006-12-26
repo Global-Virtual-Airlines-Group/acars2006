@@ -107,6 +107,13 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	 * Closes the connection.
 	 */
 	public void close() {
+
+		// Clean out the buffer
+		if (_wLock.tryLock()) {
+			_msgOutBuffer.clear();
+			_wLock.unlock();
+		}
+		
 		try {
 			_wSelector.close();
 			_channel.close();
@@ -400,6 +407,8 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 
 			_bytesOut += ofs;
 			_msgsOut++;
+		} catch (ClosedSelectorException cse) {
+			log.warn("Cannot write to socket " + _remoteAddr.getHostAddress() + " - selector closed"); 
 		} catch (IOException ie) {
 			log.warn("Error writing to channel - " + ie.getMessage());
 		} catch (Exception e) {
