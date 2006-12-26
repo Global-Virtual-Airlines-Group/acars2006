@@ -70,7 +70,14 @@ public class MessageStack implements Iterator {
 		notifyAll();
 	}
 	
-	public synchronized void waitForActivity() throws InterruptedException {
-	   wait();
+	/**
+	 * Waits for the queue to be notified by another thread.
+	 */
+	public synchronized void waitForActivity() {
+		try {
+			wait();
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+		}
 	}
 }
