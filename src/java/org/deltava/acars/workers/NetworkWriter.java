@@ -24,16 +24,17 @@ public class NetworkWriter extends Worker {
 		super("Network I/O Writer #" + threadID, NetworkWriter.class.getName() + "-" + threadID);
 	}
 
+	/**
+	 * Opens the worker task.
+	 */
 	public final void open() {
 		super.open();
 		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.deltava.acars.workers.Worker#$run0()
+	/**
+	 * Executes the thread.
 	 */
-	@Override
 	protected void $run0() throws Exception {
 		log.info("Started");
 
@@ -59,16 +60,8 @@ public class NetworkWriter extends Worker {
 			_status.complete();
 			_status.setMessage("Idle");
 
-			// Wait until something is on the bean output stack or we get interrupted
-			try {
-				MessageStack.RAW_OUTPUT.waitForActivity();
-			} catch (InterruptedException ie) {
-				log.info("Interrupted");
-				Thread.currentThread().interrupt();
-			}
+			// Wait until something is on the bean output stack
+			MessageStack.RAW_OUTPUT.waitForActivity();
 		}
-
-		// Mark the interrupt
-		log.info("Interrupted");
 	}
 }

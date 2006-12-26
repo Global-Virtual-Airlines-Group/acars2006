@@ -73,13 +73,8 @@ public final class OutputDispatcher extends Worker {
 			_status.complete();
 			_status.setMessage("Idle");
 
-			// Wait until something is on the bean output stack or we get interrupted
-			try {
-				MessageStack.MSG_OUTPUT.waitForActivity();
-			} catch (InterruptedException ie) {
-				log.info("Interrupted");
-				Thread.currentThread().interrupt();
-			}
+			// Wait until something is on the bean output stack
+			MessageStack.MSG_OUTPUT.waitForActivity();
 		}
 	}
 }

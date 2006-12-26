@@ -7,7 +7,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.beans.acars.ACARSFlags;
 
-import org.deltava.acars.util.PositionCache;
+import org.deltava.acars.util.MessageCache;
 
 import org.deltava.util.system.SystemData;
 
@@ -19,6 +19,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public class PositionCommand extends ACARSCommand {
+	
+	public static final MessageCache<PositionMessage> CACHE = new MessageCache<PositionMessage>(10, 10000);
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
 
@@ -60,7 +62,7 @@ public class PositionCommand extends ACARSCommand {
 
 		// If we are an offline fight, save the flight right away
 		if (msg.getNoFlood()) {
-			PositionCache.push(msg, con.getID(), con.getFlightID());
+			CACHE.push(msg, con.getID(), con.getFlightID());
 		} else {
 			// Check for position flood
 			long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
@@ -68,7 +70,7 @@ public class PositionCommand extends ACARSCommand {
 				if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 					con.setPosition(msg);
 					if (msg.isLogged())
-						PositionCache.push(msg, con.getID(), con.getFlightID());
+						CACHE.push(msg, con.getID(), con.getFlightID());
 				} else {
 					con.setPosition(null);					
 				}
