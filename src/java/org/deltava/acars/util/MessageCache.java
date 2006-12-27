@@ -68,7 +68,7 @@ public class MessageCache<E> {
 	 * Adds a new text message to the cache.
 	 * @param msg the Message
 	 * @param connectionID the ACARS connection ID
-	 * @param recipientID another linked database ID
+	 * @param auxID another linked database ID
 	 */
 	public void push(E msg, long connectionID, int auxID) {
 		_cache.add(new CacheEntry(msg, connectionID, auxID));
