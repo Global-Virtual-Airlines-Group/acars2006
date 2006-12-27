@@ -399,10 +399,13 @@ public class ACARSConnection implements Comparable, ViewEntry {
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
 							writeCount--;
+					} else if (!_channel.isConnected()) {
+						close();
+						return;
 					} else {
 						writeCount++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS)
-							throw new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
+							new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
 					}
 				}
 			}
@@ -412,7 +415,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		} catch (ClosedSelectorException cse) {
 			log.warn("Cannot write to socket " + _remoteAddr.getHostAddress() + " - selector closed"); 
 		} catch (IOException ie) {
-			log.warn("Error writing to channel - " + ie.getMessage());
+			log.warn("Error writing to channel for " + getUserID() + " - " + ie.getMessage(), ie);
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
