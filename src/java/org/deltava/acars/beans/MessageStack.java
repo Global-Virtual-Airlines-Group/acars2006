@@ -12,11 +12,11 @@ import java.util.*;
 
 public class MessageStack implements Iterator {
 
-   public static final MessageStack RAW_INPUT = new MessageStack();
-   public static final MessageStack MSG_INPUT = new MessageStack();
-   public static final MessageStack MSG_OUTPUT = new MessageStack();
-   public static final MessageStack RAW_OUTPUT = new MessageStack();
-   
+	public static final MessageStack RAW_INPUT = new MessageStack();
+	public static final MessageStack MSG_INPUT = new MessageStack();
+	public static final MessageStack MSG_OUTPUT = new MessageStack();
+	public static final MessageStack RAW_OUTPUT = new MessageStack();
+
 	private final List<Envelope> _data = new ArrayList<Envelope>();
 
 	private MessageStack() {
@@ -26,17 +26,17 @@ public class MessageStack implements Iterator {
 	public synchronized void push(Envelope env) {
 		_data.add(env);
 	}
-	
+
 	public synchronized void push(Collection<Envelope> envs) {
 		_data.addAll(envs);
 	}
-	
+
 	public synchronized Envelope pop() {
-		
+
 		// If there is nothing in the stack, get nothing
 		if (_data.size() == 0)
 			return null;
-		
+
 		// Get the first element and nuke it
 		Envelope env = _data.get(0);
 		_data.remove(0);
@@ -51,9 +51,9 @@ public class MessageStack implements Iterator {
 	public synchronized boolean hasNext() {
 		return (_data.size() > 0);
 	}
-	
+
 	public synchronized Object next() {
-		
+
 		// Throw an exception if nothing there
 		if (_data.size() == 0)
 			throw new NoSuchElementException();
@@ -61,15 +61,22 @@ public class MessageStack implements Iterator {
 		// Return the next element
 		return pop();
 	}
-	
+
 	public void remove() {
-		// Not implemented since next automatically does a remove 
+		// Not implemented since next automatically does a remove
 	}
-	
-	public synchronized void wakeup() {
-		notifyAll();
+
+	/**
+	 * Notifies threads waiting on this queue.
+	 * @param doAll TRUE if all threads should be notified, otherwise FALSE
+	 */
+	public synchronized void wakeup(boolean doAll) {
+		if (doAll)
+			notifyAll();
+		else
+			notify();
 	}
-	
+
 	/**
 	 * Waits for the queue to be notified by another thread.
 	 */

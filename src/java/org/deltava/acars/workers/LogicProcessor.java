@@ -178,7 +178,6 @@ public class LogicProcessor extends Worker {
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();
-
 			while (MessageStack.MSG_INPUT.hasNext()) {
 				Envelope env = MessageStack.MSG_INPUT.pop();
 				try {
@@ -192,13 +191,13 @@ public class LogicProcessor extends Worker {
 				// Don't get bogged down if we're taking too long
 				long interval = (System.currentTimeMillis() - startTime);
 				if (interval > 1750) {
-					MessageStack.MSG_OUTPUT.wakeup();
+					MessageStack.MSG_OUTPUT.wakeup(false);
 					startTime = System.currentTimeMillis();
 				}
 			}
 
 			// Notify everyone waiting on the output stack
-			MessageStack.MSG_OUTPUT.wakeup();
+			MessageStack.MSG_OUTPUT.wakeup(false);
 
 			// Check if we need to flush the position/message caches
 			_status.setMessage("Checking Message/Position Caches");

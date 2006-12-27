@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -211,7 +211,7 @@ public final class NetworkReader extends Worker {
 				Collection<Envelope> msgs = _pool.read();
 				if (!msgs.isEmpty()) {
 					MessageStack.RAW_INPUT.push(msgs);
-					MessageStack.RAW_INPUT.wakeup();
+					MessageStack.RAW_INPUT.wakeup(false);
 				}
 
 				// Check for inactive connections - generate a QUIT message for every one
@@ -230,14 +230,15 @@ public final class NetworkReader extends Worker {
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
 							MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
-							MessageStack.MSG_INPUT.wakeup();
 						}
 					}
+					
+					MessageStack.MSG_INPUT.wakeup(false);
 				}
-
-				// Log executiuon
-				_status.complete();
 			}
+			
+			// Log executiuon
+			_status.complete();
 		}
 	}
 }

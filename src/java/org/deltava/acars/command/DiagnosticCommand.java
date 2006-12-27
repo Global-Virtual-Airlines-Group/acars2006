@@ -67,7 +67,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					QuitMessage qmsg = new QuitMessage(ac.getUser());
 					qmsg.setFlightID(ac.getFlightID());
 					MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
-					MessageStack.MSG_INPUT.wakeup();
+					MessageStack.MSG_INPUT.wakeup(false);
 
 					// Send the ACK
 					AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -133,7 +133,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						QuitMessage qmsg = new QuitMessage(ac.getUser());
 						qmsg.setFlightID(ac.getFlightID());
 						MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
-						MessageStack.MSG_INPUT.wakeup();
+						MessageStack.MSG_INPUT.wakeup(false);
 						
 						// Send the ACK
 						AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

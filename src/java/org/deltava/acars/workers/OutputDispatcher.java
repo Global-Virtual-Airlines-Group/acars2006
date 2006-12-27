@@ -60,13 +60,7 @@ public final class OutputDispatcher extends Worker {
 
 				// Wake up a single thread waiting for something on the formatted input stack, or multiple if multiple
 				// messages waiting
-				if (MessageStack.RAW_OUTPUT.size() == 1) {
-					synchronized (MessageStack.RAW_OUTPUT) {
-						MessageStack.RAW_OUTPUT.notify();
-					}
-				} else {
-					MessageStack.RAW_OUTPUT.wakeup();
-				}
+				MessageStack.RAW_OUTPUT.wakeup((MessageStack.RAW_OUTPUT.size() > 1));
 			}
 
 			// Log execution
