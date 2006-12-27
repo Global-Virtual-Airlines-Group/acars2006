@@ -66,6 +66,9 @@ public class FilePIREPCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
+		
+		// Flush the Position Cache
+		PositionCommand.CACHE.force();
 
 		Connection con = null;
 		try {
@@ -114,7 +117,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null) && (a.getHistoric()));
 			
 			// Check for excessive distance
-			if (afr.getDistance() > a.getRange())
+			if ((a != null) && (afr.getDistance() > a.getRange()))
 				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
 			// Check if it's a Flight Academy flight
