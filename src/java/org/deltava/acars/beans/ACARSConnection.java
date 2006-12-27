@@ -27,10 +27,10 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Serializable, Comparable, ViewEntry {
+public class ACARSConnection implements Comparable, ViewEntry {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
-	private static final int MAX_WRITE_ATTEMPTS = 12;
+	private static final int MAX_WRITE_ATTEMPTS = 32;
 
 	// Byte byffer decoder and character set
 	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
@@ -62,7 +62,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	private boolean _isUserHidden;
 
 	// Activity monitors
-	private long _startTime;
+	private final long _startTime = System.currentTimeMillis();
 	private long _lastActivityTime;
 	
 	// The write lock
@@ -76,11 +76,13 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 	private long _msgsOut;
 	private long _bufferWrites;
 
+	/**
+	 * Creates a new ACARS connection.
+	 * @param cid the connection ID
+	 * @param sc the TCP/IP SocketChannel
+	 */
 	public ACARSConnection(long cid, SocketChannel sc) {
-
-		// Init the superclass and start time
 		super();
-		_startTime = System.currentTimeMillis();
 		_id = cid;
 
 		// Get IP Address information
@@ -392,7 +394,7 @@ public class ACARSConnection implements Serializable, Comparable, ViewEntry {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(200) > 0) {
+					if (_wSelector.select(250) > 0) {
 						_channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)

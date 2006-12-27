@@ -121,17 +121,11 @@ public abstract class ServerDaemon {
  		// Create the task container and the thread group
  		List<Worker> tasks = new ArrayList<Worker>();
 
-		// Init the input translator
-		InputTranslator iTrans = new InputTranslator();
-		tasks.add(iTrans);
-
-		// Init the output dispatcher
-		OutputDispatcher oDispatch = new OutputDispatcher();
-		tasks.add(oDispatch);
-
-		// Init the network handler
-		NetworkReader nHandler = new NetworkReader();
-		tasks.add(nHandler);
+		// Init the singleton workers
+		tasks.add(new InputTranslator());
+		tasks.add(new NetworkReader());
+		tasks.add(new OutputDispatcher());
+		tasks.add(new NetworkWriter());
 
 		// Init the logic processor pool
 		int logicThreads = SystemData.getInt("acars.pool.threads.logic", 1);
@@ -140,13 +134,6 @@ public abstract class ServerDaemon {
 		   tasks.add(lProcessor);
 		}
 		
-		// Init the network output handler
-		int outputThreads = SystemData.getInt("acars.pool.threads.write", 1);
-		for (int x = 0; x < outputThreads; x++) {
-			NetworkWriter writer = new NetworkWriter(x);
-			tasks.add(writer);
-		}
- 	
 		// Try to init all of the worker threads
 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
 			Worker w = i.next();
