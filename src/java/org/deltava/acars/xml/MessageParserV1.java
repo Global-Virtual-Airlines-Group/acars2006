@@ -328,7 +328,7 @@ class MessageParserV1 implements MessageParser {
 			afr.setDatabaseID(FlightReport.DBID_PILOT, _user.getID());
 			afr.setRank(_user.getRank());
 			afr.setStatus(FlightReport.SUBMITTED);
-			afr.setEquipmentType(_el.getChildTextTrim("eqType"));
+			afr.setEquipmentType(getChildText("eqType", "CRJ-200"));
 			afr.setDate(new Date());
 			afr.setSubmittedOn(afr.getDate());
 			afr.setAirportD(getAirport(_el.getChildTextTrim("airportD").toUpperCase()));
