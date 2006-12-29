@@ -30,10 +30,18 @@ public class LogicProcessor extends Worker {
 	private ACARSConnectionPool _pool;
 	private static Map<Integer, ACARSCommand> _commands;
 	
+	/**
+	 * Initializes the Worker.
+	 * @param threadID the worker instance ID
+	 */
 	public LogicProcessor(int threadID) {
 		super("Message Processor #" + threadID, LogicProcessor.class.getName() + "-" + threadID);
 	}
 
+	/**
+	 * Initializes the Command map.
+	 * @see Worker#open()
+	 */
 	public synchronized void open() {
 		super.open();
 		
@@ -61,6 +69,10 @@ public class LogicProcessor extends Worker {
 		}
 	}
 
+	/**
+	 * Shuts down the worker and flushes the message/position caches if dirty.
+	 * @see Worker#close() 
+	 */
 	public synchronized void close() {
 		PositionCommand.CACHE.force();
 		if (PositionCommand.CACHE.isDirty()) {
@@ -172,7 +184,10 @@ public class LogicProcessor extends Worker {
 		}
 	}
 
-	protected void $run0() {
+	/**
+	 * Executes the Thread.
+	 */
+	public void run() {
 		log.info("Started");
 
 		// Keep running until we're interrupted

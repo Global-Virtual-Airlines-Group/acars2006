@@ -1,9 +1,12 @@
-// Copyright (c) 2004, 2005 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
+
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
 /**
+ * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -16,22 +19,40 @@ public abstract class Worker implements Runnable {
 	
 	protected WorkerStatus _status;
 	
-	protected abstract void $run0() throws Exception;
-
+	/**
+	 * Initializes the Worker.
+	 * @param name the thread name
+	 * @param loggerClassName the logging class name
+	 * @throws NullPointerException if name is null
+	 */
 	protected Worker(String name, String loggerClassName) {
 		_name = name.trim();
 		_status = new WorkerStatus(name);
 		log = Logger.getLogger(loggerClassName);
 	}
 	
+	/**
+	 * Initializes the Worker.
+	 * @param name the thread name
+	 * @param loggerClass the logging class
+	 * @throws NullPointerException if name is null
+	 */
 	protected Worker(String name, Class loggerClass) {
 		this(name, loggerClass.getName());
 	}
 
-	public final WorkerStatus getStatus() {
-		return _status;
+	/**
+	 * Returns the status of the Worker and any child threads. 
+	 * @return a List of WorkerStatus beans, with the worker status always first
+	 */
+	public List<WorkerStatus> getStatus() {
+		return Collections.singletonList(_status);
 	}
 	
+	/**
+	 * Returns the thread name.
+	 * @return the thread name
+	 */
 	public final String getName() {
 		return _name;
 	}
@@ -46,18 +67,6 @@ public abstract class Worker implements Runnable {
 	public void close() {
 		_status.setStatus(WorkerStatus.STATUS_UNKNOWN);
 		_status.setMessage("Shut Down");
-	}
-
-	// public thread interface which catches exceptions
-	public final void run() {
-		try {
-			_status.setStatus(WorkerStatus.STATUS_START);
-			$run0();
-			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			_status.setStatus(WorkerStatus.STATUS_ERROR);
-			_status.setMessage(e.getMessage());
-		}
+		log.info("Shut Down");
 	}
 }

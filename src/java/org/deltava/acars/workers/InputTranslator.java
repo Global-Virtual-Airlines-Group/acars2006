@@ -20,11 +20,17 @@ import org.deltava.beans.acars.ServerStats;
 
 public final class InputTranslator extends Worker {
 
+	/**
+	 * Initializes the Worker.
+	 */
 	public InputTranslator() {
 		super("Input Stack Processor", InputTranslator.class);
 	}
 
-	protected void $run0() {
+	/**
+	 * Executes the thread.
+	 */
+	public void run() {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {

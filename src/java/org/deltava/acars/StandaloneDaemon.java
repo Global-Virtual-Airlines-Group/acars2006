@@ -5,6 +5,8 @@ import java.util.*;
 
 import org.apache.log4j.LogManager;
 
+import org.deltava.beans.system.VersionInfo;
+
 import org.deltava.acars.workers.*;
 
 import org.deltava.util.ThreadUtils;
@@ -21,9 +23,8 @@ public class StandaloneDaemon extends ServerDaemon {
 	public static void main(String[] args) {
 
 		// Startup message
-		System.out.println("Delta Virtual Airlnes ACARS Server v" + String.valueOf(ACARSInfo.MAJOR_VERSION) + "."
-				+ String.valueOf(ACARSInfo.MINOR_VERSION));
-		System.out.println("(C) 2004, 2005, 2006 " + ACARSInfo.AUTHOR_NAME + ". All Rights Reserved.\n");
+		System.out.println("ACARS " + VersionInfo.APPNAME);
+		System.out.println(VersionInfo.TXT_COPYRIGHT);
 
 		// Initialize the logger
 		initLog(StandaloneDaemon.class);
@@ -48,18 +49,19 @@ public class StandaloneDaemon extends ServerDaemon {
 				Thread.sleep(45000);
 
 				// Check all of the threads
-				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
-					Worker w = i.next();
-					WorkerStatus ws = w.getStatus();
+				for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+					Thread t = i.next();
+					Worker w = _threads.get(t);
+					List<WorkerStatus> wsl = w.getStatus();
+					WorkerStatus ws = wsl.get(0);
 
 					// Get the thread status
-					Thread t = _threads.get(w);
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
-						_threads.put(w, wt);
+						_threads.put(wt, w);
 						wt.start();
 					} else if (ws.getExecutionTime() > MAX_EXEC) {
 						log.warn(t.getName() + " stuck for " + ws.getExecutionTime() + "ms, restarting");
@@ -70,7 +72,7 @@ public class StandaloneDaemon extends ServerDaemon {
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
-						_threads.put(w, wt);
+						_threads.put(wt, w);
 						wt.start();
 					}
 				}
@@ -81,11 +83,11 @@ public class StandaloneDaemon extends ServerDaemon {
 
 		// Try to close the workers down
 		_workers.interrupt();
-		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
-			Worker w = i.next();
+		for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+			Thread t = i.next();
+			Worker w = _threads.get(t);
 
 			// Wait for the thread to die if it hasn't yet
-			Thread t = _threads.get(w);
 			ThreadUtils.kill(t, 500);
 
 			// Close the thread

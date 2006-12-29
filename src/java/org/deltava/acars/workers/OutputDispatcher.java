@@ -11,6 +11,7 @@ import org.deltava.acars.xml.*;
 import org.deltava.beans.acars.ServerStats;
 
 /**
+ * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -18,11 +19,17 @@ import org.deltava.beans.acars.ServerStats;
 
 public final class OutputDispatcher extends Worker {
 
+	/**
+	 * Initializes the Worker.
+	 */
 	public OutputDispatcher() {
 		super("Output Dispatcher", OutputDispatcher.class);
 	}
 
-	protected void $run0() {
+	/**
+	 * Executes the Thread.
+	 */
+	public void run() {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
