@@ -10,9 +10,7 @@ import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.servinfo.*;
 
-import org.deltava.acars.message.*;
 import org.deltava.acars.security.*;
 
 import org.deltava.acars.util.RouteEntryHelper;
@@ -24,7 +22,7 @@ import org.deltava.acars.util.RouteEntryHelper;
  * @since 1.0
  */
 
-public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
+public class ACARSConnectionPool implements ACARSAdminInfo {
 
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
@@ -34,7 +32,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
 	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
-	private final List<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
+	private final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
@@ -49,59 +47,6 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	public ACARSConnectionPool(int mxSize) {
 		super();
 		_maxSize = (mxSize > 0) ? mxSize : -1;
-	}
-
-	/**
-	 * Returns ServIno-format connection data.
-	 * @return a ServInfo network information bean
-	 * @see ACARSConnectionPool#getNetworkStatus()
-	 */
-	public NetworkInfo getNetworkInfo() {
-		NetworkInfo info = new NetworkInfo("ACARS");
-		info.setVersion("1");
-		info.setValidDate(new Date());
-		for (Iterator i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection con = (ACARSConnection) i.next();
-			PositionMessage pos = con.getPosition();
-			InfoMessage usrInfo = con.getFlightInfo();
-
-			// Add Pilots to servinfo data, if they're logged in and have info/position data
-			if (con.isAuthenticated() && (pos != null) && (usrInfo != null)) {
-				Pilot usr = con.getUser();
-
-				// Build the pilot object
-				org.deltava.beans.servinfo.Pilot p = new org.deltava.beans.servinfo.Pilot(usr.getID());
-				p.setName(usr.getName() + " " + usr.getHomeAirport());
-				p.setPilotID(usr.getID());
-
-				// Pass position information
-				p.setAltitude(pos.getAltitude());
-				p.setGroundSpeed(pos.getGspeed());
-				p.setPosition(pos.getLatitude(), pos.getLongitude());
-
-				// Pass back user info
-				p.setAirportD(usrInfo.getAirportD());
-				p.setAirportA(usrInfo.getAirportA());
-				p.setCallsign(usrInfo.getFlightCode());
-				p.setEquipmentCode(usrInfo.getEquipmentType());
-				p.setComments(usrInfo.getComments());
-				p.setWayPoints(usrInfo.getAllWaypoints(' '));
-
-				// Add the pilot object
-				info.add(p);
-			}
-		}
-
-		return info;
-	}
-
-	/**
-	 * Returns ServIno-format network data.
-	 * @return a ServInfo network bean
-	 * @see ACARSConnectionPool#getNetworkInfo()
-	 */
-	public NetworkStatus getNetworkStatus() {
-		return new NetworkStatus("ACARS");
 	}
 
 	/**
@@ -125,7 +70,7 @@ public class ACARSConnectionPool implements ServInfoProvider, ACARSAdminInfo {
 	 * @return a Collection of Integer flight IDs
 	 */
 	public Collection<Integer> getFlightIDs() {
-		Collection<Integer> results = new HashSet<Integer>();
+		Collection<Integer> results = new TreeSet<Integer>();
 		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			int id = con.getFlightID();
