@@ -27,7 +27,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public abstract class ServerDaemon {
+public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 	
 	/**
 	 * Maximum task execution time.
@@ -38,7 +38,7 @@ public abstract class ServerDaemon {
  	
  	// Worker tasks
  	protected static final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
- 	protected static final Map<Worker, Thread> _threads = new LinkedHashMap<Worker, Thread>();
+ 	protected static final Map<Thread, Worker> _threads = new LinkedHashMap<Thread, Worker>();
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -148,9 +148,20 @@ public abstract class ServerDaemon {
  		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
  			Worker w = i.next();
  			Thread t = new Thread(_workers, w, w.getName());
- 			_threads.put(w, t);
+ 			_threads.put(t, w);
  			log.debug("Starting " + w.getName());
  			t.start();
+ 		}
+ 	}
+ 	
+ 	/**
+ 	 * Worker thread exception handler.
+ 	 * @see Thread.UncaughtExceptionHandler#uncaughtException(Thread, Throwable)
+ 	 */
+ 	public void uncaughtException(Thread t, Throwable e) {
+ 		if (!_threads.containsKey(t)) {
+ 			log.warn("Unknown worker thread " + t.getName());
+ 			return;
  		}
  	}
 }

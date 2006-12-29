@@ -18,6 +18,7 @@ import org.deltava.acars.xml.MessageWriter;
 import org.deltava.acars.xml.XMLException;
 
 import org.deltava.beans.acars.ServerStats;
+import org.deltava.beans.system.VersionInfo;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -32,16 +33,21 @@ import org.deltava.util.system.SystemData;
 public final class NetworkReader extends Worker {
 
 	// System hello message
-	private static final String SYSTEM_HELLO = ACARSInfo.APP_NAME + " v" + String.valueOf(ACARSInfo.MAJOR_VERSION)
-			+ "." + String.valueOf(ACARSInfo.MINOR_VERSION) + " HELLO";
+	private static final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
 
 	private ACARSConnectionPool _pool;
 	private Selector _cSelector;
 	private ServerSocketChannel _channel;
 
+	/**
+	 * The name of the SystemData attribute to store blocked addresses.
+	 */
 	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
 	private Collection<String> _blockedAddrs;
 
+	/**
+	 * Initializes the Worker.
+	 */
 	public NetworkReader() {
 		super("Network I/O Reader", NetworkReader.class);
 	}
@@ -88,7 +94,7 @@ public final class NetworkReader extends Worker {
 		// Get the socket and set various socket options
 		Socket s = sc.socket();
 		try {
-			s.setSoLinger(true, 2);
+			s.setSoLinger(true, 1);
 			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
 			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
 		} catch (SocketException se) {
@@ -100,15 +106,14 @@ public final class NetworkReader extends Worker {
 			_pool.add(con);
 			MessageWriter.addConnection(con.getID(), null, 1);
 			log.info("New Connection from " + con.getRemoteAddr());
+			
+			// Say hello
+			con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
 		} catch (XMLException xe) {
-			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - "
-					+ xe.getMessage(), xe);
+			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - " + xe.getMessage(), xe);
 		}
-
-		// Say hello
-		con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 
 		// Update the max/current connection counts
 		ServerStats.connect();
@@ -152,6 +157,10 @@ public final class NetworkReader extends Worker {
 		}
 	}
 
+	/**
+	 * Shuts down the Worker. All existing connections the server socket will be closed.
+	 * @see Worker#close() 
+	 */
 	public final void close() {
 
 		// Close all of the connections
@@ -181,7 +190,10 @@ public final class NetworkReader extends Worker {
 		super.close();
 	}
 
-	protected void $run0() throws IOException {
+	/**
+	 * Executes the Thread.
+	 */
+	public void run() {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
@@ -202,6 +214,10 @@ public final class NetworkReader extends Worker {
 					if (cc != null)
 						newConnection(cc);
 				} catch (ClosedByInterruptException cie) {
+				} catch (IOException ie) {
+					log.error("Cannot accept connection - " + ie.getMessage(), ie);
+					_status.setStatus(WorkerStatus.STATUS_ERROR);
+					throw new RuntimeException("NetworkReader failure");
 				}
 			}
 

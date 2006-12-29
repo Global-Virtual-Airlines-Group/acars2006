@@ -34,19 +34,20 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				// Check all of the threads
-				for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
-					Worker w = i.next();
-					WorkerStatus ws = w.getStatus();
+				for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+					Thread t = i.next();
+					Worker w = _threads.get(t);
+					List<WorkerStatus> wsl = w.getStatus();
+					WorkerStatus ws = wsl.get(0);
 
 					// Get the thread status
-					Thread t = _threads.get(w);
 					ws.setAlive(t.isAlive());
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
-						_threads.put(w, wt);
+						_threads.put(wt, w);
 						wt.start();
 					} else if (ws.getExecutionTime() > MAX_EXEC) {
 						log.warn(t.getName() + " stuck for " + ws.getExecutionTime() + "ms, restarting");
@@ -57,7 +58,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
-						_threads.put(w, wt);
+						_threads.put(wt, w);
 						wt.start();
 					}
 				}
@@ -73,12 +74,12 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 		// Try to close the workers down
 		_workers.interrupt();
-		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
-			Worker w = i.next();
+		for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+			Thread t = i.next();
+			Worker w = _threads.get(t);
 
 			// Wait for the thread to die if it hasn't yet
-			Thread t = _threads.get(w);
-			ThreadUtils.kill(t, 500);
+			ThreadUtils.kill(t, 750);
 
 			// Close the thread
 			log.debug("Stopping " + w.getName());
@@ -95,9 +96,9 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 	 */
 	public Collection<WorkerStatus> getWorkers() {
 		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
-		for (Iterator<Worker> i = _threads.keySet().iterator(); i.hasNext();) {
+		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
 			Worker w = i.next();
-			results.add(w.getStatus());
+			results.addAll(w.getStatus());
 		}
 
 		return results;

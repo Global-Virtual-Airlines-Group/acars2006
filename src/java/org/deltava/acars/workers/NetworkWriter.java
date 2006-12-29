@@ -27,7 +27,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	private final class ConnectionWriter extends Thread {
 
 		private Envelope _env;
-		private WorkerStatus _status;
+		private WorkerStatus _cwStatus;
 		private boolean _isBusy;
 		private long _lastUse;
 
@@ -35,8 +35,8 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			super("ConnectionWriter-" + String.valueOf(id));
 			setDaemon(true);
 			_lastUse = System.currentTimeMillis();
-			_status = new WorkerStatus(getName());
-			_status.setStatus(WorkerStatus.STATUS_INIT);
+			_cwStatus = new WorkerStatus(getName());
+			_cwStatus.setStatus(WorkerStatus.STATUS_INIT);
 		}
 
 		public synchronized boolean isBusy() {
@@ -51,43 +51,47 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			return _env;
 		}
 		
+		public WorkerStatus getStatus() {
+			return _cwStatus;
+		}
+		
 		public synchronized long getIdleTime() {
 			return System.currentTimeMillis() - _lastUse;
 		}
 
 		public void run() {
-			_status.setAlive(true);
-			_status.setStatus(WorkerStatus.STATUS_START);
+			_cwStatus.setAlive(true);
+			_cwStatus.setStatus(WorkerStatus.STATUS_START);
 			while (!isInterrupted()) {
 				_lastUse = System.currentTimeMillis();
-				_status.setMessage("Idle");
+				_cwStatus.setMessage("Idle");
 				
 				try {
 					_env = _work.take();
-					_status.execute();
+					_cwStatus.execute();
 					setBusy(true);
 					ACARSConnection c = _pool.get(_env.getConnectionID());
 					if (c != null) {
 						log.debug("Writing to " + c.getRemoteAddr());
-						_status.setMessage("Writing to " + c.getUserID() + " - " + c.getRemoteHost());
+						_cwStatus.setMessage("Writing to " + c.getUserID() + " - " + c.getRemoteHost());
 						c.queue((String) _env.getMessage());
 					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
 				} finally {
-					_status.complete();
+					_cwStatus.complete();
 					setBusy(false);
 				}
 				
 				// Check if we have too many idle threads
 				if (_work.isEmpty()) {
-					_status.setMessage("Checking Thread Pool");
+					_cwStatus.setMessage("Checking Thread Pool");
 					checkWriters(true);
 				}
 			}
 			
-			_status.setAlive(false);
-			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+			_cwStatus.setAlive(false);
+			_cwStatus.setStatus(WorkerStatus.STATUS_SHUTDOWN);
 		}
 	}
 
@@ -99,7 +103,8 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	}
 
 	/**
-	 * Opens the worker task.
+	 * Opens the worker task and initializes the ConnectionWriter thread pool.
+	 * @see Worker#open()
 	 */
 	public final void open() {
 		super.open();
@@ -112,7 +117,8 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	}
 	
 	/**
-	 * Closes the worker task.
+	 * Closes the worker task. All ConnectionWriter thrads will be shut down.
+	 * @see Worker#close()
 	 */
 	public final void close() {
 		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
@@ -123,9 +129,23 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		
 		super.close();
 	}
+	
+	/**
+	 * Returns the status of this Worker and the Connection writers.
+	 * @return a List of WorkerStatus beans, with this Worker's status first
+	 */
+	public final List<WorkerStatus> getStatus() {
+		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
+		for (Iterator<ConnectionWriter> i = _writers.iterator(); i.hasNext(); ) {
+			ConnectionWriter cw = i.next();
+			results.add(cw.getStatus());
+		}
+		
+		return results;
+	}
 
 	/**
-	 * ConnectionWriter exception handler
+	 * ConnectionWriter thread exception handler.
 	 * @param t the Thread with an exception
 	 * @param e the exception
 	 */
@@ -141,9 +161,9 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	}
 
 	/**
-	 * Executes the thread.
+	 * Executes the Thread.
 	 */
-	protected void $run0() throws Exception {
+	public void run() {
 		log.info("Started");
 
 		while (!Thread.currentThread().isInterrupted()) {
