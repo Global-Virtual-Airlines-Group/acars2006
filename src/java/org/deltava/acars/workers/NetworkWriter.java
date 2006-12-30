@@ -106,7 +106,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 * Opens the worker task and initializes the ConnectionWriter thread pool.
 	 * @see Worker#open()
 	 */
-	public final void open() {
+	public final synchronized void open() {
 		super.open();
 		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 
@@ -114,13 +114,15 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		int minThreads = SystemData.getInt("acars.pool.threads.write.min", 1);
 		for (int x = 0; x < minThreads; x++)
 			spawnWorker();
+		
+		log.info("Started " + _writers.size() + " ConnectionWriter threads");
 	}
 	
 	/**
 	 * Closes the worker task. All ConnectionWriter thrads will be shut down.
 	 * @see Worker#close()
 	 */
-	public final void close() {
+	public final synchronized void close() {
 		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
 		for (Iterator<? extends Thread> i = _writers.iterator(); i.hasNext(); ) {
 			Thread cw = i.next();
