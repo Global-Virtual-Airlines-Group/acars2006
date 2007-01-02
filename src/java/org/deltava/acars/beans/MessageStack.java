@@ -4,41 +4,49 @@ package org.deltava.acars.beans;
 import java.util.*;
 
 /**
- * An ACARS server message stack
+ * An ACARS server message stack.
  * @author Luke
  * @version 1.0
  * @since 1.0
  */
 
-public class MessageStack implements Iterator {
+public class MessageStack<T extends Envelope> implements Iterator<T> {
 
-	public static final MessageStack RAW_INPUT = new MessageStack();
-	public static final MessageStack MSG_INPUT = new MessageStack();
-	public static final MessageStack MSG_OUTPUT = new MessageStack();
-	public static final MessageStack RAW_OUTPUT = new MessageStack();
+	public static final MessageStack<TextEnvelope> RAW_INPUT = new MessageStack<TextEnvelope>();
+	public static final MessageStack<MessageEnvelope> MSG_INPUT = new MessageStack<MessageEnvelope>();
+	public static final MessageStack<MessageEnvelope> MSG_OUTPUT = new MessageStack<MessageEnvelope>();
+	public static final MessageStack<TextEnvelope> RAW_OUTPUT = new MessageStack<TextEnvelope>();
 
-	private final List<Envelope> _data = new ArrayList<Envelope>();
+	private final List<T> _data = new ArrayList<T>();
 
 	private MessageStack() {
 		super();
 	}
 
-	public synchronized void push(Envelope env) {
+	/**
+	 * Pushes an Envelope onto the Stack.
+	 * @param env the Envelope
+	 */
+	public synchronized void push(T env) {
 		_data.add(env);
 	}
 
-	public synchronized void push(Collection<Envelope> envs) {
+	/**
+	 * Pushes a number of Envelopes onto the Stack.
+	 * @param envs a Collection Envelopes
+	 */
+	public synchronized void push(Collection<T> envs) {
 		_data.addAll(envs);
 	}
 
-	public synchronized Envelope pop() {
+	public synchronized T pop() {
 
 		// If there is nothing in the stack, get nothing
 		if (_data.size() == 0)
 			return null;
 
 		// Get the first element and nuke it
-		Envelope env = _data.get(0);
+		T env = _data.get(0);
 		_data.remove(0);
 		return env;
 	}
@@ -52,7 +60,7 @@ public class MessageStack implements Iterator {
 		return (_data.size() > 0);
 	}
 
-	public synchronized Object next() {
+	public synchronized T next() {
 
 		// Throw an exception if nothing there
 		if (_data.size() == 0)

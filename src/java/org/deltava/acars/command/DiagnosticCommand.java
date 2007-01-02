@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -13,7 +13,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.security.UserBlocker;
-import org.deltava.acars.xml.MessageWriter;
 
 import org.deltava.dao.*;
 
@@ -36,7 +35,7 @@ public class DiagnosticCommand extends ACARSCommand {
 	 * @param env the message Envelope
 	 */
 	@SuppressWarnings("unchecked")
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message and the connection pool
 		DiagnosticMessage msg = (DiagnosticMessage) env.getMessage();
@@ -60,13 +59,12 @@ public class DiagnosticCommand extends ACARSCommand {
 				Collection<ACARSConnection> cons = cPool.get(msg.getRequestData());
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
-					MessageWriter.remove(ac.getID());
 					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 					
 					// Save the QUIT message
 					QuitMessage qmsg = new QuitMessage(ac.getUser());
 					qmsg.setFlightID(ac.getFlightID());
-					MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
+					MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, ac.getID()));
 					MessageStack.MSG_INPUT.wakeup(false);
 
 					// Send the ACK
@@ -125,14 +123,13 @@ public class DiagnosticCommand extends ACARSCommand {
 				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
-						MessageWriter.remove(ac.getID());
 						UserBlocker.ban(ac);
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 						
 						// Save the QUIT message
 						QuitMessage qmsg = new QuitMessage(ac.getUser());
 						qmsg.setFlightID(ac.getFlightID());
-						MessageStack.MSG_INPUT.push(new Envelope(qmsg, ac.getID()));
+						MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, ac.getID()));
 						MessageStack.MSG_INPUT.wakeup(false);
 						
 						// Send the ACK

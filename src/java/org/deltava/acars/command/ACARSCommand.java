@@ -1,7 +1,7 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import org.deltava.acars.beans.Envelope;
+import org.deltava.acars.beans.MessageEnvelope;
 
 /**
  * An ACARS server command object.
@@ -12,14 +12,12 @@ import org.deltava.acars.beans.Envelope;
 
 public abstract class ACARSCommand  {
 	
-	protected static final int MAX_EXEC_TIME = 1500; 
-
 	/**
 	 * Returns the maximum execution time of this command before a warning should be issued.
 	 * @return the maximum execution time in milliseconds
 	 */
 	public int getMaxExecTime() {
-		return MAX_EXEC_TIME;
+		return 1500;
 	}
 	
 	/**
@@ -27,5 +25,5 @@ public abstract class ACARSCommand  {
 	 * @param ctx the command context
 	 * @param env the Envelope to process
 	 */
-	public abstract void execute(CommandContext ctx, Envelope env);
+	public abstract void execute(CommandContext ctx, MessageEnvelope env);
 }

@@ -12,80 +12,43 @@ import org.deltava.beans.Pilot;
  * @since 1.0
  */
 
-public class DataResponseMessage extends DataMessage {
-
-	public class DataElement {
-
-		private String _name;
-
-		private Object _value;
-
-		public DataElement(String name, String value) {
-			super();
-			_name = name;
-			_value = value;
-		}
-
-		public DataElement(String name, Collection value) {
-			super();
-			_name = name;
-			_value = value;
-		}
-
-		public String getName() {
-			return _name;
-		}
-
-		public Object getValue() {
-			return _value;
-		}
-	}
+public abstract class DataResponseMessage<E> extends DataMessage {
 
 	// Response data
-	private final List<Object> _rspData = new ArrayList<Object>();
+	private final List<E> _rspData = new ArrayList<E>();
 	private long _parent;
 
 	/**
-	 * Creates a new Data Response Message
-	 * @param rType
-	 * @param msgFrom
+	 * Creates a new Data Response Message.
+	 * @param rType the message type
+	 * @param msgFrom the Data Response type
+	 * @param parentID the parent message ID
 	 */
-	public DataResponseMessage(Pilot msgFrom, int rType) {
+	public DataResponseMessage(Pilot msgFrom, int rType, long parentID) {
 		super(Message.MSG_DATARSP, msgFrom);
 		setRequestType(rType);
+		if (parentID > 0)
+			_parent = parentID;
 	}
 
-	public DataResponseMessage(Pilot msgFrom, String rType) {
-		super(Message.MSG_DATARSP, msgFrom);
-		setRequestType(rType);
-	}
-	
 	public long getParentID() {
 		return _parent;
 	}
 
-	public void addResponse(Object obj) {
+	public void add(E obj) {
 		// Check if we're not already in the response
 		if (obj == null)
 			return;
 
 		_rspData.add(obj);
 	}
-
-	public void addResponse(String name, String value) {
-		addResponse(new DataElement(name, value));
-	}
-
-	public void addResponse(String name, Collection value) {
-		addResponse(new DataElement(name, value));
-	}
 	
-	public void setParentID(long parentID) {
-		if (parentID > 0)
-			_parent = parentID;
+	public void addAll(Collection<E> entries) {
+		if (entries != null)
+			_rspData.addAll(entries);
 	}
 
-	public Collection getResponse() {
+	public List<E> getResponse() {
 		return _rspData;
 	}
 }

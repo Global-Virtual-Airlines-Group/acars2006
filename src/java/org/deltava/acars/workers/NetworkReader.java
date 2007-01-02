@@ -14,9 +14,6 @@ import org.deltava.acars.message.QuitMessage;
 
 import org.deltava.acars.security.UserBlocker;
 
-import org.deltava.acars.xml.MessageWriter;
-import org.deltava.acars.xml.XMLException;
-
 import org.deltava.beans.acars.ServerStats;
 import org.deltava.beans.system.VersionInfo;
 
@@ -35,7 +32,6 @@ public final class NetworkReader extends Worker {
 	// System hello message
 	private static final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
 
-	private ACARSConnectionPool _pool;
 	private Selector _cSelector;
 	private ServerSocketChannel _channel;
 
@@ -101,18 +97,13 @@ public final class NetworkReader extends Worker {
 			log.error("Error setting socket options - " + se.getMessage(), se);
 		}
 
-		// Register the channel with the selector and the message writer/dispatcher
+		// Register the channel with the selector
+		log.info("New Connection from " + con.getRemoteAddr());
 		try {
 			_pool.add(con);
-			MessageWriter.addConnection(con.getID(), null, 1);
-			log.info("New Connection from " + con.getRemoteAddr());
-			
-			// Say hello
 			con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
-		} catch (XMLException xe) {
-			log.error("Unable to register " + StringUtils.formatHex(con.getID()) + " with dispatcher - " + xe.getMessage(), xe);
 		}
 
 		// Update the max/current connection counts
@@ -126,9 +117,6 @@ public final class NetworkReader extends Worker {
 		// Load the list of blocked connections
 		_blockedAddrs = new HashSet<String>((Collection) SystemData.getObject("acars.block"));
 		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
-
-		// Get the ACARS Connection Pool
-		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 
 		// Init the server socket
 		try {
@@ -195,6 +183,7 @@ public final class NetworkReader extends Worker {
 	 */
 	public void run() {
 		log.info("Started");
+		_status.setStatus(WorkerStatus.STATUS_START);
 
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
@@ -224,7 +213,7 @@ public final class NetworkReader extends Worker {
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (!_pool.isEmpty()) {
 				_status.setMessage("Reading Inbound Messages");
-				Collection<Envelope> msgs = _pool.read();
+				Collection<TextEnvelope> msgs = _pool.read();
 				if (!msgs.isEmpty()) {
 					MessageStack.RAW_INPUT.push(msgs);
 					MessageStack.RAW_INPUT.wakeup(false);
@@ -237,15 +226,13 @@ public final class NetworkReader extends Worker {
 					for (Iterator<ACARSConnection> ic = disCon.iterator(); ic.hasNext();) {
 						ACARSConnection con = ic.next();
 						ServerStats.disconnect();
-						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr()
-								+ ") disconnected");
-						MessageWriter.remove(con.getID());
+						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
 						if (con.isAuthenticated()) {
 							log.debug("QUIT Message from " + con.getUser().getName());
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
-							MessageStack.MSG_INPUT.push(new Envelope(qmsg, con.getID()));
+							MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}
 					

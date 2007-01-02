@@ -29,7 +29,7 @@ public class PositionCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the Message and the ACARS Connection
 		PositionMessage msg = (PositionMessage) env.getMessage();

@@ -76,15 +76,13 @@ public class CommandContext {
 	public void pushAll(Message msg, long skipThisConID) {
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
-			if (c.isAuthenticated() && (c.getID() != skipThisConID)) {
-				Envelope env = new Envelope(msg, c.getID());
-				MessageStack.MSG_OUTPUT.push(env);
-			}
+			if (c.isAuthenticated() && (c.getID() != skipThisConID))
+				MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, c.getID()));
 		}
 	}
 
 	public void push(Message msg, long conID) {
-		MessageStack.MSG_OUTPUT.push(new Envelope(msg, conID));
+		MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, conID));
 	}
 	
 	public void setMessage(String msg) {
