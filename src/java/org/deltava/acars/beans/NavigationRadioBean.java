@@ -1,7 +1,7 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.navdata.*;
 
 /**
  * A bean to wrap a navaid with a radio name and heading.
@@ -10,28 +10,56 @@ import org.deltava.beans.navdata.NavigationDataBean;
  * @since 1.0
  */
 
-public class NavigationRadioBean {
+public class NavigationRadioBean extends NavigationFrequencyBean {
 
-	private NavigationDataBean _navaid;
 	private String _radio;
 	private String _hdg;
 	
+	/**
+	 * Initializes the bean.
+	 * @param radioName the name of the aircraft radio to set
+	 * @param navaid the navigation data bean
+	 * @param hdg the heading to set in degrees
+	 */
 	public NavigationRadioBean(String radioName, NavigationDataBean navaid, String hdg) {
-		super();
+		super(navaid.getType(), navaid.getLatitude(), navaid.getLongitude());
+		setName(navaid.getName());
+		setCode(navaid.getCode());
 		_radio = radioName.toLowerCase();
-		_navaid = navaid;
 		_hdg = hdg;
+		if (navaid instanceof NavigationFrequencyBean)
+			setFrequency(((NavigationFrequencyBean) navaid).getFrequency());
 	}
-	
+
+	/**
+	 * Returns the radio name.
+	 * @return the radio name
+	 */
 	public String getRadio() {
 		return _radio;
 	}
 	
+	/**
+	 * Returns the heading.
+	 * @return the heading in degrees
+	 */
 	public String getHeading() {
 		return _hdg;
 	}
 	
-	public NavigationDataBean getNavaid() {
-		return _navaid;
+	/**
+	 * Returns the Goole Maps icon color. <i>NOT IMPLEMENTED</i>
+	 * @throws UnsupportedOperationException always
+	 */
+	public String getIconColor() {
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * Returns the Goole Maps infobox text. <i>NOT IMPLEMENTED</i>
+	 * @throws UnsupportedOperationException always
+	 */
+	public String getInfoBox() {
+		throw new UnsupportedOperationException();
 	}
 }

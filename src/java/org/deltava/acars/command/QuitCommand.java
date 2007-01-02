@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.message.data.PilotMessage;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -30,7 +31,7 @@ public class QuitCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 	   
 	   // Get the message
 	   QuitMessage msg = (QuitMessage) env.getMessage();
@@ -56,8 +57,8 @@ public class QuitCommand extends ACARSCommand {
 	   }
 
 		// Create a deletepilots message - send to everyone except ourself
-		DataResponseMessage drmsg = new DataResponseMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER);
-		drmsg.addResponse(env.getOwner());
+		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());
+		drmsg.add(env.getOwner());
 		if (msg.isHidden()) {
 			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();

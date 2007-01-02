@@ -1,21 +1,53 @@
-/*
- * Created on Feb 6, 2004
- */
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
-import org.deltava.beans.Pilot;
+import java.util.Collection;
+
+import org.apache.log4j.Logger;
+
+import org.deltava.acars.beans.TextEnvelope;
 import org.deltava.acars.message.Message;
 
-import org.jdom.Element;
-
 /**
- * @author Luke J. Kolin
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
+ * @see MessageFormatter
  */
-interface MessageParser {
 
-	public abstract int getProtocolVersion();
-	public abstract Message parse(int msgType) throws XMLException;
-	public abstract void setElement(Element e);
-	public abstract void setUser(Pilot userInfo);
-	public abstract void setTime(long ts);
+public abstract class MessageParser {
+	
+	/**
+	 * XML header.
+	 */
+	protected static final String XML_HDR = "<?xml";
+	
+	protected Logger log;
+	private int _version;
+	
+	/**
+	 * Initializes the Message Parser.
+	 * @param version the protocol version supported
+	 */
+	protected MessageParser(int version) {
+		super();
+		_version = version;
+		log = Logger.getLogger(MessageParser.class.getName() + "v" + version);
+	}
+
+	/**
+	 * Returns the protocol version supported by this Formatter.
+	 * @return the protocol version
+	 */
+	public final int getProtocolVersion() {
+		return _version;
+	}
+	
+	/**
+	 * Parses a message Envelope.
+	 * @param e the Envelope
+	 * @return a Collection of Message beans
+	 * @throws XMLException if an error occurs
+	 */
+	public abstract Collection<Message> parse(TextEnvelope e) throws XMLException;
 }

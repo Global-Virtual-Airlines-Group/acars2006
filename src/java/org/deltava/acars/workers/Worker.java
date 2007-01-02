@@ -5,6 +5,9 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.acars.beans.ACARSConnectionPool;
+import org.deltava.util.system.SystemData;
+
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
@@ -17,6 +20,7 @@ public abstract class Worker implements Runnable {
 	protected Logger log;
 	private String _name;
 	
+	protected ACARSConnectionPool _pool;
 	protected WorkerStatus _status;
 	
 	/**
@@ -57,13 +61,18 @@ public abstract class Worker implements Runnable {
 		return _name;
 	}
 
-	// Default placeholder for the open() method; just sets status
+	/**
+	 * Initializes the Worker and grabs the ACARS Connection Pool.
+	 */
 	public void open() {
 		_status.setStatus(WorkerStatus.STATUS_INIT);
 		_status.setMessage("Initializing");
+		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 	}
 
-	// Default placeholder for the close() method; just sets status
+	/**
+	 * Closes the Worker.
+	 */
 	public void close() {
 		_status.setStatus(WorkerStatus.STATUS_UNKNOWN);
 		_status.setMessage("Shut Down");

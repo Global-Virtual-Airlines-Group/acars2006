@@ -26,7 +26,7 @@ public class DispatchCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the inbound message and the owner
 		Pilot usr = env.getOwner();

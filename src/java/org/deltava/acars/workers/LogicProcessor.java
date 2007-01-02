@@ -6,6 +6,7 @@ import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
+import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.util.*;
 
@@ -27,9 +28,9 @@ import org.deltava.util.system.SystemData;
 
 public class LogicProcessor extends Worker {
 
-	private ACARSConnectionPool _pool;
 	private static Map<Integer, ACARSCommand> _commands;
-	
+	private static Map<Integer, DataCommand> _dataCommands;
+
 	/**
 	 * Initializes the Worker.
 	 * @param threadID the worker instance ID
@@ -44,9 +45,6 @@ public class LogicProcessor extends Worker {
 	 */
 	public synchronized void open() {
 		super.open();
-		
-		// Get the ACARS Connection Pool
-		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 
 		// Initialize commands
 		if (_commands == null) {
@@ -56,22 +54,38 @@ public class LogicProcessor extends Worker {
 			_commands.put(new Integer(Message.MSG_POSITION), new PositionCommand());
 			_commands.put(new Integer(Message.MSG_TEXT), new TextMessageCommand());
 			_commands.put(new Integer(Message.MSG_AUTH), new AuthenticateCommand());
-			_commands.put(new Integer(Message.MSG_DATAREQ), new DataCommand());
 			_commands.put(new Integer(Message.MSG_INFO), new InfoCommand());
 			_commands.put(new Integer(Message.MSG_ENDFLIGHT), new EndFlightCommand());
 			_commands.put(new Integer(Message.MSG_QUIT), new QuitCommand());
-			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
 			_commands.put(new Integer(Message.MSG_PIREP), new FilePIREPCommand());
 			_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
 			_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
 			_commands.put(new Integer(Message.MSG_DISPATCH), new DispatchCommand());
-			log.info("Loaded " + _commands.size() + " commands");
 		}
+
+		// Initialize data commands
+		if (_dataCommands == null) {
+			_dataCommands = new HashMap<Integer, DataCommand>();
+			_dataCommands.put(new Integer(DataMessage.REQ_BUSY), new BusyCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_CHARTS), new ChartsCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_DRAFTPIREP), new DraftFlightCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_USRLIST), new UserListCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_ALLIST), new AirlineListCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_APLIST), new AirportListCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_EQLIST), new EquipmentListCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_SCHED), new ScheduleInfoCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_NAVAIDINFO), new NavaidCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_TS2SERVERS), new TS2ServerListCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
+			_dataCommands.put(new Integer(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
+		}
+
+		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
 	}
 
 	/**
 	 * Shuts down the worker and flushes the message/position caches if dirty.
-	 * @see Worker#close() 
+	 * @see Worker#close()
 	 */
 	public synchronized void close() {
 		PositionCommand.CACHE.force();
@@ -102,7 +116,7 @@ public class LogicProcessor extends Worker {
 
 			// Flush the cache
 			Collection<MessageCache<PositionMessage>.CacheEntry> entries = PositionCommand.CACHE.drain();
-			for (Iterator<MessageCache<PositionMessage>.CacheEntry> i = entries.iterator(); i.hasNext(); ) {
+			for (Iterator<MessageCache<PositionMessage>.CacheEntry> i = entries.iterator(); i.hasNext();) {
 				MessageCache<PositionMessage>.CacheEntry ce = i.next();
 				try {
 					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
@@ -110,7 +124,7 @@ public class LogicProcessor extends Worker {
 					log.error("Error writing position - " + de.getMessage(), de);
 				}
 			}
-			
+
 			dao.release();
 		} catch (Exception e) {
 			log.error("Cannot flush Position Cache - " + e.getMessage());
@@ -132,7 +146,7 @@ public class LogicProcessor extends Worker {
 
 			// Flush the cache
 			Collection<MessageCache<TextMessage>.CacheEntry> entries = TextMessageCommand.CACHE.drain();
-			for (Iterator<MessageCache<TextMessage>.CacheEntry> i = entries.iterator(); i.hasNext(); ) {
+			for (Iterator<MessageCache<TextMessage>.CacheEntry> i = entries.iterator(); i.hasNext();) {
 				MessageCache<TextMessage>.CacheEntry ce = i.next();
 				try {
 					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
@@ -140,7 +154,7 @@ public class LogicProcessor extends Worker {
 					log.error("Error writing position - " + de.getMessage(), de);
 				}
 			}
-			
+
 			dao.release();
 		} catch (Exception e) {
 			log.error("Cannot flush Text Message Cache - " + e.getMessage());
@@ -149,13 +163,13 @@ public class LogicProcessor extends Worker {
 		}
 	}
 
-	private void process(Envelope env) throws Exception {
+	private void process(MessageEnvelope env) throws Exception {
 		if (env == null)
 			return;
 
 		// Get the message and start time
 		long startTime = System.currentTimeMillis();
-		Message msg = (Message) env.getMessage();
+		Message msg = env.getMessage();
 		_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
 
 		// Check if we can be anonymous
@@ -170,18 +184,35 @@ public class LogicProcessor extends Worker {
 
 		// Log the received message and get the command to process it
 		log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
-		ACARSCommand cmd = _commands.get(new Integer(msg.getType()));
-		if (cmd != null) {
-			cmd.execute(ctx, env);
-			
-			// Calculate and log execution time
-			long execTime = System.currentTimeMillis() - startTime;
-			CommandStats.log(cmd.getClass(), execTime);
-			if (execTime > cmd.getMaxExecTime())
-				log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
+		ACARSCommand cmd = null;
+		if (msg.getType() == Message.MSG_DATAREQ) {
+			DataRequestMessage reqmsg = (DataRequestMessage) msg;
+			cmd = _dataCommands.get(new Integer(reqmsg.getRequestType()));
+			if (cmd == null) {
+				log.warn("No Data Command for " + DataMessage.REQ_TYPES[reqmsg.getRequestType()] + " request");
+				return;
+			}
+
+			// Log invocation
+			String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
+			log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
+			ctx.setMessage("Processing Data Request (" + reqType + ") from " + env.getOwnerID());
 		} else {
-			log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+			cmd = _commands.get(new Integer(msg.getType()));
+			if (cmd == null) {
+				log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+				return;
+			}
 		}
+
+		// Execute the command
+		cmd.execute(ctx, env);
+
+		// Calculate and log execution time
+		long execTime = System.currentTimeMillis() - startTime;
+		CommandStats.log(cmd.getClass(), execTime);
+		if (execTime > cmd.getMaxExecTime())
+			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 	}
 
 	/**
@@ -189,12 +220,13 @@ public class LogicProcessor extends Worker {
 	 */
 	public void run() {
 		log.info("Started");
+		_status.setStatus(WorkerStatus.STATUS_START);
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
 			long startTime = System.currentTimeMillis();
 			while (MessageStack.MSG_INPUT.hasNext()) {
-				Envelope env = MessageStack.MSG_INPUT.pop();
+				MessageEnvelope env = MessageStack.MSG_INPUT.pop();
 				try {
 					_status.execute();
 					process(env);
@@ -222,7 +254,7 @@ public class LogicProcessor extends Worker {
 					flushPositionCache();
 				else if (TextMessageCommand.CACHE.isDirty())
 					flushMessageCache();
-				
+
 				_status.complete();
 			}
 

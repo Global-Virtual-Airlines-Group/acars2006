@@ -19,14 +19,13 @@ import org.deltava.util.system.SystemData;
 public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHandler {
 
 	private final List<ConnectionWriter> _writers = new ArrayList<ConnectionWriter>();
-	protected final BlockingQueue<Envelope> _work = new LinkedBlockingQueue<Envelope>();
+	protected final BlockingQueue<TextEnvelope> _work = new LinkedBlockingQueue<TextEnvelope>();
 
-	protected ACARSConnectionPool _pool;
 	private int _writerID = 0;
 
 	private final class ConnectionWriter extends Thread {
 
-		private Envelope _env;
+		private TextEnvelope _env;
 		private WorkerStatus _cwStatus;
 		private boolean _isBusy;
 		private long _lastUse;
@@ -47,7 +46,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			_isBusy = isBusy;
 		}
 
-		public Envelope getEnvelope() {
+		public TextEnvelope getEnvelope() {
 			return _env;
 		}
 		
@@ -74,7 +73,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 					if (c != null) {
 						log.debug("Writing to " + c.getRemoteAddr());
 						_cwStatus.setMessage("Writing to " + c.getUserID() + " - " + c.getRemoteHost());
-						c.queue((String) _env.getMessage());
+						c.queue(_env.getMessage());
 					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
@@ -108,7 +107,6 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 */
 	public final synchronized void open() {
 		super.open();
-		_pool = (ACARSConnectionPool) SystemData.getObject(SystemData.ACARS_POOL);
 
 		// Create initial writer threads
 		int minThreads = SystemData.getInt("acars.pool.threads.write.min", 1);
@@ -167,6 +165,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 */
 	public void run() {
 		log.info("Started");
+		_status.setStatus(WorkerStatus.STATUS_START);
 
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.execute();
@@ -174,7 +173,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			// Loop through the raw output stack
 			while (MessageStack.RAW_OUTPUT.hasNext()) {
 				_status.setMessage("Dispatching - " + _writers.size() + " threads");
-				Envelope env = MessageStack.RAW_OUTPUT.pop();
+				TextEnvelope env = MessageStack.RAW_OUTPUT.pop();
 
 				// Get the connection and write the message
 				if (env != null)

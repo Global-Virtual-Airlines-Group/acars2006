@@ -232,13 +232,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 		return _cons.isEmpty();
 	}
 
-	public Collection<Envelope> read() {
+	public Collection<TextEnvelope> read() {
 		Collection<SelectionKey> keys = _cSelector.selectedKeys();
 		if (keys.isEmpty())
 			return Collections.emptySet();
 
 		// Get the list of channels waiting for input
-		Collection<Envelope> results = new ArrayList<Envelope>();
+		Collection<TextEnvelope> results = new ArrayList<TextEnvelope>();
 		for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = i.next();
 
@@ -249,7 +249,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 				try {
 					String msg = con.read();
 					if (msg != null) {
-						Envelope env = new Envelope(con.getUser(), msg, con.getID());
+						TextEnvelope env = new TextEnvelope(con.getUser(), msg, con.getID());
+						env.setVersion(con.getProtocolVersion());
 						results.add(env);
 					}
 				} catch (Exception e) {

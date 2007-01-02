@@ -35,7 +35,7 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Log PIREP filing
 		log.info("Receiving PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ")");

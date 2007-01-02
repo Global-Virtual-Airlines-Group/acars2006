@@ -1,0 +1,32 @@
+// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.message.data;
+
+import org.deltava.acars.message.DataResponseMessage;
+
+import org.deltava.beans.Pilot;
+
+/**
+ * An ACARS data response message to store Pilot information updates. In most cases it is preferrable to send a {@link
+ * ConnectionMessage} but for some message types where insufficient connection data is available, a PilotMessage may
+ * be sent.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
+ * @see ConnectionMessage
+ */
+
+public class PilotMessage extends DataResponseMessage<Pilot> {
+
+	public static final int REMOVE = REQ_REMOVEUSER;
+	public static final int BUSY = REQ_BUSY;
+	
+	/**
+	 * Instantiates the Message.
+	 * @param msgFrom the originating Pilot.
+	 * @param msgType the message type (Add/Remote/List)
+	 * @param parentID the request message ID
+	 */
+	public PilotMessage(Pilot msgFrom, int msgType, long parentID) {
+		super(msgFrom, msgType, parentID);
+	}
+}

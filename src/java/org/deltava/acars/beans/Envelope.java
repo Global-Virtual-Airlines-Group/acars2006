@@ -1,37 +1,41 @@
-/*
- * Created on Feb 9, 2004
- *
- * Links a messsage with its owner
- */
+// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
 import org.deltava.acars.message.Message;
 
 /**
- * @author Luke J. Kolin
+ * An Envelope is a bean used to link Messages or XML text with sender/addressee information.
+ * @author Luke
+ * @version 1.0
+ * @since 1.0
  */
-public class Envelope {
 
+public abstract class Envelope {
+
+	/**
+	 * The envelope payload.
+	 */
+	protected Object _payload;
+	
 	private Pilot _owner;
-	private Object _msg;
 	private long _cid;
 	private long _timeStamp;
 
 	// The bean should alraedy have what we need
-	public Envelope(Message msgData, long conID) {
+	protected Envelope(Message msgData, long conID) {
 		super();
 		_owner = msgData.getSender();
-		_msg = msgData;
+		_payload = msgData;
 		_timeStamp = msgData.getTime();
 		_cid = conID;
 	}
 
 	// Since were getting text, we need to supply a userID and do the timestamp ourselves
-	public Envelope(Pilot usrInfo, String msgText, long conID) {
+	protected Envelope(Pilot usrInfo, String msgText, long conID) {
 		super();
 		_owner = usrInfo;
-		_msg = msgText;
+		_payload = msgText;
 		_timeStamp = System.currentTimeMillis();
 		_cid = conID;
 	}
@@ -46,10 +50,6 @@ public class Envelope {
 
 	public String getOwnerID() {
 		return (_owner == null) ? Message.SYSTEM_NAME : _owner.getPilotCode();
-	}
-	
-	public Object getMessage() {
-		return _msg;
 	}
 	
 	public long getTime() {

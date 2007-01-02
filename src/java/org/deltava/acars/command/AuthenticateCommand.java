@@ -12,7 +12,7 @@ import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.acars.xml.*;
+import org.deltava.acars.message.data.ConnectionMessage;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
@@ -39,7 +39,7 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public void execute(CommandContext ctx, Envelope env) {
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 	   
 		// Get the message and validate the user ID
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
@@ -168,14 +168,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Log successful authentication
 		ServerStats.authenticate();
 
-		// Update the registration with the dispatcher - remove and re-register
-		try {
-			MessageWriter.remove(con.getID());
-			MessageWriter.addConnection(con.getID(), usr, con.getProtocolVersion());
-		} catch (XMLException xe) {
-			log.error("Cannot re-register " + StringUtils.formatHex(con.getID()) + " - " + xe.getMessage());
-		}
-		
 		// Save the connection data
 		try {
 			Connection c = ctx.getConnection();
@@ -196,8 +188,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 
 		// Tell everybody else that someone has logged on
-		DataResponseMessage drMsg = new DataResponseMessage(usr, DataMessage.REQ_ADDUSER);
-		drMsg.addResponse(con);
+		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, msg.getID());
+		drMsg.add(con);
 		if (con.getUserHidden()) {
 			for (Iterator<ACARSConnection> i  = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();

@@ -1,7 +1,7 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import org.deltava.acars.beans.Envelope;
+import org.deltava.acars.beans.MessageEnvelope;
 
 /**
  * An ACARS command to swallow messages.
@@ -9,6 +9,7 @@ import org.deltava.acars.beans.Envelope;
  * @version 1.0
  * @since 1.0
  */
+
 public class DummyCommand extends ACARSCommand {
 
    /**
@@ -16,7 +17,7 @@ public class DummyCommand extends ACARSCommand {
     * @param ctx the Command context
     * @param env the Message envelope
     */
-   public void execute(CommandContext ctx, Envelope env) {
+   public void execute(CommandContext ctx, MessageEnvelope env) {
       // NOOP
    }
 }

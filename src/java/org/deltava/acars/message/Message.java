@@ -29,7 +29,7 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_ACK = 4;
 	public static final int MSG_DIAG = 5;
 	public static final int MSG_AUTH = 6;
-	public static final int MSG_RAW = 7;
+	//public static final int MSG_RAW = 7;
 	public static final int MSG_DATARSP = 8;
 	public static final int MSG_PING = 9;
 	public static final int MSG_QUIT = 10;
