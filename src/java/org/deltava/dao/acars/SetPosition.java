@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -17,28 +17,12 @@ import org.deltava.acars.message.PositionMessage;
 
 public final class SetPosition extends DAO {
 
-	// SQL prepared statement syntax
-	private static final String SQL = 	"INSERT INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
-		+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, "
-		+ "WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-		+ "?, ?, ?, ?)";
-	
 	/**
 	 * Initializes the Data Access Object.
 	 * @param c the JDBC connection to use
 	 */
 	public SetPosition(Connection c) {
 		super(c);
-	}
-	
-	/**
-	 * Helper method to initialize the prepared statement.
-	 */
-	private void initStatement() throws SQLException {
-	   if (_ps == null)
-	      prepareStatementWithoutLimits(SQL);
-	   else
-	      _ps.clearParameters();
 	}
 	
 	/**
@@ -50,7 +34,10 @@ public final class SetPosition extends DAO {
 	 */
 	public void write(PositionMessage msg, long cid, int flightID) throws DAOException {
 		try {
-			initStatement();
+			prepareStatementWithoutLimits("INSERT INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
+					+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, "
+					+ "WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+					+ "?, ?, ?, ?)");
 			
 			// Set the prepared statement parameters
 			_ps.setLong(1, cid);
@@ -82,20 +69,9 @@ public final class SetPosition extends DAO {
 			_ps.setInt(27, msg.getFrameRate());
 			
 			// execute the statement
-			_ps.addBatch();
+			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
-	}
-
-	/**
-	 * Releases the prepared statement.
-	 */
-	public void release() {
-	   try {
-		   _ps.executeBatch();
-	      _ps.close();
-	   } catch (Exception e) {
-	   }
 	}
 }

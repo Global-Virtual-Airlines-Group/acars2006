@@ -82,7 +82,8 @@ public class CommandContext {
 	}
 
 	public void push(Message msg, long conID) {
-		MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, conID));
+		if (msg != null)
+			MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, conID));
 	}
 	
 	public void setMessage(String msg) {

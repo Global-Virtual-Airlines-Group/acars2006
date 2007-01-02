@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -67,9 +67,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			return;
 		}
 		
-		// Flush the Position Cache
-		PositionCommand.CACHE.force();
-
 		Connection con = null;
 		try {
 			con = ctx.getConnection();

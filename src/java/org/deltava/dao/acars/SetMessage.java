@@ -1,4 +1,4 @@
-// Copyright (c) 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -17,9 +17,6 @@ import org.deltava.acars.message.TextMessage;
 
 public class SetMessage extends DAO {
    
-   private static final String SQL = "INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) "
-      + "VALUES (?, ?, ?, ?, ?, ?)";
-
 	/**
 	 * Initialize the Data Access Object.
 	 * @param c the JDBC connection to use
@@ -29,16 +26,6 @@ public class SetMessage extends DAO {
 	}
 	
 	/**
-	 * Helper method to initialize the prepared statement.
-	 */
-	private void initStatement() throws SQLException {
-	   if (_ps == null)
-	      prepareStatementWithoutLimits(SQL);
-	   else
-	      _ps.clearParameters();
-	}
-
-	/**
 	 * Writes a chat message to the database.
 	 * @param msg the message
 	 * @param conID the Connection ID
@@ -47,7 +34,8 @@ public class SetMessage extends DAO {
 	 */
 	public void write(TextMessage msg, long conID, int recipientID) throws DAOException {
 		try {
-		   initStatement();
+		   prepareStatementWithoutLimits("INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) "
+				   + "VALUES (?, ?, ?, ?, ?, ?");
 
 		   // Set the prepared statement parameters
 			_ps.setLong(1, conID);
@@ -58,19 +46,9 @@ public class SetMessage extends DAO {
 			_ps.setString(6, msg.getText());
 			
 			// Update the database
-			_ps.executeUpdate();
+			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
-	}
-	
-	/**
-	 * Releases the prepared statement.
-	 */
-	public void release() {
-	   try {
-	      _ps.close();
-	   } catch (Exception e) {
-	   }
 	}
 }
