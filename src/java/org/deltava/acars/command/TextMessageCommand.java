@@ -1,16 +1,18 @@
 // Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.sql.Connection;
 import java.util.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
 
+import org.deltava.dao.DAOException;
+import org.deltava.dao.acars.SetMessage;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-
-import org.deltava.acars.util.MessageCache;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -24,8 +26,6 @@ import org.deltava.util.system.SystemData;
 
 public class TextMessageCommand extends ACARSCommand {
 	
-	public static final MessageCache<TextMessage> CACHE = new MessageCache<TextMessage>(10, 30000);
-
 	private static final Logger log = Logger.getLogger(TextMessageCommand.class);
 	
 	/**
@@ -81,7 +81,15 @@ public class TextMessageCommand extends ACARSCommand {
 			}
 		}
 		
-		// Cache the message
-		CACHE.push(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
+		// Write the message
+		try {
+			Connection con = ctx.getConnection(true);
+			SetMessage dao = new SetMessage(con);
+			dao.write(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
+		} catch (DAOException de) {
+			log.error("Error writing text message - " + de.getMessage(), de);
+		} finally {
+			ctx.release();
+		}
 	}
 }

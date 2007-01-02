@@ -2,22 +2,13 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
-import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
-import org.deltava.acars.util.*;
 
 import org.deltava.beans.acars.CommandStats;
-
-import org.deltava.jdbc.*;
-
-import org.deltava.dao.acars.*;
-import org.deltava.dao.DAOException;
-
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
@@ -81,86 +72,6 @@ public class LogicProcessor extends Worker {
 		}
 
 		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
-	}
-
-	/**
-	 * Shuts down the worker and flushes the message/position caches if dirty.
-	 * @see Worker#close()
-	 */
-	public synchronized void close() {
-		PositionCommand.CACHE.force();
-		if (PositionCommand.CACHE.isDirty()) {
-			log.info("Position Cache is Dirty - flushing");
-			flushPositionCache();
-		}
-
-		TextMessageCommand.CACHE.force();
-		if (TextMessageCommand.CACHE.isDirty()) {
-			log.info("Text Message Cache is Dirty - flushing");
-			flushMessageCache();
-		}
-
-		super.close();
-	}
-
-	private void flushPositionCache() {
-		log.debug("Flushing Position Cache");
-		_status.setMessage("Flushing Position Cache");
-
-		// Get the connection pool
-		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		Connection c = null;
-		try {
-			c = pool.getConnection(true);
-			SetPosition dao = new SetPosition(c);
-
-			// Flush the cache
-			Collection<MessageCache<PositionMessage>.CacheEntry> entries = PositionCommand.CACHE.drain();
-			for (Iterator<MessageCache<PositionMessage>.CacheEntry> i = entries.iterator(); i.hasNext();) {
-				MessageCache<PositionMessage>.CacheEntry ce = i.next();
-				try {
-					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
-				} catch (DAOException de) {
-					log.error("Error writing position - " + de.getMessage(), de);
-				}
-			}
-
-			dao.release();
-		} catch (Exception e) {
-			log.error("Cannot flush Position Cache - " + e.getMessage());
-		} finally {
-			pool.release(c);
-		}
-	}
-
-	private void flushMessageCache() {
-		log.debug("Flushing Text Message Cache");
-		_status.setMessage("Flushing Text Message Cache");
-
-		// Get the connection pool
-		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		Connection c = null;
-		try {
-			c = pool.getConnection(true);
-			SetMessage dao = new SetMessage(c);
-
-			// Flush the cache
-			Collection<MessageCache<TextMessage>.CacheEntry> entries = TextMessageCommand.CACHE.drain();
-			for (Iterator<MessageCache<TextMessage>.CacheEntry> i = entries.iterator(); i.hasNext();) {
-				MessageCache<TextMessage>.CacheEntry ce = i.next();
-				try {
-					dao.write(ce.getMessage(), ce.getConnectionID(), ce.getAuxID());
-				} catch (DAOException de) {
-					log.error("Error writing position - " + de.getMessage(), de);
-				}
-			}
-
-			dao.release();
-		} catch (Exception e) {
-			log.error("Cannot flush Text Message Cache - " + e.getMessage());
-		} finally {
-			pool.release(c);
-		}
 	}
 
 	private void process(MessageEnvelope env) throws Exception {
@@ -245,18 +156,6 @@ public class LogicProcessor extends Worker {
 
 			// Notify everyone waiting on the output stack
 			MessageStack.MSG_OUTPUT.wakeup(false);
-
-			// Check if we need to flush the position/message caches
-			_status.setMessage("Checking Message/Position Caches");
-			synchronized (LogicProcessor.class) {
-				_status.execute();
-				if (PositionCommand.CACHE.isDirty())
-					flushPositionCache();
-				else if (TextMessageCommand.CACHE.isDirty())
-					flushMessageCache();
-
-				_status.complete();
-			}
 
 			// Wait on the input queue
 			_status.setMessage("Idle");
