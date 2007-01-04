@@ -83,6 +83,9 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 	}
 	
 	public synchronized long getExecutionTime() {
+		if (_execStartTime == 0)
+			return 0;
+		
 		return ((_execStopTime == 0) ? System.currentTimeMillis() : _execStopTime) - _execStartTime;
 	}
 	
