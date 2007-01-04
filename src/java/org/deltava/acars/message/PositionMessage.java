@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -290,7 +290,7 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	}
 
 	public void setRadarAltitude(int alt) {
-		if ((alt >= -50) && (alt <= 120000))
+		if ((alt > 0) && (alt <= 120000))
 			this.r_altitude = alt;
 	}
 
