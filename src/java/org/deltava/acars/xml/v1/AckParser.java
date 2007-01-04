@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
 import org.jdom.Element;
@@ -29,7 +29,7 @@ class AckParser extends ElementParser {
 		// Get the id of the message we are acking
 		String txtID = e.getAttributeValue("id");
 		if (txtID == null)
-			throw new XMLException("No Message ID to Acknowledge");
+			return null;
 
 		// Create the bean and return it
 		try {
