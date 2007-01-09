@@ -35,7 +35,7 @@ public class SetMessage extends DAO {
 	public void write(TextMessage msg, long conID, int recipientID) throws DAOException {
 		try {
 		   prepareStatementWithoutLimits("INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) "
-				   + "VALUES (?, ?, ?, ?, ?, ?");
+				   + "VALUES (?, ?, ?, ?, ?, ?)");
 
 		   // Set the prepared statement parameters
 			_ps.setLong(1, conID);
