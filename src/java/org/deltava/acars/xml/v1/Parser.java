@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
 import java.util.*;
@@ -35,7 +35,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 		_eParsers.put(new Integer(Message.MSG_INFO), new FlightInfoParser());
 		_eParsers.put(new Integer(Message.MSG_PIREP), new FlightReportParser());
 		_eParsers.put(new Integer(Message.MSG_POSITION), new PositionParser());
-		_eParsers.put(new Integer(Message.MSG_TEXT), new AckParser());
+		_eParsers.put(new Integer(Message.MSG_TEXT), new TextMessageParser());
 	}
 	
 	/**
