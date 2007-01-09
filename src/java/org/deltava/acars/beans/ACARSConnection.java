@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -37,7 +37,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 
 	private SocketChannel _channel;
 	private Selector _wSelector;
-	
+
 	private InetAddress _remoteAddr;
 	private String _remoteHost;
 	private int _protocolVersion = 1;
@@ -64,7 +64,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
 	private long _lastActivityTime;
-	
+
 	// The write lock
 	private final ReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
 	private final Lock _wLock = _rwLock.writeLock();
@@ -115,7 +115,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 			_msgOutBuffer.clear();
 			_wLock.unlock();
 		}
-		
+
 		try {
 			_wSelector.close();
 			_channel.close();
@@ -177,11 +177,11 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	public PositionMessage getPosition() {
 		return _pInfo;
 	}
-	
+
 	public boolean getUserBusy() {
 		return _isUserBusy;
 	}
-	
+
 	public boolean getUserHidden() {
 		return _isUserHidden;
 	}
@@ -197,7 +197,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	public long getMsgsOut() {
 		return _msgsOut;
 	}
-	
+
 	public long getBufferWrites() {
 		return _bufferWrites;
 	}
@@ -205,7 +205,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	public int getProtocolVersion() {
 		return _protocolVersion;
 	}
-	
+
 	public boolean getIsDispatch() {
 		return _isDispatch;
 	}
@@ -251,6 +251,9 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	}
 
 	public void setPosition(PositionMessage msg) {
+		if ((_pInfo != null) && (msg != null) && (msg.getDate().equals(_pInfo.getDate())))
+			msg.setDate(new Date(msg.getDate().getTime() + 1000));
+
 		_pInfo = msg;
 	}
 
@@ -263,7 +266,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		if (ver > 0)
 			_clientVersion = ver;
 	}
-	
+
 	public void setIsDispatch(boolean isDispatch) {
 		_isDispatch = isDispatch;
 	}
@@ -271,11 +274,11 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	public void setUser(Pilot p) {
 		_userInfo = p;
 	}
-	
+
 	public void setUserBusy(boolean isBusy) {
 		_isUserBusy = isBusy;
 	}
-	
+
 	public void setUserHidden(boolean isHidden) {
 		_isUserHidden = isHidden;
 	}
@@ -283,7 +286,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	public void setUserLocation(UserData ud) {
 		_userData = ud;
 	}
-	
+
 	public String getRowClassName() {
 		return _isDispatch ? "opt2" : null;
 	}
@@ -359,7 +362,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		// Return the buffer
 		return msgOut.toString();
 	}
-	
+
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
 		if (_wLock.tryLock()) {
@@ -371,7 +374,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 			_wLock.unlock();
 		}
 	}
-	
+
 	protected synchronized void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
@@ -421,7 +424,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
-		
+
 		// Update statistics
 		_lastActivityTime = System.currentTimeMillis();
 		_bufferWrites += writeCount;

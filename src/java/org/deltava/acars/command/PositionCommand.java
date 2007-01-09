@@ -1,4 +1,4 @@
-// Copyright 2004,2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -74,10 +74,12 @@ public class PositionCommand extends ACARSCommand {
 					if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 						con.setPosition(msg);
 						if (msg.isLogged())
-							dao.write(msg, con.getID(), con.getFlightID());
+							dao.write(con.getPosition(), con.getID(), con.getFlightID());
 					} else
 						con.setPosition(null);
-				} else {
+				} else if (!msg.isLogged())
+					con.setPosition(msg);
+				else {
 					log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="
 							+ pmAge + "ms");
 					return;
