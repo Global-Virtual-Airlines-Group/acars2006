@@ -208,6 +208,11 @@ public class PositionMessage extends AbstractMessage implements GeoLocation, ACA
 	}
 
 	public void setAngleOfAttack(double aoa) {
+		if (aoa > 99.99)
+			aoa = 99.99;
+		else if (aoa < -99.99)
+			aoa = -99.99;
+			
 		_angleOfAttack = aoa;
 	}
 
