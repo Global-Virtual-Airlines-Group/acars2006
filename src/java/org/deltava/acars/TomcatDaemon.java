@@ -34,9 +34,10 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				// Check all of the threads
-				for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+				Map<Thread, Worker> threads = new HashMap<Thread,Worker >(_threads);
+				for (Iterator<Thread> i = threads.keySet().iterator(); i.hasNext();) {
 					Thread t = i.next();
-					Worker w = _threads.get(t);
+					Worker w = threads.get(t);
 					List<WorkerStatus> wsl = w.getStatus();
 					WorkerStatus ws = wsl.get(0);
 

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
 import java.util.*;
@@ -61,7 +61,7 @@ public class Formatter extends MessageFormatter {
 			log.warn("Cannot format " + msg.getClass().getSimpleName());
 		else {
 			Element e = efmt.format(msg);
-			if (msg instanceof DataResponseMessage)
+			if ((msg instanceof DataResponseMessage) && (e != null))
 				e.setAttribute("id", Long.toHexString(((DataResponseMessage) msg).getParentID()).toUpperCase());
 			
 			return e;

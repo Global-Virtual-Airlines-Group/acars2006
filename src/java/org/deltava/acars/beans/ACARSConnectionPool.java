@@ -172,10 +172,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	}
 
 	public ACARSConnection get(long cid) {
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.equals(cid))
-				return c;
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.equals(cid))
+					return c;
+			}
+		} catch (ConcurrentModificationException cme) {
+			return null;
 		}
 
 		// Return nothing if not found
