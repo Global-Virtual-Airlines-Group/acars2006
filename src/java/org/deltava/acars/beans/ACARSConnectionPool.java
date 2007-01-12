@@ -55,7 +55,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	 */
 	public Collection<RouteEntry> getMapEntries() {
 		Set<RouteEntry> results = new HashSet<RouteEntry>();
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = getPoolInfo().iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
 			if (re != null)
@@ -71,7 +71,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	 */
 	public Collection<Integer> getFlightIDs() {
 		Collection<Integer> results = new TreeSet<Integer>();
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = getPoolInfo().iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			int id = con.getFlightID();
 			if (id != 0)
