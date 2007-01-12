@@ -74,7 +74,7 @@ public class PositionCommand extends ACARSCommand {
 					if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 						con.setPosition(msg);
 						if (msg.isLogged())
-							dao.write(con.getPosition(), con.getID(), con.getFlightID());
+							dao.write(msg, con.getID(), con.getFlightID());
 					} else
 						con.setPosition(null);
 				} else if (!msg.isLogged())

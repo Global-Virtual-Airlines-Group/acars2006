@@ -251,9 +251,6 @@ public class ACARSConnection implements Comparable, ViewEntry {
 	}
 
 	public void setPosition(PositionMessage msg) {
-		if ((_pInfo != null) && (msg != null) && (msg.getDate().equals(_pInfo.getDate())))
-			msg.setDate(new Date(msg.getDate().getTime() + 1000));
-
 		_pInfo = msg;
 	}
 
