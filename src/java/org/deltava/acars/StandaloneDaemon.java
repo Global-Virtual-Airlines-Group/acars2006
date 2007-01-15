@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -13,6 +13,7 @@ import org.deltava.util.ThreadUtils;
 import org.deltava.util.system.SystemData;
 
 /**
+ * An ACARS Server daemon that can run outside of a servlet container.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -49,15 +50,17 @@ public class StandaloneDaemon extends ServerDaemon {
 				Thread.sleep(45000);
 
 				// Check all of the threads
-				for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
+				Map<Thread, Worker> threads = new HashMap<Thread,Worker >(_threads);
+				for (Iterator<Thread> i = threads.keySet().iterator(); i.hasNext();) {
 					Thread t = i.next();
-					Worker w = _threads.get(t);
+					Worker w = threads.get(t);
 					List<WorkerStatus> wsl = w.getStatus();
 					WorkerStatus ws = wsl.get(0);
 
 					// Get the thread status
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
+						_threads.remove(t);
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
@@ -68,7 +71,8 @@ public class StandaloneDaemon extends ServerDaemon {
 						log.warn("Last activity - " + ws.getMessage());
 
 						// Kill the worker thread
-						ThreadUtils.kill(t, 1000);
+						ThreadUtils.kill(t, 12500);
+						_threads.remove(t);
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
