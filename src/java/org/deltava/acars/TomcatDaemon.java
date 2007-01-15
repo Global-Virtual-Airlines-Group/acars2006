@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -45,6 +45,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 					ws.setAlive(t.isAlive());
 					if (!t.isAlive()) {
 						log.warn(t.getName() + " not running, restarting");
+						_threads.remove(t);
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
@@ -55,7 +56,8 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 						log.warn("Last activity - " + ws.getMessage());
 
 						// Kill the worker thread
-						ThreadUtils.kill(t, 1000);
+						ThreadUtils.kill(t, 1250);
+						_threads.remove(t);
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
