@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -19,9 +19,8 @@ import org.deltava.util.system.SystemData;
 public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHandler {
 
 	private final List<ConnectionWriter> _writers = new ArrayList<ConnectionWriter>();
+	protected final Map<Integer, WorkerStatus> _writerStatus = new TreeMap<Integer, WorkerStatus>();
 	protected final BlockingQueue<TextEnvelope> _work = new LinkedBlockingQueue<TextEnvelope>();
-
-	private int _writerID = 0;
 
 	private final class ConnectionWriter extends Thread {
 
@@ -34,7 +33,12 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			super("ConnectionWriter-" + String.valueOf(id));
 			setDaemon(true);
 			_lastUse = System.currentTimeMillis();
-			_cwStatus = new WorkerStatus(getName());
+			_cwStatus = _writerStatus.get(new Integer(id));
+			if (_cwStatus == null) {
+				_cwStatus = new WorkerStatus(getName());
+				_writerStatus.put(new Integer(id), _cwStatus);
+			}
+			
 			_cwStatus.setStatus(WorkerStatus.STATUS_INIT);
 		}
 
@@ -45,7 +49,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		private synchronized void setBusy(boolean isBusy) {
 			_isBusy = isBusy;
 		}
-
+		
 		public TextEnvelope getEnvelope() {
 			return _env;
 		}
@@ -136,11 +140,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 */
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
-		for (Iterator<ConnectionWriter> i = _writers.iterator(); i.hasNext(); ) {
-			ConnectionWriter cw = i.next();
-			results.add(cw.getStatus());
-		}
-		
+		results.addAll(_writerStatus.values());
 		return results;
 	}
 
@@ -192,12 +192,32 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			MessageStack.RAW_OUTPUT.waitForActivity();
 		}
 	}
+	
+	/**
+	 * Helper method to get the next available worker ID.
+	 */
+	private int getNextAvailableID() {
+		int id = 0;
+		for (Iterator<Integer> i = _writerStatus.keySet().iterator(); i.hasNext(); ) {
+			Integer workerID = i.next();
+			id++;
+			if (workerID.intValue() > id)
+				return id;
+
+			// Check if we're shut down
+			WorkerStatus status = _writerStatus.get(workerID);
+			if (status.getStatus() == WorkerStatus.STATUS_SHUTDOWN)
+				return id;
+		}
+		
+		return ++id;
+	}
 
 	/**
 	 * Helper method to spawn a new connection worker thread.
 	 */
 	private void spawnWorker() {
-		ConnectionWriter w = new ConnectionWriter(++_writerID);
+		ConnectionWriter w = new ConnectionWriter(getNextAvailableID());
 		w.setUncaughtExceptionHandler(this);
 		w.start();
 		_writers.add(w);
@@ -221,7 +241,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			int maxThreads = SystemData.getInt("acars.pool.threads.write.max", 2);
 			if ((workSize > 2) && (_writers.size() < maxThreads) && (envAge > 1250)) {
 				spawnWorker();
-				log.warn("ConnectionWriter Pool size increased to " + _writers.size());
+				log.info("ConnectionWriter Pool size increased to " + _writers.size());
 			} else if ((workSize > 2) && (envAge > 1500))
 				log.warn("Work queue entries = " + workSize + ", pool size = " + _writers.size());
 			else if (workSize == 1) {
@@ -247,7 +267,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 				log.debug("Interrupting idle " + cw.getName());
 				cw.interrupt();
 				i.remove();
-				log.warn("ConnectionWriter Pool size decreased to " + _writers.size());
+				log.info("ConnectionWriter Pool size decreased to " + _writers.size());
 			}
 		}
 	}
