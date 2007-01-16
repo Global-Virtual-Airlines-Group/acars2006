@@ -1,6 +1,7 @@
 // Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.Date;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -60,21 +61,31 @@ public class PositionCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
+		
+		// Calculate the age of the last message
+		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
+		long pmDate = msg.getDate().getTime() - ((oldPM == null) ? 0 : oldPM.getDate().getTime());
 
 		// Write to the database
 		try {
 			Connection c = ctx.getConnection(true);
 			SetPosition dao = new SetPosition(c);
 			if (msg.getNoFlood()) {
+				if (pmDate < 1000) 
+					msg.setDate(new Date(msg.getDate().getTime() + pmDate));
+				
 				dao.write(msg, con.getID(), con.getFlightID());
 			} else {
 				// Check for position flood
-				long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
 				if (pmAge >= SystemData.getInt("acars.position_interval")) {
 					if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 						con.setPosition(msg);
-						if (msg.isLogged())
+						if (msg.isLogged() && (pmDate > 0)) {
+							if (pmDate < 1000) 
+								msg.setDate(new Date(msg.getDate().getTime() + pmDate));
+							
 							dao.write(msg, con.getID(), con.getFlightID());
+						}
 					} else
 						con.setPosition(null);
 				} else if (!msg.isLogged())
