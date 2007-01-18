@@ -106,4 +106,11 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 		return results;
 	}
+	
+	/**
+	 * Returns the thread name.
+	 */
+	public String toString() {
+		return "ACARS Daemon";
+	}
 }
