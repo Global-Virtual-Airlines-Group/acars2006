@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import org.deltava.beans.ViewEntry;
@@ -10,7 +10,7 @@ import org.deltava.beans.ViewEntry;
  * @since 1.0
  */
 
-public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry {
+public class WorkerStatus implements Comparable, ViewEntry {
 	
 	public static final int STATUS_UNKNOWN = 0;
 	public static final int STATUS_SHUTDOWN = 1;
@@ -19,8 +19,7 @@ public class WorkerStatus implements java.io.Serializable, Comparable, ViewEntry
 	public static final int STATUS_START = 4;
 	public static final int STATUS_INIT = 5;
 	
-	public static final String[] STATUS_NAME = {"Unknown", "Shutdown Request", "Recycle Request", "Error",
-		"Started", "Initializing" };
+	public static final String[] STATUS_NAME = {"Unknown", "Shutdown", "Recycle Request", "Error", "Started", "Initializing" };
 	
 	private long _execStartTime;
 	private long _execStopTime;

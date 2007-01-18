@@ -95,6 +95,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			
 			_cwStatus.setAlive(false);
 			_cwStatus.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+			_cwStatus.setMessage("Shut Down");
 		}
 	}
 
