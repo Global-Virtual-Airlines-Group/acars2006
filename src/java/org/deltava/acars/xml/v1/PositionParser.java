@@ -1,8 +1,10 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.*;
+import java.util.*;
+
+import org.apache.log4j.Logger;
 
 import org.jdom.*;
 
@@ -20,6 +22,10 @@ import org.deltava.acars.xml.XMLException;
 
 class PositionParser extends ElementParser {
 	
+	private static final Logger log = Logger.getLogger(PositionParser.class);
+	
+	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+	
 	/**
 	 * Convert an XML position element into a PositionMessage.
 	 * @param e the XML element
@@ -30,13 +36,19 @@ class PositionParser extends ElementParser {
 		
 		// Create the bean
 		PositionMessage msg = new PositionMessage(user);
+		
+		// Get the millsecond portion of the current date for granularity
+		int ms  = Calendar.getInstance().get(Calendar.MILLISECOND);
 
 		// Parse the date
-		final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		String de = getChildText(e, "date", null);
 		try {
-			msg.setDate(dtf.parse(getChildText(e, "date", "")));
+			if (de != null) {
+				de = de + "." + String.valueOf(ms);
+				msg.setDate(_dtf.parse(de));
+			}
 		} catch (Exception ex) {
-			// empty
+			log.warn("Unparseable date - " + de);
 		}
 
 		// Get the basic information
