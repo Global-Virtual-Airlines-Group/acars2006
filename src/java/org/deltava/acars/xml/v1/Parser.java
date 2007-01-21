@@ -115,15 +115,15 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 					// Depending on the message type, either generate a message or lookup the parser in a map
 					switch (msgType) {
 						case Message.MSG_ENDFLIGHT:
-							results.add(new EndFlightMessage(env.getOwner()));
+							msg = new EndFlightMessage(env.getOwner()); 
 							break;
 
 						case Message.MSG_PING:
-							results.add(new PINGMessage(env.getOwner()));
+							msg = new PINGMessage(env.getOwner());
 							break;
 
 						case Message.MSG_QUIT:
-							results.add(new QuitMessage(env.getOwner()));
+							msg = new QuitMessage(env.getOwner());
 							break;
 
 						default:
