@@ -24,7 +24,7 @@ class PositionParser extends ElementParser {
 	
 	private static final Logger log = Logger.getLogger(PositionParser.class);
 	
-	private final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 	
 	/**
 	 * Convert an XML position element into a PositionMessage.
@@ -37,16 +37,16 @@ class PositionParser extends ElementParser {
 		// Create the bean
 		PositionMessage msg = new PositionMessage(user);
 		
-		// Get the millsecond portion of the current date for granularity
-		int ms  = Calendar.getInstance().get(Calendar.MILLISECOND);
-
 		// Parse the date
 		String de = getChildText(e, "date", null);
 		try {
-			if (de != null) {
+			if ((de != null) && (!de.contains("."))) {
+				int ms  = Calendar.getInstance().get(Calendar.MILLISECOND);
 				de = de + "." + String.valueOf(ms);
-				msg.setDate(_dtf.parse(de));
 			}
+			
+			if (de != null)
+				msg.setDate(_mdtf.parse(de));
 		} catch (Exception ex) {
 			log.warn("Unparseable date - " + de);
 		}
