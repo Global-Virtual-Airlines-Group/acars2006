@@ -1,7 +1,8 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -9,6 +10,12 @@ import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.acars.CommandStats;
+
+import org.deltava.dao.DAOException;
+import org.deltava.dao.acars.SetPosition;
+
+import org.deltava.jdbc.ConnectionPool;
+import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
@@ -124,6 +131,30 @@ public class LogicProcessor extends Worker {
 		CommandStats.log(cmd.getClass(), execTime);
 		if (execTime > cmd.getMaxExecTime())
 			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
+	}
+	
+	/**
+	 * Shuts down the worker.
+	 */
+	public final void close() {
+		synchronized (SetPosition.class) {
+			if (SetPosition.size() > 0) {
+				Connection con = null;
+				ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+				try {
+					con = cp.getConnection(true);
+					SetPosition dao = new SetPosition(con);
+					int entries = dao.flush();
+					log.warn("Flushed " + entries + " cached Position entries");
+				} catch (DAOException de) {
+					log.error("Error flushing Position cache - " + de.getMessage(), de);
+				} finally {
+					cp.release(con);
+				}
+			}
+		}
+		
+		super.close();
 	}
 
 	/**

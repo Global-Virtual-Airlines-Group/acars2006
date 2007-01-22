@@ -1,8 +1,8 @@
 // Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.util.Date;
 import java.sql.Connection;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +25,7 @@ import org.deltava.util.system.SystemData;
 public class PositionCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
+	private static final Semaphore _queueLock = new Semaphore(1, true);
 
 	/**
 	 * Executes the command.
@@ -35,11 +36,11 @@ public class PositionCommand extends ACARSCommand {
 
 		// Get the Message and the ACARS Connection
 		PositionMessage msg = (PositionMessage) env.getMessage();
-		ACARSConnection con = ctx.getACARSConnection();
-		if (con == null) {
+		ACARSConnection ac = ctx.getACARSConnection();
+		if (ac == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
 			return;
-		} else if (con.getIsDispatch()) {
+		} else if (ac.getIsDispatch()) {
 			log.warn("Dispatch Client sending Position Report!");
 			return;
 		}
@@ -50,10 +51,10 @@ public class PositionCommand extends ACARSCommand {
 			ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Get the last position report and its age
-		InfoMessage info = con.getFlightInfo();
-		PositionMessage oldPM = con.getPosition();
+		InfoMessage info = ac.getFlightInfo();
+		PositionMessage oldPM = ac.getPosition();
 		if (info == null) {
-			log.warn("No Flight Information for " + con.getUserID());
+			log.warn("No Flight Information for " + ac.getUserID());
 			if (ackMsg != null)
 				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
@@ -61,50 +62,53 @@ public class PositionCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
-		
+
 		// Calculate the age of the last message
 		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
-		long pmDate = msg.getDate().getTime() - ((oldPM == null) ? 0 : oldPM.getDate().getTime());
 
-		// Write to the database
-		try {
-			Connection c = ctx.getConnection(true);
-			SetPosition dao = new SetPosition(c);
-			if (msg.getNoFlood()) {
-				if (pmDate < 1000) 
-					msg.setDate(new Date(msg.getDate().getTime() + pmDate));
-				
-				dao.write(msg, con.getID(), con.getFlightID());
-			} else {
-				// Check for position flood
-				if (pmAge >= SystemData.getInt("acars.position_interval")) {
-					if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
-						con.setPosition(msg);
-						if (msg.isLogged() && (pmDate > 0)) {
-							if (pmDate < 1000) 
-								msg.setDate(new Date(msg.getDate().getTime() + pmDate));
-							
-							dao.write(msg, con.getID(), con.getFlightID());
-						}
-					} else
-						con.setPosition(null);
-				} else if (!msg.isLogged())
-					con.setPosition(msg);
-				else {
-					log.warn("Position flood from " + con.getUser().getName() + " (" + con.getUserID() + "), interval="
-							+ pmAge + "ms");
-					return;
-				}
+		// Queue it up
+		if (msg.getNoFlood())
+			SetPosition.queue(msg, ac.getID(), ac.getFlightID());
+		else {
+			// Check for position flood
+			if (pmAge >= SystemData.getInt("acars.position_interval")) {
+				if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
+					ac.setPosition(msg);
+					if (msg.isLogged())
+						SetPosition.queue(msg, ac.getID(), ac.getFlightID());
+				} else
+					ac.setPosition(null);
+			} else if (!msg.isLogged())
+				ac.setPosition(msg);
+			else {
+				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval="
+						+ pmAge + "ms");
+				return;
 			}
-		} catch (DAOException de) {
-			log.error("Error writing position - " + de.getMessage(), de);
-		} finally {
-			ctx.release();
+		}
+
+		// Check if the cache needs to be flushed
+		if (_queueLock.tryAcquire()) {
+			if (SetPosition.getMaxAge() > 45000) {
+				try {
+					Connection con = ctx.getConnection(true);
+					SetPosition dao = new SetPosition(con);
+					int entries = dao.flush();
+					if (log.isDebugEnabled())
+						log.debug("Flushed " + entries + " cached position entries");
+				} catch (DAOException de) {
+					log.error("Error flushing positions - " + de.getMessage(), de);
+				} finally {
+					ctx.release();
+				}
+
+				_queueLock.release();
+			}
 		}
 
 		// Log message received
 		ctx.push(ackMsg, env.getConnectionID());
 		if (log.isDebugEnabled())
-			log.debug("Received position from " + con.getUser().getPilotCode());
+			log.debug("Received position from " + ac.getUser().getPilotCode());
 	}
 }
