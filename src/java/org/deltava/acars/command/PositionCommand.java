@@ -2,7 +2,6 @@
 package org.deltava.acars.command;
 
 import java.sql.Connection;
-import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +24,6 @@ import org.deltava.util.system.SystemData;
 public class PositionCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
-	private static final Semaphore _queueLock = new Semaphore(1, true);
 
 	/**
 	 * Executes the command.
@@ -88,21 +86,18 @@ public class PositionCommand extends ACARSCommand {
 		}
 
 		// Check if the cache needs to be flushed
-		if (_queueLock.tryAcquire()) {
+		synchronized (SetPosition.class) {
 			if (SetPosition.getMaxAge() > 45000) {
 				try {
 					Connection con = ctx.getConnection(true);
 					SetPosition dao = new SetPosition(con);
 					int entries = dao.flush();
-					if (log.isDebugEnabled())
-						log.debug("Flushed " + entries + " cached position entries");
+					log.info("Flushed " + entries + " cached position entries");
 				} catch (DAOException de) {
 					log.error("Error flushing positions - " + de.getMessage(), de);
 				} finally {
 					ctx.release();
 				}
-
-				_queueLock.release();
 			}
 		}
 
