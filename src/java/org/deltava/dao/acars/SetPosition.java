@@ -96,7 +96,7 @@ public class SetPosition extends DAO {
 	 */
 	public int flush() throws DAOException {
 		try {
-			prepareStatementWithoutLimits("INSERT INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, TIME_MS, LAT, LNG, B_ALT, "
+			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, TIME_MS, LAT, LNG, B_ALT, "
 					+ "R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, "
 					+ "FUELFLOW, WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
 					+ "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
