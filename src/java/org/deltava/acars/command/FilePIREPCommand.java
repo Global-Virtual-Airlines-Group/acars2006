@@ -54,11 +54,6 @@ public class FilePIREPCommand extends ACARSCommand {
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
 		
-		// Convert the date into the user's local time zone
-		DateTime dt = new DateTime(afr.getDate());
-		dt.convertTo(ac.getUser().getTZ());
-		afr.setDate(dt.getDate());
-		
 		// If we have no flight info, then push it back
 		if (info == null) {
 			log.warn("No Flight Information found for ACARS Connection");
@@ -95,17 +90,26 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
 			}
-
+			
+			// Reload the User
+			GetPilot pdao = new GetPilot(con);
+			Pilot p = pdao.get(usrLoc);
+			
+			// Convert the date into the user's local time zone
+			DateTime dt = new DateTime(afr.getDate());
+			dt.convertTo(p.getTZ());
+			afr.setDate(dt.getDate());
+			
 			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
 			GetEquipmentType eqdao = new GetEquipmentType(con);
 			Collection<String> promoEQ = eqdao.getPrimaryTypes(usrLoc.getDB(), afr.getEquipmentType());
-			if (promoEQ.contains(ac.getUser().getEquipmentType()))
+			if (promoEQ.contains(p.getEquipmentType()))
 				afr.setCaptEQType(promoEQ);
 			
 			// Check if the user is rated to fly the aircraft
-			EquipmentType eq = eqdao.get(ac.getUser().getEquipmentType());
-			if (!ac.getUser().getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType()))
+			EquipmentType eq = eqdao.get(p.getEquipmentType());
+			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType()))
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			
 			// Check for historic aircraft
