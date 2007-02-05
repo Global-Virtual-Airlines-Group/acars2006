@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
-import org.deltava.security.Authenticator;
+import org.deltava.security.*;
 import org.deltava.acars.security.UserBlocker;
 
 import org.deltava.util.*;
@@ -67,7 +67,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
 			if (minBuilds != null) {
 				String ver = StringUtils.replace(msg.getVersion(), ".", "_");
-				minBuild = StringUtils.parse((String) minBuilds.get(ver), 0);
+				minBuild = StringUtils.parse((String) minBuilds.get(ver), 0); // FIXME replace with MAX_INT when Build 82 deprecated
 			}
 		}
 		
@@ -111,19 +111,24 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
-			auth.authenticate(usr, msg.getPassword());
+			if (auth instanceof SQLAuthenticator) {
+				SQLAuthenticator sqlAuth = (SQLAuthenticator) auth;
+				sqlAuth.setConnection(c);
+				sqlAuth.authenticate(usr, msg.getPassword());
+				sqlAuth.clearConnection();
+			} else
+				auth.authenticate(usr, msg.getPassword());
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK)) {
+			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
 				errMsg.setEntry("error", "ACARS Server access disabled");
-			} else if (UserBlocker.isBanned(usr)) {
+			else if (UserBlocker.isBanned(usr))
 				errMsg.setEntry("error", "ACARS Server temporary lockout");
-			} else if (msg.isDispatch() && (!usr.isInRole("Dispatch"))) {
+			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				errMsg.setEntry("error", "Dispatch not authorized");
-			} else {
+			else
 				errMsg.setEntry("error", "Authentication Failed");
-			}
 				
 			ctx.push(errMsg, env.getConnectionID());
 			usr = null;
@@ -149,6 +154,18 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.release();
 		}
 		
+		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
+		DateTime now = new DateTime(new Date());
+		long timeDiff = msg.getClientUTC().getTime() - now.getUTC().getTime() + 500;
+		if (Math.abs(timeDiff) > 14400000) {
+			log.error("Cannot authenticate " + usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", "Your system clock is " + timeDiff + " seconds off");
+			ctx.push(errMsg, env.getConnectionID());
+			return;
+		} else if (Math.abs(timeDiff) > 900000)
+			log.warn(usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
+		
 		// Get the ACARS connection
 		ACARSConnection con = ctx.getACARSConnection();
 
@@ -164,6 +181,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setClientVersion(msg.getClientBuild());
 		con.setIsDispatch(msg.isDispatch());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
+		con.setTimeOffset(timeDiff);
 		
 		// Log successful authentication
 		ServerStats.authenticate();
@@ -206,6 +224,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 		
 		// Set roles/ratings and if we are unrestricted
+		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))

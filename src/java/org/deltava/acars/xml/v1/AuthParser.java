@@ -1,11 +1,11 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
+
+import java.util.Date;
 
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
-import org.deltava.acars.message.Message;
-
 import org.deltava.acars.xml.XMLException;
 
 import org.deltava.util.StringUtils;
@@ -40,6 +40,19 @@ class AuthParser extends ElementParser {
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
 		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
+		
+		// Get the user's local UTC time
+		String utc = getChildText(e, "localUTC", null);
+		if (utc != null) {
+			try {
+				Date utcDate = StringUtils.parseDate(utc, "MM/dd/yyyy HH:mm:ss.SSS");
+				msg.setClientUTC(utcDate);
+			} catch (IllegalArgumentException iae) {
+				log.warn("Unparseable UTC date - " + utc);
+				msg.setClientUTC(new Date());
+			}
+		} else
+			msg.setClientUTC(new Date());
 
 		// Return the bean
 		return msg;

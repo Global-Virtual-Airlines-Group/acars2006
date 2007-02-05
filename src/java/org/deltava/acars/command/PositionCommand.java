@@ -12,6 +12,7 @@ import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetPosition;
 
+import org.deltava.util.CalendarUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -60,6 +61,9 @@ public class PositionCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
+		
+		// Adjust the message date
+		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
 
 		// Calculate the age of the last message
 		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
