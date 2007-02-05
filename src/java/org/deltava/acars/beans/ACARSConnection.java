@@ -338,7 +338,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 			CharBuffer cBuffer = decoder.decode(_iBuffer);
 			for (int x = cBuffer.position(); x < cBuffer.limit(); x++) {
 				char c = cBuffer.charAt(x);
-				if (c != 0)
+				if (c > 1)
 					_msgBuffer.append(c);
 			}
 		} catch (CharacterCodingException cce) {
@@ -347,7 +347,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
-			if (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1) {
+			if ((_msgBuffer.length() > 3) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
 				log.warn("Malformed message - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
 				_msgBuffer.setLength(0);
 			}
