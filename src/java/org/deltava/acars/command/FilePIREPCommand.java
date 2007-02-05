@@ -17,6 +17,7 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 
+import org.deltava.util.CalendarUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -53,6 +54,13 @@ public class FilePIREPCommand extends ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
+		
+		// Adjust the times
+		afr.setStartTime(CalendarUtils.adjustMS(afr.getStartTime(), ac.getTimeOffset()));
+		afr.setTaxiTime(CalendarUtils.adjustMS(afr.getTaxiTime(), ac.getTimeOffset()));
+		afr.setTakeoffTime(CalendarUtils.adjustMS(afr.getTakeoffTime(), ac.getTimeOffset()));
+		afr.setLandingTime(CalendarUtils.adjustMS(afr.getLandingTime(), ac.getTimeOffset()));
+		afr.setEndTime(CalendarUtils.adjustMS(afr.getEndTime(), ac.getTimeOffset()));
 		
 		// If we have no flight info, then push it back
 		if (info == null) {
