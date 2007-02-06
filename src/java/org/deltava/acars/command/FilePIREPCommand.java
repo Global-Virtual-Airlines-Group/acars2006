@@ -18,6 +18,7 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 
 import org.deltava.util.CalendarUtils;
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -64,7 +65,7 @@ public class FilePIREPCommand extends ACARSCommand {
 		
 		// If we have no flight info, then push it back
 		if (info == null) {
-			log.warn("No Flight Information found for ACARS Connection");
+			log.warn("No Flight Information for Connection " + StringUtils.formatHex(ac.getID()));
 			ackMsg.setEntry("sendInfo", "true");
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
