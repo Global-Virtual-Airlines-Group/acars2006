@@ -17,8 +17,7 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 
-import org.deltava.util.CalendarUtils;
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -150,7 +149,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Start the transaction
-			con.setAutoCommit(false);
+			ctx.startTX();
 
 			// Get the position write DAO and write the positions
 			if (info != null) {
@@ -192,18 +191,14 @@ public class FilePIREPCommand extends ACARSCommand {
 			wdao.writeACARS(afr, usrLoc.getDB());
 			
 			// Commit the transaction
-			con.commit();
+			ctx.commitTX();
 			
 			// Log completion
 			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (Exception e) {
-			try {
-				con.rollback();
-			} catch (Exception e2) {
-			} finally {
-				log.error(ac.getUserID() + " - " + e.getMessage(), e);
-				ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
-			}
+			ctx.rollbackTX();
+			log.error(ac.getUserID() + " - " + e.getMessage(), e);
+			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 		} finally {
 			ctx.release();
 		}
@@ -216,8 +211,7 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
-	@Override
 	public final int getMaxExecTime() {
-		return 3000;
+		return 2500;
 	}
 }

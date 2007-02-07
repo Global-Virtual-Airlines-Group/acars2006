@@ -1,8 +1,7 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
-import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
@@ -11,8 +10,6 @@ import org.deltava.acars.workers.WorkerStatus;
 
 import org.deltava.jdbc.*;
 
-import org.deltava.util.system.SystemData;
-
 /**
  * The ACARS command context object.
  * @author Luke
@@ -20,9 +17,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class CommandContext {
-
-	private Connection _con;
+public class CommandContext extends ConnectionContext {
 
 	private ACARSConnectionPool _pool;
 	private ACARSConnection _ac;
@@ -31,6 +26,9 @@ public class CommandContext {
 
 	/**
 	 * Initializes the Command Context.
+	 * @param acp the ACARS Connection Pool
+	 * @param conID the Connection ID
+	 * @param status the current Worker Thread status
 	 */
 	public CommandContext(ACARSConnectionPool acp, long conID, WorkerStatus status) {
 		super();
@@ -39,40 +37,37 @@ public class CommandContext {
 		_status = status;
 	}
 	
-	public Connection getConnection() throws ConnectionPoolException {
-	   return getConnection(false);
-	}
-
-	public Connection getConnection(boolean isSystem) throws ConnectionPoolException {
-		if (_con != null)
-			throw new IllegalStateException("JDBC Connection already reserved");
-
-		// Get the connection pool
-		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		_con = cp.getConnection(isSystem);
-		return _con;
-	}
-
-	public void release() {
-		if (_con != null) {
-			ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-			cp.release(_con);
-			_con = null;
-		}
-	}
-
+	/**
+	 * Returns the current ACARS Connection.
+	 * @return the ACARSConnection
+	 */
 	public ACARSConnection getACARSConnection() {
 		return _ac;
 	}
 
+	/**
+	 * Returns all ACARS Connections matching a particular Pilot ID.
+	 * @param pilotID the pilot ID
+	 * @return a Collection of ACARSConnection beans
+	 * @see ACARSConnectionPool#get(String)
+	 */
 	public Collection<ACARSConnection> getACARSConnections(String pilotID) {
 		return _pool.get(pilotID);
 	}
 
+	/**
+	 * Returns the ACARS Connection Pool.
+	 * @return the connection pool
+	 */
 	ACARSConnectionPool getACARSConnectionPool() {
 		return _pool;
 	}
 
+	/**
+	 * Sends a message to all <b>authenticated</b> ACARS connections.
+	 * @param msg the Message to send
+	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
+	 */
 	public void pushAll(Message msg, long skipThisConID) {
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
@@ -81,11 +76,20 @@ public class CommandContext {
 		}
 	}
 
+	/**
+	 * Sends a message.
+	 * @param msg the Message bean to push
+	 * @param conID the ID of the Connection to send to
+	 */
 	public void push(Message msg, long conID) {
 		if (msg != null)
 			MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, conID));
 	}
 	
+	/**
+	 * Updates the worker thread's status message.
+	 * @param msg the new status message
+	 */
 	public void setMessage(String msg) {
 		_status.setMessage(msg);
 	}
