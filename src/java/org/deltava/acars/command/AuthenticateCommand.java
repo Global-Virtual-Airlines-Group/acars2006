@@ -50,15 +50,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		   return;
 		}
 		
-		// Check for invalid version
-		// FIXME Build 82 handling
-		if ("v1.2".equals(msg.getVersion()) && ((msg.getClientBuild() == 81) || (msg.getClientBuild() == 80))) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "Obsolete ACARS Client - No Version specified");
-			ctx.push(errMsg, env.getConnectionID());
-			return;
-		}
-		
 		// Get the minimum build number
 		int minBuild = Integer.MAX_VALUE;
 		if (msg.isDispatch())
@@ -67,16 +58,17 @@ public class AuthenticateCommand extends ACARSCommand {
 			Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
 			if (minBuilds != null) {
 				String ver = StringUtils.replace(msg.getVersion(), ".", "_");
-				minBuild = StringUtils.parse((String) minBuilds.get(ver), 0); // FIXME replace with MAX_INT when Build 82 deprecated
+				minBuild = StringUtils.parse((String) minBuilds.get(ver), Integer.MAX_VALUE);
 			}
 		}
 		
 		// Check the minimum build number
 		if (msg.getClientBuild() < minBuild) {
 		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-		   if (minBuild == Integer.MAX_VALUE)
+		   if (minBuild == Integer.MAX_VALUE) {
 			   errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
-		   else
+			   log.warn(errMsg.getEntry("error"));
+		   } else
 			   errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild +" or newer");
 		   
 		   ctx.push(errMsg, env.getConnectionID());
