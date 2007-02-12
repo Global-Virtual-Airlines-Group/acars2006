@@ -28,22 +28,16 @@ public class SetPosition extends DAO {
 	private static class PositionCacheEntry {
 		
 		private PositionMessage _msg;
-		private long _conID;
 		private int _flightID;
 		
-		PositionCacheEntry(PositionMessage msg, long conID, int flightID) {
+		PositionCacheEntry(PositionMessage msg, int flightID) {
 			super();
 			_msg = msg;
-			_conID = conID;
 			_flightID = flightID;
 		}
 		
 		public PositionMessage getMessage() {
 			return _msg;
-		}
-		
-		public long getConnectionID() {
-			return _conID;
 		}
 		
 		public int getFlightID() {
@@ -62,15 +56,14 @@ public class SetPosition extends DAO {
 	/**
 	 * Adds a Position report to the queue.
 	 * @param msg the PositionMessage bean
-	 * @param cid the connection ID
 	 * @param flightID the flight ID
 	 * @see SetPosition#flush()
 	 */
-	public static void queue(PositionMessage msg, long cid, int flightID) {
+	public static void queue(PositionMessage msg, int flightID) {
 		if (_queue.isEmpty())
 			_maxAge = System.currentTimeMillis();
 		
-		_queue.add(new PositionCacheEntry(msg, cid, flightID));
+		_queue.add(new PositionCacheEntry(msg, flightID));
 	}
 	
 	/**
@@ -96,9 +89,9 @@ public class SetPosition extends DAO {
 	 */
 	public int flush() throws DAOException {
 		try {
-			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (CON_ID, FLIGHT_ID, REPORT_TIME, TIME_MS, LAT, LNG, B_ALT, "
+			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, TIME_MS, LAT, LNG, B_ALT, "
 					+ "R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, "
-					+ "FUELFLOW, WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+					+ "FUELFLOW, WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
 					+ "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Drain the queue
@@ -113,34 +106,33 @@ public class SetPosition extends DAO {
 				int ms = cld.get(Calendar.MILLISECOND);
 
 				// Set the prepared statement parameters
-				_ps.setLong(1, entry.getConnectionID());
-				_ps.setInt(2, entry.getFlightID());
-				_ps.setTimestamp(3, new Timestamp(cld.getTimeInMillis() - ms));
-				_ps.setInt(4, ms);
-				_ps.setDouble(5, msg.getLatitude());
-				_ps.setDouble(6, msg.getLongitude());
-				_ps.setInt(7, msg.getAltitude());
-				_ps.setInt(8, msg.getRadarAltitude());
-				_ps.setInt(9, msg.getHeading());
-				_ps.setInt(10, msg.getAspeed());
-				_ps.setInt(11, msg.getGspeed());
-				_ps.setInt(12, msg.getVspeed());
-				_ps.setDouble(13, msg.getN1());
-				_ps.setDouble(14, msg.getN2());
-				_ps.setDouble(15, msg.getMach());
-				_ps.setInt(16, msg.getFuelRemaining());
-				_ps.setInt(17, msg.getPhase());
-				_ps.setInt(18, msg.getSimRate());
-				_ps.setInt(19, msg.getFlags());
-				_ps.setInt(20, msg.getFlaps());
-				_ps.setDouble(21, msg.getPitch());
-				_ps.setDouble(22, msg.getBank());
-				_ps.setInt(23, msg.getFuelFlow());
-				_ps.setInt(24, msg.getWindHeading());
-				_ps.setInt(25, msg.getWindSpeed());
-				_ps.setDouble(26, msg.getAngleOfAttack());
-				_ps.setDouble(27, msg.getG());
-				_ps.setInt(28, msg.getFrameRate());
+				_ps.setInt(1, entry.getFlightID());
+				_ps.setTimestamp(2, new Timestamp(cld.getTimeInMillis() - ms));
+				_ps.setInt(3, ms);
+				_ps.setDouble(4, msg.getLatitude());
+				_ps.setDouble(5, msg.getLongitude());
+				_ps.setInt(6, msg.getAltitude());
+				_ps.setInt(7, msg.getRadarAltitude());
+				_ps.setInt(8, msg.getHeading());
+				_ps.setInt(9, msg.getAspeed());
+				_ps.setInt(10, msg.getGspeed());
+				_ps.setInt(11, msg.getVspeed());
+				_ps.setDouble(12, msg.getN1());
+				_ps.setDouble(13, msg.getN2());
+				_ps.setDouble(14, msg.getMach());
+				_ps.setInt(15, msg.getFuelRemaining());
+				_ps.setInt(16, msg.getPhase());
+				_ps.setInt(17, msg.getSimRate());
+				_ps.setInt(18, msg.getFlags());
+				_ps.setInt(19, msg.getFlaps());
+				_ps.setDouble(20, msg.getPitch());
+				_ps.setDouble(21, msg.getBank());
+				_ps.setInt(22, msg.getFuelFlow());
+				_ps.setInt(23, msg.getWindHeading());
+				_ps.setInt(24, msg.getWindSpeed());
+				_ps.setDouble(25, msg.getAngleOfAttack());
+				_ps.setDouble(26, msg.getG());
+				_ps.setInt(27, msg.getFrameRate());
 				_ps.addBatch();
 			}
 
