@@ -1,7 +1,6 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.sql.Connection;
 import java.util.*;
 
 import org.apache.log4j.Logger;
@@ -42,7 +41,7 @@ public class TextMessageCommand extends ACARSCommand {
 			log.warn("Attempt to send anonymous message");
 			return;
 		}
-			
+		
 		// If we have messaging restrictions on this user, apply the profanity filter
 		switch (usr.getACARSRestriction()) {
 			case Pilot.ACARS_NOMSGS:
@@ -72,20 +71,22 @@ public class TextMessageCommand extends ACARSCommand {
 			ctx.pushAll(txtRsp, env.getConnectionID());
 			log.info("Public message from " + usr.getPilotCode());
 		} else {
-			Collection<ACARSConnection> dstC = ctx.getACARSConnections(msg.getRecipient());
+			log.info("Message from " + usr.getPilotCode() + " to " + msg.getRecipient());
+			Collection<ACARSConnection> dstC = ctx.getACARSConnections(usr.isInRole("HR") ? msg.getRecipient() : "*");
 			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
-				log.info("Message from " + usr.getPilotCode() + " to " + ac.getUserID());
-				rUsr = ac.getUser();
-				ctx.push(txtRsp, ac.getID());
+				if (ac.getUserID().equalsIgnoreCase(msg.getRecipient()))  {
+					rUsr = ac.getUser();
+					ctx.push(txtRsp, ac.getID());
+				} else if (ac.getUserHidden() && !ac.getUserBusy())
+					ctx.push(txtRsp, ac.getID());
 			}
 		}
 		
 		// Write the message
 		try {
-			Connection con = ctx.getConnection(true);
-			SetMessage dao = new SetMessage(con);
-			dao.write(msg, env.getConnectionID(), (rUsr == null) ? 0 : rUsr.getID());
+			SetMessage dao = new SetMessage(ctx.getConnection(true));
+			dao.write(msg, (rUsr == null) ? 0 : rUsr.getID());
 		} catch (DAOException de) {
 			log.error("Error writing text message - " + de.getMessage(), de);
 		} finally {

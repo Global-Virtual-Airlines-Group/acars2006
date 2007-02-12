@@ -29,6 +29,9 @@ class TextMessageFormatter extends ElementFormatter {
 		// Create the element
 		Element e = initResponse(msg.getType());
 		e.addContent(XMLUtils.createElement("from", msg.getSenderID()));
+		if (msg.getSender() != null)
+			e.addContent(XMLUtils.createElement("fromName", msg.getSender().getName()));
+		
 		e.addContent(XMLUtils.createElement("text", tmsg.getText()));
 		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 		if (!msg.isPublic())
