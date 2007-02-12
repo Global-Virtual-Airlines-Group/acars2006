@@ -28,22 +28,17 @@ public class SetMessage extends DAO {
 	/**
 	 * Writes a chat message to the database.
 	 * @param msg the message
-	 * @param conID the Connection ID
 	 * @param recipientID the message recipient
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void write(TextMessage msg, long conID, int recipientID) throws DAOException {
+	public void write(TextMessage msg, int recipientID) throws DAOException {
 		try {
-		   prepareStatementWithoutLimits("INSERT INTO acars.MESSAGES (CON_ID, ID, DATE, AUTHOR, RECIPIENT, BODY) "
-				   + "VALUES (?, ?, ?, ?, ?, ?)");
+		   prepareStatement("INSERT INTO acars.MESSAGES (DATE, AUTHOR, RECIPIENT, BODY) VALUES (NOW(), ?, ?, ?)");
 
 		   // Set the prepared statement parameters
-			_ps.setLong(1, conID);
-			_ps.setLong(2, msg.getID());
-			_ps.setTimestamp(3, new Timestamp(msg.getTime()));
-			_ps.setInt(4, msg.getSender().getID());
-			_ps.setInt(5, recipientID);
-			_ps.setString(6, msg.getText());
+			_ps.setInt(1, msg.getSender().getID());
+			_ps.setInt(2, recipientID);
+			_ps.setString(3, msg.getText());
 			
 			// Update the database
 			executeUpdate(1);
