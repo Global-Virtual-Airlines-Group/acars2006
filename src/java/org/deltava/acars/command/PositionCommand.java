@@ -70,14 +70,14 @@ public class PositionCommand extends ACARSCommand {
 
 		// Queue it up
 		if (msg.getNoFlood())
-			SetPosition.queue(msg, ac.getID(), ac.getFlightID());
+			SetPosition.queue(msg, ac.getFlightID());
 		else {
 			// Check for position flood
 			if (pmAge >= SystemData.getInt("acars.position_interval")) {
 				if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
 					ac.setPosition(msg);
 					if (msg.isLogged())
-						SetPosition.queue(msg, ac.getID(), ac.getFlightID());
+						SetPosition.queue(msg, ac.getFlightID());
 				} else
 					ac.setPosition(null);
 			} else if (!msg.isLogged())
