@@ -33,7 +33,8 @@ public class SetMessage extends DAO {
 	 */
 	public void write(TextMessage msg, int recipientID) throws DAOException {
 		try {
-		   prepareStatement("INSERT INTO acars.MESSAGES (DATE, AUTHOR, RECIPIENT, BODY) VALUES (NOW(), ?, ?, ?)");
+		   prepareStatement("INSERT INTO acars.MESSAGES (DATE, AUTHOR, RECIPIENT, BODY) VALUES (NOW(), ?, ?, ?) "
+				   + "ON DUPLICATE KEY UPDATE DATE=DATE_ADD(DATE, INTERVAL 1 SECOND)");
 
 		   // Set the prepared statement parameters
 			_ps.setInt(1, msg.getSender().getID());
