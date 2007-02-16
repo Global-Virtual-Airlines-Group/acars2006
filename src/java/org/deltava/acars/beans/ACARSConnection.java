@@ -347,7 +347,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
-			if ((_msgBuffer.length() > 3) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
+			if ((_msgBuffer.length() > 48) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
 				log.warn("Malformed message - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
 				_msgBuffer.setLength(0);
 			}
