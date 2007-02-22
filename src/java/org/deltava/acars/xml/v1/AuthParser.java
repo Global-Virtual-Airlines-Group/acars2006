@@ -44,6 +44,9 @@ class AuthParser extends ElementParser {
 		// Get the user's local UTC time
 		String utc = getChildText(e, "localUTC", null);
 		if (utc != null) {
+			if (utc.indexOf('.') == -1)
+				utc = utc + ".000";
+			
 			try {
 				Date utcDate = StringUtils.parseDate(utc, "MM/dd/yyyy HH:mm:ss.SSS");
 				msg.setClientUTC(utcDate);
