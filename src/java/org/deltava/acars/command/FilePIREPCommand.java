@@ -101,6 +101,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Reload the User
 			GetPilot pdao = new GetPilot(con);
+			GetPilot.invalidate(usrLoc.getID());
 			Pilot p = pdao.get(usrLoc);
 			
 			// Convert the date into the user's local time zone
