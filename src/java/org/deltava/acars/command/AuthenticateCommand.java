@@ -146,6 +146,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.release();
 		}
 		
+		// Get the ACARS connection
+		ACARSConnection con = ctx.getACARSConnection();
+		if ((usr == null) || (con == null))
+			return;
+		
 		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
 		DateTime now = new DateTime(new Date());
 		long timeDiff = msg.getClientUTC().getTime() - now.getUTC().getTime() + 500;
@@ -158,13 +163,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		} else if (Math.abs(timeDiff) > 900000)
 			log.warn(usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
 		
-		// Get the ACARS connection
-		ACARSConnection con = ctx.getACARSConnection();
-
-		// If we're not logged in or the connection is gone, abort
-		if ((usr == null) || (con == null))
-			return;
-
 		// Log the user in
 		usr.login(con.getRemoteHost());
 		con.setUser(usr);
