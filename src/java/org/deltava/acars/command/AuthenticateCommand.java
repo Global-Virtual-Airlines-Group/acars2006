@@ -196,6 +196,9 @@ public class AuthenticateCommand extends ACARSCommand {
 				SetTS2Data ts2wdao = new SetTS2Data(c);
 				ts2wdao.setActive(usr.getPilotCode(), true);
 			}
+			
+			// Commit
+			ctx.commitTX();
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			log.error("Error logging connection", de);
