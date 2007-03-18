@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
 import java.util.*;
@@ -43,6 +43,7 @@ class AircraftFormatter extends ElementFormatter {
 				ae.setAttribute("name", a.getName());
 				ae.setAttribute("engines", String.valueOf(a.getEngines()));
 				ae.setAttribute("historic", String.valueOf(a.getHistoric()));
+				ae.addContent(XMLUtils.createElement("fullName", a.getFullName()));
 				ae.addContent(XMLUtils.createElement("engineType", a.getEngineType()));
 				ae.addContent(XMLUtils.createElement("range", String.valueOf(a.getRange())));
 				ae.addContent(XMLUtils.createElement("cruiseSpeed", String.valueOf(a.getCruiseSpeed())));
