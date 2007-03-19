@@ -164,13 +164,12 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void setFSVersion(int ver) {
-		if (ver > 20) {
+		if (ver > 20)
 			_fsVersion = ver;
-		} else if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length)) {
+		else if ((ver > 0) && (ver <= FSUIPC_FS_VERSIONS.length))
 			_fsVersion = FSUIPC_FS_VERSIONS[ver - 1];
-		} else {
+		else
 			_fsVersion = 2004;
-		}
 	}
 	
 	public void setOffline(boolean isOffline) {
