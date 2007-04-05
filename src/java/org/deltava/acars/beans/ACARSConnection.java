@@ -427,7 +427,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 			_bytesOut += ofs;
 			_msgsOut++;
 		} catch (ClosedSelectorException cse) {
-			log.warn("Cannot write to " + _remoteAddr.getHostAddress() + " - selector closed");
+			log.info("Cannot write to " + _remoteAddr.getHostAddress() + " - selector closed");
 		} catch (AsynchronousCloseException ace) {
 			log.warn("Connection for " + getUserID() + " closed during write");
 		} catch (IOException ie) {
