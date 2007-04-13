@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -55,7 +55,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	 */
 	public Collection<RouteEntry> getMapEntries() {
 		Set<RouteEntry> results = new HashSet<RouteEntry>();
-		for (Iterator<ACARSConnection> i = getPoolInfo().iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = getPoolInfo(true).iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
 			if (re != null)
@@ -71,7 +71,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	 */
 	public Collection<Integer> getFlightIDs() {
 		Collection<Integer> results = new TreeSet<Integer>();
-		for (Iterator<ACARSConnection> i = getPoolInfo().iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = getPoolInfo(true).iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			int id = con.getFlightID();
 			if (id != 0)
@@ -83,10 +83,20 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 
 	/**
 	 * Returns Connection Pool data to a web application.
+	 * @param showHidden TRUE if stealth connections should be displayed, otherwise FALSE
 	 * @return a Collection of ACARSConnection beans
 	 */
-	public Collection<ACARSConnection> getPoolInfo() {
-		return new ArrayList<ACARSConnection>(_cons);
+	public Collection<ACARSConnection> getPoolInfo(boolean showHidden) {
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
+		if (!showHidden) {
+			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
+				ACARSConnection ac = i.next();
+				if (ac.getUserHidden())
+					i.remove();
+			}
+		}
+		
+		return cons; 
 	}
 	
 	/**

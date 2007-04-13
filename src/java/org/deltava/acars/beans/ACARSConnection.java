@@ -27,7 +27,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Comparable, ViewEntry {
+public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 
 	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
 	private static final int MAX_WRITE_ATTEMPTS = 32;
@@ -297,8 +297,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		return _isDispatch ? "opt2" : null;
 	}
 
-	public int compareTo(Object o2) {
-		ACARSConnection c2 = (ACARSConnection) o2;
+	public int compareTo(ACARSConnection c2) {
 		if (!isAuthenticated())
 			return -1;
 		else if (!c2.isAuthenticated())
@@ -347,7 +346,7 @@ public class ACARSConnection implements Comparable, ViewEntry {
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
-			if ((_msgBuffer.length() > 48) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
+			if ((_msgBuffer.length() > 52) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
 				log.warn("Malformed message - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
 				_msgBuffer.setLength(0);
 			}
