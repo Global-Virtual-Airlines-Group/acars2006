@@ -1,15 +1,17 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
+
+import java.util.*;
 
 import org.jdom.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.xml.ProtocolInfo;
 
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.schedule.*;
 
-import org.deltava.util.StringUtils;
-import org.deltava.util.XMLUtils;
+import org.deltava.util.*;
+import org.deltava.util.system.SystemData;
 
 /**
  * A formatter to create XML command elements.
@@ -38,6 +40,18 @@ abstract class ElementFormatter {
 			ae.setAttribute("iata", a.getIATA());
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
+			
+			// Attach airlines
+			for (Iterator<String> i = a.getAirlineCodes().iterator(); i.hasNext(); ) {
+				String aCode = i.next();
+				Airline al = SystemData.getAirline(aCode);
+				
+				// Build the airline element
+				Element ale = new Element("airline");
+				ale.setAttribute("code", al.getCode());
+				ale.setAttribute("name", al.getName());
+				ae.addContent(ale);
+			}
 		}
 
 		return ae;
