@@ -131,7 +131,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setCaptEQType(promoEQ);
 			
 			// Check if the user is rated to fly the aircraft
-			EquipmentType eq = eqdao.get(p.getEquipmentType());
+			EquipmentType eq = eqdao.get(p.getEquipmentType(), usrLoc.getDB());
 			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType()))
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			
