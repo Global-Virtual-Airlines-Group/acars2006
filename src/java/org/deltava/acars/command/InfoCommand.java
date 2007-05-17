@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -87,6 +87,15 @@ public class InfoCommand extends ACARSCommand {
 			ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
 			if (cr != null)
 				ackMsg.setEntry("crName", cr.getName());
+			
+			// Turn on Naegle's algorithm
+			try {
+				ACARSConnection ac = ctx.getACARSConnection();
+				if (ac.getSocket().getTcpNoDelay())
+					ac.getSocket().setTcpNoDelay(false);
+			} catch (Exception se) {
+				log.error("Error setting TCP/IP Naegle's algorithm - " + se.getMessage());
+			}
 
 			// Write the flight information
 			SetInfo infoDAO = new SetInfo(c);
@@ -98,11 +107,10 @@ public class InfoCommand extends ACARSCommand {
 		}
 
 		// Log returned flight id
-		if (assignID) {
+		if (assignID)
 			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
-		} else {
+		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
-		}
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
@@ -110,10 +118,9 @@ public class InfoCommand extends ACARSCommand {
 
 		// Set the info for the connection and write it to the database
 		con.setFlightInfo(msg);
-		if (msg.isComplete()) {
+		if (msg.isComplete())
 			log.info("Received completed " + flightType + " flight information from " + con.getUserID());
-		} else {
+		else
 			log.info("Received " + flightType + " flight information from " + con.getUserID());
-		}
 	}
 }
