@@ -39,7 +39,12 @@ class AuthParser extends ElementParser {
 		msg.setVersion(getChildText(e, "version", "v1.2"));
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
+		msg.setDatabaseID(Boolean.valueOf(getChildText(e, "isID", null)).booleanValue());
 		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
+		
+		// Validate the database ID
+		if (msg.isID() && (StringUtils.parse(userID, 0) < 1))
+			throw new XMLException("Invalid Database ID - " + userID);
 		
 		// Get the user's local UTC time
 		String utc = getChildText(e, "localUTC", null);
