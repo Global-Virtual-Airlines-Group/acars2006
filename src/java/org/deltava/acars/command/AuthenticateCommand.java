@@ -85,22 +85,30 @@ public class AuthenticateCommand extends ACARSCommand {
 		Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection(true);
-
-			// Figure out the DN from the Pilot ID
+			
+			// Get the DAOs
 			GetPilot pdao = new GetPilot(c);
-			pdao.setQueryMax(1);
-			usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
+			GetUserData udao = new GetUserData(c);
+			
+			// If we're using a database ID to authenticate, load it differently
+			if (msg.isID()) {
+				ud = udao.get(StringUtils.parse(msg.getUserID(), 0));
+				if (ud == null)
+					throw new SecurityException("Invalid database ID - " + msg.getUserID());
+				
+				usr = pdao.get(ud);
+			} else {
+				pdao.setQueryMax(1);
+				usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
+				ud = udao.get(usr.getID());
+			}
+
+			// Check security access before we validate the password
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || UserBlocker.isBanned(usr))
 				throw new SecurityException();
-			
-			// Check dispatch access
-			if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
+			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
 			
-			// Get the User location data
-			GetUserData udao = new GetUserData(c);
-			ud = udao.get(usr.getID());
-
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			if (auth instanceof SQLAuthenticator) {
@@ -127,11 +135,10 @@ public class AuthenticateCommand extends ACARSCommand {
 		} catch (DAOException de) {
 		   usr = null;
 		   String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
-		   if (de.isWarning()) {
+		   if (de.isWarning())
 		      log.warn(errorMsg);
-		   } else {
+		   else
 		      log.error(errorMsg, de.getLogStackDump() ? de : null);
-		   }
 		   
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed - " + de.getMessage());
@@ -225,6 +232,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 		
 		// Set roles/ratings and if we are unrestricted
+		ackMsg.setEntry("userID", usr.getPilotCode());
 		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));

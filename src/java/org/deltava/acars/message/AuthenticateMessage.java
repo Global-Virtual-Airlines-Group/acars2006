@@ -19,6 +19,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private String _version;
 	private boolean _isDispatch;
 	private boolean _isHidden;
+	private boolean _isID;
 	
 	private Date _clientUTC;
 
@@ -65,6 +66,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _isHidden;
 	}
 	
+	public boolean isID() {
+		return _isID;
+	}
+	
 	public final boolean isAnonymous() {
 		return true;
 	}
@@ -92,5 +97,9 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setClientUTC(Date dt) {
 		_clientUTC = dt;
+	}
+	
+	public void setDatabaseID(boolean isID) {
+		_isID = isID;
 	}
 }
