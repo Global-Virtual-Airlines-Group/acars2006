@@ -29,7 +29,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		private boolean _isBusy;
 		private long _lastUse;
 		
-		private final LatencyTracker _latency = new LatencyTracker(200);
+		private final LatencyTracker _latency = new LatencyTracker(1024);
 		
 		ConnectionWriter(int id) {
 			super("ConnectionWriter-" + String.valueOf(id));
@@ -227,7 +227,8 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		w.setUncaughtExceptionHandler(this);
 		w.start();
 		_writers.add(w);
-		log.debug("Spawned I/O " + w.getName());
+		if (log.isDebugEnabled())
+			log.debug("Spawned I/O " + w.getName());
 	}
 
 	/**
@@ -269,7 +270,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 				i.remove();
 			} else if (!cw.isBusy() && (isIdle < minThreads))
 				isIdle++;
-			else if (!cw.isBusy() && (cw.getIdleTime() > 10000)) {
+			else if (!cw.isBusy() && (cw.getIdleTime() > 4000)) {
 				log.debug("Interrupting idle " + cw.getName());
 				cw.interrupt();
 				i.remove();
