@@ -100,7 +100,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			} else {
 				pdao.setQueryMax(1);
 				usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
-				ud = udao.get(usr.getID());
+				if (usr != null)
+					ud = udao.get(usr.getID());
 			}
 
 			// Check security access before we validate the password
