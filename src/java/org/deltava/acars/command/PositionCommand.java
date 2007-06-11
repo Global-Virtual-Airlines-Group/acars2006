@@ -2,6 +2,7 @@
 package org.deltava.acars.command;
 
 import java.sql.Connection;
+import java.util.concurrent.locks.*;
 
 import org.apache.log4j.Logger;
 
@@ -9,7 +10,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.beans.acars.ACARSFlags;
 
-import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetPosition;
 
 import org.deltava.util.CalendarUtils;
@@ -25,6 +25,8 @@ import org.deltava.util.system.SystemData;
 public class PositionCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
+	private static final ReentrantReadWriteLock _flushLock = new ReentrantReadWriteLock(true);
+	private static final Lock w = _flushLock.writeLock();
 
 	/**
 	 * Executes the command.
@@ -83,26 +85,29 @@ public class PositionCommand extends ACARSCommand {
 			} else if (!msg.isLogged())
 				ac.setPosition(msg);
 			else {
-				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval="
-						+ pmAge + "ms");
+				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
 				return;
 			}
 		}
 
 		// Check if the cache needs to be flushed
-		synchronized (SetPosition.class) {
+		if (w.tryLock()) {
 			if (SetPosition.getMaxAge() > 45000) {
 				try {
 					Connection con = ctx.getConnection(true);
 					SetPosition dao = new SetPosition(con);
 					int entries = dao.flush();
 					log.info("Flushed " + entries + " cached position entries");
-				} catch (DAOException de) {
-					log.error("Error flushing positions - " + de.getMessage(), de);
+				} catch (Exception e) {
+					log.error("Error flushing positions - " + e.getMessage(), e);
 				} finally {
 					ctx.release();
 				}
 			}
+			
+			// Release the lock
+			while (_flushLock.isWriteLockedByCurrentThread())
+				w.unlock();
 		}
 
 		// Log message received
