@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
@@ -11,16 +11,20 @@ import org.deltava.acars.message.Message;
  * @since 1.0
  */
 
-public abstract class Envelope {
+public abstract class Envelope implements Comparable<Envelope> {
 
 	/**
 	 * The envelope payload.
 	 */
 	protected Object _payload;
 	
+	/**
+	 * The envelope timestamp.
+	 */
+	protected long _timeStamp;
+	
 	private Pilot _owner;
 	private long _cid;
-	private long _timeStamp;
 
 	// The bean should alraedy have what we need
 	protected Envelope(Message msgData, long conID) {
@@ -54,5 +58,13 @@ public abstract class Envelope {
 	
 	public long getTime() {
 		return _timeStamp;
+	}
+	
+	/**
+	 * Compares two Envelopes by comparing their timestamps and connection IDs.
+	 */
+	public int compareTo(Envelope e2) {
+		int tmpResult = new Long(_timeStamp).compareTo(new Long(e2._timeStamp));
+		return (tmpResult == 0) ? new Long(_cid).compareTo(new Long(_cid)) : tmpResult;
 	}
 }

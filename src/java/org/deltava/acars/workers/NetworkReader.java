@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -53,11 +53,10 @@ public final class NetworkReader extends Worker {
 
 		// Create a new connection bean
 		ACARSConnection con = null;
-		if (SystemData.getBoolean("acars.debug")) {
+		if (SystemData.getBoolean("acars.debug"))
 			con = new ACARSDebugConnection(IDGenerator.generate(), sc);
-		} else {
+		else
 			con = new ACARSConnection(IDGenerator.generate(), sc);
-		}
 
 		// Check if the address is on the block list
 		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
@@ -155,11 +154,10 @@ public final class NetworkReader extends Worker {
 		_status.setMessage("Closing connections");
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
-			if (con.isAuthenticated()) {
+			if (con.isAuthenticated())
 				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");
-			} else {
+			else
 				log.warn("Disconnecting (" + con.getRemoteAddr() + ")");
-			}
 
 			// Close the connection and remove from the worker threads
 			con.close();
@@ -214,10 +212,8 @@ public final class NetworkReader extends Worker {
 			if (!_pool.isEmpty()) {
 				_status.setMessage("Reading Inbound Messages");
 				Collection<TextEnvelope> msgs = _pool.read();
-				if (!msgs.isEmpty()) {
-					MessageStack.RAW_INPUT.push(msgs);
-					MessageStack.RAW_INPUT.wakeup(false);
-				}
+				if (!msgs.isEmpty())
+					RAW_INPUT.addAll(msgs);
 
 				// Check for inactive connections - generate a QUIT message for every one
 				Collection<ACARSConnection> disCon = _pool.checkConnections();
@@ -232,11 +228,9 @@ public final class NetworkReader extends Worker {
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
-							MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, con.getID()));
+							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}
-					
-					MessageStack.MSG_INPUT.wakeup(false);
 				}
 			}
 			

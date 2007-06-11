@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
@@ -46,5 +46,14 @@ public class TextEnvelope extends Envelope {
 	 */
 	public void setVersion(int version) {
 		_version = (version < 1) ? 1 : version;
+	}
+	
+	/**
+	 * Updates the envelope timestamp.
+	 * @param time the timestamp
+	 */
+	public void setTime(long time) {
+		if (time > 1)
+			_timeStamp = time;
 	}
 }

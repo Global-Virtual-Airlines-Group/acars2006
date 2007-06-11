@@ -20,7 +20,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 
 	private final List<ConnectionWriter> _writers = new ArrayList<ConnectionWriter>();
 	protected final Map<Integer, WorkerStatus> _writerStatus = new TreeMap<Integer, WorkerStatus>();
-	protected final BlockingQueue<TextEnvelope> _work = new LinkedBlockingQueue<TextEnvelope>();
+	protected final BlockingQueue<TextEnvelope> _work = new PriorityBlockingQueue<TextEnvelope>();
 
 	private final class ConnectionWriter extends Thread {
 
@@ -28,7 +28,9 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		private WorkerStatus _cwStatus;
 		private boolean _isBusy;
 		private long _lastUse;
-
+		
+		private final LatencyTracker _latency = new LatencyTracker(200);
+		
 		ConnectionWriter(int id) {
 			super("ConnectionWriter-" + String.valueOf(id));
 			setDaemon(true);
@@ -67,7 +69,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			_cwStatus.setStatus(WorkerStatus.STATUS_START);
 			while (!isInterrupted()) {
 				_lastUse = System.currentTimeMillis();
-				_cwStatus.setMessage("Idle");
+				_cwStatus.setMessage("Idle - average latency " + _latency.getLatency() + "ms");
 				
 				try {
 					_env = _work.take();
@@ -78,6 +80,12 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 						log.debug("Writing to " + c.getRemoteAddr());
 						_cwStatus.setMessage("Writing to " + c.getUserID() + " - " + c.getRemoteHost());
 						c.queue(_env.getMessage());
+						
+						// Check latency
+						long envLatency = System.currentTimeMillis() - _env.getTime();
+						_latency.add(envLatency);
+						if (envLatency > 2000)
+							log.warn(getName() + " high latency delivering to " + c.getUserID() + " (" + envLatency + "ms)");
 					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
@@ -169,28 +177,25 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		_status.setStatus(WorkerStatus.STATUS_START);
 
 		while (!Thread.currentThread().isInterrupted()) {
-			_status.execute();
-
-			// Loop through the raw output stack
-			while (MessageStack.RAW_OUTPUT.hasNext()) {
-				_status.setMessage("Dispatching - " + _writers.size() + " threads");
-				TextEnvelope env = MessageStack.RAW_OUTPUT.pop();
-
-				// Get the connection and write the message
-				if (env != null)
-					_work.add(env);
-			}
-
-			// Check the thread pool - wait 100ms for the writers to wake up
-			ThreadUtils.sleep(100);
-			checkWriters(false);
-
-			// Log execution
-			_status.complete();
 			_status.setMessage("Idle - " + _writers.size() + " threads");
-
-			// Wait until something is on the bean output stack
-			MessageStack.RAW_OUTPUT.waitForActivity();
+			try {
+				TextEnvelope env = RAW_OUTPUT.take();
+				_status.execute();
+				_status.setMessage("Dispatching - " + _writers.size() + " threads");
+				while (env != null) {
+					_work.add(env);
+					env = RAW_OUTPUT.poll();
+				}
+				
+				// Check the thread pool - wait 100ms for the writers to wake up
+				ThreadUtils.sleep(100);
+				checkWriters(false);
+				
+				// Log execution
+				_status.complete();
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
 		}
 	}
 	

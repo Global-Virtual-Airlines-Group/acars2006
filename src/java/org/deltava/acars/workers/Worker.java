@@ -1,11 +1,12 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.acars.beans.ACARSConnectionPool;
+import org.deltava.acars.beans.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -16,6 +17,11 @@ import org.deltava.util.system.SystemData;
  */
 
 public abstract class Worker implements Runnable {
+	
+	protected static final BlockingQueue<TextEnvelope> RAW_INPUT = new LinkedBlockingQueue<TextEnvelope>();
+	public static final BlockingQueue<MessageEnvelope> MSG_INPUT = new LinkedBlockingQueue<MessageEnvelope>();
+	public static final BlockingQueue<MessageEnvelope> MSG_OUTPUT = new PriorityBlockingQueue<MessageEnvelope>();
+	protected static final BlockingQueue<TextEnvelope> RAW_OUTPUT = new PriorityBlockingQueue<TextEnvelope>();
 	
 	protected Logger log;
 	private String _name;
