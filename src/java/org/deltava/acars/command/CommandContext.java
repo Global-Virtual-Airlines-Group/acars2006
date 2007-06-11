@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
+import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.acars.workers.WorkerStatus;
 
@@ -23,17 +24,19 @@ public class CommandContext extends ConnectionContext {
 	private ACARSConnection _ac;
 	
 	private WorkerStatus _status;
+	private long _msgTime;
 
 	/**
 	 * Initializes the Command Context.
 	 * @param acp the ACARS Connection Pool
-	 * @param conID the Connection ID
+	 * @param env the Message envlope to process
 	 * @param status the current Worker Thread status
 	 */
-	public CommandContext(ACARSConnectionPool acp, long conID, WorkerStatus status) {
+	public CommandContext(ACARSConnectionPool acp, Envelope env, WorkerStatus status) {
 		super();
 		_pool = acp;
-		_ac = _pool.get(conID);
+		_ac = _pool.get(env.getConnectionID());
+		_msgTime = env.getTime();
 		_status = status;
 	}
 	
@@ -69,10 +72,15 @@ public class CommandContext extends ConnectionContext {
 	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
 	 */
 	public void pushAll(Message msg, long skipThisConID) {
+		if (msg == null)
+			return;
+		
+		// Set the original timestamp and message time
+		msg.setTime(_msgTime);
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID))
-				MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, c.getID()));
+				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}
 
@@ -82,8 +90,10 @@ public class CommandContext extends ConnectionContext {
 	 * @param conID the ID of the Connection to send to
 	 */
 	public void push(Message msg, long conID) {
-		if (msg != null)
-			MessageStack.MSG_OUTPUT.push(new MessageEnvelope(msg, conID));
+		if (msg != null) {
+			msg.setTime(_msgTime);
+			MSG_OUTPUT.add(new MessageEnvelope(msg, conID));
+		}
 	}
 	
 	/**

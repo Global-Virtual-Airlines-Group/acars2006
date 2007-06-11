@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -11,6 +11,7 @@ import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.acars.security.UserBlocker;
 
@@ -64,8 +65,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					// Save the QUIT message
 					QuitMessage qmsg = new QuitMessage(ac.getUser());
 					qmsg.setFlightID(ac.getFlightID());
-					MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, ac.getID()));
-					MessageStack.MSG_INPUT.wakeup(false);
+					MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
 
 					// Send the ACK
 					AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -129,8 +129,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						// Save the QUIT message
 						QuitMessage qmsg = new QuitMessage(ac.getUser());
 						qmsg.setFlightID(ac.getFlightID());
-						MessageStack.MSG_INPUT.push(new MessageEnvelope(qmsg, ac.getID()));
-						MessageStack.MSG_INPUT.wakeup(false);
+						MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
 						
 						// Send the ACK
 						AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
