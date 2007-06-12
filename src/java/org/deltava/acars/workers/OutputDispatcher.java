@@ -142,6 +142,8 @@ public final class OutputDispatcher extends Worker {
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 			
 			// Dump the messages to the output stack
