@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -37,15 +37,15 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	protected static Logger log = null;
  	
  	// Worker tasks
- 	protected static final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
- 	protected static final Map<Thread, Worker> _threads = new LinkedHashMap<Thread, Worker>();
+ 	protected final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
+ 	protected final Map<Thread, Worker> _threads = new LinkedHashMap<Thread, Worker>();
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
         log = Logger.getLogger(loggerClass);
  	}
  	
- 	protected static void initAuthenticator() {
+ 	protected void initAuthenticator() {
  		
         // Get and load the authenticator
         String authClass = SystemData.get("security.auth");
@@ -66,7 +66,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
         }
  	}
 
- 	protected static void initConnectionPool() {
+ 	protected void initConnectionPool() {
 
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
@@ -90,7 +90,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	    SystemData.add(SystemData.JDBC_POOL, jdbcPool);
  	}
  	
- 	protected static void initAirports() {
+ 	protected void initAirports() {
  		
  		// Get the Connection Pool
  		ConnectionPool _pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
@@ -110,13 +110,13 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		}
  	}
  	
- 	protected static void initACARSConnectionPool() {
+ 	protected void initACARSConnectionPool() {
 		ACARSConnectionPool cPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
 		cPool.setTimeout(SystemData.getInt("acars.timeout"));
 		SystemData.add(SystemData.ACARS_POOL, cPool);
  	}
  	
- 	protected static void initTasks() {
+ 	protected void initTasks() {
  		
  		// Create the task container and the thread group
  		List<Worker> tasks = new ArrayList<Worker>();
@@ -130,7 +130,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		// Init the logic processor pool
 		int logicThreads = SystemData.getInt("acars.pool.threads.logic", 1);
 		for (int x = 0; x < logicThreads; x++) {
-		   LogicProcessor lProcessor = new LogicProcessor(x);
+		   LogicProcessor lProcessor = new LogicProcessor(x + 1);
 		   tasks.add(lProcessor);
 		}
 		
@@ -148,6 +148,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
  			Worker w = i.next();
  			Thread t = new Thread(_workers, w, w.getName());
+ 			t.setUncaughtExceptionHandler(this);
  			_threads.put(t, w);
  			log.debug("Starting " + w.getName());
  			t.start();
@@ -156,12 +157,21 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	
  	/**
  	 * Worker thread exception handler.
- 	 * @see Thread.UncaughtExceptionHandler#uncaughtException(Thread, Throwable)
  	 */
  	public void uncaughtException(Thread t, Throwable e) {
  		if (!_threads.containsKey(t)) {
  			log.warn("Unknown worker thread " + t.getName());
  			return;
  		}
+ 		
+ 		// Get the worker and remove it
+ 		Worker w = _threads.get(t);
+ 		_threads.remove(t);
+ 		
+ 		// Spwan a new thread
+ 		Thread wt = new Thread(_workers, w, w.getName());
+ 		wt.setUncaughtExceptionHandler(this);
+ 		_threads.put(wt, w);
+ 		wt.start();
  	}
 }

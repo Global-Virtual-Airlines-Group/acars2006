@@ -49,6 +49,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
+						wt.setUncaughtExceptionHandler(this);
 						_threads.put(wt, w);
 						wt.start();
 					} else if (ws.getExecutionTime() > MAX_EXEC) {
@@ -61,6 +62,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 						// Restart the worker thread
 						Thread wt = new Thread(_workers, w, w.getName());
+						wt.setUncaughtExceptionHandler(this);
 						_threads.put(wt, w);
 						wt.start();
 					}
@@ -82,7 +84,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 			Worker w = _threads.get(t);
 
 			// Wait for the thread to die if it hasn't yet
-			ThreadUtils.kill(t, 750);
+			ThreadUtils.kill(t, 500);
 
 			// Close the thread
 			log.debug("Stopping " + w.getName());

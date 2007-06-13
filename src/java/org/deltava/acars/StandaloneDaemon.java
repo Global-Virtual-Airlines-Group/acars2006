@@ -26,11 +26,14 @@ public class StandaloneDaemon extends ServerDaemon {
 		// Startup message
 		System.out.println("ACARS " + VersionInfo.APPNAME);
 		System.out.println(VersionInfo.TXT_COPYRIGHT);
-
+		
 		// Initialize the logger
 		initLog(StandaloneDaemon.class);
+		
+		new StandaloneDaemon().run();
+	}
 
-		// Start everything up
+	public void run() {
 		SystemData.init();
 		initAuthenticator();
 		initConnectionPool();

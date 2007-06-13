@@ -11,7 +11,6 @@ import org.deltava.acars.message.*;
 
 import org.deltava.beans.acars.CommandStats;
 
-import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetPosition;
 
 import org.deltava.jdbc.ConnectionPool;
@@ -36,7 +35,7 @@ public class LogicProcessor extends Worker {
 	 * @param threadID the worker instance ID
 	 */
 	public LogicProcessor(int threadID) {
-		super("Message Processor #" + threadID, LogicProcessor.class.getName() + "-" + threadID);
+		super("Message Processor-" + String.valueOf(threadID), LogicProcessor.class.getName() + "-" + threadID);
 	}
 
 	/**
@@ -147,8 +146,8 @@ public class LogicProcessor extends Worker {
 					SetPosition dao = new SetPosition(con);
 					int entries = dao.flush();
 					log.warn("Flushed " + entries + " cached Position entries");
-				} catch (DAOException de) {
-					log.error("Error flushing Position cache - " + de.getMessage(), de);
+				} catch (Exception e) {
+					log.error("Error flushing Position cache - " + e.getMessage(), e);
 				} finally {
 					cp.release(con);
 				}
