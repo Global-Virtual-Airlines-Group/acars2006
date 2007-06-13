@@ -1,8 +1,7 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Date;
-import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
@@ -60,8 +59,7 @@ public class EndFlightCommand extends ACARSCommand {
 		iMsg.setComplete(true);
 		iMsg.setEndTime(new Date());
 		try {
-			Connection c = ctx.getConnection(true);
-			SetInfo infoDAO = new SetInfo(c);
+			SetInfo infoDAO = new SetInfo(ctx.getConnection(true));
 			infoDAO.close(iMsg.getFlightID(), env.getConnectionID(), true);
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
@@ -72,6 +70,6 @@ public class EndFlightCommand extends ACARSCommand {
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
 		con.setPosition(null);
-		ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg, env.getConnectionID(), true);
 	}
 }

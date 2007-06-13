@@ -220,7 +220,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 		} finally {
 			ctx.release();
-			ctx.push(ackMsg, ac.getID());
+			ctx.push(ackMsg, ac.getID(), true);
 		}
 	}
 	

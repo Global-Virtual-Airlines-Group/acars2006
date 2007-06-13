@@ -12,9 +12,6 @@ import org.deltava.beans.Pilot;
 
 public interface Message extends java.io.Serializable {
 
-	// Maximum message size
-	public static final int MAX_MESSAGE_SIZE = 8192;
-	
 	// Maximum protocol version
 	public static final int PROTOCOL_VERSION = 1;
 
@@ -39,31 +36,35 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_ERROR = 14;
 	public static final int MSG_DISPATCH = 15;
 
-	// XML message codes
+	/**
+	 * XML message codes.
+	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "raw", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch"};
 	
-	// Message code descriptions
+	/**
+	 * XML message type descriptions.
+	 */
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 						"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect",
 						"End Flight", "System Message", "Flight Report", "Error", "Dispatch Data"};
 
-	public abstract int getType();
+	public int getType();
 	
 	// Flags for if we can be public/anonymous
-	public abstract boolean isPublic();
-	public abstract boolean isAnonymous();
+	public boolean isPublic();
+	public boolean isAnonymous();
 	
-	public abstract void setTime(long ts);
-	public abstract long getTime();
+	public void setTime(long ts);
+	public long getTime();
 	
-	abstract void setProtocolVersion(int pVersion);
-	public abstract int getProtocolVersion();
+	void setProtocolVersion(int pVersion);
+	public int getProtocolVersion();
 	
-	public abstract void setID(long id);
-	public abstract long getID();
+	public void setID(long id);
+	public long getID();
 	
-	public abstract void setSender(Pilot msgFrom);
-	public abstract Pilot getSender();
-	public abstract String getSenderID();
+	public void setSender(Pilot msgFrom);
+	public Pilot getSender();
+	public String getSenderID();
 }
