@@ -61,7 +61,6 @@ public final class InputTranslator extends Worker {
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
-		
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle");
 			try {
@@ -90,6 +89,8 @@ public final class InputTranslator extends Worker {
 				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 		}
 	}

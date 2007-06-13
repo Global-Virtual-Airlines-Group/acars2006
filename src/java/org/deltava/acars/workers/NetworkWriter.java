@@ -195,6 +195,8 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 		}
 	}
