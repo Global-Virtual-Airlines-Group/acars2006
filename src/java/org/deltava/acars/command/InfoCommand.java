@@ -114,7 +114,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
-		ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg, env.getConnectionID(), true);
 
 		// Set the info for the connection and write it to the database
 		con.setFlightInfo(msg);

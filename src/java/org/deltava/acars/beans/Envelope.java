@@ -25,6 +25,7 @@ public abstract class Envelope implements Comparable<Envelope> {
 	
 	private Pilot _owner;
 	private long _cid;
+	private boolean _critical;
 
 	// The bean should alraedy have what we need
 	protected Envelope(Message msgData, long conID) {
@@ -44,27 +45,62 @@ public abstract class Envelope implements Comparable<Envelope> {
 		_cid = conID;
 	}
 	
+	/**
+	 * Returns the connection ID for this Envelope.
+	 * @return the Connection ID
+	 */
 	public long getConnectionID() {
 		return _cid;
 	}
 	
+	/**
+	 * Returns whether this payload is critical.
+	 * @return TRUE if the payload is critical, otherwise FALSE
+	 */
+	public boolean isCritical() {
+		return _critical;
+	}
+	
+	/**
+	 * Returns the owner of the payload.
+	 * @return the Pilot who owns the payload
+	 */
 	public Pilot getOwner() {
 		return _owner;
 	}
 
+	/**
+	 * Returns the payload owner's ID.
+	 * @return the Owner's Pilot Code
+	 */
 	public String getOwnerID() {
 		return (_owner == null) ? Message.SYSTEM_NAME : _owner.getPilotCode();
 	}
 	
+	/**
+	 * Returns the envelope timestamp.
+	 * @return the timestamp
+	 */
 	public long getTime() {
 		return _timeStamp;
+	}
+	
+	/**
+	 * Marks the payload as critical.
+	 * @param isCritical TRUE if the payload is critical, otherwise FALSE
+	 */
+	public void setCritical(boolean isCritical) {
+		_critical = isCritical;
 	}
 	
 	/**
 	 * Compares two Envelopes by comparing their timestamps and connection IDs.
 	 */
 	public int compareTo(Envelope e2) {
-		int tmpResult = new Long(_timeStamp).compareTo(new Long(e2._timeStamp));
+		int tmpResult = Boolean.valueOf(_critical).compareTo(Boolean.valueOf(e2._critical));
+		if (tmpResult == 0)
+			tmpResult = new Long(_timeStamp).compareTo(new Long(e2._timeStamp));
+		
 		return (tmpResult == 0) ? new Long(_cid).compareTo(new Long(_cid)) : tmpResult;
 	}
 }

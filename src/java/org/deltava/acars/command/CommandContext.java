@@ -83,16 +83,28 @@ public class CommandContext extends ConnectionContext {
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}
-
+	
 	/**
 	 * Sends a message.
 	 * @param msg the Message bean to push
 	 * @param conID the ID of the Connection to send to
 	 */
 	public void push(Message msg, long conID) {
+		push(msg, conID, false);
+	}
+
+	/**
+	 * Sends a message.
+	 * @param msg the Message bean to push
+	 * @param conID the ID of the Connection to send to
+	 * @param isCritical TRUE if the response is critical, otherwise FALSE
+	 */
+	public void push(Message msg, long conID, boolean isCritical) {
 		if (msg != null) {
 			msg.setTime(_msgTime);
-			MSG_OUTPUT.add(new MessageEnvelope(msg, conID));
+			MessageEnvelope env = new MessageEnvelope(msg, conID);
+			env.setCritical(isCritical);
+			MSG_OUTPUT.add(env);
 		}
 	}
 	

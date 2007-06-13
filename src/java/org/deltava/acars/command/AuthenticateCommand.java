@@ -243,7 +243,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("noMsgs", "true");
 		
 		// Send the ack message
-		ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg, env.getConnectionID(), true);
 		
 		// Return a system message to the user
 		SystemTextMessage sysMsg = new SystemTextMessage();
@@ -272,7 +272,6 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
-	@Override
 	public final int getMaxExecTime() {
 		return 3000;
 	}
