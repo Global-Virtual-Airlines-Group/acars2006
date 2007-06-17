@@ -63,7 +63,9 @@ public class SetPosition extends DAO {
 		if (_queue.isEmpty())
 			_maxAge = System.currentTimeMillis();
 		
-		_queue.add(new PositionCacheEntry(msg, flightID));
+		// Don't add 0/0 pairs
+		if ((msg.getLatitude() != 0.0) || (msg.getLongitude() != 0.0))
+			_queue.add(new PositionCacheEntry(msg, flightID));
 	}
 	
 	/**
