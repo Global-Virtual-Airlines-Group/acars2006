@@ -77,7 +77,8 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_pool.getAll());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
