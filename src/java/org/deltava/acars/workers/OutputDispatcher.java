@@ -147,22 +147,26 @@ public final class OutputDispatcher extends Worker {
 			}
 			
 			// Dump the messages to the output stack
-			if (!docs.isEmpty()) {
-				_status.setMessage("Pushing messages to XML Output Stack");
-				for (Iterator<Long> i = docs.keySet().iterator(); i.hasNext();) {
-					Long conID = i.next();
-					DatedDocument doc = docs.get(conID);
-					Pilot user = users.get(conID);
+			try {
+				if (!docs.isEmpty()) {
+					_status.setMessage("Pushing messages to XML Output Stack");
+					for (Iterator<Long> i = docs.keySet().iterator(); i.hasNext();) {
+						Long conID = i.next();
+						DatedDocument doc = docs.get(conID);
+						Pilot user = users.get(conID);
 					
-					// Convert the document to text
-					String xml = _xmlOut.outputString(doc);
+						// Convert the document to text
+						String xml = _xmlOut.outputString(doc);
 
-					// Push to the output stack
-					TextEnvelope env = new TextEnvelope(user, xml, conID.longValue());
-					env.setTime(doc.getTime());
-					RAW_OUTPUT.add(env);
-					ServerStats.msgOut(xml.length());
-				}
+						// Push to the output stack
+						TextEnvelope env = new TextEnvelope(user, xml, conID.longValue());
+						env.setTime(doc.getTime());
+						RAW_OUTPUT.add(env);
+						ServerStats.msgOut(xml.length());
+					}
+				} 
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
 
 			// Log execution
