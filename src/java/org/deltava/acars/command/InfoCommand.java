@@ -77,6 +77,10 @@ public class InfoCommand extends ACARSCommand {
 					log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
 					assignID = true;
 					msg.setFlightID(0);
+				} else if (info.getArchived() || info.getHasPIREP()) {
+					log.warn(msg.getFlightID() + " has PIREP or is archived!");
+					assignID = true;
+					msg.setFlightID(0);
 				}
 			}
 
