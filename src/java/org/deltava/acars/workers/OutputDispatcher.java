@@ -12,7 +12,6 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.xml.*;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.ServerStats;
 
 import org.deltava.util.system.SystemData;
 
@@ -162,7 +161,6 @@ public final class OutputDispatcher extends Worker {
 						TextEnvelope env = new TextEnvelope(user, xml, conID.longValue());
 						env.setTime(doc.getTime());
 						RAW_OUTPUT.add(env);
-						ServerStats.msgOut(xml.length());
 					}
 				} 
 			} catch (Exception e) {

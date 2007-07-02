@@ -5,9 +5,10 @@ import java.util.Date;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.GeoLocation;
-import org.deltava.beans.acars.ACARSFlags;
 
 import org.deltava.util.StringUtils;
+
+import org.gvagroup.acars.ACARSFlags;
 
 /**
  * An ACARS position report message.

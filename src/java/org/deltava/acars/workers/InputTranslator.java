@@ -7,8 +7,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.xml.MessageParser;
 
-import org.deltava.beans.acars.ServerStats;
-
 import org.deltava.util.system.SystemData;
 
 /**
@@ -78,9 +76,6 @@ public final class InputTranslator extends Worker {
 						if (msg.getType() != Message.MSG_QUIT)
 							MSG_INPUT.add(new MessageEnvelope(msg, env.getConnectionID()));
 					}
-					
-					// Log the messages
-					ServerStats.msgIn(String.valueOf(env.getMessage()).length()); 
 				} catch (Exception e) {
 					log.warn("Translation Error - " + e.getMessage(), e);
 				}

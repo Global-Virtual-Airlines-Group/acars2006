@@ -6,9 +6,9 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.workers.*;
-import org.deltava.beans.acars.ACARSWorkerInfo;
-
 import org.deltava.util.ThreadUtils;
+
+import org.gvagroup.acars.ACARSWorkerInfo;
 
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.

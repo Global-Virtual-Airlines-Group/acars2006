@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -13,9 +13,10 @@ import java.nio.channels.SocketChannel;
  * @version 1.0
  * @since 1.0
  */
+
 public class ACARSDebugConnection extends ACARSConnection {
 
-	private PrintWriter _debugWriter;
+	private transient PrintWriter _debugWriter;
 
 	public ACARSDebugConnection(long cid, SocketChannel sc) {
 		super(cid, sc);

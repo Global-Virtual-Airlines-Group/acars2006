@@ -8,12 +8,13 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.beans.acars.ACARSFlags;
 
 import org.deltava.dao.acars.SetPosition;
 
 import org.deltava.util.CalendarUtils;
 import org.deltava.util.system.SystemData;
+
+import org.gvagroup.acars.ACARSFlags;
 
 /**
  * An ACARS server command to process position updates.

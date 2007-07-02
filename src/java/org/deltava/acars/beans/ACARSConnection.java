@@ -27,16 +27,17 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
+public class ACARSConnection implements Serializable, Comparable<ACARSConnection>, ViewEntry {
 
-	protected static final Logger log = Logger.getLogger(ACARSConnection.class);
+	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
+	
 	private static final int MAX_WRITE_ATTEMPTS = 32;
 
 	// Byte byffer decoder and character set
-	private final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
+	private transient final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
 
-	private SocketChannel _channel;
-	private Selector _wSelector;
+	private transient SocketChannel _channel;
+	private transient Selector _wSelector;
 
 	private InetAddress _remoteAddr;
 	private String _remoteHost;
@@ -45,12 +46,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	private boolean _isDispatch;
 
 	// Input/output network buffers
-	private final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
-	private final ByteBuffer _oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
+	private transient final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
+	private transient final ByteBuffer _oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
 
 	// The the actual buffers for messages
-	private final StringBuilder _msgBuffer = new StringBuilder();
-	protected final List<String> _msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
+	private transient final StringBuilder _msgBuffer = new StringBuilder();
+	protected transient final List<String> _msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
 
 	// Connection information
 	private long _id;
@@ -67,15 +68,15 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	private long _timeOffset;
 
 	// The write lock
-	private final ReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
-	private final Lock _wLock = _rwLock.writeLock();
+	private transient final ReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
+	private transient final Lock _wLock = _rwLock.writeLock();
 
 	// Statistics
 	private long _bytesIn;
 	private long _bytesOut;
-	private long _msgsIn;
-	private long _msgsOut;
-	private long _bufferWrites;
+	private int _msgsIn;
+	private int _msgsOut;
+	private int _bufferWrites;
 
 	/**
 	 * Creates a new ACARS connection.
@@ -94,6 +95,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			sc.configureBlocking(false);
 			_wSelector = Selector.open();
 			sc.register(_wSelector, SelectionKey.OP_WRITE);
+			sc.socket().setTcpNoDelay(false);
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress());
@@ -159,10 +161,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _channel;
 	}
 
-	public Socket getSocket() {
-		return _channel.socket();
-	}
-
 	public int getFlightID() {
 		return (_fInfo == null) ? 0 : _fInfo.getFlightID();
 	}
@@ -191,15 +189,15 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _lastActivityTime;
 	}
 
-	public long getMsgsIn() {
+	public int getMsgsIn() {
 		return _msgsIn;
 	}
 
-	public long getMsgsOut() {
+	public int getMsgsOut() {
 		return _msgsOut;
 	}
 
-	public long getBufferWrites() {
+	public int getBufferWrites() {
 		return _bufferWrites;
 	}
 

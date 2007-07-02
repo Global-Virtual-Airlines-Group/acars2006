@@ -11,9 +11,12 @@ import org.deltava.acars.ACARSException;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 
-import org.deltava.acars.security.*;
+import org.deltava.util.IPCUtils;
 
+import org.deltava.acars.security.*;
 import org.deltava.acars.util.RouteEntryHelper;
+
+import org.gvagroup.acars.ACARSAdminInfo;
 
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
@@ -22,7 +25,7 @@ import org.deltava.acars.util.RouteEntryHelper;
  * @since 1.0
  */
 
-public class ACARSConnectionPool implements ACARSAdminInfo {
+public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
@@ -54,8 +57,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	 * @return a Collection of MapEntry beans
 	 */
 	public Collection<RouteEntry> getMapEntries() {
-		Set<RouteEntry> results = new HashSet<RouteEntry>();
-		for (Iterator<ACARSConnection> i = getPoolInfo(true).iterator(); i.hasNext();) {
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
+		Collection<RouteEntry> results = new LinkedHashSet<RouteEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			RouteEntry re = RouteEntryHelper.build(con);
 			if (re != null)
@@ -66,12 +70,29 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	}
 	
 	/**
+	 * Returns network data in a serialized form for transfer between virtual machines or class loaders.
+	 * @return a Collection of byte arrays
+	 */
+	public Collection<byte[]> getSerializedInfo() {
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
+		Collection<RouteEntry> results = new ArrayList<RouteEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+			RouteEntry re = RouteEntryHelper.build(i.next());
+			if (re != null)
+				results.add(re);
+		}
+		
+		return IPCUtils.serialize(results);
+	}
+	
+	/**
 	 * Returns the flight IDs of all active flights.
 	 * @return a Collection of Integer flight IDs
 	 */
 	public Collection<Integer> getFlightIDs() {
 		Collection<Integer> results = new TreeSet<Integer>();
-		for (Iterator<ACARSConnection> i = getPoolInfo(true).iterator(); i.hasNext();) {
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			int id = con.getFlightID();
 			if (id != 0)
@@ -84,19 +105,29 @@ public class ACARSConnectionPool implements ACARSAdminInfo {
 	/**
 	 * Returns Connection Pool data to a web application.
 	 * @param showHidden TRUE if stealth connections should be displayed, otherwise FALSE
-	 * @return a Collection of ACARSConnection beans
+	 * @return a Collection of serialized ConnectionEntry beans
 	 */
-	public Collection<ACARSConnection> getPoolInfo(boolean showHidden) {
+	public Collection<byte[]> getPoolInfo(boolean showHidden) {
 		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
-		if (!showHidden) {
-			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-				ACARSConnection ac = i.next();
-				if (ac.getUserHidden())
-					i.remove();
+		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
+			ACARSConnection ac = i.next();
+			if (showHidden || !ac.getUserHidden()) {
+				ConnectionEntry entry = new ConnectionEntry(ac.getID());
+				entry.setClientBuild(ac.getClientVersion());
+				entry.setRemoteAddr(ac.getRemoteAddr());
+				entry.setRemoteHost(ac.getRemoteHost());
+				entry.setMessages(ac.getMsgsIn(), ac.getMsgsOut());
+				entry.setBytes(ac.getBytesIn(), ac.getBytesOut());
+				entry.setBufferWrites(ac.getBufferWrites());
+				entry.setStartTime(new Date(ac.getStartTime()));
+				entry.setUser(ac.getUser());
+				entry.setFlightCode((ac.getFlightID() == 0) ? null : ac.getFlightInfo().getFlightCode());
+				results.add(entry);
 			}
 		}
 		
-		return cons; 
+		return IPCUtils.serialize(results); 
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -51,6 +51,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setMaxResults(StringUtils.parse(msg.getFlag("maxResults"), 0));
 		sc.setDistance(StringUtils.parse(msg.getFlag("distance"), 0));
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
+		sc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 100))
 			sc.setMaxResults(40);
 
@@ -66,7 +67,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot search Flight Schedule");
+			errMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
 			ctx.push(errMsg, ctx.getACARSConnection().getID());
 		} finally {
 			ctx.release();
