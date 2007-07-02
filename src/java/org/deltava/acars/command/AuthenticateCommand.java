@@ -7,7 +7,6 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.ServerStats;
 import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
@@ -181,9 +180,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff);
 		
-		// Log successful authentication
-		ServerStats.authenticate();
-
 		// Save the connection data
 		try {
 			Connection c = ctx.getConnection();

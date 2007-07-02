@@ -5,20 +5,19 @@ import java.sql.Connection;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-
-import org.deltava.jdbc.*;
+import org.apache.log4j.*;
 
 import org.deltava.acars.beans.ACARSConnectionPool;
 
 import org.deltava.acars.workers.*;
 
-import org.deltava.dao.GetAirport;
-import org.deltava.dao.DAOException;
+import org.deltava.jdbc.*;
+import org.deltava.dao.*;
 
 import org.deltava.security.Authenticator;
 import org.deltava.util.system.SystemData;
+
+import org.gvagroup.common.SharedData;
 
 /**
  * A class to support common ACARS Server daemon functions.
@@ -39,6 +38,8 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	// Worker tasks
  	protected final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
  	protected final Map<Thread, Worker> _threads = new LinkedHashMap<Thread, Worker>();
+ 	
+ 	protected ACARSConnectionPool _conPool;
  	
  	protected static void initLog(Class loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
@@ -93,11 +94,11 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	protected void initAirports() {
  		
  		// Get the Connection Pool
- 		ConnectionPool _pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+ 		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
  		
  		Connection c = null;
  		try {
- 			c = _pool.getConnection(true);
+ 			c = pool.getConnection(true);
  			
  			// Load the airports
             log.info("Loading Airports");
@@ -106,14 +107,14 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		} catch (DAOException de) {
  			log.error("Error loading Airports - " + de.getMessage());
  		} finally {
- 			_pool.release(c);
+ 			pool.release(c);
  		}
  	}
  	
  	protected void initACARSConnectionPool() {
-		ACARSConnectionPool cPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
-		cPool.setTimeout(SystemData.getInt("acars.timeout"));
-		SystemData.add(SystemData.ACARS_POOL, cPool);
+		_conPool = new ACARSConnectionPool(SystemData.getInt("acars.pool.size"));
+		_conPool.setTimeout(SystemData.getInt("acars.timeout"));
+		SharedData.addData(SharedData.ACARS_POOL, _conPool);
  	}
  	
  	protected void initTasks() {
@@ -138,6 +139,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
 			Worker w = i.next();
 			log.debug("Initializing " + w.getName());
+			w.setConnectionPool(_conPool);
 			w.open();
 		}
 		

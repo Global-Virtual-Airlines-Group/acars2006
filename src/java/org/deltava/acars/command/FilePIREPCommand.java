@@ -208,10 +208,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Commit the transaction
 			ctx.commitTX();
 			
-			// Turn of Nagle's algorithm to ensure no latency
-			if (!ac.getSocket().getTcpNoDelay())
-				ac.getSocket().setTcpNoDelay(true);
-			
 			// Log completion
 			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (Exception e) {

@@ -92,15 +92,6 @@ public class InfoCommand extends ACARSCommand {
 			if (cr != null)
 				ackMsg.setEntry("crName", cr.getName());
 			
-			// Turn on Naegle's algorithm
-			try {
-				ACARSConnection ac = ctx.getACARSConnection();
-				if (ac.getSocket().getTcpNoDelay())
-					ac.getSocket().setTcpNoDelay(false);
-			} catch (Exception se) {
-				log.error("Error setting TCP/IP Naegle's algorithm - " + se.getMessage());
-			}
-
 			// Write the flight information
 			SetInfo infoDAO = new SetInfo(c);
 			infoDAO.write(msg, env.getConnectionID());

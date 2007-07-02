@@ -11,10 +11,8 @@ import org.deltava.acars.*;
 import org.deltava.acars.beans.*;
 
 import org.deltava.acars.message.QuitMessage;
-
 import org.deltava.acars.security.UserBlocker;
 
-import org.deltava.beans.acars.ServerStats;
 import org.deltava.beans.system.VersionInfo;
 
 import org.deltava.util.*;
@@ -104,9 +102,6 @@ public final class NetworkReader extends Worker {
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
 		}
-
-		// Update the max/current connection counts
-		ServerStats.connect();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -221,7 +216,6 @@ public final class NetworkReader extends Worker {
 					_status.setMessage("Handling disconnections");
 					for (Iterator<ACARSConnection> ic = disCon.iterator(); ic.hasNext();) {
 						ACARSConnection con = ic.next();
-						ServerStats.disconnect();
 						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
 						if (con.isAuthenticated()) {
 							log.debug("QUIT Message from " + con.getUser().getName());

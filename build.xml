@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project default="deploy">
+	<target name="compile">
+		<mkdir dir="${java.io.tmpdir}/build/acars" />
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars"
+		 debug="true" debuglevel="lines,vars,source" source="1.5" target="1.5" compiler="modern">
+			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
+	    	<classpath id="acars.classpath">
+				<pathelement path="${classpath}" />
+				<pathelement location="../DVA2006/lib/servlet-api.jar" />
+	    		<pathelement location="lib/deploy/jdom-1.0.jar" />
+	    		<pathelement location="lib/deploy/log4j-1.2.14.jar" />
+	    		<pathelement location="lib/deploy/golgotha_ipc-1.0.jar" />
+	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
+	    	</classpath>
+		</javac>
+
+		<!-- Compress the Java classes into a single JAR file -->
+		<jar basedir="${java.io.tmpdir}/build/acars" compress="true" index="true"
+		 destfile="${java.io.tmpdir}/build/golgotha_acars.jar" />
+	</target>
+
+	<!-- Deploy to DEV server -->
+	<target name="deploy" depends="compile">
+		<loadproperties srcFile="data/build_deploy.properties" />
+
+		<!-- Upload the web configuration -->
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF"
+				verbose="yes" trust="yes" password="${webapp.dev.pwd}">
+			<fileset file="WEB-INF/web.xml">
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the common JAR files to the app server -->
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path.common}"
+			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
+			<fileset dir="lib/deploy" includes="*.jar">
+				<exclude name="log4j*.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the JAR files to the app server -->
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/lib"
+			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
+			<fileset dir="${java.io.tmpdir}/build">
+				<include name="golgotha.jar" />
+				<include name="golgotha_acars.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
+				</modified>
+			</fileset>
+			<fileset dir="lib/deploy">
+				<include name="log4j*.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the config file to the app server -->
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc"
+			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
+			<fileset dir="etc" includes="*.*">
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
+				</modified>
+			</fileset>
+		</scp>
+	</target>
+	
+	<!-- Deploy to PROD server -->	
+	<target name="prod_deploy" depends="compile">
+		<loadproperties srcFile="data/build_deploy.properties" />	
+
+		<!-- Upload the web configuration -->
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/WEB-INF"
+			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
+			<fileset file="WEB-INF/web.xml">
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the common JAR files to the app server -->
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path.common}"
+			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
+			<fileset dir="lib/deploy" includes="*.jar">
+				<exclude name="log4j*.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the JAR files to the app server -->
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/WEB-INF/lib"
+			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
+			<fileset dir="${java.io.tmpdir}/build">
+				<include name="golgotha.jar" />
+				<include name="golgotha_acars.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
+			</fileset>
+			<fileset dir="lib/deploy">
+				<include name="log4j*.jar" />
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
+			</fileset>
+		</scp>
+
+		<!-- Upload the config file to the app server -->
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/WEB-INF/classes/etc"
+			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
+			<fileset dir="etc" includes="*.*">
+				<modified seldirs="false" algorithm="digest">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
+			</fileset>
+		</scp>
+	</target>
+
+	<!-- Clean out compiled data -->
+	<target name="clean">
+		<delete dir="${java.io.tmpdir}/build/acars" />
+	</target>
+</project>
