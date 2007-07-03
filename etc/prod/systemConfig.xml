@@ -5,8 +5,9 @@
 	<airline>
 		<name>Delta Virtual Airlines</name>
 		<domain>deltava.org</domain>
-		<code>DVA</code>
+		<code>ACARS</code>
 		<db>DVA</db>
+		<default>DVA</default>
 	</airline>
 
 	<!-- JDBC data source configuration -->
@@ -24,7 +25,7 @@
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
-			<useServerPrepStmts>true</useServerPrepStmts>
+			<useServerPrepStmts>false</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
 		</map>
 		
