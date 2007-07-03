@@ -9,12 +9,12 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.beans.acars.CommandStats;
-
 import org.deltava.dao.acars.SetPosition;
 
 import org.deltava.jdbc.ConnectionPool;
 import org.deltava.util.system.SystemData;
+
+import org.gvagroup.acars.CommandStats;
 
 /**
  * An ACARS Worker thread to process messages.
