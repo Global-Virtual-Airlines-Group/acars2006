@@ -129,7 +129,7 @@
 		<!-- Upload the config file to the app server -->
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/WEB-INF/classes/etc"
 			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
-			<fileset dir="etc" includes="*.*">
+			<fileset dir="etc/prod" includes="*.*">
 				<modified seldirs="false" algorithm="digest">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
