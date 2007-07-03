@@ -147,13 +147,13 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
 			GetSchedule sdao = new GetSchedule(con);
-			ScheduleEntry sEntry = sdao.get(afr);
+			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
 			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
 			afr.setAttribute(FlightReport.ATTR_ACADEMY, isAcademy);
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
-			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA());
+			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA(), usrLoc.getDB());
 			if ((avgHours == 0) && (!info.isScheduleValidated())) {
 				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
 			} else if (avgHours > 0) {
