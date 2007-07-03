@@ -11,10 +11,10 @@ import org.apache.log4j.*;
 import org.deltava.dao.*;
 import org.deltava.jdbc.*;
 
+import org.deltava.acars.ipc.IPCDaemon;
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.ThreadUtils;
-import org.deltava.acars.ipc.IPCDaemon;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
