@@ -10,6 +10,7 @@ import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
+import org.deltava.acars.message.InfoMessage;
 
 import org.deltava.util.IPCUtils;
 
@@ -122,7 +123,26 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 				entry.setBufferWrites(ac.getBufferWrites());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
-				entry.setFlightCode((ac.getFlightID() == 0) ? null : ac.getFlightInfo().getFlightCode());
+				entry.setDispatch(ac.getIsDispatch());
+				entry.setUserHidden(ac.getUserHidden());
+				
+				// Get the flight information
+				InfoMessage inf = ac.getFlightInfo();
+				FlightInfo info = new FlightInfo(ac.getID());
+				if (inf != null) {
+					info.setFlightCode(inf.getFlightCode());
+					info.setAirportD(inf.getAirportD());
+					info.setAirportA(inf.getAirportA());
+					info.setEquipmentType(inf.getEquipmentType());
+					info.setConnectionID(ac.getID());
+					info.setPilotID(ac.getUser().getID());
+					info.setFSVersion(inf.getFSVersion());
+					if (inf.getFlightID() != 0)
+						info.setID(inf.getFlightID());
+				}
+				
+				// Save the flight info
+				entry.setFlightInfo(info);
 				results.add(entry);
 			}
 		}
