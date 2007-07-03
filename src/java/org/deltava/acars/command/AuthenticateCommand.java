@@ -78,7 +78,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		UserID usrID = new UserID(msg.getUserID());
 		AirlineInformation aInfo = SystemData.getApp(usrID.getAirlineCode());
 		if (aInfo == null)
-			aInfo = SystemData.getApp(SystemData.get("airline.code"));
+			aInfo = SystemData.getApp(SystemData.get("airline.default"));
 		
 		UserData ud = null;
 		Pilot usr = null;
