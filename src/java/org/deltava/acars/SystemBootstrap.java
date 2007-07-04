@@ -14,9 +14,10 @@ import org.deltava.jdbc.*;
 import org.deltava.acars.ipc.IPCDaemon;
 import org.deltava.security.Authenticator;
 
-import org.deltava.util.ThreadUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.acars.ACARSClientInfo;
 import org.gvagroup.common.SharedData;
 
 /**
@@ -184,13 +185,23 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			_jdbcPool.release(c);
 		}
 		
+		// Set minimum client builds
+		ACARSClientInfo cInfo = new ACARSClientInfo();
+		cInfo.setLatest(SystemData.getInt("acars.build.latest"));
+		Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
+		for (Iterator i = minBuilds.keySet().iterator(); i.hasNext(); ) {
+			String ver = (String) i.next();
+			cInfo.setMinimumBuild(ver.replace('_', '.'), StringUtils.parse(minBuilds.get(ver).toString(), 0));
+		}
+		
 		// Start the ACARS daemon
 		Runnable tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);
 		spawnDaemon(new IPCDaemon());
 		
-		// Save the ACARS daemon
+		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
+		SharedData.addData(SharedData.ACARS_CLIENT_BUILDS, cInfo);
 	}
 	
 	/**
