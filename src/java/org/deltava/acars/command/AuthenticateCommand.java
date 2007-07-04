@@ -22,6 +22,9 @@ import org.deltava.acars.security.UserBlocker;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.acars.ACARSClientInfo;
+import org.gvagroup.common.SharedData;
+
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
@@ -51,15 +54,11 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		// Get the minimum build number
 		int minBuild = Integer.MAX_VALUE;
+		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
 		if (msg.isDispatch())
 			minBuild = SystemData.getInt("acars.build.dispatch");
-		else {
-			Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
-			if (minBuilds != null) {
-				String ver = StringUtils.replace(msg.getVersion(), ".", "_");
-				minBuild = StringUtils.parse((String) minBuilds.get(ver), Integer.MAX_VALUE);
-			}
-		}
+		else
+			minBuild = cInfo.getMinimumBuild(msg.getVersion());
 		
 		// Check the minimum build number
 		if (msg.getClientBuild() < minBuild) {
@@ -224,7 +223,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-		int latestBuild = SystemData.getInt("acars.build.latest");
+		int latestBuild = cInfo.getLatest();
 		if (latestBuild > msg.getClientBuild())
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 		
