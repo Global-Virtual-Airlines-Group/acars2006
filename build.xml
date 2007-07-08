@@ -3,7 +3,7 @@
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
 		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars"
-		 debug="true" debuglevel="lines,vars,source" source="1.5" target="1.5" compiler="modern">
+		 debug="true" debuglevel="lines,vars,source" source="1.6" target="1.6" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />

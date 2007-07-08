@@ -3,18 +3,17 @@ package org.deltava.acars.workers;
 
 import java.util.*;
 import java.sql.Connection;
+import java.util.concurrent.locks.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.acars.*;
 
 import org.deltava.jdbc.ConnectionPool;
 import org.deltava.util.system.SystemData;
-
-import org.gvagroup.acars.CommandStats;
 
 /**
  * An ACARS Worker thread to process messages.
@@ -24,11 +23,14 @@ import org.gvagroup.acars.CommandStats;
  */
 
 public class LogicProcessor extends Worker {
+	
+	private static final ReentrantReadWriteLock _flushLock = new ReentrantReadWriteLock(true);
+	private static final Lock w = _flushLock.writeLock();
 
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
 	
-	private final LatencyTracker _latency = new LatencyTracker(100);
+	private final LatencyTracker _latency = new LatencyTracker(128);
 
 	/**
 	 * Initializes the Worker.
@@ -128,30 +130,55 @@ public class LogicProcessor extends Worker {
 
 		// Calculate and log execution time
 		long execTime = System.currentTimeMillis() - startTime;
-		CommandStats.log(cmd.getClass(), execTime);
+		SetStatistics.queue(new CommandEntry(cmd.getClass(), execTime));
 		if (execTime > cmd.getMaxExecTime())
 			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
+		
+		// If it's been too long since our last command purge, then purge
+		if (w.tryLock()) {
+			if (SetStatistics.getMaxAge() > 30000) {
+				try {
+					Connection con = ctx.getConnection(true);
+					SetStatistics dao = new SetStatistics(con);
+					int entries = dao.flush();
+					if (log.isDebugEnabled())
+						log.info("Flushed " + entries + " cached statistics entries");
+				} catch (Exception e) {
+					log.error("Error flushing positions - " + e.getMessage(), e);
+				} finally {
+					ctx.release();
+				}
+			}
+			
+			// Release the lock
+			while (_flushLock.isWriteLockedByCurrentThread())
+				w.unlock();
+		}
 	}
 	
 	/**
 	 * Shuts down the worker.
 	 */
 	public final void close() {
-		synchronized (SetPosition.class) {
-			if (SetPosition.size() > 0) {
-				Connection con = null;
-				ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-				try {
-					con = cp.getConnection(true);
+		Connection con = null;
+		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		try {
+			con = cp.getConnection(true);
+			synchronized (SetPosition.class) {
+				if (SetPosition.size() > 0) {
 					SetPosition dao = new SetPosition(con);
 					int entries = dao.flush();
 					log.warn("Flushed " + entries + " cached Position entries");
-				} catch (Exception e) {
-					log.error("Error flushing Position cache - " + e.getMessage(), e);
-				} finally {
-					cp.release(con);
 				}
 			}
+
+			// Flush statis
+			SetStatistics dao = new SetStatistics(con);
+			dao.flush();
+		} catch (Exception e) {
+			log.error("Error flushing Position/Statistics caches - " + e.getMessage(), e);
+		} finally {
+			cp.release(con);
 		}
 		
 		super.close();
