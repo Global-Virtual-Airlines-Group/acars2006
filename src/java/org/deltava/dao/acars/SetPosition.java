@@ -20,7 +20,7 @@ import org.deltava.util.CalendarUtils;
  * @since 1.0
  */
 
-public class SetPosition extends DAO {
+public class SetPosition extends DAO implements FlushableDAO<PositionMessage> {
 	
 	private static final BlockingQueue<PositionCacheEntry> _queue = new LinkedBlockingQueue<PositionCacheEntry>();
 	private static long _maxAge = -1; 
