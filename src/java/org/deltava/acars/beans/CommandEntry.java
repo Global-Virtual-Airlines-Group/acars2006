@@ -15,16 +15,20 @@ public class CommandEntry implements Comparable<CommandEntry> {
 	private String _name;
 	private final Date _execDate = new Date();
 	private long _execTime;
+	private int _userID;
 
 	/**
 	 * Initializes the bean.
 	 * @param cmd the Command class
+	 * @param id the database ID of the user executing the command
 	 * @param execTime the execution time in milliseconds
 	 */
-	public CommandEntry(Class cmd, long execTime) {
+	public CommandEntry(Class cmd, int id, long execTime) {
 		super();
 		_name = cmd.getSimpleName();
 		_execTime = execTime;
+		if (id >= 0)
+			_userID = id;
 	}
 
 	/**
@@ -41,6 +45,14 @@ public class CommandEntry implements Comparable<CommandEntry> {
 	 */
 	public Date getDate() {
 		return _execDate;
+	}
+	
+	/**
+	 * Returns the database ID of the user executing the command.
+	 * @return the database ID
+	 */
+	public int getID() {
+		return _userID;
 	}
 	
 	/**
