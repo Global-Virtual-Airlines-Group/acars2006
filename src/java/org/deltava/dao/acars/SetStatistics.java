@@ -66,7 +66,8 @@ public class SetStatistics extends DAO implements FlushableDAO<CommandEntry> {
 		Collection<CommandEntry> entries = new ArrayList<CommandEntry>();
 		int rows = _queue.drainTo(entries);
 		try {
-			prepareStatement("INSERT INTO acars.COMMAND_STATS (CMDDATE, MS, CLASS, EXECTIME) VALUES (?, ?, ?, ?)");
+			prepareStatement("INSERT INTO acars.COMMAND_STATS (CMDDATE, MS, ID, CLASS, EXECTIME) VALUES (?, ?, ?, ?, ?) "
+					+ "ON DUPLICATE KEY UPDATE EXECTIME=?");
 			for (Iterator<CommandEntry> i = entries.iterator(); i.hasNext(); ) {
 				CommandEntry e = i.next();
 				
@@ -76,8 +77,10 @@ public class SetStatistics extends DAO implements FlushableDAO<CommandEntry> {
 				// Update the prepared statement
 				_ps.setTimestamp(1, createTimestamp(e.getDate()));
 				_ps.setInt(2, cld.get(Calendar.MILLISECOND));
-				_ps.setString(3, e.getName());
-				_ps.setLong(4, e.getExecTime());
+				_ps.setInt(3, e.getID());
+				_ps.setString(4, e.getName());
+				_ps.setLong(5, e.getExecTime());
+				_ps.setLong(6, e.getExecTime());
 				_ps.addBatch();
 			}
 			

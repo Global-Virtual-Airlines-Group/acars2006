@@ -130,7 +130,8 @@ public class LogicProcessor extends Worker {
 
 		// Calculate and log execution time
 		long execTime = System.currentTimeMillis() - startTime;
-		SetStatistics.queue(new CommandEntry(cmd.getClass(), execTime));
+		int userID = (env.getOwner() == null) ? 0 : env.getOwner().getID();
+		SetStatistics.queue(new CommandEntry(cmd.getClass(), userID, execTime));
 		if (execTime > cmd.getMaxExecTime())
 			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 		
