@@ -79,19 +79,15 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 
 		// Try to close the workers down
 		_workers.interrupt();
-		for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext();) {
-			Thread t = i.next();
-			Worker w = _threads.get(t);
-
-			// Wait for the thread to die if it hasn't yet
-			ThreadUtils.kill(t, 500);
-
-			// Close the thread
+		ThreadUtils.sleep(250);
+		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
+			Worker w = i.next();
 			log.debug("Stopping " + w.getName());
 			w.close();
 		}
 
 		// Display shutdown message
+		ThreadUtils.kill(_workers, 1500);
 		log.info("Terminated");
 	}
 
