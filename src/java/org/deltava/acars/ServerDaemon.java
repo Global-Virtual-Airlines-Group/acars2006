@@ -166,6 +166,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  			return;
  		}
  		
+ 		// Log the error
+ 		log.error(t.getName() + " error: " + e.getMessage(), e);
+ 		
  		// Get the worker and remove it
  		Worker w = _threads.get(t);
  		_threads.remove(t);

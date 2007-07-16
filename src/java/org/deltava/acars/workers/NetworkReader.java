@@ -190,7 +190,7 @@ public final class NetworkReader extends Worker {
 
 			// See if we have someone waiting to connect
 			SelectionKey ssKey = _channel.keyFor(_cSelector);
-			if (ssKey.isAcceptable()) {
+			if (ssKey.isValid() && ssKey.isAcceptable()) {
 				try {
 					SocketChannel cc = _channel.accept();
 					if (cc != null)
