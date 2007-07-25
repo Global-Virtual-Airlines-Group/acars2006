@@ -84,8 +84,10 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 						// Check latency
 						long envLatency = System.currentTimeMillis() - _env.getTime();
 						_latency.add(envLatency);
-						if (envLatency > 2000)
+						if (envLatency > 2500) {
 							log.warn(getName() + " high latency delivering to " + c.getUserID() + " (" + envLatency + "ms)");
+							checkWriters(false);
+						}
 					}
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
@@ -272,7 +274,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 				i.remove();
 			} else if (!cw.isBusy() && (isIdle < minThreads))
 				isIdle++;
-			else if (!cw.isBusy() && (cw.getIdleTime() > 4000)) {
+			else if (!cw.isBusy() && (cw.getIdleTime() > 2000)) {
 				log.debug("Interrupting idle " + cw.getName());
 				cw.interrupt();
 				i.remove();
