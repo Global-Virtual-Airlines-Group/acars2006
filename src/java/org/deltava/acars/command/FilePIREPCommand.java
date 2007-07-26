@@ -139,6 +139,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(afr.getEquipmentType());
 			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null) && (a.getHistoric()));
+			if (a == null) {
+				log.warn("Invalid equipment type from " + p.getName() + " - " + afr.getEquipmentType());
+				afr.setEquipmentType(p.getEquipmentType());
+			}
 			
 			// Check for excessive distance
 			if ((a != null) && (afr.getDistance() > a.getRange()))
