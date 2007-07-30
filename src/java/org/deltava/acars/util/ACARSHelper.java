@@ -1,14 +1,16 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
-import java.text.*;
 import java.util.*;
+
+import org.apache.log4j.Logger;
 
 import org.jdom.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.*;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -19,9 +21,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public class ACARSHelper {
-
-	private static final DateFormat _df = new SimpleDateFormat("MM/dd/yyyy");
-	private static final DateFormat _dtf = new SimpleDateFormat("MM/dd/yyyy hh:mm");
+	
+	private static final Logger log = Logger.getLogger(ACARSHelper.class);
 
 	// singleton constructor
 	private ACARSHelper() {
@@ -64,21 +65,24 @@ public class ACARSHelper {
 		StringBuilder fCode = new StringBuilder();
 		for (int x = 0; x < flightCode.length(); x++) {
 			char c = flightCode.charAt(x);
-			if (Character.isDigit(c)) {
+			if (Character.isDigit(c))
 				fCode.append(c);
-			} else if (Character.isLetter(c)) {
+			else if (Character.isLetter(c))
 				aCode.append(c);
-			}
 		}
 
 		// Check the flight code
-		if (fCode.length() == 0)
+		if (fCode.length() == 0) {
+			log.warn("Bad Flight Code - " + flightCode);
 			fCode.append('1');
+		}
 
 		// Get the airline
 		Airline a = SystemData.getAirline(aCode.toString());
-		if (a == null)
+		if (a == null) {
+			log.warn("Bad Flight Code - " + flightCode);
 			a = SystemData.getAirline(SystemData.get("airline.code"));
+		}
 
 		return new ACARSFlightReport(a, Integer.parseInt(fCode.toString()), 1);
 	}
@@ -95,10 +99,11 @@ public class ACARSHelper {
 	 */
 	private static int processTime(String timeStr) {
 		StringTokenizer tkns = new StringTokenizer(timeStr, ":");
-		if (tkns.countTokens() == 2) {
+		if (tkns.countTokens() == 2)
 			return (Integer.parseInt(tkns.nextToken()) * 60) + Integer.parseInt(tkns.nextToken());
-		} else if (tkns.countTokens() == 3) { return (Integer.parseInt(tkns.nextToken()) * 3600)
-				+ (Integer.parseInt(tkns.nextToken()) * 60) + Integer.parseInt(tkns.nextToken()); }
+		else if (tkns.countTokens() == 3)
+			return (Integer.parseInt(tkns.nextToken()) * 3600) + 
+			(Integer.parseInt(tkns.nextToken()) * 60) + Integer.parseInt(tkns.nextToken());
 
 		return 0;
 	}
@@ -107,7 +112,7 @@ public class ACARSHelper {
 
 		// Build the PIREP
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
-		afr.setDatabaseID(FlightReport.DBID_ACARS, Integer.parseInt(p.getProperty("flight_id")));
+		afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(p.getProperty("flight_id"), 0));
 		afr.setStatus(FlightReport.SUBMITTED);
 		afr.setEquipmentType(p.getProperty("equipment"));
 		afr.setDate(new Date());
@@ -139,6 +144,10 @@ public class ACARSHelper {
 			case 7:
 				afr.setFSVersion(2004);
 				break;
+				
+			case 8:
+				afr.setFSVersion(2006);
+				break;
 		}
 
 		// Get the remarks and the route
@@ -147,14 +156,10 @@ public class ACARSHelper {
 		buf.append("\nRemarks: ");
 		buf.append(p.getProperty("remarks"));
 		afr.setRemarks(buf.toString());
-
+		
 		// Create the start time
-		String startTime = _df.format(afr.getDate()) + " " + p.getProperty("start_time");
-		try {
-			afr.setStartTime(_dtf.parse(startTime));
-		} catch (ParseException pe) {
-			throw new IllegalArgumentException("Invalid Start Time - " + startTime);
-		}
+		String startTime = StringUtils.format(afr.getDate(), "MM/dd/yyyy") + " " + p.getProperty("start_time");
+		afr.setStartTime(StringUtils.parseDate(startTime, "MM/dd/yyyy hh:mm"));
 
 		// Set the times
 		try {
