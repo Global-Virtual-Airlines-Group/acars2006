@@ -35,11 +35,41 @@
 		<auto_commit type="Boolean">true</auto_commit>
 		<log_stack type="Boolean">true</log_stack>
 	</jdbc>
-	
+
 	<security>
 		<auth>org.deltava.security.MirrorAuthenticator</auth>
 		<baseDN>ou=dva,o=sce</baseDN>
 	</security>
+
+	<!-- Online network properties -->
+	<online>
+		<default_network>VATSIM</default_network>
+		<list name="networks" attr="network" unique="true">
+			<network>VATSIM</network>
+			<network>IVAO</network>
+		</list>
+
+		<vatsim>
+			<status_url>http://usa-s1.vatsim.net/data/status.txt</status_url>
+			<validation_url>http://cert.vatsim.net/vatsimnet/status.php</validation_url>
+			<banner>vatsim.gif</banner>
+			<url>http://www.vatsim.net/</url>
+			<local>
+				<status>/var/cache/servinfo/vatsim.status</status>
+				<info>/var/cache/servinfo/vatsim.info</info>
+			</local>
+		</vatsim>
+
+		<ivao>
+			<status_url>http://www.ivao.aero/whazzup/status.txt</status_url>
+			<banner>ivao.png</banner>
+			<url>http://www.ivao.aero/</url>
+			<local>
+				<status>/var/cache/servinfo/ivao.status</status>
+				<info>/var/cache/servinfo/ivao.info</info>
+			</local>
+		</ivao>
+	</online>
 	
 	<!-- ACARS Server Properties -->
 	<acars>
