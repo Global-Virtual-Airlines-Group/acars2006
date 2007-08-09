@@ -236,7 +236,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		try {
 			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 				ACARSConnection c = i.next();
-				if (c.equals(cid))
+				if (c.getID() == cid)
 					return c;
 			}
 		} catch (ConcurrentModificationException cme) {
@@ -285,7 +285,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		// Loop through the connections
 		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
-			if (c.equals(ch))
+			if (c.getChannel().equals(ch))
 				return c;
 		}
 

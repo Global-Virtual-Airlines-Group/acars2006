@@ -4,6 +4,7 @@ package org.deltava.acars.beans;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
 import java.nio.*;
@@ -51,7 +52,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	// The the actual buffers for messages
 	private transient final StringBuilder _msgBuffer = new StringBuilder();
-	protected transient final List<String> _msgOutBuffer = Collections.synchronizedList(new ArrayList<String>());
+	protected transient final Queue<String> _msgOutBuffer = new ConcurrentLinkedQueue<String>();
 
 	// Connection information
 	private long _id;
@@ -126,23 +127,8 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		}
 	}
 
-	public boolean equals(SocketChannel ch) {
-		return _channel.equals(ch);
-	}
-
 	public boolean equals(Object o2) {
-
-		// Check to make sure we are the same type
-		if (!(o2 instanceof ACARSConnection))
-			return false;
-
-		// Do the cast and compare the connections
-		ACARSConnection c2 = (ACARSConnection) o2;
-		return equals(c2.getID());
-	}
-
-	public boolean equals(long cid) {
-		return (_id == cid);
+		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
 	}
 
 	public boolean equals(String pid) {
@@ -344,7 +330,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
-			if ((_msgBuffer.length() > 52) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
+			if ((_msgBuffer.length() > 54) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
 				log.warn("Malformed message - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
 				_msgBuffer.setLength(0);
 			}
@@ -374,10 +360,8 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
 		if (_wLock.tryLock()) {
-			while (!_msgOutBuffer.isEmpty()) {
-				write(_msgOutBuffer.get(0));
-				_msgOutBuffer.remove(0);
-			}
+			while (!_msgOutBuffer.isEmpty())
+				write(_msgOutBuffer.poll());
 
 			_wLock.unlock();
 		}
@@ -428,7 +412,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		} catch (AsynchronousCloseException ace) {
 			log.warn("Connection for " + getUserID() + " closed during write");
 		} catch (IOException ie) {
-			log.warn("Error writing to channel for " + getUserID() + " - " + ie.getMessage(), ie);
+			log.warn("Error writing to channel for " + getUserID() + " - " + ie.getMessage());
 		} catch (Exception e) {
 			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
 		}
