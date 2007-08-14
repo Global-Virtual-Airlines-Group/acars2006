@@ -170,7 +170,6 @@ public class AuthenticateCommand extends ACARSCommand {
 			log.warn(usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
 		
 		// Log the user in
-		usr.login(con.getRemoteHost());
 		con.setUser(usr);
 		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
