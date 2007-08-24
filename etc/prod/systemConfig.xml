@@ -25,8 +25,9 @@
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
-			<useServerPrepStmts>false</useServerPrepStmts>
+			<useServerPrepStmts>true</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
+			<useCursorFetch>true</useCursorFetch>
 		</map>
 		
 		<pool_size type="Integer">1</pool_size>
@@ -92,10 +93,10 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>84</v2_0>
+				<v2_0>86</v2_0>
 			</map>
 
-			<latest type="Integer">86</latest>
+			<latest type="Integer">87</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 		
@@ -107,7 +108,7 @@
 				<logic type="Integer">2</logic>
 				<write>
 					<min type="Integer">2</min>
-					<max type="Integer">4</max>
+					<max type="Integer">6</max>
 				</write>
 			</threads>
 		</pool>
