@@ -3,7 +3,7 @@ package org.deltava.acars.command.data;
 
 import java.sql.Connection;
 
-import org.deltava.beans.system.UserData;
+import org.deltava.beans.UserData;
 
 import org.deltava.acars.beans.MessageEnvelope;
 

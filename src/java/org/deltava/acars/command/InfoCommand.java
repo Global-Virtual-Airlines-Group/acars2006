@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.beans.UserData;
 import org.deltava.beans.acars.FlightInfo;
-import org.deltava.beans.system.UserData;
 import org.deltava.beans.testing.CheckRide;
 import org.deltava.beans.testing.Test;
 

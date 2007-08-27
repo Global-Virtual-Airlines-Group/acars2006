@@ -9,8 +9,8 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.AirlineMessage;
 
+import org.deltava.beans.UserData;
 import org.deltava.beans.schedule.Airline;
-import org.deltava.beans.system.UserData;
 
 import org.deltava.util.system.SystemData;
 
