@@ -14,7 +14,6 @@ import java.nio.channels.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.ProtocolInfo;

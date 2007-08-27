@@ -10,7 +10,6 @@ import org.deltava.beans.*;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.*;
-import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;

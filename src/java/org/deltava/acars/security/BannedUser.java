@@ -4,7 +4,7 @@ package org.deltava.acars.security;
 import java.util.Date;
 
 import org.deltava.beans.Person;
-import org.deltava.beans.system.UserData;
+import org.deltava.beans.UserData;
 
 import org.deltava.acars.beans.ACARSConnection;
 

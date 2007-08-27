@@ -7,7 +7,6 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
