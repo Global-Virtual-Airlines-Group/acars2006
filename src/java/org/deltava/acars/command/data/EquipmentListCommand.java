@@ -1,7 +1,9 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
+
+import org.deltava.beans.system.UserData;
 
 import org.deltava.acars.beans.MessageEnvelope;
 
@@ -39,10 +41,12 @@ public class EquipmentListCommand extends DataCommand {
 		AircraftMessage rspMsg = new AircraftMessage(env.getOwner(), msg.getID());
 		rspMsg.setShowProfile(Boolean.valueOf(msg.getFlag("showProfile")).booleanValue());
 		
+		// Get the user's airline
+		UserData ud = ctx.getACARSConnection().getUserData();
 		try {
 			Connection con = ctx.getConnection();
 			GetAircraft acdao = new GetAircraft(con);
-			rspMsg.addAll(acdao.getAircraftTypes());
+			rspMsg.addAll(acdao.getAircraftTypes(ud.getAirlineCode()));
 		} catch (DAOException de) {
 			log.error("Error loading equipment types", de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
