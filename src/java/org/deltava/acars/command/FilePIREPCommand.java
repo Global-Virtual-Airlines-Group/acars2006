@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -156,7 +156,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
-			int avgHours = sdao.getFlightTime(afr.getAirportD().getIATA(), afr.getAirportA().getIATA(), usrLoc.getDB());
+			int avgHours = sdao.getFlightTime(afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 			if ((avgHours == 0) && (!info.isScheduleValidated())) {
 				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
 			} else if (avgHours > 0) {
