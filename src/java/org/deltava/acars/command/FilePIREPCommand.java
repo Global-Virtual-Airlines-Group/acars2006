@@ -18,7 +18,6 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 
 import org.deltava.util.*;
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to file a Flight Report.
@@ -157,11 +156,13 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			int avgHours = sdao.getFlightTime(afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
-			if ((avgHours == 0) && (!info.isScheduleValidated())) {
-				afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
-			} else if (avgHours > 0) {
-				int minHours = (int) ((avgHours * 0.75) - (SystemData.getDouble("users.pirep.pad_hours", 0) * 10));
-				int maxHours = (int) ((avgHours * 1.15) + (SystemData.getDouble("users.pirep.pad_hours", 0) * 10));
+			if (avgHours == 0) {
+				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
+				if (!info.isScheduleValidated())
+					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
+			} else {
+				int minHours = (int) ((avgHours * 0.75) - 5); // fixed 0.5 hour pad
+				int maxHours = (int) ((avgHours * 1.15) + 5);
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}

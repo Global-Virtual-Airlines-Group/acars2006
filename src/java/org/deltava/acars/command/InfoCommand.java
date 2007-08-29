@@ -83,6 +83,13 @@ public class InfoCommand extends ACARSCommand {
 					msg.setFlightID(0);
 				}
 			}
+			
+			// Validate against the schedule
+			if (!msg.isScheduleValidated()) {
+				GetSchedule sdao = new GetSchedule(c);
+				int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+				msg.setScheduleValidated(avgTime > 0);
+			}
 
 			// Look for a checkride record
 			GetExam exdao = new GetExam(c);
