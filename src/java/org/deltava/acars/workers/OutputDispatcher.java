@@ -169,5 +169,7 @@ public final class OutputDispatcher extends Worker {
 			// Log execution
 			_status.complete();
 		}
+		
+		log.warn("Shutting Down");
 	}
 }
