@@ -84,12 +84,11 @@ public class InfoCommand extends ACARSCommand {
 				}
 			}
 			
-			// Validate against the schedule
-			if (!msg.isScheduleValidated()) {
-				GetSchedule sdao = new GetSchedule(c);
-				int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
-				msg.setScheduleValidated(avgTime > 0);
-			}
+			// Validate against the schedule - do this even if the message claims it's valid
+			GetSchedule sdao = new GetSchedule(c);
+			int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+			msg.setScheduleValidated(avgTime > 0);
+			ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
 
 			// Look for a checkride record
 			GetExam exdao = new GetExam(c);
