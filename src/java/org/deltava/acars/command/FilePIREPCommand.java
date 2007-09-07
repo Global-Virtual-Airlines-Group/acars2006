@@ -130,8 +130,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Check if the user is rated to fly the aircraft
 			EquipmentType eq = eqdao.get(p.getEquipmentType(), usrLoc.getDB());
-			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType()))
+			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType())) {
+				log.warn(p.getName() + " not rated in " + afr.getEquipmentType() + " ratings = " + p.getRatings());
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
+			}
 			
 			// Check for historic aircraft
 			GetAircraft acdao = new GetAircraft(con);
