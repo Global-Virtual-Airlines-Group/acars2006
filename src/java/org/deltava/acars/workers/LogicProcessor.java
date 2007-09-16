@@ -48,32 +48,32 @@ public class LogicProcessor extends Worker {
 		super.open();
 
 		// Initialize commands
-		_commands.put(new Integer(Message.MSG_ACK), new DummyCommand());
-		_commands.put(new Integer(Message.MSG_PING), new AcknowledgeCommand("ping"));
-		_commands.put(new Integer(Message.MSG_POSITION), new PositionCommand());
-		_commands.put(new Integer(Message.MSG_TEXT), new TextMessageCommand());
-		_commands.put(new Integer(Message.MSG_AUTH), new AuthenticateCommand());
-		_commands.put(new Integer(Message.MSG_INFO), new InfoCommand());
-		_commands.put(new Integer(Message.MSG_ENDFLIGHT), new EndFlightCommand());
-		_commands.put(new Integer(Message.MSG_QUIT), new QuitCommand());
-		_commands.put(new Integer(Message.MSG_PIREP), new FilePIREPCommand());
-		_commands.put(new Integer(Message.MSG_ERROR), new ErrorCommand());
-		_commands.put(new Integer(Message.MSG_DIAG), new DiagnosticCommand());
-		_commands.put(new Integer(Message.MSG_DISPATCH), new DispatchCommand());
+		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
+		_commands.put(Integer.valueOf(Message.MSG_PING), new AcknowledgeCommand("ping"));
+		_commands.put(Integer.valueOf(Message.MSG_POSITION), new PositionCommand());
+		_commands.put(Integer.valueOf(Message.MSG_TEXT), new TextMessageCommand());
+		_commands.put(Integer.valueOf(Message.MSG_AUTH), new AuthenticateCommand());
+		_commands.put(Integer.valueOf(Message.MSG_INFO), new InfoCommand());
+		_commands.put(Integer.valueOf(Message.MSG_ENDFLIGHT), new EndFlightCommand());
+		_commands.put(Integer.valueOf(Message.MSG_QUIT), new QuitCommand());
+		_commands.put(Integer.valueOf(Message.MSG_PIREP), new FilePIREPCommand());
+		_commands.put(Integer.valueOf(Message.MSG_ERROR), new ErrorCommand());
+		_commands.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticCommand());
+		_commands.put(Integer.valueOf(Message.MSG_DISPATCH), new DispatchCommand());
 
 		// Initialize data commands
-		_dataCommands.put(new Integer(DataMessage.REQ_BUSY), new BusyCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_CHARTS), new ChartsCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_DRAFTPIREP), new DraftFlightCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_USRLIST), new UserListCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_ALLIST), new AirlineListCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_APLIST), new AirportListCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_EQLIST), new EquipmentListCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_SCHED), new ScheduleInfoCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_NAVAIDINFO), new NavaidCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_TS2SERVERS), new TS2ServerListCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
-		_dataCommands.put(new Integer(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_CHARTS), new ChartsCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_DRAFTPIREP), new DraftFlightCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_USRLIST), new UserListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ALLIST), new AirlineListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APLIST), new AirportListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_EQLIST), new EquipmentListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_SCHED), new ScheduleInfoCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_NAVAIDINFO), new NavaidCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TS2SERVERS), new TS2ServerListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
 		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
 	}
 
@@ -107,7 +107,7 @@ public class LogicProcessor extends Worker {
 		ACARSCommand cmd = null;
 		if (msg.getType() == Message.MSG_DATAREQ) {
 			DataRequestMessage reqmsg = (DataRequestMessage) msg;
-			cmd = _dataCommands.get(new Integer(reqmsg.getRequestType()));
+			cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
 			if (cmd == null) {
 				log.warn("No Data Command for " + DataMessage.REQ_TYPES[reqmsg.getRequestType()] + " request");
 				return;
@@ -118,7 +118,7 @@ public class LogicProcessor extends Worker {
 			log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
 			ctx.setMessage("Processing Data Request (" + reqType + ") from " + env.getOwnerID());
 		} else {
-			cmd = _commands.get(new Integer(msg.getType()));
+			cmd = _commands.get(Integer.valueOf(msg.getType()));
 			if (cmd == null) {
 				log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
 				return;
