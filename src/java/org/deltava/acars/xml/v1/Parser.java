@@ -28,14 +28,14 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 	 */
 	public Parser() {
 		super(1);
-		_eParsers.put(new Integer(Message.MSG_ACK), new AckParser());
-		_eParsers.put(new Integer(Message.MSG_AUTH), new AuthParser());
-		_eParsers.put(new Integer(Message.MSG_DATAREQ), new DataRequestParser());
-		_eParsers.put(new Integer(Message.MSG_DIAG), new DiagnosticParser());
-		_eParsers.put(new Integer(Message.MSG_INFO), new FlightInfoParser());
-		_eParsers.put(new Integer(Message.MSG_PIREP), new FlightReportParser());
-		_eParsers.put(new Integer(Message.MSG_POSITION), new PositionParser());
-		_eParsers.put(new Integer(Message.MSG_TEXT), new TextMessageParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_ACK), new AckParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_AUTH), new AuthParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_DATAREQ), new DataRequestParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_INFO), new FlightInfoParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_PIREP), new FlightReportParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_POSITION), new PositionParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_TEXT), new TextMessageParser());
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 							break;
 
 						default:
-							ElementParser ep = _eParsers.get(new Integer(msgType));
+							ElementParser ep = _eParsers.get(Integer.valueOf(msgType));
 							if (ep != null)
 								msg = ep.parse(cmdE, env.getOwner());
 							else

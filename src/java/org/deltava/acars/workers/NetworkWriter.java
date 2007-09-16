@@ -34,11 +34,11 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		ConnectionWriter(int id, boolean isDynamic) {
 			super("ConnectionWriter-" + String.valueOf(id));
 			setDaemon(true);
-			_cwStatus = _writerStatus.get(new Integer(id));
+			_cwStatus = _writerStatus.get(Integer.valueOf(id));
 			_isDynamic = isDynamic;
 			if (_cwStatus == null) {
 				_cwStatus = new WorkerStatus(getName());
-				_writerStatus.put(new Integer(id), _cwStatus);
+				_writerStatus.put(Integer.valueOf(id), _cwStatus);
 			}
 
 			_cwStatus.setStatus(WorkerStatus.STATUS_INIT);

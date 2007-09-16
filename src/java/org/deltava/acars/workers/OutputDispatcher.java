@@ -72,7 +72,7 @@ public final class OutputDispatcher extends Worker {
 			String pkg = (String) versions.get(version);
 			try {
 				Class pClass = Class.forName(pkg + ".Formatter");
-				_formatters.put(new Integer(version.substring(1)), (MessageFormatter) pClass.newInstance());
+				_formatters.put(Integer.valueOf(version.substring(1)), (MessageFormatter) pClass.newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Formatter", e);
 			}
@@ -117,7 +117,7 @@ public final class OutputDispatcher extends Worker {
 						}
 
 						// Get the formatter
-						MessageFormatter fmt = _formatters.get(new Integer(ac.getProtocolVersion()));
+						MessageFormatter fmt = _formatters.get(Integer.valueOf(ac.getProtocolVersion()));
 						if (fmt == null) {
 							SortedSet<Integer> vers = new TreeSet<Integer>(_formatters.keySet());
 							Integer defaultVersion = vers.first();

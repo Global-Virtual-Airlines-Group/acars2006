@@ -46,7 +46,7 @@ public final class InputTranslator extends Worker {
 			String pkg = versions.get(version);
 			try {
 				Class pClass = Class.forName(pkg + ".Parser");
-				_parsers.put(new Integer(version.substring(1)), (MessageParser) pClass.newInstance());
+				_parsers.put(Integer.valueOf(version.substring(1)), (MessageParser) pClass.newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Parser", e);
 			}
@@ -68,7 +68,7 @@ public final class InputTranslator extends Worker {
 				log.debug("Message received from " + env.getOwnerID());
 				
 				// Get the proper message parser
-				MessageParser parser = _parsers.get(new Integer(env.getVersion()));
+				MessageParser parser = _parsers.get(Integer.valueOf(env.getVersion()));
 				try {
 					Collection<Message> msgs = parser.parse(env);
 					for (Iterator<Message> i = msgs.iterator(); i.hasNext();) {
