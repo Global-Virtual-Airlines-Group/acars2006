@@ -8,6 +8,12 @@
 		<code>ACARS</code>
 		<db>DVA</db>
 		<default>DVA</default>
+
+		<!-- Default airline codes -->
+		<map name="defaultCodes">
+			<dva>DAL</dva>
+			<afv>AF</afv>
+		</map>
 	</airline>
 
 	<!-- JDBC data source configuration -->
