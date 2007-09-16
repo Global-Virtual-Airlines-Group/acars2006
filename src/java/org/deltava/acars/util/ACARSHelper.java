@@ -81,7 +81,10 @@ public class ACARSHelper {
 		Airline a = SystemData.getAirline(aCode.toString());
 		if (a == null) {
 			log.warn("Bad Flight Code - " + flightCode);
-			a = SystemData.getAirline(SystemData.get("airline.code"));
+			
+			// Look it up
+			Map aCodes = (Map) SystemData.getObject("airline.defaultCodes");
+			a = SystemData.getAirline((String) aCodes.get(aCode.toString().toLowerCase()));
 		}
 
 		return new ACARSFlightReport(a, Integer.parseInt(fCode.toString()), 1);
