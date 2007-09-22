@@ -198,6 +198,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
 		SharedData.addData(SharedData.ACARS_CLIENT_BUILDS, cInfo);
+		
+		// Wait a bit for the daemons to spool up
+		ThreadUtils.sleep(1250);
 	}
 	
 	/**
