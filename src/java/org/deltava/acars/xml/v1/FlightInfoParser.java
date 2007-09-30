@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1;
 
 import java.text.*;
@@ -64,7 +64,7 @@ class FlightInfoParser extends ElementParser {
 
 		// Load waypoints
 		String waypoints = getChildText(e, "route", "DIRECT");
-		msg.setWaypoints(StringUtils.strip(waypoints, ",\'\""));
+		msg.setWaypoints(StringUtils.strip(waypoints, "-,\'\""));
 		return msg;
 	}
 	
