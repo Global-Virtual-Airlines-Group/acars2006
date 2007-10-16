@@ -60,7 +60,7 @@ public class ChartsCommand extends DataCommand {
 			Collection<Chart> charts = dao.getCharts(a);
 			for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
 				Chart ch = ci.next();
-				if ((ch.getImgType() != Chart.IMG_PDF) || !noPDF)
+				if ((ch.getImgType() != Chart.PDF) || !noPDF)
 					rspMsg.add(ch);
 			}
 		} catch (DAOException de) {
