@@ -50,6 +50,8 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setHourA(StringUtils.parse(msg.getFlag("hourA"), -1));
 		sc.setMaxResults(StringUtils.parse(msg.getFlag("maxResults"), 0));
 		sc.setDistance(StringUtils.parse(msg.getFlag("distance"), 0));
+		sc.setDistanceRange(sc.getDistance() > 0 ? 200 : 0);
+		sc.setIncludeHistoric(true);
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
 		sc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 100))
