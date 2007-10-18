@@ -30,7 +30,7 @@ public class LogicProcessor extends Worker {
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
 	
-	private final LatencyTracker _latency = new LatencyTracker(128);
+	private final LatencyTracker _latency = new LatencyTracker(256);
 
 	/**
 	 * Initializes the Worker.
@@ -49,7 +49,7 @@ public class LogicProcessor extends Worker {
 
 		// Initialize commands
 		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
-		_commands.put(Integer.valueOf(Message.MSG_PING), new AcknowledgeCommand("ping"));
+		_commands.put(Integer.valueOf(Message.MSG_PING), new AcknowledgeCommand(true));
 		_commands.put(Integer.valueOf(Message.MSG_POSITION), new PositionCommand());
 		_commands.put(Integer.valueOf(Message.MSG_TEXT), new TextMessageCommand());
 		_commands.put(Integer.valueOf(Message.MSG_AUTH), new AuthenticateCommand());

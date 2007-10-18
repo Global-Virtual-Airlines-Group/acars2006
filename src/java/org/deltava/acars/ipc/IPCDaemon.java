@@ -67,8 +67,7 @@ public class IPCDaemon implements Runnable {
 							
 							// Validate all of the connections
 							GetPilot pdao = new GetPilot(con);
-							Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(acPool.getAll());
-							for (Iterator<ACARSConnection> ci = cons.iterator(); ci.hasNext(); ) {
+							for (Iterator<ACARSConnection> ci = acPool.get("*").iterator(); ci.hasNext(); ) {
 								ACARSConnection ac = ci.next();
 								if (ac.isAuthenticated()) {
 									Pilot p = pdao.get(ac.getUserData());

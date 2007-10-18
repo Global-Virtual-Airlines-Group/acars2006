@@ -1,13 +1,11 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.message.*;
 
-import org.deltava.util.system.SystemData;
-
 /**
- * An ACARS Server Command to respond to ACK messages
+ * An ACARS Server Command to respond to messages.
  * @author Luke
  * @version 1.0
  * @since 1.0
@@ -15,15 +13,15 @@ import org.deltava.util.system.SystemData;
 
 public class AcknowledgeCommand extends ACARSCommand {
 
-	private String ackType;
+	private boolean _result;
 
 	/**
-	 * Intiailizes the Command.
-	 * @param ackType the original message type
+	 * Initializes the Command.
+	 * @param result whether to send an ACK or not
 	 */
-	public AcknowledgeCommand(String ackType) {
+	public AcknowledgeCommand(boolean result) {
 		super();
-		ackType = ackType.toLowerCase();
+		_result = result;
 	}
 
 	/**
@@ -32,12 +30,11 @@ public class AcknowledgeCommand extends ACARSCommand {
 	 * @param env
 	 */
 	public void execute(CommandContext ctx, MessageEnvelope env) {
+		if (!_result)
+			return;
 
-		// Check if we should acknowledge this message
-		if (SystemData.getBoolean("acars.ack." + ackType)) {
-			Message msg = env.getMessage();
-			AcknowledgeMessage aMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ctx.push(aMsg, env.getConnectionID());
-		}
+		// Send an ACK
+		AcknowledgeMessage aMsg = new AcknowledgeMessage(env.getOwner(), env.getMessage().getID());
+		ctx.push(aMsg, env.getConnectionID());
 	}
 }

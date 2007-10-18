@@ -31,8 +31,9 @@
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
-			<useServerPrepStmts>false</useServerPrepStmts>
+			<useServerPrepStmts>true</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
+			<validationQuery>/* ping */</validationQuery>
 		</map>
 		
 		<pool_size type="Integer">1</pool_size>
@@ -76,6 +77,13 @@
 			</local>
 		</ivao>
 	</online>
+
+	<!-- SMTP server data -->
+	<smtp>
+		<server>polaris.sce.net</server>
+		<errors-to>luke@sce.net</errors-to>
+		<testMode type="Boolean">false</testMode>
+	</smtp>
 
 	<!-- ACARS Server Properties -->
 	<acars>

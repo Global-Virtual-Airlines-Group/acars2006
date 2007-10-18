@@ -147,7 +147,7 @@ public final class NetworkReader extends Worker {
 
 		// Close all of the connections
 		_status.setMessage("Closing connections");
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			if (con.isAuthenticated())
 				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");

@@ -10,6 +10,7 @@ import org.apache.log4j.*;
 
 import org.deltava.dao.*;
 import org.deltava.jdbc.*;
+import org.deltava.mail.MailerDaemon;
 
 import org.deltava.acars.ipc.IPCDaemon;
 import org.deltava.security.Authenticator;
@@ -44,6 +45,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		PropertyConfigurator.configure(getClass().getResource("/etc/log4j.properties"));
 		SystemBootstrap.log = Logger.getLogger(SystemBootstrap.class);
 		log.info("Initialized log4j");
+		
+		// Set default character set
+		System.setProperty("mail.mime.charset", "UTF-8");
 	}
 	
 	/**
@@ -59,7 +63,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			Connection c = null;
 			try {
 				c = _jdbcPool.getConnection(true);
-
 				SetTS2Data ts2wdao = new SetTS2Data(c);
 				ts2wdao.clearActiveFlags();
 			} catch (DAOException de) {
@@ -190,9 +193,10 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			cInfo.setMinimumBuild(ver.replace('_', '.'), StringUtils.parse(minBuilds.get(ver).toString(), 0));
 		}
 		
-		// Start the ACARS daemon
+		// Start the ACARS/Mailer/IPC daemons
 		Runnable tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);
+		spawnDaemon(new MailerDaemon());
 		spawnDaemon(new IPCDaemon());
 		
 		// Save the ACARS daemon and client version map
