@@ -7,14 +7,17 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+
 import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.acars.security.UserBlocker;
 
 import org.deltava.dao.*;
+import org.deltava.mail.*;
 
 import org.deltava.util.StringUtils;
 
@@ -51,7 +54,6 @@ public class DiagnosticCommand extends ACARSCommand {
 		}
 
 		switch (msg.getRequestType()) {
-
 			// Kick a user based on connection ID
 			case DiagnosticMessage.REQ_KICK:
 
@@ -99,9 +101,8 @@ public class DiagnosticCommand extends ACARSCommand {
 							// Update the pilot record
 							SetPilot pwdao = new SetPilot(con);
 							pwdao.write(p, ud.getDB());
-						} else {
+						} else
 							log.warn("Cannot update Pilot record for " + usr.getName());
-						}
 					} catch (DAOException de) {
 						log.error("Cannot log KICK - " + de.getMessage(), de);
 					} finally {
@@ -119,7 +120,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
 
 				// Kick any connections from this address
-				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext();) {
+				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
 						UserBlocker.ban(ac);
@@ -163,9 +164,8 @@ public class DiagnosticCommand extends ACARSCommand {
 								// Update the pilot record
 								SetPilot pwdao = new SetPilot(con);
 								pwdao.write(p, ud.getDB());
-							} else {
+							} else
 								log.warn("Cannot update Pilot record for " + usr.getName());
-							}
 						} catch (DAOException de) {
 							log.error("Cannot log BLOCK - " + de.getMessage(), de);
 						} finally {
@@ -179,7 +179,61 @@ public class DiagnosticCommand extends ACARSCommand {
 
 				break;
 
-			// Kick the user and block his IP address
+			// Send content warning e-mail
+			case DiagnosticMessage.CONTENT_WARN:
+				log.warn("ACARS Content Warning from " + env.getOwnerID());
+				
+				// Search for logged-in HR role members
+				boolean sentMessage = false;
+				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
+					ACARSConnection ac = i.next();
+					if (ac.getUser().isInRole("HR")) {
+						sentMessage = true;
+						TextMessage txtmsg = new TextMessage(usr, "ACARS Chat Content Warning");
+						txtmsg.setRecipient(ac.getUserID());
+						ctx.push(txtmsg, ac.getID());
+					}
+				}
+				
+				// Create e-mail message for all HR members
+				if (!sentMessage) {
+					Connection con = null;
+					try {
+						con = ctx.getConnection(true);
+						
+						// Get the airlines
+						GetPilotDirectory pdao = new GetPilotDirectory(con);
+						GetUserData uddao = new GetUserData(con);
+						Collection<AirlineInformation> airlines = uddao.getAirlines(true).values();
+						for (Iterator<AirlineInformation> i = airlines.iterator(); i.hasNext(); ) {
+							AirlineInformation ai = i.next();
+							
+							// Get pilots
+							Collection<Pilot> pilots = pdao.getByRole("HR", ai.getDB());
+							for (Iterator<Pilot> pi = pilots.iterator(); pi.hasNext();) {
+								Pilot p = pi.next();
+								MessageContext mctxt = new MessageContext();
+								mctxt.addData("user", p);
+								mctxt.setSubject("ACARS Content Warning");
+								mctxt.setBody("Potentially inappropriate content in ACARS has been reported - " + msg.getRequestData() + 
+										"\n\n${user.name}");
+								
+								// Send the message
+								Mailer mailer = new Mailer(ctx.getACARSConnection().getUser());
+								mailer.setContext(mctxt);
+								mailer.send(p);
+							}
+						}
+					} catch (DAOException de) {
+						log.error("Cannot send content notification - " + de.getMessage(), de);
+					} finally {
+						ctx.release();
+					}
+				}
+				
+				break;
+				
+			// Unknown Message
 			default:
 				log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
 		}

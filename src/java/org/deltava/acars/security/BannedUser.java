@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reseved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reseved.
 package org.deltava.acars.security;
 
 import java.util.Date;
@@ -15,7 +15,7 @@ import org.deltava.acars.beans.ACARSConnection;
  * @since 1.0
  */
 
-public class BannedUser implements Comparable {
+public class BannedUser implements Comparable<BannedUser> {
 	
 	private String _remoteAddr;
 	private String _remoteHost;
@@ -107,10 +107,9 @@ public class BannedUser implements Comparable {
 
 	/**
 	 * Compare two banned users by comparing the expiration date.
-	 * @see Comparable#compareTo(Object)
 	 */
-	public int compareTo(Object o) {
-		BannedUser usr2 = (BannedUser) o;
-		return _expiryTime.compareTo(usr2._expiryTime);
+	public int compareTo(BannedUser usr2) {
+		int tmpResult = _expiryTime.compareTo(usr2._expiryTime);
+		return (tmpResult == 0) ? _usrData.compareTo(usr2._usrData) : tmpResult; 
 	}
 }

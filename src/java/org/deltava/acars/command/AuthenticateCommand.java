@@ -159,15 +159,20 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
 		DateTime now = new DateTime(new Date());
-		long timeDiff = msg.getClientUTC().getTime() - now.getUTC().getTime() + 500;
-		if (Math.abs(timeDiff) > 14400000) {
-			log.error("Cannot authenticate " + usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
+		long timeDiff = (msg.getClientUTC().getTime() - now.getUTC().getTime() + 500) / 1000;
+		if (Math.abs(timeDiff) > 14400) {
+			log.error("Cannot authenticate " + usr.getName() + " system clock " + timeDiff + " seconds off");
+			
+			// Convert times to client date/time
+			DateTime usrTime = new DateTime(msg.getClientUTC(), TZInfo.UTC);
+			usrTime.convertTo(usr.getTZ());
+			
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "Your system clock is " + timeDiff + " seconds off");
+			errMsg.setEntry("error", "It is " + now.toString() + ". Your system clock is set to" + usrTime.toString() + " ( " + timeDiff + " seconds off)");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
-		} else if (Math.abs(timeDiff) > 900000)
-			log.warn(usr.getName() + " system clock " + (timeDiff / 1000) + " seconds off");
+		} else if (Math.abs(timeDiff) > 900)
+			log.warn(usr.getName() + " system clock " + timeDiff + " seconds off");
 		
 		// Log the user in
 		con.setUser(usr);
@@ -176,7 +181,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setClientVersion(msg.getClientBuild());
 		con.setIsDispatch(msg.isDispatch());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
-		con.setTimeOffset(timeDiff);
+		con.setTimeOffset(timeDiff * 1000);
 		
 		// Save the connection data
 		try {
@@ -212,7 +217,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, msg.getID());
 		drMsg.add(con);
 		if (con.getUserHidden()) {
-			for (Iterator<ACARSConnection> i  = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext(); ) {
+			for (Iterator<ACARSConnection> i  = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
 				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drMsg, ac.getID());

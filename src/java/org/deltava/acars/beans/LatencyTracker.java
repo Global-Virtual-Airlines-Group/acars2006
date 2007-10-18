@@ -29,7 +29,7 @@ public class LatencyTracker {
 	 * @param latency the latency in milliseconds
 	 */
 	public void add(long latency) {
-		_entries.add(new Long(latency));
+		_entries.add(Long.valueOf(latency));
 		while (_entries.size() > _maxSize)
 			_entries.remove(0);
 	}

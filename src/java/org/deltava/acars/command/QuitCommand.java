@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -60,7 +60,7 @@ public class QuitCommand extends ACARSCommand {
 		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());
 		drmsg.add(env.getOwner());
 		if (msg.isHidden()) {
-			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext(); ) {
+			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
 				if ((ac.getID() != env.getConnectionID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drmsg, ac.getID());

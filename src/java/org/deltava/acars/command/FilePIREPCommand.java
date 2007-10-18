@@ -190,7 +190,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Update the checkride record (don't assume pilots check the box, because they don't)
 			if ((info != null) && afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
-				CheckRide cr = exdao.getCheckRide(usrLoc.getDB(), usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
+				CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + info.getFlightID());
 					cr.setFlightID(info.getFlightID());
@@ -199,10 +199,9 @@ public class FilePIREPCommand extends ACARSCommand {
 					
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
-					wdao.write(usrLoc.getDB(), cr);
-				} else {
+					wdao.write(cr);
+				} else
 					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
-				}
 			}
 
 			// Get the write DAO and save the PIREP

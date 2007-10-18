@@ -228,10 +228,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		return null;
 	}
 
-	public Collection<ACARSConnection> getAll() {
-		return _cons;
-	}
-
 	public ACARSConnection get(long cid) {
 		try {
 			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {

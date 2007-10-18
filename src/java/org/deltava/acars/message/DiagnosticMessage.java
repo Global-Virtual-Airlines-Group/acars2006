@@ -1,6 +1,4 @@
-/*
- * Created on Feb 6, 2004
- */
+// Copyright 2004, 2005, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -20,7 +18,8 @@ public class DiagnosticMessage extends AbstractMessage {
 	public static final int REQ_UNKNOWN = 0;
 	public static final int REQ_KICK = 1;
 	public static final int REQ_BLOCK = 2;
-	public static final String[] REQ_TYPES = {"?", "KickUser", "BlockIP"};
+	public static final int CONTENT_WARN = 3;
+	public static final String[] REQ_TYPES = {"?", "KickUser", "BlockIP", "ContentWarn"};
 
 	// Request type
 	private int _reqType;

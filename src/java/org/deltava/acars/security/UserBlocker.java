@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reseved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reseved.
 package org.deltava.acars.security;
 
 import java.util.*;
@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.Person;
 import org.deltava.acars.beans.ACARSConnection;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -26,6 +27,10 @@ public class UserBlocker {
 	private UserBlocker() {
 	}
 	
+	/**
+	 * Blocks a user based on IP Address and User.
+	 * @param con the user's ACARS connection
+	 */
 	public static synchronized void ban(ACARSConnection con) {
 		if (isBanned(con.getRemoteAddr()))
 			log.warn(con.getRemoteAddr() + " already banned");
@@ -38,6 +43,7 @@ public class UserBlocker {
 		BannedUser usr = new BannedUser(con);
 		usr.setExpiryDate(cld.getTime());
 		_users.add(usr);
+		log.warn("Blocking " + usr.getUser().getName() + " until " + StringUtils.format(cld.getTime(), "MM/dd/yyyy HH:mm"));
 	}
 
 	/**
