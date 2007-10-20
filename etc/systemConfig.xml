@@ -82,7 +82,7 @@
 	<smtp>
 		<server>polaris.sce.net</server>
 		<errors-to>luke@sce.net</errors-to>
-		<testMode type="Boolean">false</testMode>
+		<testMode type="Boolean">true</testMode>
 	</smtp>
 
 	<!-- ACARS Server Properties -->
