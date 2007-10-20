@@ -253,6 +253,7 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 			int maxThreads = SystemData.getInt("acars.pool.threads.write.max", 2);
 			if ((workSize > 2) && (_writers.size() < maxThreads) && (envAge > 1250)) {
 				spawnWorker(true);
+				ThreadUtils.sleep(250);
 				log.info("ConnectionWriter Pool size increased to " + _writers.size());
 			} else if ((workSize > 2) && (envAge > 1500))
 				log.warn("Work queue entries = " + workSize + ", pool size = " + _writers.size());
