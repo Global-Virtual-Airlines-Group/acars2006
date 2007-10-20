@@ -189,7 +189,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					ACARSConnection ac = i.next();
 					if (ac.getUser().isInRole("HR")) {
 						sentMessage = true;
-						TextMessage txtmsg = new TextMessage(usr, "ACARS Chat Content Warning");
+						TextMessage txtmsg = new TextMessage(usr, "ACARS Chat Content Warning - " + msg.getRequestData());
 						txtmsg.setRecipient(ac.getUserID());
 						ctx.push(txtmsg, ac.getID());
 					}
