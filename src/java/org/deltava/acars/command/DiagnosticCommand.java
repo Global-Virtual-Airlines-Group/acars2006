@@ -187,7 +187,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				boolean sentMessage = false;
 				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
-					if (ac.getUser().isInRole("HR")) {
+					if (ac.getUser().isInRole("HR") && (ac.getUser().getID() != usr.getID())) {
 						sentMessage = true;
 						TextMessage txtmsg = new TextMessage(usr, "ACARS Chat Content Warning - " + msg.getRequestData());
 						txtmsg.setRecipient(ac.getUserID());
@@ -213,7 +213,7 @@ public class DiagnosticCommand extends ACARSCommand {
 							for (Iterator<Pilot> pi = pilots.iterator(); pi.hasNext();) {
 								Pilot p = pi.next();
 								MessageContext mctxt = new MessageContext();
-								mctxt.addData("user", p);
+								mctxt.addData("user", usr);
 								mctxt.setSubject("ACARS Content Warning");
 								mctxt.setBody("Potentially inappropriate content in ACARS has been reported - " + msg.getRequestData() + 
 										"\n\n${user.name}");
