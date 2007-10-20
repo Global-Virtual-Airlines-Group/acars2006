@@ -76,10 +76,16 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, ACARSWorkerI
 				log.error("Error restarting worker - " + e.getMessage(), e);
 			}
 		}
+		
+		// Remove uncaught exception handler if we're shutting threads down
+		for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext(); ) { 
+			Thread wt = i.next();
+			wt.setUncaughtExceptionHandler(null);
+			wt.interrupt();
+		}
 
 		// Try to close the workers down
-		_workers.interrupt();
-		ThreadUtils.sleep(250);
+		ThreadUtils.sleep(500);
 		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
 			Worker w = i.next();
 			log.debug("Stopping " + w.getName());
