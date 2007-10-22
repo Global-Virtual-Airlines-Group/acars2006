@@ -44,18 +44,18 @@ public class DiagnosticCommand extends ACARSCommand {
 		DiagnosticMessage msg = (DiagnosticMessage) env.getMessage();
 		ACARSConnectionPool cPool = ctx.getACARSConnectionPool();
 		
-		// Check user access
+		// Get user and create error message
 		Pilot usr = env.getOwner();
-		if (!usr.isInRole("HR")) {
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("error", "Insufficient Access");
-			ctx.push(ackMsg, env.getConnectionID());
-			return;
-		}
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+		ackMsg.setEntry("error", "Insufficient Access");
 
 		switch (msg.getRequestType()) {
 			// Kick a user based on connection ID
 			case DiagnosticMessage.REQ_KICK:
+				if (!usr.isInRole("HR")) {
+					ctx.push(ackMsg, env.getConnectionID());
+					return;
+				}
 
 				// Try and get the connection
 				Collection<ACARSConnection> cons = cPool.get(msg.getRequestData());
@@ -117,9 +117,13 @@ public class DiagnosticCommand extends ACARSCommand {
 
 			// Block an IP address or Hostname
 			case DiagnosticMessage.REQ_BLOCK:
-				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
-
+				if (!usr.isInRole("HR")) {
+					ctx.push(ackMsg, env.getConnectionID());
+					return;
+				}
+				
 				// Kick any connections from this address
+				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
 				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
@@ -181,6 +185,11 @@ public class DiagnosticCommand extends ACARSCommand {
 
 			// Send content warning e-mail
 			case DiagnosticMessage.CONTENT_WARN:
+				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP")) {
+					ctx.push(ackMsg, env.getConnectionID());
+					return;
+				}
+				
 				log.warn("ACARS Content Warning from " + env.getOwnerID());
 				
 				// Search for logged-in HR role members
@@ -233,7 +242,6 @@ public class DiagnosticCommand extends ACARSCommand {
 				
 				break;
 				
-			// Unknown Message
 			default:
 				log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
 		}
