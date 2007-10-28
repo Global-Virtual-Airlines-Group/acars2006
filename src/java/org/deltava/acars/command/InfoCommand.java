@@ -66,6 +66,7 @@ public class InfoCommand extends ACARSCommand {
 			Connection c = ctx.getConnection();
 
 			// If we're requesting a specific ID, make sure we used to own it
+			boolean isValidated = false;
 			if (!assignID) {
 				GetACARSData rdao = new GetACARSData(c);
 				FlightInfo info = rdao.getInfo(msg.getFlightID());
@@ -81,14 +82,17 @@ public class InfoCommand extends ACARSCommand {
 					log.warn(msg.getFlightID() + " has PIREP or is archived!");
 					assignID = true;
 					msg.setFlightID(0);
-				}
+				} else
+					isValidated = info.isScheduleValidated();
 			}
 			
 			// Validate against the schedule - do this even if the message claims it's valid
-			GetSchedule sdao = new GetSchedule(c);
-			int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
-			msg.setScheduleValidated(avgTime > 0);
-			ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
+			if (!isValidated) {
+				GetSchedule sdao = new GetSchedule(c);
+				int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+				msg.setScheduleValidated(avgTime > 0);
+			} else
+				msg.setScheduleValidated(true);
 
 			// Look for a checkride record
 			GetExam exdao = new GetExam(c);
@@ -115,6 +119,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
 		ctx.push(ackMsg, env.getConnectionID(), true);
 
 		// Set the info for the connection and write it to the database
