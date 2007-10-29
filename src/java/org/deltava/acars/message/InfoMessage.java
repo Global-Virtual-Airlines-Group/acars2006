@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -27,6 +27,7 @@ public class InfoMessage extends AbstractMessage {
 	private String _flightCode;
 	private Airport _airportA;
 	private Airport _airportD;
+	private Airport _airportL;
 	private String _fpAlt;
 	private String _comments;
 	private int _fsVersion;
@@ -60,6 +61,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public Airport getAirportD() {
 		return _airportD;
+	}
+	
+	public Airport getAirportL() {
+		return _airportL;
 	}
 
 	public String getAltitude() {
@@ -141,6 +146,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setAirportD(Airport aInfo) {
 		_airportD = aInfo;
+	}
+	
+	public void setAirportL(Airport aInfo) {
+		_airportL = aInfo;
 	}
 	
 	public void setAltitude(String newFPAlt) {
