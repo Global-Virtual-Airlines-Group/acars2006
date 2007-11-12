@@ -45,6 +45,7 @@ public class NetworkWriter extends Worker {
 		}
 
 		public void run() {
+			_status.add(System.currentTimeMillis() - _env.getTime());
 			_con.queue(_env.getMessage());
 		}
 	}
