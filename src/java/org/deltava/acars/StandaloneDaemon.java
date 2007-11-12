@@ -7,6 +7,7 @@ import org.apache.log4j.LogManager;
 
 import org.deltava.beans.system.VersionInfo;
 
+import org.deltava.acars.beans.WorkerStatus;
 import org.deltava.acars.workers.*;
 
 import org.deltava.util.ThreadUtils;

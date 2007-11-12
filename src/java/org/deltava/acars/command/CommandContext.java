@@ -7,7 +7,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
 import static org.deltava.acars.workers.Worker.*;
 
-import org.deltava.acars.workers.WorkerStatus;
 
 import org.deltava.jdbc.*;
 
