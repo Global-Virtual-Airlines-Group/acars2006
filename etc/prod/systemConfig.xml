@@ -114,7 +114,7 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>86</v2_0>
+				<v2_0>88</v2_0>
 			</map>
 
 			<latest type="Integer">88</latest>
@@ -126,10 +126,10 @@
 			<multiple type="Boolean">false</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
-				<logic type="Integer">2</logic>
+				<logic type="Integer">3</logic>
 				<write>
 					<min type="Integer">2</min>
-					<max type="Integer">6</max>
+					<max type="Integer">8</max>
 				</write>
 			</threads>
 		</pool>
