@@ -1,16 +1,16 @@
 // Copyright 2004, 2005, 2006, 2007 Global Virtual Airline Group. All Rights Reserved.
-package org.deltava.acars.workers;
+package org.deltava.acars.beans;
 
 import org.deltava.beans.ViewEntry;
 
 /**
  * A bean to return ACARS worker thread information.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
-public class WorkerStatus implements Comparable, ViewEntry {
+public class WorkerStatus implements Comparable<WorkerStatus>, ViewEntry {
 	
 	public static final int STATUS_UNKNOWN = 0;
 	public static final int STATUS_SHUTDOWN = 1;
@@ -30,7 +30,7 @@ public class WorkerStatus implements Comparable, ViewEntry {
 	private long _execCount;
 	private boolean _isRunning;
 	
-	WorkerStatus(String name) {
+	public WorkerStatus(String name) {
 		super();
 		_name = name;
 	}
@@ -63,7 +63,7 @@ public class WorkerStatus implements Comparable, ViewEntry {
 		_isRunning = isAlive;
 	}
 	
-	synchronized void setStatus(int newStatus) {
+	public synchronized void setStatus(int newStatus) {
 		if ((newStatus >= 0) && (newStatus < STATUS_NAME.length)) {
 			_status = newStatus;
 		} else {
@@ -71,12 +71,12 @@ public class WorkerStatus implements Comparable, ViewEntry {
 		}
 	}
 	
-	synchronized void execute() {
+	public synchronized void execute() {
 		_execStartTime = System.currentTimeMillis();
 		_execStopTime = 0;
 	}
 	
-	synchronized void complete() {
+	public synchronized void complete() {
 		_execStopTime = System.currentTimeMillis();
 		_execCount++;
 	}
@@ -90,10 +90,8 @@ public class WorkerStatus implements Comparable, ViewEntry {
 	
 	/**
 	 * Compares two workers by comparing their names.
-	 * @see Comparable#compareTo(Object)
 	 */
-	public int compareTo(Object o2) {
-		WorkerStatus ws2 = (WorkerStatus) o2;
+	public int compareTo(WorkerStatus ws2) {
 		return _name.compareTo(ws2._name);
 	}
 	

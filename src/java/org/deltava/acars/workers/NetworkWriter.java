@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.deltava.acars.beans.*;
+import org.deltava.acars.pool.*;
 
-import org.deltava.util.ThreadUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -16,96 +16,36 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHandler {
+public class NetworkWriter extends Worker {
 
-	private final List<ConnectionWriter> _writers = new ArrayList<ConnectionWriter>();
-	protected final Map<Integer, WorkerStatus> _writerStatus = new TreeMap<Integer, WorkerStatus>();
-	protected final BlockingQueue<TextEnvelope> _work = new PriorityBlockingQueue<TextEnvelope>();
+	private QueueingThreadPool _ioPool;
 
-	private final class ConnectionWriter extends Thread {
+	private final class ConnectionWriter implements PoolWorker {
 
+		private ACARSConnection _con;
 		private TextEnvelope _env;
-		private WorkerStatus _cwStatus;
-		private boolean _isBusy;
-		private boolean _isDynamic;
+		private LatencyWorkerStatus _status;
 
-		private final LatencyTracker _latency = new LatencyTracker(1024);
-
-		ConnectionWriter(int id, boolean isDynamic) {
-			super("ConnectionWriter-" + String.valueOf(id));
-			setDaemon(true);
-			_cwStatus = _writerStatus.get(Integer.valueOf(id));
-			_isDynamic = isDynamic;
-			if (_cwStatus == null) {
-				_cwStatus = new WorkerStatus(getName());
-				_writerStatus.put(Integer.valueOf(id), _cwStatus);
-			}
-
-			_cwStatus.setStatus(WorkerStatus.STATUS_INIT);
+		ConnectionWriter(ACARSConnection ac, TextEnvelope env) {
+			super();
+			_con = ac;
+			_env = env;
 		}
-
-		public synchronized boolean isBusy() {
-			return _isBusy;
+		
+		public String getName() {
+			return "ConnectionWriter";
 		}
-
-		private synchronized void setBusy(boolean isBusy) {
-			_isBusy = isBusy;
+		
+		public LatencyWorkerStatus getStatus() {
+			return _status;
 		}
-
-		public boolean isDynamic() {
-			return _isDynamic;
-		}
-
-		public TextEnvelope getEnvelope() {
-			return _env;
-		}
-
-		public WorkerStatus getStatus() {
-			return _cwStatus;
+		
+		public void setStatus(LatencyWorkerStatus status) {
+			_status = status;
 		}
 
 		public void run() {
-			_cwStatus.setAlive(true);
-			_cwStatus.setStatus(WorkerStatus.STATUS_START);
-			while (!isInterrupted()) {
-				_cwStatus.setMessage("Idle - average latency " + _latency.getLatency() + "ms");
-
-				try {
-					_env = _work.take();
-					_cwStatus.execute();
-					setBusy(true);
-					ACARSConnection c = _pool.get(_env.getConnectionID());
-					if (c != null) {
-						log.debug("Writing to " + c.getRemoteAddr());
-						_cwStatus.setMessage("Writing to " + c.getUserID() + " - " + c.getRemoteHost());
-						c.queue(_env.getMessage());
-
-						// Check latency
-						long envLatency = System.currentTimeMillis() - _env.getTime();
-						_latency.add(envLatency);
-						if (envLatency > 2500) {
-							log.warn(getName() + " high latency delivering to " + c.getUserID() + " ("
-									+ envLatency + "ms)");
-							checkWriters(false);
-						}
-					}
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-				} finally {
-					_cwStatus.complete();
-					setBusy(false);
-				}
-
-				// Check if we have too many idle threads
-				if (_work.isEmpty()) {
-					_cwStatus.setMessage("Checking Thread Pool");
-					checkWriters(true);
-				}
-			}
-
-			_cwStatus.setAlive(false);
-			_cwStatus.setStatus(WorkerStatus.STATUS_SHUTDOWN);
-			_cwStatus.setMessage("Shut Down");
+			_con.queue(_env.getMessage());
 		}
 	}
 
@@ -124,11 +64,9 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		super.open();
 
 		// Create initial writer threads
-		int minThreads = SystemData.getInt("acars.pool.threads.write.min", 1);
-		for (int x = 0; x < minThreads; x++)
-			spawnWorker(false);
-
-		log.info("Started " + _writers.size() + " ConnectionWriter threads");
+		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.write.min", 1));
+		int maxThreads = SystemData.getInt("acars.pool.threads.write.max", minThreads);
+		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 2000, "NetworkWriter");
 	}
 
 	/**
@@ -137,12 +75,16 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 */
 	public final synchronized void close() {
 		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
-		for (Iterator<? extends Thread> i = _writers.iterator(); i.hasNext();) {
-			Thread cw = i.next();
-			ThreadUtils.kill(cw, 750);
+		
+		// Wait for the pool to shut down
+		try {
+			_ioPool.shutdown();
+			_ioPool.awaitTermination(1250, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		} finally {
+			super.close();
 		}
-
-		super.close();
 	}
 
 	/**
@@ -151,24 +93,9 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 	 */
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
-		results.addAll(_writerStatus.values());
+		PoolWorkerFactory tf = (PoolWorkerFactory) _ioPool.getThreadFactory();
+		results.addAll(tf.getWorkerStatus());
 		return results;
-	}
-
-	/**
-	 * ConnectionWriter thread exception handler.
-	 * @param t the Thread with an exception
-	 * @param e the exception
-	 */
-	public void uncaughtException(Thread t, Throwable e) {
-		if ((!_writers.contains(t)) || (!(t instanceof ConnectionWriter)))
-			return;
-
-		// Return the envelope and log the error
-		ConnectionWriter cw = (ConnectionWriter) t;
-		_work.add(cw.getEnvelope());
-		log.error(cw.getName() + " error - " + e.getMessage(), e);
-		checkWriters(false);
 	}
 
 	/**
@@ -179,18 +106,17 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 		_status.setStatus(WorkerStatus.STATUS_START);
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
-				_status.setMessage("Idle - " + _writers.size() + " threads");
+				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
 				TextEnvelope env = RAW_OUTPUT.take();
 				_status.execute();
-				_status.setMessage("Dispatching - " + _writers.size() + " threads");
+				_status.setMessage("Dispatching - " + _ioPool.getPoolSize() + " threads");
 				while (env != null) {
-					_work.add(env);
+					ACARSConnection ac = _pool.get(env.getConnectionID());
+					if (ac != null)
+						_ioPool.queue(new ConnectionWriter(ac, env));
+	
 					env = RAW_OUTPUT.poll();
 				}
-
-				// Check the thread pool - wait 100ms for the writers to wake up
-				ThreadUtils.sleep(100);
-				checkWriters(false);
 
 				// Log execution
 				_status.complete();
@@ -198,92 +124,6 @@ public class NetworkWriter extends Worker implements Thread.UncaughtExceptionHan
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	/**
-	 * Helper method to get the next available worker ID.
-	 */
-	private int getNextAvailableID() {
-		int id = 0;
-		for (Iterator<Integer> i = _writerStatus.keySet().iterator(); i.hasNext();) {
-			Integer workerID = i.next();
-			id++;
-			if (workerID.intValue() > id)
-				return id;
-
-			// Check if we're shut down
-			WorkerStatus status = _writerStatus.get(workerID);
-			if (status.getStatus() == WorkerStatus.STATUS_SHUTDOWN)
-				return id;
-		}
-
-		return ++id;
-	}
-
-	/**
-	 * Helper method to spawn a new connection worker thread.
-	 */
-	private void spawnWorker(boolean isDynamic) {
-		ConnectionWriter w = new ConnectionWriter(getNextAvailableID(), isDynamic);
-		w.setUncaughtExceptionHandler(this);
-		w.start();
-		_writers.add(w);
-		if (log.isDebugEnabled())
-			log.debug("Spawned I/O " + w.getName());
-	}
-
-	/**
-	 * Check the I/O writer thread pool. If there are more than 2 messages in the work queue or the oldest
-	 * message in the work queue has been waiting for over 2500ms, create a new worker up to the maximum. Once
-	 * this is completed, check to see if we have more than the minimum number of idle workers. If we do,
-	 * start killing idle workers.
-	 * @param killOnly TRUE if we should only prune idle connections, otherwise FALSE
-	 */
-	protected synchronized void checkWriters(boolean killOnly) {
-		log.debug("Checking I/O ConnectionWriters");
-		int minThreads = SystemData.getInt("acars.pool.threads.write.min", 1);
-		int workSize = _work.size();
-
-		// Check if we need to add more threads
-		if (!killOnly) {
-			Envelope env = _work.peek();
-			long envAge = (env == null) ? -1 : (System.currentTimeMillis() - env.getTime());
-			int maxThreads = SystemData.getInt("acars.pool.threads.write.max", 2);
-			if ((workSize > 2) && (_writers.size() < maxThreads) && (envAge > 1250)) {
-				spawnWorker(true);
-				ThreadUtils.sleep(250);
-				log.info("ConnectionWriter Pool size increased to " + _writers.size());
-			} else if ((workSize > 2) && (envAge > 1500))
-				log.warn("Work queue entries = " + workSize + ", pool size = " + _writers.size());
-			else if (workSize == 1) {
-				if ((envAge > 2500) && (_writers.size() < maxThreads)) {
-					spawnWorker(true);
-					log.info("ConnectionWriter Pool size increased to " + _writers.size());
-				} else if (envAge > 2500)
-					log.warn("Work queue head age = " + envAge + "ms, pool size = " + _writers.size());
-			} else if (_writers.size() < minThreads) {
-				log.warn("ConnectionWriter Pool size=" + _writers.size() + ", minimum=" + minThreads);
-				while (_writers.size() < minThreads)
-					spawnWorker(false);
-			}
-		}
-
-		// Check for excessive idle threads
-		if (workSize < (minThreads + 1)) {
-			for (Iterator<ConnectionWriter> i = _writers.iterator(); i.hasNext();) {
-				ConnectionWriter cw = i.next();
-				if (!cw.isAlive()) {
-					i.remove();
-					if (log.isDebugEnabled())
-						log.debug("Removing terminated " + cw.getName());
-				} else if (!cw.isBusy() && cw.isDynamic()) {
-					log.debug("Interrupting idle " + cw.getName());
-					cw.interrupt();
-					i.remove();
-					log.info("ConnectionWriter Pool size decreased to " + _writers.size());
-				}
 			}
 		}
 	}
