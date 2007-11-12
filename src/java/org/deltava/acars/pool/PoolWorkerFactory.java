@@ -28,18 +28,14 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	
 	private class PoolThread extends Thread {
 		private int _id;
-		private LatencyWorkerStatus _myStatus;
 		
 		PoolThread(int id, PoolWorker work) {
 			super(_tg, work, work.getStatus().toString());
 			_id = id;
-			_myStatus = work.getStatus();
 		}
 		
 		public void run() {
-			long startTime = System.currentTimeMillis();
 			super.run();
-			_myStatus.add(System.currentTimeMillis() - startTime);
 			removeID(_id);
 		}
 		
