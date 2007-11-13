@@ -21,6 +21,9 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 	private final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
 	protected final BlockingQueue<PoolWorker> _queuedEntries = new LinkedBlockingQueue<PoolWorker>();
 
+	/**
+	 * This queues rejected tasks for later execution.
+	 */
 	class QueueHandler implements RejectedExecutionHandler {
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
 			if ((r instanceof PoolWorker) && (!pool.isTerminating()))
@@ -35,7 +38,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 	 * @param keepAliveTime each thread's idle keepalive time in milliseconds
 	 */
 	public QueueingThreadPool(int coreSize, int maxSize, long keepAliveTime, String name) {
-		super(coreSize, maxSize, keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(4));
+		super(coreSize, maxSize, keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxSize * 2));
 		_tFactory = new PoolWorkerFactory(name);
 		setThreadFactory(_tFactory);
 		setRejectedExecutionHandler(new QueueHandler());
@@ -66,8 +69,11 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 		}
 		
 		// Inject the worker status
+		ws.setStatus(WorkerStatus.STATUS_START);
+		ws.execute();
 		PoolWorker pw = (PoolWorker) r;
 		pw.setStatus(ws);
+		pt.setStatus(ws);
 	}
 
 	/**
@@ -76,6 +82,13 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 	 */
 	protected void afterExecute(Runnable r, Throwable t) {
 		super.afterExecute(r, t);
+		if (r instanceof PoolWorker) {
+			WorkerStatus ws = ((PoolWorker) r).getStatus();
+			ws.complete();
+			ws.setStatus(WorkerStatus.STATUS_IDLE);
+		}
+		
+		// See if there are additional tasks queued up
 		BlockingQueue<Runnable> workQueue = getQueue();
 		while (!_queuedEntries.isEmpty() && (workQueue.size() < 4)) {
 			PoolWorker pw = _queuedEntries.poll();

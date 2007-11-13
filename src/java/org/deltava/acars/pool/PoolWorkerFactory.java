@@ -6,6 +6,8 @@ import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.acars.beans.WorkerStatus;
+
 /**
  * A factory to generate thread pool worker threads. This thread factory resuses thread IDs
  * to allow workers 
@@ -20,33 +22,29 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	
 	protected ThreadGroup _tg;
 	private final Collection<Integer> _IDs = new TreeSet<Integer>();
-	
-	private String _name;
+	protected String _name;
 	
 	class PoolThread extends Thread {
 		private int _id;
+		private WorkerStatus _status;
 		
-		/**
-		 * Initializes the thread.
-		 * @param id the worker ID
-		 * @param r the task to run
-		 * @param name the thread name
-		 */
 		PoolThread(int id, Runnable r, String name) {
 			super(r, name);
 			_id = id;
 		}
 		
-		/**
-		 * Returns the worker ID.
-		 * @return the ID
-		 */
 		public int getID() {
 			return _id;
 		}
 		
+		public void setStatus(WorkerStatus ws) {
+			_status = ws;
+		}
+		
 		public void run() {
 			super.run();
+			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+			_status.setAlive(false);
 			removeID(_id);
 		}
 	}
