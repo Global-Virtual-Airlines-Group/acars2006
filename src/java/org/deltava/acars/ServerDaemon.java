@@ -127,14 +127,8 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new NetworkReader());
 		tasks.add(new OutputDispatcher());
 		tasks.add(new NetworkWriter());
+		tasks.add(new LogicProcessor());
 
-		// Init the logic processor pool
-		int logicThreads = SystemData.getInt("acars.pool.threads.logic", 1);
-		for (int x = 0; x < logicThreads; x++) {
-		   LogicProcessor lProcessor = new LogicProcessor(x + 1);
-		   tasks.add(lProcessor);
-		}
-		
 		// Try to init all of the worker threads
 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
 			Worker w = i.next();

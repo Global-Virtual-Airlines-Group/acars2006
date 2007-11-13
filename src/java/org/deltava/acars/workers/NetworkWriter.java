@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -61,7 +61,7 @@ public class NetworkWriter extends Worker {
 	 * Opens the worker task and initializes the ConnectionWriter thread pool.
 	 * @see Worker#open()
 	 */
-	public final synchronized void open() {
+	public final void open() {
 		super.open();
 
 		// Create initial writer threads
@@ -74,7 +74,7 @@ public class NetworkWriter extends Worker {
 	 * Closes the worker task. All ConnectionWriter thrads will be shut down.
 	 * @see Worker#close()
 	 */
-	public final synchronized void close() {
+	public final void close() {
 		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
 		
 		// Wait for the pool to shut down

@@ -2,13 +2,14 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.sql.Connection;
-import java.util.concurrent.locks.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.pool.*;
 
 import org.deltava.dao.acars.*;
 
@@ -18,34 +19,31 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
 public class LogicProcessor extends Worker {
 	
-	private static final ReentrantReadWriteLock _flushLock = new ReentrantReadWriteLock(true);
-	private static final Lock w = _flushLock.writeLock();
-
+	private QueueingThreadPool _cmdPool;
+	
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
 	
-	private final LatencyTracker _latency = new LatencyTracker(256);
-
 	/**
 	 * Initializes the Worker.
-	 * @param threadID the worker instance ID
 	 */
-	public LogicProcessor(int threadID) {
-		super("Message Processor-" + String.valueOf(threadID), LogicProcessor.class.getName() + "-" + threadID);
+	public LogicProcessor() {
+		super("Message Processor", LogicProcessor.class);
 	}
 
 	/**
 	 * Initializes the Command map.
-	 * @see Worker#open()
 	 */
-	public synchronized void open() {
+	public void open() {
 		super.open();
+		int maxThreads = SystemData.getInt("acars.pool.threads.logic", 1);
+		_cmdPool = new QueueingThreadPool(1, maxThreads, 2000, "CommandProcessor");
 
 		// Initialize commands
 		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
@@ -76,101 +74,75 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
 		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
 	}
-
-	private void process(MessageEnvelope env) throws Exception {
-		if (env == null)
-			return;
-
-		// Get the message and start time
-		long startTime = System.currentTimeMillis();
-		Message msg = env.getMessage();
-		_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
-
-		// Check if we can be anonymous
-		boolean isAuthenticated = (env.getOwner() != null);
-		if (isAuthenticated == msg.isAnonymous()) {
-			log.error(Message.MSG_TYPES[msg.getType()] + " Security Exception from " + env.getOwnerID());
-			return;
+	
+	private class CommandWorker implements PoolWorker {
+		
+		private MessageEnvelope _env;
+		private ACARSCommand _cmd;
+		private LatencyWorkerStatus _status;
+		
+		CommandWorker(MessageEnvelope env, ACARSCommand cmd) {
+			super();
+			_env = env;
+			_cmd = cmd;
 		}
 		
-		// If the message has high latency, warn
-		long msgLatency = startTime - env.getTime();
-		_latency.add(msgLatency);
-		if (msgLatency > 500)
-			log.warn(Message.MSG_TYPES[msg.getType()] + " from " + env.getOwnerID() + " has " + msgLatency + "ms latency");
-
-		// Initialize the command context
-		CommandContext ctx = new CommandContext(_pool, env, _status);
-
-		// Log the received message and get the command to process it
-		log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
-		ACARSCommand cmd = null;
-		if (msg.getType() == Message.MSG_DATAREQ) {
-			DataRequestMessage reqmsg = (DataRequestMessage) msg;
-			cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
-			if (cmd == null) {
-				log.warn("No Data Command for " + DataMessage.REQ_TYPES[reqmsg.getRequestType()] + " request");
-				return;
-			}
-
-			// Log invocation
-			String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
-			log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
-			ctx.setMessage("Processing Data Request (" + reqType + ") from " + env.getOwnerID());
-		} else {
-			cmd = _commands.get(Integer.valueOf(msg.getType()));
-			if (cmd == null) {
-				log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
-				return;
-			}
+		public LatencyWorkerStatus getStatus() {
+			return _status;
 		}
-
-		// Execute the command
-		cmd.execute(ctx, env);
-
-		// Calculate and log execution time
-		long execTime = System.currentTimeMillis() - startTime;
-		int userID = (env.getOwner() == null) ? 0 : env.getOwner().getID();
-		SetStatistics.queue(new CommandEntry(cmd.getClass(), userID, execTime));
-		if (execTime > cmd.getMaxExecTime())
-			log.warn(cmd.getClass().getName() + " completed in " + execTime + "ms");
 		
-		// If it's been too long since our last command purge, then purge
-		if (w.tryLock()) {
-			if (SetStatistics.getMaxAge() > 30000) {
-				try {
-					Connection con = ctx.getConnection(true);
-					SetStatistics dao = new SetStatistics(con);
-					int entries = dao.flush();
-					if (log.isDebugEnabled())
-						log.info("Flushed " + entries + " cached statistics entries");
-				} catch (Exception e) {
-					log.error("Error flushing positions - " + e.getMessage(), e);
-				} finally {
-					ctx.release();
-				}
+		public String getName() {
+			return "CommandProcessor";
+		}
+		
+		public void setStatus(LatencyWorkerStatus ws) {
+			_status = ws;
+		}
+		
+		public void run() {
+			if ((_env == null) || (_cmd == null))
+				return;
+			
+			// Get the message and start time
+			long startTime = System.currentTimeMillis();
+			Message msg = _env.getMessage();
+			_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + _env.getOwnerID());
+
+			// Check if we can be anonymous
+			boolean isAuthenticated = (_env.getOwner() != null);
+			if (isAuthenticated == msg.isAnonymous()) {
+				log.error(Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID());
+				return;
 			}
 			
-			// Release the lock
-			while (_flushLock.isWriteLockedByCurrentThread())
-				w.unlock();
+			// If the message has high latency, warn
+			long msgLatency = startTime - _env.getTime();
+			_status.add(msgLatency);
+			if (msgLatency > 500)
+				log.warn(Message.MSG_TYPES[msg.getType()] + " from " + _env.getOwnerID() + " has " + msgLatency + "ms latency");
+
+			// Initialize the command context and execute the command
+			CommandContext ctx = new CommandContext(_pool, _env, _status);
+			_cmd.execute(ctx, _env);
+			
+			// Calculate and log execution time
+			long execTime = System.currentTimeMillis() - startTime;
+			int userID = (_env.getOwner() == null) ? 0 : _env.getOwner().getID();
+			SetStatistics.queue(new CommandEntry(_cmd.getClass(), userID, execTime));
+			if (execTime > _cmd.getMaxExecTime())
+				log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 		}
 	}
-	
-	/**
-	 * Shuts down the worker.
-	 */
-	public final void close() {
+
+	private synchronized void flushLogs() {
 		Connection con = null;
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
 			con = cp.getConnection(true);
-			synchronized (SetPosition.class) {
-				if (SetPosition.size() > 0) {
-					SetPosition dao = new SetPosition(con);
-					int entries = dao.flush();
-					log.warn("Flushed " + entries + " cached Position entries");
-				}
+			if (SetPosition.size() > 0) {
+				SetPosition dao = new SetPosition(con);
+				int entries = dao.flush();
+				log.warn("Flushed " + entries + " cached Position entries");
 			}
 
 			// Flush statis
@@ -181,7 +153,34 @@ public class LogicProcessor extends Worker {
 		} finally {
 			cp.release(con);
 		}
+	}
+	
+	/**
+	 * Returns the status of this Worker and the Connection writers.
+	 * @return a List of WorkerStatus beans, with this Worker's status first
+	 */
+	public final List<WorkerStatus> getStatus() {
+		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
+		results.addAll(_cmdPool.getWorkerStatus());
+		return results;
+	}
+	
+	/**
+	 * Shuts down the worker.
+	 */
+	public final void close() {
 		
+		// Wait for the pool to shut down
+		try {
+			_cmdPool.shutdown();
+			_cmdPool.awaitTermination(1250, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			super.close();
+		}
+		
+		flushLogs();
 		super.close();
 	}
 
@@ -197,14 +196,44 @@ public class LogicProcessor extends Worker {
 			try {
 				MessageEnvelope env = MSG_INPUT.take();
 				_status.execute();
-				process(env);
+				
+				// Log the received message and get the command to process it
+				Message msg = env.getMessage();
+				log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
+				ACARSCommand cmd = null;
+				if (msg.getType() == Message.MSG_DATAREQ) {
+					DataRequestMessage reqmsg = (DataRequestMessage) msg;
+					cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
+					if (cmd == null) {
+						log.warn("No Data Command for " + DataMessage.REQ_TYPES[reqmsg.getRequestType()] + " request");
+						return;
+					}
+
+					// Log invocation
+					String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
+					log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
+				} else {
+					cmd = _commands.get(Integer.valueOf(msg.getType()));
+					if (cmd == null) {
+						log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+						return;
+					}
+				}
+				
+				// Send the envelope to the thread pool for processing
+				_cmdPool.execute(new CommandWorker(env, cmd));
+				
+				// Flush the logs
+				if (SetStatistics.getMaxAge() > 30000) 
+					flushLogs();
+				
 				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error("Error Processing Message - " + e.getMessage(), e);
 			} finally {
-				_status.setMessage("Idle - average latency " + _latency.getLatency() + "ms");	
+				_status.setMessage("Idle");	
 			}
 		}
 	}
