@@ -6,8 +6,6 @@ import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.acars.beans.*;
-
 /**
  * A factory to generate thread pool worker threads. This thread factory resuses thread IDs
  * to allow workers 
@@ -19,28 +17,37 @@ import org.deltava.acars.beans.*;
 public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptionHandler {
 	
 	private Logger log;
-	private final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
 	
 	protected ThreadGroup _tg;
 	private final Collection<Integer> _IDs = new TreeSet<Integer>();
 	
 	private String _name;
 	
-	private class PoolThread extends Thread {
+	class PoolThread extends Thread {
 		private int _id;
 		
-		PoolThread(int id, PoolWorker work) {
-			super(_tg, work, work.getStatus().toString());
+		/**
+		 * Initializes the thread.
+		 * @param id the worker ID
+		 * @param r the task to run
+		 * @param name the thread name
+		 */
+		PoolThread(int id, Runnable r, String name) {
+			super(r, name);
 			_id = id;
+		}
+		
+		/**
+		 * Returns the worker ID.
+		 * @return the ID
+		 */
+		public int getID() {
+			return _id;
 		}
 		
 		public void run() {
 			super.run();
 			removeID(_id);
-		}
-		
-		public int getID() {
-			return _id;
 		}
 	}
 	
@@ -57,14 +64,6 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	}
 	
 	/**
-	 * Returns the status counters for each worker  bucket.
-	 * @return a Collection of WorkerStatus beans
-	 */
-	public Collection<WorkerStatus> getWorkerStatus() {
-		return new TreeSet<WorkerStatus>(_status.values());
-	}
-	
-	/**
 	 * Returns the factory name.
 	 */
 	public String toString() {
@@ -76,23 +75,8 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	 * @param r the Runnable to wrap the Thread around
 	 */
 	public Thread newThread(Runnable r) {
-		if (!(r instanceof PoolWorker))
-			return null;
-		
-		// Get the thread ID
 		int id = getNextID();
-		
-		// Get the worker status
-		PoolWorker pw = (PoolWorker) r;
-		LatencyWorkerStatus ws = _status.get(Integer.valueOf(id));
-		if (ws == null) {
-			ws = new LatencyWorkerStatus(pw.getName() + "-" + String.valueOf(id), 1024);
-			_status.put(Integer.valueOf(id), ws);
-		}
-		
-		// Inject the worker status and spawn the thread
-		pw.setStatus(ws);
-		Thread t = new PoolThread(id, pw);
+		PoolThread t = new PoolThread(id, r, _name + "-" + String.valueOf(id));
 		t.setUncaughtExceptionHandler(this);
 		return t;
 	}
@@ -101,7 +85,7 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	 * Helper method to return an available thread ID.
 	 * @return the next available thread ID
 	 */
-	protected synchronized int getNextID() {
+	synchronized int getNextID() {
 		int expectedID = 1;
 		for (Iterator<Integer> i = _IDs.iterator(); i.hasNext(); ) {
 			Integer id = i.next();
@@ -121,7 +105,7 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	 * Helper method to free up a thread ID and make it available for allocation.
 	 * @param id the thread ID
 	 */
-	protected synchronized void removeID(int id) {
+	synchronized void removeID(int id) {
 		_IDs.remove(Integer.valueOf(id));
 	}
 	
