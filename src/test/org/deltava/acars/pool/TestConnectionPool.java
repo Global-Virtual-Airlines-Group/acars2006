@@ -1,18 +1,14 @@
 package org.deltava.acars.pool;
 
-import java.util.concurrent.*;
-
 import junit.framework.TestCase;
 
 public class TestConnectionPool extends TestCase {
 	
-	private ThreadPoolExecutor _pool;
-	private BlockingQueue<Runnable> _queue;
+	private QueueingThreadPool _pool;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		_queue = new ArrayBlockingQueue<Runnable>(2);
-		_pool = new ACARSExecutor(1, 4, 50, _queue);
+		_pool = new ACARSExecutor(1, 4, 50);
 		assertNotNull(_pool);
 	}
 
@@ -29,9 +25,9 @@ public class TestConnectionPool extends TestCase {
 		for (int x = 0; x < 5; x++)
 			_pool.execute(new DummyTask(String.valueOf(x + 1)));
 			
-		Thread.sleep(5000);
-		
 		for (int x = 0; x < 5; x++)
 			_pool.execute(new DummyTask(String.valueOf(x + 1)));
+		
+		Thread.sleep(1000);
 	}
 }

@@ -45,8 +45,8 @@ public class NetworkWriter extends Worker {
 		}
 
 		public void run() {
-			_status.add(System.currentTimeMillis() - _env.getTime());
 			_con.queue(_env.getMessage());
+			_status.add(System.currentTimeMillis() - _env.getTime());
 		}
 	}
 
@@ -82,7 +82,7 @@ public class NetworkWriter extends Worker {
 			_ioPool.shutdown();
 			_ioPool.awaitTermination(1250, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error(e.getMessage(), e);
 		} finally {
 			super.close();
 		}
@@ -94,8 +94,7 @@ public class NetworkWriter extends Worker {
 	 */
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
-		PoolWorkerFactory tf = (PoolWorkerFactory) _ioPool.getThreadFactory();
-		results.addAll(tf.getWorkerStatus());
+		results.addAll(_ioPool.getWorkerStatus());
 		return results;
 	}
 
@@ -114,7 +113,7 @@ public class NetworkWriter extends Worker {
 				while (env != null) {
 					ACARSConnection ac = _pool.get(env.getConnectionID());
 					if (ac != null)
-						_ioPool.queue(new ConnectionWriter(ac, env));
+						_ioPool.execute(new ConnectionWriter(ac, env));
 	
 					env = RAW_OUTPUT.poll();
 				}
