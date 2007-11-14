@@ -4,8 +4,6 @@ package org.deltava.acars.pool;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.apache.log4j.Logger;
-
 import org.deltava.acars.beans.WorkerStatus;
 
 /**
@@ -16,20 +14,20 @@ import org.deltava.acars.beans.WorkerStatus;
  * @since 2.0
  */
 
-public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptionHandler {
+public class PoolWorkerFactory implements ThreadFactory {
 	
-	private Logger log;
-	
-	protected ThreadGroup _tg;
 	private final Collection<Integer> _IDs = new TreeSet<Integer>();
 	protected String _name;
 	
-	class PoolThread extends Thread {
+	class PoolThread extends Thread implements Thread.UncaughtExceptionHandler {
 		private int _id;
+		private PoolWorkerDeathHandler _deathHandler;
 		private WorkerStatus _status;
 		
 		PoolThread(int id, Runnable r, String name) {
 			super(r, name);
+			setDaemon(true);
+			setUncaughtExceptionHandler(this);
 			_id = id;
 		}
 		
@@ -37,8 +35,16 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 			return _id;
 		}
 		
+		public boolean isNew() {
+			return (_status == null);
+		}
+		
 		public void setStatus(WorkerStatus ws) {
 			_status = ws;
+		}
+		
+		public void setDeathHandler(PoolWorkerDeathHandler handler) {
+			_deathHandler = handler;
 		}
 		
 		public void run() {
@@ -46,6 +52,13 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
 			_status.setAlive(false);
 			removeID(_id);
+			if (_deathHandler != null)
+				_deathHandler.workerTerminated(this, null);
+		}
+		
+		public void uncaughtException(Thread t, Throwable e) {
+			if ((this == t) && (_deathHandler != null))
+				_deathHandler.workerTerminated(this, e);
 		}
 	}
 	
@@ -56,9 +69,6 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	PoolWorkerFactory(String name) {
 		super();
 		_name = name;
-		log = Logger.getLogger(PoolWorkerFactory.class.getPackage().getName() + "." + toString());
-		_tg = new ThreadGroup(name + " Workers");
-		_tg.setDaemon(true);
 	}
 	
 	/**
@@ -74,9 +84,7 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	 */
 	public Thread newThread(Runnable r) {
 		int id = getNextID();
-		PoolThread t = new PoolThread(id, r, _name + "-" + String.valueOf(id));
-		t.setUncaughtExceptionHandler(this);
-		return t;
+		return new PoolThread(id, r, _name + "-" + String.valueOf(id));
 	}
 
 	/**
@@ -105,22 +113,5 @@ public class PoolWorkerFactory implements ThreadFactory, Thread.UncaughtExceptio
 	 */
 	synchronized void removeID(int id) {
 		_IDs.remove(Integer.valueOf(id));
-	}
-	
-	/**
-	 * Uncaught exception handler.
-	 * @param t the Thread
-	 * @param e the exception
-	 */
-	public void uncaughtException(Thread t, Throwable e) {
-		if (!(t instanceof PoolThread)) {
-			log.error("Unknown thread type - " + t.getClass().getName());
-			return;
-		}
-		
-		// Release the ID and log
-		PoolThread pt = (PoolThread) t;
-		removeID(pt.getID());
-		log.error(t.getName() + " - "  + e.getMessage(), e);
 	}
 }

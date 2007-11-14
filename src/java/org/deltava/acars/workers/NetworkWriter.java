@@ -20,11 +20,10 @@ public class NetworkWriter extends Worker {
 
 	private QueueingThreadPool _ioPool;
 
-	private final class ConnectionWriter implements PoolWorker {
+	private final class ConnectionWriter extends PoolWorker {
 
 		private ACARSConnection _con;
 		private TextEnvelope _env;
-		private LatencyWorkerStatus _status;
 
 		ConnectionWriter(ACARSConnection ac, TextEnvelope env) {
 			super();
@@ -36,15 +35,8 @@ public class NetworkWriter extends Worker {
 			return "ConnectionWriter";
 		}
 		
-		public LatencyWorkerStatus getStatus() {
-			return _status;
-		}
-		
-		public void setStatus(LatencyWorkerStatus status) {
-			_status = status;
-		}
-
 		public void run() {
+			_status.setMessage("Writing to " + _con.getUserID());
 			_con.queue(_env.getMessage());
 			_status.add(System.currentTimeMillis() - _env.getTime());
 		}
@@ -67,7 +59,7 @@ public class NetworkWriter extends Worker {
 		// Create initial writer threads
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.write.min", 1));
 		int maxThreads = SystemData.getInt("acars.pool.threads.write.max", minThreads);
-		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 2000, "NetworkWriter");
+		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 1500, NetworkWriter.class);
 	}
 
 	/**

@@ -21,8 +21,6 @@ public class TestFactory extends PoolWorkerFactory {
 	
 	public Thread newThread(Runnable r) {
 		int id = getNextID();
-		PoolThread t = new PoolDebugThread(id, r, _name + "-" + String.valueOf(id));
-		t.setUncaughtExceptionHandler(this);
-		return t;
+		return new PoolDebugThread(id, r, _name + "-" + String.valueOf(id));
 	}
 }

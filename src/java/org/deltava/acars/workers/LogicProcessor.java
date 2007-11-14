@@ -42,8 +42,9 @@ public class LogicProcessor extends Worker {
 	 */
 	public void open() {
 		super.open();
-		int maxThreads = SystemData.getInt("acars.pool.threads.logic", 1);
-		_cmdPool = new QueueingThreadPool(1, maxThreads, 2000, "CommandProcessor");
+		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.min", 1));
+		int maxThreads = SystemData.getInt("acars.pool.threads.logic.max", minThreads);
+		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 2000, LogicProcessor.class);
 
 		// Initialize commands
 		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
@@ -75,11 +76,10 @@ public class LogicProcessor extends Worker {
 		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
 	}
 	
-	private class CommandWorker implements PoolWorker {
+	private class CommandWorker extends PoolWorker {
 		
 		private MessageEnvelope _env;
 		private ACARSCommand _cmd;
-		private LatencyWorkerStatus _status;
 		
 		CommandWorker(MessageEnvelope env, ACARSCommand cmd) {
 			super();
@@ -87,16 +87,8 @@ public class LogicProcessor extends Worker {
 			_cmd = cmd;
 		}
 		
-		public LatencyWorkerStatus getStatus() {
-			return _status;
-		}
-		
 		public String getName() {
 			return "CommandProcessor";
-		}
-		
-		public void setStatus(LatencyWorkerStatus ws) {
-			_status = ws;
 		}
 		
 		public void run() {
@@ -134,7 +126,8 @@ public class LogicProcessor extends Worker {
 		}
 	}
 
-	private synchronized void flushLogs() {
+	private void flushLogs() {
+		_status.setMessage("Flushing Command logs");
 		Connection con = null;
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
