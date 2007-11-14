@@ -14,12 +14,11 @@ public class WorkerStatus implements Comparable<WorkerStatus>, ViewEntry {
 	
 	public static final int STATUS_UNKNOWN = 0;
 	public static final int STATUS_SHUTDOWN = 1;
-	public static final int STATUS_IDLE = 2;
 	public static final int STATUS_ERROR = 3;
 	public static final int STATUS_START = 4;
 	public static final int STATUS_INIT = 5;
 	
-	public static final String[] STATUS_NAME = {"Unknown", "Shutdown", "Idle", "Error", "Started", "Initializing" };
+	public static final String[] STATUS_NAME = {"Unknown", "Shutdown", "?", "Error", "Started", "Initializing" };
 	
 	private long _execStartTime;
 	private long _execStopTime;

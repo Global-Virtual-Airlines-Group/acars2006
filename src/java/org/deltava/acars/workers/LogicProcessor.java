@@ -45,6 +45,7 @@ public class LogicProcessor extends Worker {
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.min", 1));
 		int maxThreads = SystemData.getInt("acars.pool.threads.logic.max", minThreads);
 		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 2000, LogicProcessor.class);
+		_cmdPool.allowCoreThreadTimeOut(false);
 
 		// Initialize commands
 		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
@@ -135,7 +136,7 @@ public class LogicProcessor extends Worker {
 			if (SetPosition.size() > 0) {
 				SetPosition dao = new SetPosition(con);
 				int entries = dao.flush();
-				log.warn("Flushed " + entries + " cached Position entries");
+				log.info("Flushed " + entries + " cached Position entries");
 			}
 
 			// Flush statis

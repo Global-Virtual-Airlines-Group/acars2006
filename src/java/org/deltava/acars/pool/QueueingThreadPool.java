@@ -76,7 +76,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		}
 		
 		// Log thread startup
-		if (pt.isNew()) {
+		if (pt.isNew() && (pt.getID() > getCorePoolSize())) {
 			log.warn("Spawning thread " + pt.getName());
 			pt.setDeathHandler(this);
 		}
@@ -98,7 +98,6 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		if (r instanceof PoolWorker) {
 			WorkerStatus ws = ((PoolWorker) r).getStatus();
 			ws.complete();
-			ws.setStatus(WorkerStatus.STATUS_IDLE);
 			ws.setMessage("Idle");
 		}
 		
