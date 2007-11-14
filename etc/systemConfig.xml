@@ -113,15 +113,18 @@
 			<latest type="Integer">87</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
-		
+
 		<pool>
 			<size type="Integer">20</size>
 			<multiple type="Boolean">true</multiple>
 			<threads>
-				<logic type="Integer">2</logic>
+				<logic>
+					<min type="Integer">2</min>
+					<max type="Integer">4</max>
+				</logic>
 				<write>
 					<min type="Integer">2</min>
-					<max type="Integer">5</max>
+					<max type="Integer">6</max>
 				</write>
 			</threads>
 		</pool>

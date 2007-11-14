@@ -4,6 +4,8 @@ package org.deltava.acars.pool;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.apache.log4j.Logger;
+
 import org.deltava.acars.beans.*;
 
 /**
@@ -14,8 +16,9 @@ import org.deltava.acars.beans.*;
  * @since 2.0
  */
 
-public class QueueingThreadPool extends ThreadPoolExecutor {
+public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorkerDeathHandler {
 	
+	protected Logger log;
 	private PoolWorkerFactory _tFactory;
 	
 	private final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
@@ -26,8 +29,10 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 	 */
 	class QueueHandler implements RejectedExecutionHandler {
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
-			if ((r instanceof PoolWorker) && (!pool.isTerminating()))
+			if ((r instanceof PoolWorker) && (!pool.isTerminating())) {
+				log.warn("Thread pool full - queueing entry #" + (_queuedEntries.size() + 1));
 				_queuedEntries.add((PoolWorker) r);
+			}
 		}
 	}
 	
@@ -36,10 +41,12 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 	 * @param coreSize the number of core threads
 	 * @param maxSize the maximum number of threads
 	 * @param keepAliveTime each thread's idle keepalive time in milliseconds
+	 * @param logClass the Logging class name
 	 */
-	public QueueingThreadPool(int coreSize, int maxSize, long keepAliveTime, String name) {
-		super(coreSize, maxSize, keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxSize * 2));
-		_tFactory = new PoolWorkerFactory(name);
+	public QueueingThreadPool(int coreSize, int maxSize, long keepAliveTime, Class logClass) {
+		super(coreSize, Math.max(coreSize, maxSize), keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(4));
+		log = Logger.getLogger(logClass);
+		_tFactory = new PoolWorkerFactory(logClass.getSimpleName());
 		setThreadFactory(_tFactory);
 		setRejectedExecutionHandler(new QueueHandler());
 	}
@@ -68,6 +75,12 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 			_status.put(Integer.valueOf(pt.getID()), ws);
 		}
 		
+		// Log thread startup
+		if (pt.isNew()) {
+			log.warn("Spawning thread " + pt.getName());
+			pt.setDeathHandler(this);
+		}
+		
 		// Inject the worker status
 		ws.setStatus(WorkerStatus.STATUS_START);
 		ws.execute();
@@ -86,6 +99,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 			WorkerStatus ws = ((PoolWorker) r).getStatus();
 			ws.complete();
 			ws.setStatus(WorkerStatus.STATUS_IDLE);
+			ws.setMessage("Idle");
 		}
 		
 		// See if there are additional tasks queued up
@@ -95,5 +109,18 @@ public class QueueingThreadPool extends ThreadPoolExecutor {
 			if (pw != null)
 				execute(pw);
 		}
+	}
+	
+	/**
+	 * Worker thread termination handler.
+	 * @param pt the worker thread
+	 * @param e the Exception 
+	 */
+	public void workerTerminated(PoolWorkerFactory.PoolThread pt, Throwable e) {
+		_tFactory.removeID(pt.getID());
+		if (e != null)
+			log.error(pt.getName() + " - "  + e.getMessage(), e);
+		else
+			log.warn(pt.getName() + " shut down");
 	}
 }
