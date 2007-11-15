@@ -59,7 +59,7 @@ public class NetworkWriter extends Worker {
 		// Create initial writer threads
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.write.min", 1));
 		int maxThreads = SystemData.getInt("acars.pool.threads.write.max", minThreads);
-		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 1500, NetworkWriter.class);
+		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 2250, NetworkWriter.class);
 		_ioPool.allowCoreThreadTimeOut(false);
 	}
 
@@ -102,7 +102,7 @@ public class NetworkWriter extends Worker {
 				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
 				TextEnvelope env = RAW_OUTPUT.take();
 				_status.execute();
-				_status.setMessage("Dispatching - " + _ioPool.getPoolSize() + " threads");
+				_status.setMessage("Dispatching - " + _ioPool.getActiveCount() + " threads");
 				while (env != null) {
 					ACARSConnection ac = _pool.get(env.getConnectionID());
 					if (ac != null)

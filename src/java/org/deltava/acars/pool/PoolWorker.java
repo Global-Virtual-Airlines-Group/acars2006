@@ -38,4 +38,17 @@ public abstract class PoolWorker implements Runnable {
 	 * @return the name
 	 */
 	public abstract String getName();
+	
+	/**
+	 * Interface for handlers of pool worker thread death. 
+	 */
+	public interface PoolWorkerDeathHandler {
+
+		/**
+		 * Handle the termination of a worker thread.
+		 * @param pt the worker thread
+		 * @param e the exception causing the thread to die
+		 */
+		public void workerTerminated(PoolWorkerFactory.PoolThread pt, Throwable e);
+	}
 }
