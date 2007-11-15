@@ -21,7 +21,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 	
 	class PoolThread extends Thread implements Thread.UncaughtExceptionHandler {
 		private int _id;
-		private PoolWorkerDeathHandler _deathHandler;
+		private PoolWorker.PoolWorkerDeathHandler _deathHandler;
 		private WorkerStatus _status;
 		
 		PoolThread(int id, Runnable r, String name) {
@@ -43,7 +43,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 			_status = ws;
 		}
 		
-		public void setDeathHandler(PoolWorkerDeathHandler handler) {
+		public void setDeathHandler(PoolWorker.PoolWorkerDeathHandler handler) {
 			_deathHandler = handler;
 		}
 		

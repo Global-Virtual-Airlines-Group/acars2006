@@ -16,7 +16,7 @@ import org.deltava.acars.beans.*;
  * @since 2.0
  */
 
-public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorkerDeathHandler {
+public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker.PoolWorkerDeathHandler {
 	
 	protected Logger log;
 	private PoolWorkerFactory _tFactory;
@@ -28,10 +28,18 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 * This queues rejected tasks for later execution.
 	 */
 	class QueueHandler implements RejectedExecutionHandler {
+		private long _lastEntryTime;
+		
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
 			if ((r instanceof PoolWorker) && (!pool.isTerminating())) {
-				log.warn("Thread pool full - queueing entry #" + (_queuedEntries.size() + 1));
+				long now = System.currentTimeMillis();
 				_queuedEntries.add((PoolWorker) r);
+
+				// Check if we log
+				if ((now - _lastEntryTime) > 1500)
+					log.warn("Thread pool full - queueing entry #" + (_queuedEntries.size() + 1));
+				
+				_lastEntryTime = now;
 			}
 		}
 	}
@@ -76,8 +84,8 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		}
 		
 		// Log thread startup
-		if (pt.isNew() && (pt.getID() > getCorePoolSize())) {
-			log.warn("Spawning thread " + pt.getName());
+		if (pt.isNew()) {
+			log.info("Spawning thread " + pt.getName());
 			pt.setDeathHandler(this);
 		}
 		
@@ -120,6 +128,6 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		if (e != null)
 			log.error(pt.getName() + " - "  + e.getMessage(), e);
 		else
-			log.warn(pt.getName() + " shut down");
+			log.info(pt.getName() + " shut down");
 	}
 }

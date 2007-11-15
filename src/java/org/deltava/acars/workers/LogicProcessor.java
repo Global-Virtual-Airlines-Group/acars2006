@@ -44,7 +44,7 @@ public class LogicProcessor extends Worker {
 		super.open();
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.min", 1));
 		int maxThreads = SystemData.getInt("acars.pool.threads.logic.max", minThreads);
-		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 2000, LogicProcessor.class);
+		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 2500, LogicProcessor.class);
 		_cmdPool.allowCoreThreadTimeOut(false);
 
 		// Initialize commands
