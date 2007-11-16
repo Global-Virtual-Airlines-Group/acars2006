@@ -5,13 +5,14 @@ import java.sql.*;
 
 import org.deltava.acars.message.InfoMessage;
 
-import org.deltava.dao.DAO;
-import org.deltava.dao.DAOException;
+import org.deltava.beans.navdata.TerminalRoute;
+
+import org.deltava.dao.*;
 
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -40,10 +41,10 @@ public final class SetInfo extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void write(InfoMessage msg, long cid) throws DAOException {
+		boolean isNew = (msg.getFlightID() == 0);
 		try {
-			prepareStatement((msg.getFlightID() == 0) ? ISQL : USQL);
-			
 			// Set the prepared statement
+			prepareStatement(isNew ? ISQL : USQL);
 			_ps.setLong(1, cid);
 			_ps.setString(2, msg.getFlightCode());
 			_ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
@@ -63,8 +64,8 @@ public final class SetInfo extends DAO {
 			// Write to the database
 			executeUpdate(0);
 			
-			// If we're writing a new entry, get the database ID
-			if (msg.getFlightID() == 0)
+			// If we're writing a new entry, get the database ID otherwise clean out SID/STAR data
+			if (isNew)
 				msg.setFlightID(getNewID());
 		} catch (SQLException se) {
 			throw new DAOException(se.getMessage());
@@ -96,13 +97,68 @@ public final class SetInfo extends DAO {
 	}
 	
 	/**
+	 * Writes a Flight's SID/STAR data to the database
+	 * @param id the Flight ID
+	 * @param sid the SID TerminalRoute bean, or null if none
+	 * @param star the STAR TerminalRoute bean, or null if none
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void writeSIDSTAR(int id, TerminalRoute sid, TerminalRoute star) throws DAOException {
+		try {
+			startTransaction();
+			
+			// Clean out
+			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?)");
+			_ps.setInt(1, id);
+			executeUpdate(0);
+			
+			// Prepare the statement
+			prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
+					+ "RUNWAY, ROUTE) VALUES (?, ?, ?, ?, ?, ?)");
+			_ps.setInt(1, id);
+			
+			// Insert the SID if present
+			if (sid != null) {
+				_ps.setInt(2, TerminalRoute.SID);
+				_ps.setString(3, sid.getName());
+				_ps.setString(4, sid.getTransition());
+				_ps.setString(5, sid.getRunway());
+				_ps.setString(6, sid.getRoute());
+				_ps.addBatch();
+			}
+			
+			// Insert the STAR if present
+			if (star != null) {
+				_ps.setInt(2, TerminalRoute.STAR);
+				_ps.setString(3, star.getName());
+				_ps.setString(4, star.getTransition());
+				_ps.setString(5, star.getRunway());
+				_ps.setString(6, star.getRoute());
+				_ps.addBatch();
+			}
+			
+			// Do the write
+			if ((sid != null) || (star != null)) {
+				_ps.executeBatch();
+				_ps.close();
+			}
+			
+			// Commit
+			commitTransaction();
+		} catch (SQLException se) {
+			rollbackTransaction();
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
 	 * Marks a flight as having a filed PIREP, since the PIREP can be in different databases.
 	 * @param flightID the Flight ID
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void logPIREP(int flightID) throws DAOException {
 	   try {
-	      prepareStatement("UPDATE acars.FLIGHTS SET PIREP=? WHERE (ID=?)");
+	      prepareStatementWithoutLimits("UPDATE acars.FLIGHTS SET PIREP=? WHERE (ID=?) LIMIT 1");
 	      _ps.setBoolean(1, true);
 	      _ps.setInt(2, flightID);
 	      executeUpdate(0);
