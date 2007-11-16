@@ -45,6 +45,7 @@ public class Formatter extends MessageFormatter {
 		_eFormatters.put(PilotMessage.class, new PilotFormatter());
 		_eFormatters.put(ScheduleMessage.class, new ScheduleFormatter());
 		_eFormatters.put(TS2ServerMessage.class, new TS2ServerFormatter());
+		_eFormatters.put(TerminalRouteMessage.class, new TerminalRouteFormatter());
 	}
 
 	/**
@@ -57,16 +58,16 @@ public class Formatter extends MessageFormatter {
 
 		// Get the element formatter to use
 		ElementFormatter efmt = _eFormatters.get(msg.getClass());
-		if (efmt == null)
+		if (efmt == null) {
 			log.warn("Cannot format " + msg.getClass().getSimpleName());
-		else {
-			Element e = efmt.format(msg);
-			if ((msg instanceof DataResponseMessage) && (e != null))
-				e.setAttribute("id", Long.toHexString(((DataResponseMessage) msg).getParentID()).toUpperCase());
-			
-			return e;
+			return null;
 		}
 
-		return null;
+		// Format the message
+		Element e = efmt.format(msg);
+		if ((msg instanceof DataResponseMessage) && (e != null))
+			e.setAttribute("id", Long.toHexString(((DataResponseMessage) msg).getParentID()).toUpperCase());
+			
+		return e;
 	}
 }
