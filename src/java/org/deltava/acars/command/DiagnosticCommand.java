@@ -185,7 +185,8 @@ public class DiagnosticCommand extends ACARSCommand {
 
 			// Send content warning e-mail
 			case DiagnosticMessage.CONTENT_WARN:
-				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP")) {
+				boolean isSC = Ranks.RANK_SC.equals(usr.getRank());
+				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !isSC) {
 					ctx.push(ackMsg, env.getConnectionID());
 					return;
 				}
