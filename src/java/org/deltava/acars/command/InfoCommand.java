@@ -9,8 +9,8 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.beans.UserData;
 import org.deltava.beans.acars.FlightInfo;
-import org.deltava.beans.testing.CheckRide;
-import org.deltava.beans.testing.Test;
+import org.deltava.beans.navdata.TerminalRoute;
+import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -102,10 +102,23 @@ public class InfoCommand extends ACARSCommand {
 			if (cr != null)
 				ackMsg.setEntry("crName", cr.getName());
 			
-			// Write the flight information
-			SetInfo infoDAO = new SetInfo(c);
-			infoDAO.write(msg, env.getConnectionID());
+			// Get the SID/STAR data
+			GetNavRoute navdao = new GetNavRoute(c);
+			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.SID, msg.getSID());
+			TerminalRoute star = navdao.getRoute(msg.getAirportA(), TerminalRoute.STAR, msg.getSTAR());
+			
+			// Start a transaction
+			ctx.startTX();
+			
+			// Write the flight information and SID/STAR data
+			SetInfo iwdao = new SetInfo(c);
+			iwdao.write(msg, env.getConnectionID());
+			iwdao.writeSIDSTAR(msg.getFlightID(), sid, star);
+			
+			// Commit the transaction
+			ctx.commitTX();
 		} catch (DAOException de) {
+			ctx.rollbackTX();
 			log.error(de.getMessage(), de);
 		} finally {
 			ctx.release();
@@ -113,7 +126,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Log returned flight id
 		if (assignID)
-			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()));
+			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()) + "to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 
@@ -124,9 +137,6 @@ public class InfoCommand extends ACARSCommand {
 
 		// Set the info for the connection and write it to the database
 		con.setFlightInfo(msg);
-		if (msg.isComplete())
-			log.info("Received completed " + flightType + " flight information from " + con.getUserID());
-		else
-			log.info("Received " + flightType + " flight information from " + con.getUserID());
+		log.info("Received " + flightType + " flight information from " + con.getUserID());
 	}
 }

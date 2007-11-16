@@ -9,7 +9,7 @@ import org.deltava.beans.schedule.Airport;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -31,6 +31,9 @@ public class InfoMessage extends AbstractMessage {
 	private String _fpAlt;
 	private String _comments;
 	private int _fsVersion;
+	
+	private String _sid;
+	private String _star;
 	
 	private boolean _offlineFlight;
 	private boolean _flightComplete;
@@ -81,6 +84,14 @@ public class InfoMessage extends AbstractMessage {
 	
 	public String getFlightCode() {
 		return _flightCode;
+	}
+	
+	public String getSID() {
+		return _sid;
+	}
+	
+	public String getSTAR() {
+		return _star;
 	}
 	
 	public int getFSVersion() {
@@ -150,6 +161,14 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setAirportL(Airport aInfo) {
 		_airportL = aInfo;
+	}
+	
+	public void setSID(String code) {
+		_sid = code;
+	}
+	
+	public void setSTAR(String code) {
+		_star = code;
 	}
 	
 	public void setAltitude(String newFPAlt) {
