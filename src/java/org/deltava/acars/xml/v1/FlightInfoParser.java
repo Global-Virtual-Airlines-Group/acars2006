@@ -66,12 +66,12 @@ class FlightInfoParser extends ElementParser {
 		// Load SID data
 		Element sid = e.getChild("sid");
 		if (sid != null)
-			msg.setSID(getChildText(sid, "name", "") + getChildText(sid, "transition", "") + "." + getChildText(sid, "rwy", ""));
+			msg.setSID(getChildText(sid, "name", "") + "." + getChildText(sid, "transition", "") + "." + getChildText(sid, "rwy", ""));
 		
 		// Load STAR data
 		Element star = e.getChild("star");
 		if (star != null)
-			msg.setSTAR(getChildText(star, "name", "") + getChildText(star, "transition", "") + "." + getChildText(star, "rwy", ""));
+			msg.setSTAR(getChildText(star, "name", "") + "." + getChildText(star, "transition", "") + "." + getChildText(star, "rwy", ""));
 
 		// Load waypoints
 		String waypoints = getChildText(e, "route", "DIRECT");
