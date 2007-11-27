@@ -292,10 +292,20 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	public boolean isEmpty() {
 		return _cons.isEmpty();
 	}
+	
+	public boolean isDispatchOnline() {
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getIsDispatch())
+				return true;
+		}
+		
+		return false;
+	}
 
 	public Collection<TextEnvelope> read() {
 		Collection<SelectionKey> keys = _cSelector.selectedKeys();
-		if (keys.isEmpty())
+		if ((keys == null) || (keys.isEmpty()))
 			return Collections.emptySet();
 
 		// Get the list of channels waiting for input
