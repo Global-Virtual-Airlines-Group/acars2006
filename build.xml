@@ -9,8 +9,8 @@
 				<pathelement path="${classpath}" />
 				<pathelement location="../DVA2006/lib/servlet-api.jar" />
 	    		<pathelement location="lib/deploy/jdom-1.0.jar" />
-	    		<pathelement location="lib/deploy/log4j-1.2.14.jar" />
-	    		<pathelement location="lib/deploy/golgotha_ipc-1.0.jar" />
+	    		<pathelement location="lib/deploy/log4j-1.2.15.jar" />
+	    		<pathelement location="lib/deploy/golgotha_ipc-1.1.jar" />
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>
