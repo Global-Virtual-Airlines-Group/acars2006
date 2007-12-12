@@ -115,9 +115,10 @@
 			<map name="minimum">
 				<v1_4>76</v1_4>
 				<v2_0>88</v2_0>
+				<v2_1>90</v2_1>
 			</map>
 
-			<latest type="Integer">88</latest>
+			<latest type="Integer">89</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 

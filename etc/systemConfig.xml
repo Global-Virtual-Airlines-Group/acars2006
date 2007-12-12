@@ -108,6 +108,7 @@
 			<map name="minimum">
 				<v1_4>76</v1_4>
 				<v2_0>86</v2_0>
+				<v2_1>90</v2_1>
 			</map>
 
 			<latest type="Integer">89</latest>
