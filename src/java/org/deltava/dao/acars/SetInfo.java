@@ -12,7 +12,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -105,6 +105,9 @@ public final class SetInfo extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void writeSIDSTAR(int id, TerminalRoute tr) throws DAOException {
+		if (tr == null)
+			return;
+		
 		try {
 			startTransaction();
 			
