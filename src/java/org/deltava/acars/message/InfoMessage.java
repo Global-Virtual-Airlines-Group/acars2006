@@ -39,6 +39,7 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _flightComplete;
 	private boolean _checkRide;
 	private boolean _scheduleValidated;
+	private boolean _dispatchPlan;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
 	private final Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
@@ -143,6 +144,10 @@ public class InfoMessage extends AbstractMessage {
 		return _checkRide;
 	}
 	
+	public boolean isDispatchPlan() {
+		return _dispatchPlan;
+	}
+	
 	public boolean isScheduleValidated() {
 		return _scheduleValidated;
 	}
@@ -210,6 +215,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setScheduleValidated(boolean isOK) {
 		_scheduleValidated = isOK;
+	}
+	
+	public void setDispatchPlan(boolean isDP) {
+		_dispatchPlan = isDP;
 	}
 	
 	public void setStartTime(Date dt) {

@@ -2,11 +2,11 @@
 package org.deltava.dao.acars;
 
 import java.sql.*;
+import java.util.*;
 
 import org.deltava.acars.message.InfoMessage;
 
-import org.deltava.beans.navdata.TerminalRoute;
-
+import org.deltava.beans.navdata.*;
 import org.deltava.dao.*;
 
 /**
@@ -19,12 +19,13 @@ import org.deltava.dao.*;
 public final class SetInfo extends DAO {
 
 	// SQL update statements
-	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, "
-		+ "AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
+		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN) "
+		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, "
-		+ "AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, SCHED_VALID=?, "
-		+ "END_TIME=NULL WHERE (ID=?)";
+	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
+		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
+		+ "SCHED_VALID=?, DISPATCH_PLAN=?, END_TIME=NULL WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -58,8 +59,9 @@ public final class SetInfo extends DAO {
 			_ps.setInt(11, msg.getFSVersion());
 			_ps.setBoolean(12, msg.isOffline());
 			_ps.setBoolean(13, msg.isScheduleValidated());
+			_ps.setBoolean(14, msg.isDispatchPlan());
 			if (msg.getFlightID() != 0)
-				_ps.setInt(14, msg.getFlightID());
+				_ps.setInt(15, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(0);
@@ -97,48 +99,47 @@ public final class SetInfo extends DAO {
 	}
 	
 	/**
-	 * Writes a Flight's SID/STAR data to the database
+	 * Writes a Flight's SID/STAR data to the database.
 	 * @param id the Flight ID
-	 * @param sid the SID TerminalRoute bean, or null if none
-	 * @param star the STAR TerminalRoute bean, or null if none
+	 * @param tr the TerminalRoute bean
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void writeSIDSTAR(int id, TerminalRoute sid, TerminalRoute star) throws DAOException {
+	public void writeSIDSTAR(int id, TerminalRoute tr) throws DAOException {
 		try {
 			startTransaction();
 			
 			// Clean out
-			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?)");
+			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?) AND (TYPE=?)");
 			_ps.setInt(1, id);
+			_ps.setInt(2, tr.getType());
 			executeUpdate(0);
 			
-			// Prepare the statement
-			prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
-					+ "RUNWAY, ROUTE) VALUES (?, ?, ?, ?, ?, ?)");
-			_ps.setInt(1, id);
+			// Write the Route
+			if (tr != null) {
+				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
+						+ "RUNWAY) VALUES (?, ?, ?, ?, ?)");
+				_ps.setInt(1, id);
+				_ps.setInt(2, tr.getType());
+				_ps.setString(3, tr.getName());
+				_ps.setString(4, tr.getTransition());
+				_ps.setString(5, tr.getRunway());
+				executeUpdate(1);
 			
-			// Insert the SID if present
-			if (sid != null) {
-				_ps.setInt(2, TerminalRoute.SID);
-				_ps.setString(3, sid.getName());
-				_ps.setString(4, sid.getTransition());
-				_ps.setString(5, sid.getRunway());
-				_ps.setString(6, sid.getRoute());
-				_ps.addBatch();
-			}
-			
-			// Insert the STAR if present
-			if (star != null) {
-				_ps.setInt(2, TerminalRoute.STAR);
-				_ps.setString(3, star.getName());
-				_ps.setString(4, star.getTransition());
-				_ps.setString(5, star.getRunway());
-				_ps.setString(6, star.getRoute());
-				_ps.addBatch();
-			}
-			
-			// Do the write
-			if ((sid != null) || (star != null)) {
+				// Write the route data
+				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
+						+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
+				_ps.setInt(1, id);
+				_ps.setInt(2, tr.getType());
+				for (Iterator<NavigationDataBean> i = tr.getWaypoints().iterator(); i.hasNext(); ) {
+					Airway.AirwayIntersection ai = (Airway.AirwayIntersection) i.next();
+					_ps.setInt(3, ai.getSequence());
+					_ps.setString(4, ai.getCode());
+					_ps.setDouble(5, ai.getLatitude());
+					_ps.setDouble(6, ai.getLongitude());
+					_ps.addBatch();
+				}
+				
+				// Write and clean up
 				_ps.executeBatch();
 				_ps.close();
 			}

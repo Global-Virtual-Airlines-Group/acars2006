@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.PilotMessage;
+import org.deltava.acars.message.dispatch.CancelMessage;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -16,9 +17,9 @@ import org.deltava.dao.acars.SetInfo;
 import org.deltava.util.system.SystemData;
 
 /**
- * An ACARS server command to handle disconnections by authenticated users.
+ * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -55,17 +56,27 @@ public class QuitCommand extends ACARSCommand {
 				ctx.release();
 			}
 	   }
-
-		// Create a deletepilots message - send to everyone except ourself
+	   
+		// Create a deletepilots message
 		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());
 		drmsg.add(env.getOwner());
+		drmsg.setDispatch(msg.isDispatch());
+		
+		// Get all connections
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().get("*");
 		if (msg.isHidden()) {
-			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext(); ) {
+			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
 				if ((ac.getID() != env.getConnectionID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drmsg, ac.getID());
 			}
-		} else
-			ctx.pushAll(drmsg, env.getConnectionID());
+		} else {
+			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
+				ACARSConnection ac = i.next();
+				ctx.push(drmsg, ac.getID());
+				if (msg.isDispatch() && (ac.getDispatcherID() == env.getConnectionID()))
+					ctx.push(new CancelMessage(env.getOwner()), ac.getID());
+			}
+		}
 	}
 }

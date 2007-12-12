@@ -1,0 +1,93 @@
+// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.dao.acars;
+
+import java.sql.*;
+import java.util.*;
+
+import org.deltava.dao.*;
+import org.deltava.beans.navdata.NavigationDataBean;
+
+import org.deltava.acars.message.dispatch.FlightDataMessage;
+
+/**
+ * A Data Access Object to write routes into the database.
+ * @author Luke
+ * @version 2.0
+ * @since 2.0
+ */
+
+public class SetRoute extends DAO {
+
+	/**
+	 * Initializes the Data Access Object.
+	 * @param c the JDBC connection to use
+	 */
+	public SetRoute(Connection c) {
+		super(c);
+	}
+
+	/**
+	 * Saves a Flight route to the database.
+	 * @param msg the FlightDataMessage
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void save(FlightDataMessage msg) throws DAOException {
+		try {
+			startTransaction();
+			
+			// Write the data
+			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRPORT_D, AIRPORT_A, "
+					+ "AIRPORT_L, CREATEDON, USED, SID, STAR, REMARKS) VALUES (?, ?, ?, ?, NOW(), 1, ?, ?, ?)");
+			_ps.setInt(1, msg.getSender().getID());
+			_ps.setString(2, msg.getAirportD().getIATA());
+			_ps.setString(3, msg.getAirportA().getIATA());
+			_ps.setString(4, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
+			_ps.setString(5, msg.getSID());
+			_ps.setString(6, msg.getSTAR());
+			_ps.setString(7, msg.getComments());
+			
+			// Save the data
+			_ps.executeUpdate();
+			if (msg.getRouteID() == 0)
+				msg.setRouteID(getNewID());
+			
+			// Save the waypoints
+			int seq = -1;
+			prepareStatementWithoutLimits("INSERT INTO acars.ROUTE_WP (ID, SEQ, CODE, ITEMTYPE, LATITUDE, "
+					+ "LONGITUDE, AIRWAY) VALUES (?, ?, ?, ?, ?, ?, ?)");
+			_ps.setInt(1, msg.getRouteID());
+			for (Iterator<NavigationDataBean> i = msg.getWaypoints().iterator(); i.hasNext(); ) {
+				NavigationDataBean nd = i.next();
+				_ps.setInt(2, ++seq);
+				_ps.setString(3, nd.getCode());
+				_ps.setInt(4, nd.getType());
+				_ps.setDouble(5, nd.getLatitude());
+				_ps.setDouble(6, nd.getLongitude());
+				_ps.setString(7, msg.getAirway(nd));
+				_ps.addBatch();
+			}
+			
+			// Write and commit
+			_ps.executeBatch();
+			commitTransaction();
+		} catch (SQLException se) {
+			rollbackTransaction();
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
+	 * Tracks usage of a dispatch route.
+	 * @param id the route's database ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void use(int id) throws DAOException {
+		try {
+			prepareStatementWithoutLimits("UPDATE acars.ROUTES SET USED=USED+1 WHERE (ID=?) LIMIT 1");
+			_ps.setInt(1, id);
+			executeUpdate(0);
+		} catch (SQLException se) {
+			throw new DAOException(se);
+		}
+	}
+}

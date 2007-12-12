@@ -229,14 +229,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 
 	public ACARSConnection get(long cid) {
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getID() == cid)
-					return c;
-			}
-		} catch (ConcurrentModificationException cme) {
-			return null;
+		for (Iterator<ACARSConnection> i = new ArrayList<ACARSConnection>(_cons).iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getID() == cid)
+				return c;
 		}
 
 		// Return nothing if not found
@@ -247,10 +243,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 		// Wildcard matches everyone
 		if (("*".equals(pid)) || (pid == null))
-			return new TreeSet<ACARSConnection>(_cons);
+			return new ArrayList<ACARSConnection>(_cons);
 
 		// Build results
-		Set<ACARSConnection> results = new TreeSet<ACARSConnection>();
+		Collection<ACARSConnection> results = new ArrayList<ACARSConnection>();
 		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.getUserID().equalsIgnoreCase(pid))
@@ -337,18 +333,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 		// Return messages
 		return results;
-	}
-
-	public void remove(String id) {
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-
-			// Close/Remove if found
-			if (c.equals(id)) {
-				c.close();
-				return;
-			}
-		}
 	}
 
 	public void remove(ACARSConnection c) {

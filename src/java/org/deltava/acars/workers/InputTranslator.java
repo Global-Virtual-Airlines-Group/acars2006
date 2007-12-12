@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -31,21 +31,20 @@ public final class InputTranslator extends Worker {
 	 * Initializes the Worker.
 	 * @see Worker#open()
 	 */
-	@SuppressWarnings("unchecked")
 	public void open() {
 		super.open();
-		Map<String, String> versions = (Map) SystemData.getObject("acars.protocols");
+		Map versions = (Map) SystemData.getObject("acars.protocols");
 		if (versions == null) {
 			log.warn("No trasnalation packages specified!");
 			versions = Collections.emptyMap();
 		}
 		
 		// Initialize the parsers
-		for (Iterator<String> i = versions.keySet().iterator(); i.hasNext(); ) {
-			String version = i.next();
-			String pkg = versions.get(version);
+		for (Iterator i = versions.keySet().iterator(); i.hasNext(); ) {
+			String version = (String) i.next();
+			String pkg = (String) versions.get(version);
 			try {
-				Class pClass = Class.forName(pkg + ".Parser");
+				Class pClass = Class.forName(pkg + ".parse.Parser");
 				_parsers.put(Integer.valueOf(version.substring(1)), (MessageParser) pClass.newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Parser", e);
