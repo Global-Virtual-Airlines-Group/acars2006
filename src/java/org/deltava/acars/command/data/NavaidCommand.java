@@ -76,16 +76,16 @@ public class NavaidCommand extends DataCommand {
 					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
 				}
 			}
+			
+			// Push the response
+			ctx.push(rspMsg, env.getConnectionID());
 		} catch (Exception e) {
 			log.error("Error loading navaid " + msg.getFlag("id") + " - " + e.getMessage(), e);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
-			ctx.push(errorMsg, ctx.getACARSConnection().getID());
+			ctx.push(errorMsg, env.getConnectionID());
 		} finally {
 			ctx.release();
 		}
-		
-		// Push the response
-		ctx.push(rspMsg, env.getConnectionID());
 	}
 }

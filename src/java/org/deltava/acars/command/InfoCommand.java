@@ -18,7 +18,7 @@ import org.deltava.dao.acars.SetInfo;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
@@ -113,7 +113,8 @@ public class InfoCommand extends ACARSCommand {
 			// Write the flight information and SID/STAR data
 			SetInfo iwdao = new SetInfo(c);
 			iwdao.write(msg, env.getConnectionID());
-			iwdao.writeSIDSTAR(msg.getFlightID(), sid, star);
+			iwdao.writeSIDSTAR(msg.getFlightID(), sid);
+			iwdao.writeSIDSTAR(msg.getFlightID(), star);
 			
 			// Commit the transaction
 			ctx.commitTX();

@@ -1,118 +1,93 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
-import java.util.*;
-
 import org.deltava.beans.Pilot;
-import org.deltava.beans.schedule.Airport;
 
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
-public class DispatchMessage extends AbstractMessage {
+public abstract class DispatchMessage extends AbstractMessage {
 	
 	private String _recipient;
-	private String _flightCode;
-	private int _leg;
+	private int _reqType = DSP_UNKNOWN;
 	
-	private String _eqType;
-	private Collection<String> _route = new LinkedHashSet<String>();
-	private Airport _airportD;
-	private Airport _airportA;
-	private Airport _airportL;
+	// Request type constants
+	public static final int DSP_UNKNOWN = 0;
+	public static final int DSP_SVCREQ = 1;
+	public static final int DSP_CANCEL = 2;
+	public static final int DSP_ACCEPT = 3;
+	public static final int DSP_INFO = 4;
+	public static final int DSP_ROUTEREQ = 5;
+	public static final int DSP_ROUTEDATA = 6;
+	public static final int DSP_COMPLETE = 7;
+	public static final String[] REQ_TYPES = {"?", "svcrequest", "cancel", "accept", "flightinfo", "routerequest", "routes", "done"};
 	
-	private int _txCode;
-	private int _fuel;
-
 	/**
-	 * Creates a new Dispatch data message.
-	 * @param msgFrom the originator
-	 * @param recipient the recipient
+	 * Creates the message.
+	 * @param dspType the dispatch message type
+	 * @param msgFrom the originating user
 	 */
-	public DispatchMessage(Pilot msgFrom, String recipient) {
-		super(Message.MSG_DISPATCH, msgFrom);
-		_recipient = recipient;
-	}
-
-	public String getFlightCode() {
-		return _flightCode;
+	public DispatchMessage(int dspType, Pilot msgFrom) {
+		super(MSG_DISPATCH, msgFrom);
+		_reqType = dspType;
 	}
 	
-	public int getLeg() {
-		return _leg;
+	/**
+	 * Returns the request type.
+	 * @return the request type code
+	 * @see DispatchMessage#setRequestType(int)
+	 * @see DispatchMessage#setRequestType(String)
+	 */
+	public int getRequestType() {
+		return _reqType;
 	}
 	
-	public String getEquipmentType() {
-		return _eqType;
+	/**
+	 * Returns the request type code.
+	 * @return the request code
+	 */
+	public String getRequestTypeName() {
+		return REQ_TYPES[_reqType];
 	}
 	
+	/**
+	 * Returns the recipient pilot code.
+	 * @return the pilot code
+	 */
 	public String getRecipient() {
 		return _recipient;
 	}
-	
-	public String getRoute() {
-		return StringUtils.listConcat(_route, " ");
+
+	/**
+	 * Sets the request/response type.
+	 * @param newRT the request type
+	 * @see DispatchMessage#setRequestType(int)
+	 */
+	public void setRequestType(String newRT) {
+		setRequestType(StringUtils.arrayIndexOf(REQ_TYPES, newRT, 0));
+	}
+
+	/**
+	 * Sets the request/response type.
+	 * @param rType the reuqest type code
+	 * @see DispatchMessage#setRequestType(String)
+	 */
+	public void setRequestType(int rType) {
+		_reqType = rType;
 	}
 	
-	public Airport getAirportD() {
-		return _airportD;
-	}
-	
-	public Airport getAirportA() {
-		return _airportA;
-	}
-	
-	public Airport getAirportL() {
-		return _airportL;
-	}
-	
-	public int getFuel() {
-		return _fuel;
-	}
-	
-	public int getTXCode() {
-		return _txCode;
-	}
-	
-	public void addWaypoint(String waypoint) {
-		_route.add(waypoint.toUpperCase());
-	}
-	
-	public void setEquipmentType(String eqType) {
-		_eqType = eqType;
-	}
-	
-	public void setFlightCode(String fCode) {
-		_flightCode = fCode.toUpperCase();
-	}
-	
-	public void setAirportD(Airport a) {
-		_airportD = a;
-	}
-	
-	public void setAirportA(Airport a) {
-		_airportA = a;
-	}
-	
-	public void setAirportL(Airport a) {
-		_airportL = a;
-	}
-	
-	public void setTXCode(int sqCode) {
-		_txCode = (sqCode < 1000) ? 2200 : sqCode;
-	}
-	
-	public void setFuel(int fuel) {
-		_fuel = (fuel < 1) ? 1 : _fuel;
-	}
-	
-	public void setLeg(int leg) {
-		_leg = ((leg < 1) || (leg > 5)) ? 1 : leg;
+	/**
+	 * Updates the recipient of this message.
+	 * @param msgTo the recipient pilot code
+	 * @see DispatchMessage#getRecipient()
+	 */
+	public void setRecipient(String msgTo) {
+		_recipient = msgTo;
 	}
 }

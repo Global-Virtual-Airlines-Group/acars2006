@@ -8,6 +8,7 @@ import java.sql.Connection;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
+import org.deltava.acars.command.dispatch.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
@@ -19,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -29,6 +30,7 @@ public class LogicProcessor extends Worker {
 	
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
+	private final Map<Integer, DispatchCommand> _dspCommands = new HashMap<Integer, DispatchCommand>();
 	
 	/**
 	 * Initializes the Worker.
@@ -59,7 +61,6 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_PIREP), new FilePIREPCommand());
 		_commands.put(Integer.valueOf(Message.MSG_ERROR), new ErrorCommand());
 		_commands.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticCommand());
-		_commands.put(Integer.valueOf(Message.MSG_DISPATCH), new DispatchCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());
@@ -75,7 +76,16 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TRINFO), new TerminalRouteCommand());
-		log.info("Loaded " + (_commands.size() + _dataCommands.size()) + " commands");
+		
+		// Initialize dispatch commands
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_CANCEL), new CancelCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ACCEPT), new AcceptCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_INFO), new FlightDataCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new RouteRequestCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
+		
+		log.info("Loaded " + (_commands.size() + _dataCommands.size() + _dspCommands.size()) + " commands");
 	}
 	
 	private class CommandWorker extends PoolWorker {
@@ -168,7 +178,7 @@ public class LogicProcessor extends Worker {
 		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
-			_cmdPool.awaitTermination(1250, TimeUnit.MILLISECONDS);
+			_cmdPool.awaitTermination(1500, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
@@ -199,14 +209,25 @@ public class LogicProcessor extends Worker {
 				if (msg.getType() == Message.MSG_DATAREQ) {
 					DataRequestMessage reqmsg = (DataRequestMessage) msg;
 					cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
+					String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
 					if (cmd == null) {
-						log.warn("No Data Command for " + DataMessage.REQ_TYPES[reqmsg.getRequestType()] + " request");
+						log.warn("No Data Command for " + reqType + " request");
 						return;
 					}
 
 					// Log invocation
-					String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
 					log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
+				} else if (msg.getType() == Message.MSG_DISPATCH) {
+					DispatchMessage dspmsg = (DispatchMessage) msg;
+					cmd = _dspCommands.get(Integer.valueOf(dspmsg.getRequestType()));
+					String reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
+					if (cmd == null) {
+						log.warn("No Dispatch Command for " + reqType + " request");
+						return;
+					}
+					
+					// Log invocation
+					log.info("Dispatch Request (" + reqType + ") from " + env.getOwnerID());
 				} else {
 					cmd = _commands.get(Integer.valueOf(msg.getType()));
 					if (cmd == null) {

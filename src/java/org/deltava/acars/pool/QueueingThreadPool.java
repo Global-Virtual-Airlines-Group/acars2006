@@ -36,8 +36,9 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 				_queuedEntries.add((PoolWorker) r);
 
 				// Check if we log
-				if ((now - _lastEntryTime) > 1500)
-					log.warn("Thread pool full - queueing entry #" + (_queuedEntries.size() + 1));
+				int size = _queuedEntries.size(); 
+				if (((now - _lastEntryTime) > 2500) && (size > 3)) 
+					log.warn("Thread pool full - queueing entry #" + size);
 				
 				_lastEntryTime = now;
 			}

@@ -1,0 +1,38 @@
+// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.xml.v1.parse;
+
+import org.jdom.Element;
+
+import org.deltava.beans.Pilot;
+
+import org.deltava.acars.message.Message;
+import org.deltava.acars.message.dispatch.RouteRequestMessage;
+
+import org.deltava.acars.xml.XMLException;
+
+import org.deltava.util.system.SystemData;
+
+/**
+ * A parser for route request messages.
+ * @author Luke
+ * @version 2.0
+ * @since 2.0
+ */
+
+class DispatchRouteParser extends ElementParser {
+
+	/**
+	 * Convert an XML route request element into a RouteRequestMessage.
+	 * @param e the XML element
+	 * @return a RouteMessage
+	 * @throws XMLException if a parse error occurs 
+	 */
+	public Message parse(Element e, Pilot user) throws XMLException {
+		
+		// Create the message
+		RouteRequestMessage msg = new RouteRequestMessage(user);
+		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
+		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
+		return msg;
+	}
+}

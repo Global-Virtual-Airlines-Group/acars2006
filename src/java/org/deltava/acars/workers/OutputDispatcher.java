@@ -18,14 +18,14 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 1.0
+ * @version 2.0
  * @since 1.0
  */
 
 public final class OutputDispatcher extends Worker {
 
 	private final Map<Integer, MessageFormatter> _formatters = new HashMap<Integer, MessageFormatter>();
-	private final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("ISO-8859-1"));
+	private final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
 
 	private class DatedDocument extends Document {
 
@@ -71,7 +71,7 @@ public final class OutputDispatcher extends Worker {
 			String version = (String) i.next();
 			String pkg = (String) versions.get(version);
 			try {
-				Class pClass = Class.forName(pkg + ".Formatter");
+				Class pClass = Class.forName(pkg + ".format.Formatter");
 				_formatters.put(Integer.valueOf(version.substring(1)), (MessageFormatter) pClass.newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Formatter", e);

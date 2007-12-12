@@ -13,7 +13,7 @@ import org.deltava.jdbc.*;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -56,6 +56,10 @@ public class CommandContext extends ConnectionContext {
 	public Collection<ACARSConnection> getACARSConnections(String pilotID) {
 		return _pool.get(pilotID);
 	}
+	
+	public ACARSConnection getACARSConnection(long id) {
+		return _pool.get(id);
+	}
 
 	/**
 	 * Returns the ACARS Connection Pool.
@@ -79,6 +83,24 @@ public class CommandContext extends ConnectionContext {
 		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID))
+				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
+		}
+	}
+	
+	/**
+	 * Sends a message to all connected dispatchers.
+	 * @param msg the Message to send
+	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
+	 */
+	public void pushDispatch(Message msg, long skipThisConID) {
+		if (msg == null)
+			return;
+		
+		// Set the original timestamp and message time
+		msg.setTime(_msgTime);
+		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getIsDispatch() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}

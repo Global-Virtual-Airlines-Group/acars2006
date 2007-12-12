@@ -88,6 +88,7 @@ public final class NetworkReader extends Worker {
 		Socket s = sc.socket();
 		try {
 			s.setSoLinger(true, 1);
+			s.setTcpNoDelay(true);
 			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
 			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
 		} catch (SocketException se) {
@@ -222,6 +223,7 @@ public final class NetworkReader extends Worker {
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
+							qmsg.setDispatch(con.getIsDispatch());
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}

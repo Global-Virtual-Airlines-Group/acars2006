@@ -257,15 +257,17 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (systemMsgs != null)
 			sysMsg.addMessages(systemMsgs);
 		
-		// Add hidden notice
+		// Add hidden/dispatch notices
 		if (con.getUserHidden())
 			sysMsg.addMessage("You are in STEALTH mode and do not appear in the connections list.");
+		if (con.getIsDispatch())
+			sysMsg.addMessage("You are currently operating as a Dispatcher.");
 		
 		// Send the message
 		ctx.push(sysMsg, env.getConnectionID());
 		
 		// Log new connection
-		log.info("New Connection from " + usr.getName() + " (Build " + con.getClientVersion() + ")");
+		log.info("New Connection from " + usr.getName() + " (" + (con.getIsDispatch() ? "Dispatch " : "") + "Build " + con.getClientVersion() + ")");
 	}
 	
 	/**

@@ -44,6 +44,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _protocolVersion = 1;
 	private int _clientVersion;
 	private boolean _isDispatch;
+	private long _dispatcherID;
 
 	// Input/output network buffers
 	private transient final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
@@ -130,10 +131,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
 	}
 
-	public boolean equals(String pid) {
-		return _userInfo.getPilotCode().equals(pid);
-	}
-
 	public long getBytesIn() {
 		return _bytesIn;
 	}
@@ -192,6 +189,14 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public boolean getIsDispatch() {
 		return _isDispatch;
+	}
+	
+	public boolean getHasDispatch() {
+		return (_dispatcherID > 0);
+	}
+	
+	public long getDispatcherID() {
+		return _dispatcherID;
 	}
 
 	public int getClientVersion() {
@@ -254,6 +259,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public void setIsDispatch(boolean isDispatch) {
 		_isDispatch = isDispatch;
+	}
+	
+	public void setDispatcherID(long conID) {
+		_dispatcherID = conID;
 	}
 	
 	public void setTimeOffset(long ofs) {
