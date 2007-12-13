@@ -58,7 +58,10 @@ class DispatchInfoFormatter extends ElementFormatter {
 		Map<FuelTank, Integer> fuelInfo = dmsg.getFuel();
 		for (Iterator<FuelTank> i = fuelInfo.keySet().iterator(); i.hasNext(); ) {
 			FuelTank t = i.next();
-			fe.addContent(XMLUtils.createElement(t.getName(), fuelInfo.get(t).toString(), false));
+			Element fte = new Element("tank");
+			fte.setAttribute("name", t.getName());
+			fte.setAttribute("load", fuelInfo.get(t).toString());
+			fe.addContent(fte);
 		}
 		
 		// Add waypoints
