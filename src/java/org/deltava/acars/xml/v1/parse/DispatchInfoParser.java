@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
  * @since 2.0
  */
 
-public class DispatchInfoParser extends ElementParser {
+class DispatchInfoParser extends ElementParser {
 
 	/**
 	 * Convert an XML dispatch request element into a FlightDataMessage.
@@ -54,8 +54,8 @@ public class DispatchInfoParser extends ElementParser {
 		Element tse = e.getChild("fuel");
 		for (Iterator i = tse.getChildren().iterator(); i.hasNext(); ) {
 			Element te = (Element) i.next();
-			FuelTank tank = FuelTank.get(te.getName());
-			msg.addFuel(tank, StringUtils.parse(te.getTextTrim(), 0));
+			FuelTank tank = FuelTank.get(te.getAttributeValue("name"));
+			msg.addFuel(tank, StringUtils.parse(te.getAttributeValue("load"), 0));
 		}
 		
 		// Get the waypoints
