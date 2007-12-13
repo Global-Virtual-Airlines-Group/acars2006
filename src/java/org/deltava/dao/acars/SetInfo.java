@@ -99,6 +99,21 @@ public final class SetInfo extends DAO {
 	}
 	
 	/**
+	 * Deletes a Flight's SID/STAR data from the datbase.
+	 * @param id the Flight ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void clearSIDSTAR(int id) throws DAOException {
+		try {
+			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?)");
+			_ps.setInt(1, id);
+			executeUpdate(0);
+		} catch (SQLException se) {
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
 	 * Writes a Flight's SID/STAR data to the database.
 	 * @param id the Flight ID
 	 * @param tr the TerminalRoute bean
@@ -111,15 +126,9 @@ public final class SetInfo extends DAO {
 		try {
 			startTransaction();
 			
-			// Clean out
-			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?) AND (TYPE=?)");
-			_ps.setInt(1, id);
-			_ps.setInt(2, tr.getType());
-			executeUpdate(0);
-			
 			// Write the Route
 			if (tr != null) {
-				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
+				prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
 						+ "RUNWAY) VALUES (?, ?, ?, ?, ?)");
 				_ps.setInt(1, id);
 				_ps.setInt(2, tr.getType());
@@ -129,7 +138,7 @@ public final class SetInfo extends DAO {
 				executeUpdate(1);
 			
 				// Write the route data
-				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
+				prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
 						+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
 				_ps.setInt(1, id);
 				_ps.setInt(2, tr.getType());

@@ -113,6 +113,7 @@ public class InfoCommand extends ACARSCommand {
 			// Write the flight information and SID/STAR data
 			SetInfo iwdao = new SetInfo(c);
 			iwdao.write(msg, env.getConnectionID());
+			iwdao.clearSIDSTAR(msg.getFlightID());
 			iwdao.writeSIDSTAR(msg.getFlightID(), sid);
 			iwdao.writeSIDSTAR(msg.getFlightID(), star);
 			
