@@ -22,7 +22,7 @@ import org.deltava.util.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -175,6 +175,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Get the position write DAO and write the positions
 			if (info != null) {
+				afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 				afr.setFSVersion(info.getFSVersion());
 				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
