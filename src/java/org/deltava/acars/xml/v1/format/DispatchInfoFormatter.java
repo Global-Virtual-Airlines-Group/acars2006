@@ -6,8 +6,8 @@ import java.util.*;
 import org.jdom.Element;
 
 import org.deltava.beans.navdata.NavigationDataBean;
-import org.deltava.acars.beans.FuelTank;
 
+import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -67,15 +67,19 @@ class DispatchInfoFormatter extends ElementFormatter {
 		// Add waypoints
 		Element re = new Element("route");
 		e.addContent(re);
-		for (Iterator<NavigationDataBean> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
-			NavigationDataBean nd = i.next();
+		for (Iterator<RouteWaypoint> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
+			RouteWaypoint wp = i.next();
+			NavigationDataBean nd = wp.getWaypoint();
 			Element wpe = new Element("waypoint");
 			wpe.setAttribute("code", nd.getCode());
 			wpe.setAttribute("type", nd.getTypeName());
 			wpe.setAttribute("lat", StringUtils.format(nd.getLatitude(), "#0.00000"));
 			wpe.setAttribute("lon", StringUtils.format(nd.getLongitude(), "#0.00000"));
 			wpe.setAttribute("uniqueID", nd.toString());
-			wpe.setAttribute("airway", dmsg.getAirway(nd));
+			wpe.setAttribute("airway", wp.getAirway());
+			if (wp.isInTerminalRoute())
+				wpe.setAttribute("tr", String.valueOf(wp.isInTerminalRoute()));
+			
 			re.addContent(wpe);
 		}
 

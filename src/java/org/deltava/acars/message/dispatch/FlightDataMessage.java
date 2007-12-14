@@ -4,16 +4,14 @@ package org.deltava.acars.message.dispatch;
 import java.util.*;
 
 import org.deltava.beans.*;
-import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
-
-import org.deltava.acars.beans.FuelTank;
+import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.1
  */
 
@@ -28,7 +26,7 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	private String _eqType;
 	private String _cruiseAlt;
-	private final Map<NavigationDataBean, String> _route = new LinkedHashMap<NavigationDataBean, String>();
+	private final Collection<RouteWaypoint> _route = new LinkedHashSet<RouteWaypoint>();
 	private Airport _airportD;
 	private Airport _airportA;
 	private Airport _airportL;
@@ -113,16 +111,12 @@ public class FlightDataMessage extends DispatchMessage {
 		return _txCode;
 	}
 	
-	public Collection<NavigationDataBean> getWaypoints() {
-		return _route.keySet();
+	public Collection<RouteWaypoint> getWaypoints() {
+		return _route;
 	}
 	
-	public String getAirway(NavigationDataBean nd) {
-		return _route.get(nd);
-	}
-	
-	public void addWaypoint(NavigationDataBean nd, String airway) {
-		_route.put(nd, airway);
+	public void addWaypoint(RouteWaypoint wp) {
+		_route.add(wp);
 	}
 	
 	public void setRouteID(int id) {

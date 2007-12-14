@@ -8,7 +8,7 @@ import org.jdom.*;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.navdata.*;
 
-import org.deltava.acars.beans.FuelTank;
+import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 
@@ -18,8 +18,8 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 2.0
- * @since 2.0
+ * @version 2.1
+ * @since 2.1
  */
 
 class DispatchInfoParser extends ElementParser {
@@ -66,8 +66,10 @@ class DispatchInfoParser extends ElementParser {
 			double lng = StringUtils.parse(wpe.getAttributeValue("lon"), 0.0);
 			NavigationDataBean nd = NavigationDataBean.create(wpe.getAttributeValue("type"), lat, lng);
 			nd.setCode(wpe.getAttributeValue("code"));
-			String awy = wpe.getAttributeValue("airway");
-			msg.addWaypoint(nd, (awy == null) ? "" : awy);
+			RouteWaypoint wp = new RouteWaypoint(nd);
+			wp.setInTerminalRoute(Boolean.valueOf(wpe.getAttributeValue("tr")).booleanValue());
+			wp.setAirway(wpe.getAttributeValue("airway"));
+			msg.addWaypoint(wp);
 		}
 		
 		// Return the message
