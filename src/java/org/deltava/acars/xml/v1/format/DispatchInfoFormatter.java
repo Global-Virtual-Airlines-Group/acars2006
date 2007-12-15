@@ -76,7 +76,8 @@ class DispatchInfoFormatter extends ElementFormatter {
 			wpe.setAttribute("lat", StringUtils.format(nd.getLatitude(), "#0.00000"));
 			wpe.setAttribute("lon", StringUtils.format(nd.getLongitude(), "#0.00000"));
 			wpe.setAttribute("uniqueID", nd.toString());
-			wpe.setAttribute("airway", wp.getAirway());
+			if (wp.getAirway() != null)
+				wpe.setAttribute("airway", wp.getAirway());
 			if (wp.isInTerminalRoute())
 				wpe.setAttribute("tr", String.valueOf(wp.isInTerminalRoute()));
 			

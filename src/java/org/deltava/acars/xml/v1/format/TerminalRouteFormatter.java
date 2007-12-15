@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Terminal Route data messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 
@@ -46,15 +46,19 @@ class TerminalRouteFormatter extends ElementFormatter {
 			tre.setAttribute("runway", tr.getRunway());
 			
 			// Build the waypoints
-			StringBuilder buf = new StringBuilder();
+			StringBuilder buf = new StringBuilder(); StringBuilder rbuf = new StringBuilder();
 			for (Iterator<NavigationDataBean> wi = tr.getWaypoints().iterator(); wi.hasNext(); ) {
 				NavigationDataBean nd = wi.next();
 				buf.append(nd.getCode());
-				if (wi.hasNext())
+				rbuf.append(nd.toString());
+				if (wi.hasNext()) {
 					buf.append(' ' );
+					rbuf.append(' ');
+				}
 			}
 			
 			tre.addContent(XMLUtils.createElement("waypoints", buf.toString()));
+			tre.addContent(XMLUtils.createElement("route", rbuf.toString()));
 			e.addContent(tre);
 		}
 		
