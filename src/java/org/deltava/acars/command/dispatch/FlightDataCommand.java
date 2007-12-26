@@ -16,7 +16,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.1
  */
 
@@ -58,7 +58,7 @@ public class FlightDataCommand extends DispatchCommand {
 		// Save the dispatch message data
 		try {
 			SetRoute dao = new SetRoute(ctx.getConnection());
-			if (msg.getRouteID() == 0)
+			if ((msg.getRouteID() == 0) && !msg.getNoSave())
 				dao.save(msg);
 			else
 				dao.use(msg.getRouteID());

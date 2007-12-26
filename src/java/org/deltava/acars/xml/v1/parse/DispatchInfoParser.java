@@ -37,6 +37,7 @@ class DispatchInfoParser extends ElementParser {
 		// Get the flight Data
 		Element fe = e.getChild("flight");
 		msg.setRouteValid(Boolean.valueOf(fe.getAttributeValue("routeValid")).booleanValue());
+		msg.setNoSave(Boolean.valueOf(fe.getAttributeValue("noSave")).booleanValue());
 		msg.setRouteID(StringUtils.parse(fe.getAttributeValue("routeID"), 0));
 		msg.setAirline(SystemData.getAirline(getChildText(fe, "airline", user.getAirlineCode())));
 		msg.setFlight(StringUtils.parse(getChildText(fe, "flight", "1"), 1));
