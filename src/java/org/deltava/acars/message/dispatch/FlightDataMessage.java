@@ -22,7 +22,9 @@ public class FlightDataMessage extends DispatchMessage {
 	private Airline _a;
 	private int _flight;
 	private int _leg;
+	
 	private boolean _routeValid;
+	private boolean _noSave;
 	
 	private String _eqType;
 	private String _cruiseAlt;
@@ -97,6 +99,10 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	public String getSTAR() {
 		return _star;
+	}
+	
+	public boolean getNoSave() {
+		return _noSave;
 	}
 	
 	public boolean isRouteValid() {
@@ -178,6 +184,10 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	public void setRouteValid(boolean isValid) {
 		_routeValid = isValid;
+	}
+	
+	public void setNoSave(boolean noSave) {
+		_noSave = noSave;
 	}
 	
 	public void setComments(String comments) {
