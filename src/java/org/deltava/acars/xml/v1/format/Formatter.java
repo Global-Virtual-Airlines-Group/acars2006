@@ -13,7 +13,7 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -53,6 +53,7 @@ public class Formatter extends MessageFormatter {
 		_eFormatters.put(RequestMessage.class, new ServiceRequestFormatter());
 		_eFormatters.put(RouteInfoMessage.class, new DispatchRouteFormatter());
 		_eFormatters.put(CompleteMessage.class, new ServiceCompleteFormatter());
+		_eFormatters.put(ProgressResponseMessage.class, new DispatchProgressFormatter());
 	}
 
 	/**
