@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.ACARSException;
 
-import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 import org.deltava.acars.message.InfoMessage;
 
@@ -22,7 +21,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -256,35 +255,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		return results;
 	}
 
-	public Iterator<ACARSConnection> get(Pilot userInfo) {
-
-		// Build results list
-		ArrayList<ACARSConnection> results = new ArrayList<ACARSConnection>();
-
-		// Loop through the connections
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if ((c.isAuthenticated()) && (c.getUser().equals(userInfo)))
-				results.add(c);
-		}
-
-		// Return the iterator
-		return results.iterator();
-	}
-
-	public ACARSConnection get(SocketChannel ch) {
-
-		// Loop through the connections
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getChannel().equals(ch))
-				return c;
-		}
-
-		// Return nothing if not found
-		return null;
-	}
-
 	public boolean isEmpty() {
 		return _cons.isEmpty();
 	}
@@ -311,8 +281,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 			// If the selection key is ready for reading, get the Connection and read
 			if (sKey.isValid() && sKey.isReadable()) {
-				ACARSConnection con = get((SocketChannel) sKey.channel());
-
+				String addr = ((SocketChannel) sKey.channel()).socket().getInetAddress().getHostAddress();
+				ACARSConnection con = getFrom(addr);
 				try {
 					String msg = con.read();
 					if (msg != null) {
