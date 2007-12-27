@@ -3,8 +3,7 @@ package org.deltava.acars.message;
 
 import java.util.Date;
 
-import org.deltava.beans.Pilot;
-import org.deltava.beans.GeoLocation;
+import org.deltava.beans.*;
 
 import org.deltava.util.StringUtils;
 
@@ -13,11 +12,11 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
-public class PositionMessage extends AbstractMessage implements GeoLocation, ACARSFlags, Comparable {
+public class PositionMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags, Comparable {
 
 	// Flight phase constants
 	public static final int PHASE_UNKNOWN = 0;

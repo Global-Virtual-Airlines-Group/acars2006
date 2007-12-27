@@ -84,6 +84,7 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_INFO), new FlightDataCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new RouteRequestCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
 		
 		log.info("Loaded " + (_commands.size() + _dataCommands.size() + _dspCommands.size()) + " commands");
 	}
@@ -178,7 +179,7 @@ public class LogicProcessor extends Worker {
 		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
-			_cmdPool.awaitTermination(1500, TimeUnit.MILLISECONDS);
+			_cmdPool.awaitTermination(1750, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {

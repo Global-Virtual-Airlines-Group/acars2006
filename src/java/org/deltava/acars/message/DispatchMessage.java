@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -26,7 +26,9 @@ public abstract class DispatchMessage extends AbstractMessage {
 	public static final int DSP_ROUTEREQ = 5;
 	public static final int DSP_ROUTEDATA = 6;
 	public static final int DSP_COMPLETE = 7;
-	public static final String[] REQ_TYPES = {"?", "svcrequest", "cancel", "accept", "flightinfo", "routerequest", "routes", "done"};
+	public static final int DSP_PROGRESS = 8;
+	public static final String[] REQ_TYPES = {"?", "svcrequest", "cancel", "accept", "flightinfo", "routerequest", "routes", 
+		"done", "progress"};
 	
 	/**
 	 * Creates the message.

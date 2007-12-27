@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * A parser for ACARS Protocol v1 messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -43,6 +43,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_INFO), new DispatchInfoParser());
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new DispatchRouteParser());
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new DispatchCompletionParser());
+		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressParser());
 	}
 	
 	/**
