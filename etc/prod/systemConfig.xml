@@ -31,21 +31,22 @@
 		<pwd>m4n3l5</pwd>
 		
 		<map name="connectProperties">
-			<useNewIO>true</useNewIO>
 			<useCompression>false</useCompression>
+			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>false</autoReconnect>
 			<useLocalSessionState>true</useLocalSessionState>
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
-			<useServerPrepStmts>true</useServerPrepStmts>
+			<useServerPrepStmts>false</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
-			<useCursorFetch>true</useCursorFetch>
+			<useCursorFetch>false</useCursorFetch>
+			<maintainTimeStats>false</maintainTimeStats>
 			<validationQuery>/* ping */</validationQuery>
 		</map>
 		
 		<pool_size type="Integer">1</pool_size>
-		<pool_max_size type="Integer">6</pool_max_size>
+		<pool_max_size type="Integer">8</pool_max_size>
 		<max_reqs type="Integer">0</max_reqs>
 		<auto_commit type="Boolean">true</auto_commit>
 		<log_stack type="Boolean">true</log_stack>
