@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.dispatch.CompleteMessage;
 /**
  * An ACARS Command to handle Dispatch service completion notifications.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 
@@ -34,8 +34,10 @@ public class ServiceCompleteCommand extends DispatchCommand {
 
 		// Cancel this connection's dispatch status
 		ACARSConnection ac = ctx.getACARSConnection();
+		long dspID = ac.getDispatcherID();
+		ac.setDispatcherID(0);
 
 		// Send to the dispatcher
-		ctx.push(msg, ac.getDispatcherID());
+		ctx.push(msg, dspID);
 	}
 }
