@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -215,6 +215,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Commit the transaction
 			ctx.commitTX();
 			
+			// Save the PIREP ID in the ACK message
+			ackMsg.setEntry("pirepID", afr.getHexID());
+			ackMsg.setEntry("domain", usrLoc.getDomain());
+			
 			// Log completion
 			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (Exception e) {
@@ -232,6 +236,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2500;
+		return 2750;
 	}
 }
