@@ -226,6 +226,19 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		// No connection from that address found, return false
 		return null;
 	}
+	
+	public ACARSConnection get(SocketChannel ch) {
+
+		// Loop through the connections
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getChannel().equals(ch))
+				return c;
+		}
+
+		// Return nothing if not found
+		return null;
+	}
 
 	public ACARSConnection get(long cid) {
 		for (Iterator<ACARSConnection> i = new ArrayList<ACARSConnection>(_cons).iterator(); i.hasNext();) {
@@ -280,9 +293,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			SelectionKey sKey = i.next();
 
 			// If the selection key is ready for reading, get the Connection and read
-			if (sKey.isValid() && sKey.isReadable()) {
-				String addr = ((SocketChannel) sKey.channel()).socket().getInetAddress().getHostAddress();
-				ACARSConnection con = getFrom(addr);
+			if ((sKey != null) && sKey.isValid() && sKey.isReadable()) {
+				ACARSConnection con = get((SocketChannel) sKey.channel());
 				try {
 					String msg = con.read();
 					if (msg != null) {
