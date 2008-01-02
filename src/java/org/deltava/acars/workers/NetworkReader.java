@@ -105,6 +105,7 @@ public final class NetworkReader extends Worker {
 			con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 		} catch (ACARSException ae) {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
+			con.close();
 		}
 	}
 
