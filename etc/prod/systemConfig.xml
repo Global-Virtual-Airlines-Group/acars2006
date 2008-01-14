@@ -119,6 +119,10 @@
 				<v2_1>90</v2_1>
 			</map>
 
+			<map name="beta">
+				<b92>1</b92>
+			</map>
+
 			<latest type="Integer">90</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
