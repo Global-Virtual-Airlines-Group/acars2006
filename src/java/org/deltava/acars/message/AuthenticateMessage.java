@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -16,6 +16,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private String _pwd;
 	private int _protocolVersion = 1;
 	private int _build;
+	private int _beta;
 	private String _version;
 	private boolean _isDispatch;
 	private boolean _isHidden;
@@ -36,6 +37,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public int getClientBuild() {
 	   return _build;
+	}
+	
+	public int getBeta() {
+		return _beta;
 	}
 	
 	public String getVersion() {
@@ -81,6 +86,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setClientBuild(int buildNumber) {
 	   _build = buildNumber;
+	}
+	
+	public void setBeta(int beta) {
+		_beta = beta;
 	}
 	
 	public void setVersion(String ver) {

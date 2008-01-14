@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -70,6 +70,7 @@ class ConnectionFormatter extends ElementFormatter {
 			// Add connection specific stuff
 			ce.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
 			ce.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientVersion())));
+			ce.addContent(XMLUtils.createElement("beta", String.valueOf(con.getBeta())));
 			ce.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
 			ce.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
 			ce.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
