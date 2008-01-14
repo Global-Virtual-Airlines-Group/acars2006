@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -42,16 +42,16 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * @param env the message Envelope
 	 */
 	public void execute(CommandContext ctx, MessageEnvelope env) {
-	   
+
 		// Get the message and validate the user ID
 		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
 		if (StringUtils.isEmpty(msg.getUserID())) {
-		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-		   errMsg.setEntry("error", "No User ID specified");
-		   ctx.push(errMsg, env.getConnectionID());
-		   return;
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", "No User ID specified");
+			ctx.push(errMsg, env.getConnectionID());
+			return;
 		}
-		
+
 		// Get the minimum build number
 		int minBuild = Integer.MAX_VALUE;
 		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
@@ -59,41 +59,53 @@ public class AuthenticateCommand extends ACARSCommand {
 			minBuild = SystemData.getInt("acars.build.dispatch");
 		else
 			minBuild = cInfo.getMinimumBuild(msg.getVersion());
-		
+
 		// Check the minimum build number
 		if (msg.getClientBuild() < minBuild) {
-		   AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-		   if (minBuild == Integer.MAX_VALUE) {
-			   errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
-			   log.warn(errMsg.getEntry("error"));
-		   } else
-			   errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild +" or newer");
-		   
-		   ctx.push(errMsg, env.getConnectionID());
-		   return;
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg
+					.getID());
+			if (minBuild == Integer.MAX_VALUE) {
+				errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
+				log.warn(errMsg.getEntry("error"));
+			} else
+				errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild + " or newer");
+
+			ctx.push(errMsg, env.getConnectionID());
+			return;
 		}
-		
+
+		// Check the beta version
+		if (msg.getBeta() > 0) {
+			int minBeta = cInfo.getMinimumBetaBuild(msg.getClientBuild());
+			if ((msg.getBeta() < minBeta) || (minBeta == 0)) {
+				AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+				errMsg.setEntry("error", "Unknown/Deprecated ACARS beta - Build " + msg.getClientBuild() + " Beta " + msg.getBeta());
+				ctx.push(errMsg, env.getConnectionID());
+				return;
+			}
+		}
+
 		// Get the user ID and check for valid airline code
 		UserID usrID = new UserID(msg.getUserID());
 		AirlineInformation aInfo = SystemData.getApp(usrID.getAirlineCode());
 		if (aInfo == null)
 			aInfo = SystemData.getApp(SystemData.get("airline.default"));
-		
+
 		UserData ud = null;
 		Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection(true);
-			
+
 			// Get the DAOs
 			GetPilot pdao = new GetPilot(c);
 			GetUserData udao = new GetUserData(c);
-			
+
 			// If we're using a database ID to authenticate, load it differently
 			if (msg.isID()) {
 				ud = udao.get(StringUtils.parse(msg.getUserID(), 0));
 				if (ud == null)
 					throw new SecurityException("Invalid database ID - " + msg.getUserID());
-				
+
 				usr = pdao.get(ud);
 			} else {
 				pdao.setQueryMax(1);
@@ -107,7 +119,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException();
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
-			
+
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			if (auth instanceof SQLAuthenticator) {
@@ -128,22 +140,22 @@ public class AuthenticateCommand extends ACARSCommand {
 				errMsg.setEntry("error", "Dispatch not authorized");
 			else
 				errMsg.setEntry("error", "Authentication Failed");
-				
+
 			ctx.push(errMsg, env.getConnectionID());
 			usr = null;
 		} catch (DAOException de) {
-		   usr = null;
-		   String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
-		   if (de.isWarning())
-		      log.warn(errorMsg);
-		   else
-		      log.error(errorMsg, de.getLogStackDump() ? de : null);
-		   
+			usr = null;
+			String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
+			if (de.isWarning())
+				log.warn(errorMsg);
+			else
+				log.error(errorMsg, de.getLogStackDump() ? de : null);
+
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed - " + de.getMessage());
 			ctx.push(errMsg, env.getConnectionID());
 		} catch (Exception e) {
-		   usr = null;
+			usr = null;
 			log.error("Error loading " + msg.getUserID() + " - " + e.getMessage(), e);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed - " + e.getMessage());
@@ -151,59 +163,61 @@ public class AuthenticateCommand extends ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-		
+
 		// Get the ACARS connection
 		ACARSConnection con = ctx.getACARSConnection();
 		if ((usr == null) || (con == null))
 			return;
-		
-		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
+
+		// Calculate the difference in system times, assume 500ms latency -
+		// don't allow logins if over 4h off
 		DateTime now = new DateTime(new Date());
 		long timeDiff = (msg.getClientUTC().getTime() - now.getUTC().getTime() + 500) / 1000;
 		if (Math.abs(timeDiff) > 14400) {
 			log.error("Cannot authenticate " + usr.getName() + " system clock " + timeDiff + " seconds off");
-			
+
 			// Convert times to client date/time
 			DateTime usrTime = new DateTime(msg.getClientUTC(), TZInfo.UTC);
 			usrTime.convertTo(usr.getTZ());
-			
+
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "It is " + now.toString() + ". Your system clock is set to" + usrTime.toString() + " ( " + timeDiff + " seconds off)");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
 		} else if (Math.abs(timeDiff) > 900)
 			log.warn(usr.getName() + " system clock " + timeDiff + " seconds off");
-		
+
 		// Log the user in
 		con.setUser(usr);
 		con.setUserLocation(ud);
 		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
+		con.setBeta(msg.getBeta());
 		con.setIsDispatch(msg.isDispatch());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff * 1000);
-		
+
 		// Save the connection data
 		try {
 			Connection c = ctx.getConnection();
-			
+
 			// Start a transaction
 			ctx.startTX();
-			
+
 			// Get the DAO and write the connection
 			SetConnection cwdao = new SetConnection(c);
 			cwdao.add(con);
-			
+
 			// Save login hostname/IP address forever
 			SetSystemData sysdao = new SetSystemData(c);
 			sysdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
-			
+
 			// If Teamspeak is enabled, mark us as logged in
 			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
 				SetTS2Data ts2wdao = new SetTS2Data(c);
 				ts2wdao.setActive(usr.getPilotCode(), true);
 			}
-			
+
 			// Commit
 			ctx.commitTX();
 		} catch (DAOException de) {
@@ -217,20 +231,20 @@ public class AuthenticateCommand extends ACARSCommand {
 		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, msg.getID());
 		drMsg.add(con);
 		if (con.getUserHidden()) {
-			for (Iterator<ACARSConnection> i  = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext(); ) {
+			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext();) {
 				ACARSConnection ac = i.next();
 				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drMsg, ac.getID());
 			}
 		} else
 			ctx.pushAll(drMsg, con.getID());
-		
+
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
 		int latestBuild = cInfo.getLatest();
 		if (latestBuild > msg.getClientBuild())
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
-		
+
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());
 		ackMsg.setEntry("rank", usr.getRank());
@@ -241,35 +255,35 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
-		
+
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID(), true);
-		
+
 		// Return a system message to the user
 		SystemTextMessage sysMsg = new SystemTextMessage();
 		sysMsg.addMessage("Welcome to the " + SystemData.get("airline.name") + " ACARS server! (Build " + VersionInfo.BUILD + ")");
 		sysMsg.addMessage(VersionInfo.TXT_COPYRIGHT);
 		sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
-		
+
 		// Add system-defined messages
 		@SuppressWarnings("unchecked")
 		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");
 		if (systemMsgs != null)
 			sysMsg.addMessages(systemMsgs);
-		
+
 		// Add hidden/dispatch notices
 		if (con.getUserHidden())
 			sysMsg.addMessage("You are in STEALTH mode and do not appear in the connections list.");
 		if (con.getIsDispatch())
 			sysMsg.addMessage("You are currently operating as a Dispatcher.");
-		
+
 		// Send the message
 		ctx.push(sysMsg, env.getConnectionID());
-		
+
 		// Log new connection
 		log.info("New Connection from " + usr.getName() + " (" + (con.getIsDispatch() ? "Dispatch " : "") + "Build " + con.getClientVersion() + ")");
 	}
-	
+
 	/**
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds

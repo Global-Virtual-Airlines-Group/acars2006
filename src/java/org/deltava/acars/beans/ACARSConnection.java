@@ -43,6 +43,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private String _remoteHost;
 	private int _protocolVersion = 1;
 	private int _clientVersion;
+	private int _beta;
 	private boolean _isDispatch;
 	private long _dispatcherID;
 
@@ -202,6 +203,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public int getClientVersion() {
 		return _clientVersion;
 	}
+	
+	public int getBeta() {
+		return _beta;
+	}
 
 	public long getStartTime() {
 		return _startTime;
@@ -253,8 +258,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	}
 
 	public void setClientVersion(int ver) {
-		if (ver > 0)
-			_clientVersion = ver;
+		_clientVersion = Math.max(1, ver);
+	}
+	
+	public void setBeta(int beta) {
+		_beta = Math.max(0, beta);
 	}
 
 	public void setIsDispatch(boolean isDispatch) {

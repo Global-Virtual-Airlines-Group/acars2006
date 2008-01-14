@@ -109,8 +109,11 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>86</v2_0>
 				<v2_1>90</v2_1>
+			</map>
+
+			<map name="beta">
+				<b92>1</b92>
 			</map>
 
 			<latest type="Integer">89</latest>
@@ -122,11 +125,11 @@
 			<multiple type="Boolean">true</multiple>
 			<threads>
 				<logic>
-					<min type="Integer">2</min>
+					<min type="Integer">1</min>
 					<max type="Integer">4</max>
 				</logic>
 				<write>
-					<min type="Integer">2</min>
+					<min type="Integer">1</min>
 					<max type="Integer">6</max>
 				</write>
 			</threads>

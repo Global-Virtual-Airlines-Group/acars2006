@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * A Parser for Authentication elements.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -35,12 +35,12 @@ class AuthParser extends ElementParser {
 
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
-		msg.setProtocolVersion(1);
 		msg.setVersion(getChildText(e, "version", "v1.2"));
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
 		msg.setDatabaseID(Boolean.valueOf(getChildText(e, "isID", null)).booleanValue());
 		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
+		msg.setBeta(StringUtils.parse(getChildText(e, "beta", "0"), 0));
 		
 		// Validate the database ID
 		if (msg.isID() && (StringUtils.parse(userID, 0) < 1))

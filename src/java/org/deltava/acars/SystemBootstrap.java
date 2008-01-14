@@ -193,6 +193,14 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			cInfo.setMinimumBuild(ver.replace('_', '.'), StringUtils.parse(minBuilds.get(ver).toString(), 0));
 		}
 		
+		// Set beta builds
+		minBuilds = (Map) SystemData.getObject("acars.build.beta");
+		for (Iterator i = minBuilds.keySet().iterator(); i.hasNext(); ) {
+			String ver = (String) i.next();
+			int build = StringUtils.parse(ver.substring(1), 0);
+			cInfo.setMinimumBetaBuild(build, StringUtils.parse(minBuilds.get(ver).toString(), 0));
+		}
+		
 		// Start the ACARS/Mailer/IPC daemons
 		Runnable tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);
@@ -204,7 +212,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SharedData.addData(SharedData.ACARS_CLIENT_BUILDS, cInfo);
 		
 		// Wait a bit for the daemons to spool up
-		ThreadUtils.sleep(1250);
+		ThreadUtils.sleep(1000);
 	}
 	
 	/**
