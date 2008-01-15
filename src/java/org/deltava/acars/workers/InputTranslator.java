@@ -64,7 +64,8 @@ public final class InputTranslator extends Worker {
 				TextEnvelope env = RAW_INPUT.take();
 				_status.execute();
 				_status.setMessage("Translating Message from " + env.getOwnerID());
-				log.debug("Message received from " + env.getOwnerID());
+				if (log.isDebugEnabled())
+					log.debug("Message received from " + env.getOwnerID());
 				
 				// Get the proper message parser
 				MessageParser parser = _parsers.get(Integer.valueOf(env.getVersion()));
