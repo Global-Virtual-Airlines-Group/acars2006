@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -118,6 +118,8 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	}
  	
  	protected void initTasks() {
+ 		if (_conPool == null)
+ 			throw new IllegalStateException("No ACARS Connection Pool");
  		
  		// Create the task container and the thread group
  		List<Worker> tasks = new ArrayList<Worker>();
@@ -126,6 +128,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new InputTranslator());
 		tasks.add(new NetworkReader());
 		tasks.add(new OutputDispatcher());
+		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
 		tasks.add(new LogicProcessor());
 
