@@ -57,6 +57,7 @@ public class BandwidthLogger extends Worker {
 			Calendar cld = Calendar.getInstance();
 			try {
 				Thread.sleep((61 - cld.get(Calendar.SECOND)) * 1000);
+				_status.execute();
 				_status.setMessage("Updating statistics");
 				
 				// Init the counters
@@ -64,7 +65,7 @@ public class BandwidthLogger extends Worker {
 				long bytesIn = 0; long bytesOut = 0;
 				
 				// Get the connection statistics
-				Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_pool.get("*"));
+				Collection<ACARSConnection> cons = _pool.get("*");
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					msgsIn += ac.getMsgsIn();
@@ -97,7 +98,10 @@ public class BandwidthLogger extends Worker {
 					log.error(de.getMessage(), de);
 				} finally {
 					_jdbcPool.release(con);
+					_lastBW = bw;
 				}
+				
+				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
