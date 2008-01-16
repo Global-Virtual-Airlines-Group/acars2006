@@ -65,20 +65,27 @@ public class BandwidthLogger extends Worker {
 				long bytesIn = 0; long bytesOut = 0;
 				
 				// Get the connection statistics
-				Collection<ACARSConnection> cons = _pool.get("*");
-				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-					ACARSConnection ac = i.next();
+				Collection<ConnectionStats> stats = _pool.getStatistics();
+				for (Iterator<ConnectionStats> i = stats.iterator(); i.hasNext(); ) {
+					ConnectionStats ac = i.next();
 					msgsIn += ac.getMsgsIn();
 					msgsOut += ac.getMsgsOut();
 					bytesIn += ac.getBytesIn();
 					bytesOut += ac.getBytesOut();
 				}
 
-				// Init the bean
-				Bandwidth bw = new Bandwidth(new Date());
-				bw.setConnections(cons.size());
+				// Init the bean to store runing totals
+				Bandwidth lbw = new Bandwidth(new Date());
+				lbw.setConnections(stats.size());
+				lbw.setMessages(msgsIn, msgsOut);
+				lbw.setBytes(bytesIn, bytesOut);
+
+				// Init the bean to store period statistics
+				Bandwidth bw = new Bandwidth(lbw.getDate());
+				bw.setConnections(lbw.getConnections());
 				bw.setMessages(msgsIn - _lastBW.getMsgsIn(), msgsOut - _lastBW.getMsgsOut());
 				bw.setBytes(bytesIn - _lastBW.getBytesIn(), bytesOut - _lastBW.getBytesOut());
+				_lastBW = lbw;
 				
 				// Write the bean
 				Connection con = null;
@@ -98,7 +105,6 @@ public class BandwidthLogger extends Worker {
 					log.error(de.getMessage(), de);
 				} finally {
 					_jdbcPool.release(con);
-					_lastBW = bw;
 				}
 				
 				_status.complete();

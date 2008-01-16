@@ -35,7 +35,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
 	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
-	private final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
+	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
+	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
@@ -159,6 +160,18 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 
 	/**
+	 * Returns ACARS connection statistics.
+	 * @return a Collection of CollectionStats beans
+	 */
+	public Collection<ConnectionStats> getStatistics() {
+		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>();
+		results.addAll(_cons);
+		results.addAll(_disConStats);
+		_disConStats.clear();
+		return results;
+	}
+	
+	/**
 	 * Adds a new connection to the pool.
 	 * @param c the connection to add
 	 * @throws ACARSException if the connection exists, the pool is fool or a network error occurs
@@ -206,6 +219,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
 				con.close();
 				i.remove();
+				
+				// Add statistics
+				DisconnectionStats ds = new DisconnectionStats(con.getID());
+				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
+				ds.setBytes(con.getBytesIn(), con.getBytesOut());
+				_disConStats.add(ds);
 				disCons.add(con);
 			}
 		}
@@ -306,6 +325,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 				} catch (Exception e) {
 					con.close();
 					_cons.remove(con);
+					
+					// Add statistics
+					DisconnectionStats ds = new DisconnectionStats(con.getID()); 
+					ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
+					ds.setBytes(con.getBytesIn(), con.getBytesOut());
+					_disConStats.add(ds);
 					_disCon.add(con);
 				}
 			}
