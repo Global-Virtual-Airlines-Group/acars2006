@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -115,6 +115,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = new ConnectionEntry(ac.getID());
 				entry.setClientBuild(ac.getClientVersion());
+				entry.setBeta(ac.getBeta());
 				entry.setRemoteAddr(ac.getRemoteAddr());
 				entry.setRemoteHost(ac.getRemoteHost());
 				entry.setMessages(ac.getMsgsIn(), ac.getMsgsOut());
