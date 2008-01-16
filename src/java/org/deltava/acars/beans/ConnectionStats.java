@@ -2,13 +2,19 @@
 package org.deltava.acars.beans;
 
 /**
- * An interface to describe object that can return connection statistics..
+ * An interface to describe object that can return ACARS connection statistics..
  * @author Luke
  * @version 2.1
  * @since 2.1
  */
 
 public interface ConnectionStats extends java.io.Serializable {
+	
+	/**
+	 * Returns the ACARS connection ID.
+	 * @return the connection ID
+	 */
+	public long getID();
 
 	/**
 	 * Returns the number of messages received on this connection.
