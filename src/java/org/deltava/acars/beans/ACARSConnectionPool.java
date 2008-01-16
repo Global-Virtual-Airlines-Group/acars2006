@@ -167,7 +167,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 		// Check if we're already there
 		if (_cons.contains(c))
-			throw new ACARSException("Connection already in pool");
+			return;
 		else if (_cons.size() >= _maxSize)
 			throw new ACARSException("Connection Pool full");
 
