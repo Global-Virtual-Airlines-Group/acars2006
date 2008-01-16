@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -23,11 +23,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
-public class ACARSConnection implements Serializable, Comparable<ACARSConnection>, ViewEntry {
+public class ACARSConnection implements Serializable, Comparable<ACARSConnection>, ViewEntry, ConnectionStats {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
