@@ -329,7 +329,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 		// Update the counters
 		_bytesIn += _iBuffer.limit();
-		_msgsIn++;
 		_lastActivityTime = System.currentTimeMillis();
 
 		// Reset the decoder and decode into a char buffer - strip out ping nulls
@@ -370,6 +369,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		_msgBuffer.delete(0, ePos);
 
 		// Return the buffer
+		_msgsIn++;
 		return msgOut.toString();
 	}
 
