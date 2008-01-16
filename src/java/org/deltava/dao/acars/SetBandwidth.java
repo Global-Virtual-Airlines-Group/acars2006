@@ -71,11 +71,10 @@ public class SetBandwidth extends DAO {
 					+ "MAX(BYTES_IN+BYTES_OUT), MAX(MSGS_IN+MSGS_OUT) FROM acars.BANDWIDTH "
 					+ "WHERE (DURATION=?) AND (PERIOD >= ?) AND "
 					+ "(PERIOD < DATE_ADD(?, INTERVAL ? MINUTE)) GROUP BY HR");
-			_ps.setTimestamp(1, createTimestamp(sd));
-			_ps.setInt(2, interval);
-			_ps.setInt(3, 1);
+			_ps.setInt(1, interval);
+			_ps.setInt(2, 1);
+			_ps.setTimestamp(3, createTimestamp(sd));
 			_ps.setTimestamp(4, createTimestamp(sd));
-			_ps.setTimestamp(5, createTimestamp(sd));
 			_ps.setInt(5, interval);
 			executeUpdate(0);
 			
@@ -85,6 +84,7 @@ public class SetBandwidth extends DAO {
 			_ps.setInt(1, 1);
 			_ps.setTimestamp(2, createTimestamp(sd));
 			_ps.setTimestamp(3, createTimestamp(sd));
+			_ps.setInt(4, interval);
 			executeUpdate(1);
 			
 			// Commit
