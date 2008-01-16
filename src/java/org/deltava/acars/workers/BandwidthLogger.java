@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 public class BandwidthLogger extends Worker {
 	
 	private ConnectionPool _jdbcPool;
-	private Bandwidth _lastBW;
+	private final Map<Long, ConnectionStats> _lastBW = new HashMap<Long, ConnectionStats>();
 
 	/**
 	 * Initializes the Worker.
@@ -38,7 +38,6 @@ public class BandwidthLogger extends Worker {
 	 */
 	public void open() {
 		super.open();
-		_lastBW = new Bandwidth(new Date());
 		
 		// Get the connection pool
 		_jdbcPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
@@ -65,27 +64,32 @@ public class BandwidthLogger extends Worker {
 				long bytesIn = 0; long bytesOut = 0;
 				
 				// Get the connection statistics
+				Collection<Long> IDs = new HashSet<Long>(_lastBW.keySet());
 				Collection<ConnectionStats> stats = _pool.getStatistics();
 				for (Iterator<ConnectionStats> i = stats.iterator(); i.hasNext(); ) {
 					ConnectionStats ac = i.next();
-					msgsIn += ac.getMsgsIn();
-					msgsOut += ac.getMsgsOut();
-					bytesIn += ac.getBytesIn();
-					bytesOut += ac.getBytesOut();
+					Long ID = new Long(ac.getID());
+					ConnectionStats lastBW = _lastBW.get(ID);
+					if (lastBW == null)
+						lastBW = new ACARSConnectionStats(ac.getID());
+					
+					// Update totals
+					msgsIn += (ac.getMsgsIn() - lastBW.getMsgsIn());
+					msgsOut += (ac.getMsgsOut() - lastBW.getMsgsOut());
+					bytesIn += (ac.getBytesIn() - lastBW.getBytesIn());
+					bytesOut += (ac.getBytesOut() - lastBW.getBytesOut());
+					_lastBW.put(ID, new ACARSConnectionStats(ac));
+					IDs.remove(ID);
 				}
-
-				// Init the bean to store runing totals
-				Bandwidth lbw = new Bandwidth(new Date());
-				lbw.setConnections(stats.size());
-				lbw.setMessages(msgsIn, msgsOut);
-				lbw.setBytes(bytesIn, bytesOut);
+				
+				// Remove the unused entries
+				_lastBW.keySet().removeAll(IDs);
 
 				// Init the bean to store period statistics
-				Bandwidth bw = new Bandwidth(lbw.getDate());
-				bw.setConnections(lbw.getConnections());
-				bw.setMessages(msgsIn - _lastBW.getMsgsIn(), msgsOut - _lastBW.getMsgsOut());
-				bw.setBytes(bytesIn - _lastBW.getBytesIn(), bytesOut - _lastBW.getBytesOut());
-				_lastBW = lbw;
+				Bandwidth bw = new Bandwidth(new Date());
+				bw.setConnections(stats.size());
+				bw.setMessages(msgsIn, msgsOut);
+				bw.setBytes(bytesIn, bytesOut);
 				
 				// Write the bean
 				Connection con = null;

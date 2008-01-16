@@ -2,13 +2,13 @@
 package org.deltava.acars.beans;
 
 /**
- * A bean to store statistics about a disconnected ACARS connection. 
+ * A bean to store statistics about an ACARS connection. 
  * @author Luke
  * @version 2.1
  * @since 2.1
  */
 
-public class DisconnectionStats implements ConnectionStats {
+public class ACARSConnectionStats implements ConnectionStats {
 
 	private long _id;
 	private int _msgsIn;
@@ -21,9 +21,22 @@ public class DisconnectionStats implements ConnectionStats {
 	 * Initializes the bean.
 	 * @param id the Connection ID
 	 */
-	public DisconnectionStats(long id) {
+	public ACARSConnectionStats(long id) {
 		super();
 		_id = id;
+	}
+	
+	/**
+	 * Initializes the bean and copies data from an existing ACARS connection statistics bean.
+	 * @param con the ConnectionStats object
+	 * @throws NullPointerException if con is null
+	 */
+	public ACARSConnectionStats(ConnectionStats con) {
+		this(con.getID());
+		_msgsIn = con.getMsgsIn();
+		_msgsOut = con.getMsgsOut();
+		_bytesIn = con.getBytesIn();
+		_bytesOut = con.getBytesOut();
 	}
 	
 	/**

@@ -221,7 +221,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 				i.remove();
 				
 				// Add statistics
-				DisconnectionStats ds = new DisconnectionStats(con.getID());
+				ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
 				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
 				ds.setBytes(con.getBytesIn(), con.getBytesOut());
 				_disConStats.add(ds);
@@ -327,7 +327,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 					_cons.remove(con);
 					
 					// Add statistics
-					DisconnectionStats ds = new DisconnectionStats(con.getID()); 
+					ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
 					ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
 					ds.setBytes(con.getBytesIn(), con.getBytesOut());
 					_disConStats.add(ds);
