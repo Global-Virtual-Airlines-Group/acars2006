@@ -406,7 +406,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
 					if (_wSelector.select(250) > 0) {
-						_channel.write(_oBuffer);
+						_bytesOut += _channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
 							writeCount--;
@@ -421,7 +421,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 				}
 			}
 
-			_bytesOut += ofs;
 			_msgsOut++;
 		} catch (ClosedSelectorException cse) {
 			log.info("Cannot write to " + _remoteAddr.getHostAddress() + " - selector closed");
