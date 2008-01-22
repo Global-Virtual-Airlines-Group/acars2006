@@ -34,7 +34,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private static final int MAX_WRITE_ATTEMPTS = 32;
 
 	// Byte byffer decoder and character set
-	private transient final CharsetDecoder decoder = Charset.forName("ISO-8859-1").newDecoder();
+	private transient final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
 
 	private transient SocketChannel _channel;
 	private transient Selector _wSelector;
@@ -78,6 +78,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private long _bytesOut;
 	private int _msgsIn;
 	private int _msgsOut;
+	private int _bufferReads;
 	private int _bufferWrites;
 
 	/**
@@ -179,6 +180,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return _msgsOut;
 	}
 
+	public int getBufferReads() {
+		return _bufferReads;
+	}
+	
 	public int getBufferWrites() {
 		return _bufferWrites;
 	}
@@ -315,6 +320,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		// Try and read from the channel until end of stream
 		try {
 			_channel.read(_iBuffer);
+			_bufferReads++;
 		} catch (IOException ie) {
 			throw new SocketException("Error reading channel - " + ie.getMessage());
 		}

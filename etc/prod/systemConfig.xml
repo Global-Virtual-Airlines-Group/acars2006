@@ -111,7 +111,7 @@
 		<sleep type="Integer">30000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
-		<position_interval type="Integer">145</position_interval>
+		<position_interval type="Integer">45</position_interval>
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
@@ -123,7 +123,7 @@
 				<b92>1</b92>
 			</map>
 
-			<latest type="Integer">90</latest>
+			<latest type="Integer">91</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 
@@ -144,9 +144,9 @@
 		</pool>
 
 		<buffer>
-			<send type="Integer">20480</send>
-			<recv type="Integer">10240</recv>
-			<nio type="Integer">10240</nio>
+			<send type="Integer">32768</send>
+			<recv type="Integer">12288</recv>
+			<nio type="Integer">20480</nio>
 		</buffer>
 
 		<list name="login_msgs" attr="msg">
