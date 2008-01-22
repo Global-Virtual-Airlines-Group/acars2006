@@ -92,12 +92,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		// Get IP Address information
 		_remoteAddr = sc.socket().getInetAddress();
 
-		// Turn off blocking and get a write selector
+		// Get a write selector
 		try {
 			sc.configureBlocking(false);
 			_wSelector = Selector.open();
 			sc.register(_wSelector, SelectionKey.OP_WRITE);
-			sc.socket().setTcpNoDelay(false);
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress());

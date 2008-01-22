@@ -203,10 +203,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		if (_inactivityTimeout == -1)
 			return disCons;
 
-		// Get current time to save repeated system calls
-		long now = System.currentTimeMillis();
-
 		// Loop through the channels
+		long now = System.currentTimeMillis();
 		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 
@@ -236,13 +234,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	public ACARSConnection getFrom(String remoteAddr) {
 
 		// Loop through the connections
-		Iterator<ACARSConnection> i = _cons.iterator();
-		while (i.hasNext()) {
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.getRemoteAddr().equals(remoteAddr))
 				return c;
 		}
-
+		
 		// No connection from that address found, return false
 		return null;
 	}
@@ -261,7 +258,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 
 	public ACARSConnection get(long cid) {
-		for (Iterator<ACARSConnection> i = new ArrayList<ACARSConnection>(_cons).iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.getID() == cid)
 				return c;
