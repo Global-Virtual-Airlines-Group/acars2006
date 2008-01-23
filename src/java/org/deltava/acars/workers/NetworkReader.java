@@ -37,7 +37,7 @@ public final class NetworkReader extends Worker {
 	 * The name of the SystemData attribute to store blocked addresses.
 	 */
 	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
-	private Collection<String> _blockedAddrs;
+	private final Collection<String> _blockedAddrs = new HashSet<String>();
 
 	/**
 	 * Initializes the Worker.
@@ -56,15 +56,12 @@ public final class NetworkReader extends Worker {
 		else
 			con = new ACARSConnection(IDGenerator.generate(), sc);
 
-		// Check if the address is on the block list
+		// Check if the address is on the block list or from a banned user
 		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
 			log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
 			con.close();
 			return;
-		}
-		
-		// Check if the address is from a banned user
-		if (UserBlocker.isBanned(con.getRemoteAddr())) {
+		} else if (UserBlocker.isBanned(con.getRemoteAddr())) {
 			log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
 			con.close();
 			return;
@@ -90,7 +87,7 @@ public final class NetworkReader extends Worker {
 		// Get the socket and set various socket options
 		try {
 			Socket s = sc.socket();
-			s.setSoLinger(true, 1);
+			s.setSoLinger(false, 0);
 			s.setTcpNoDelay(true);
 			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
 			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
@@ -109,13 +106,18 @@ public final class NetworkReader extends Worker {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Initializes the worker.
+	 */
 	public final void open() {
 		super.open();
 		
 		// Load the list of blocked connections
-		_blockedAddrs = new HashSet<String>((Collection) SystemData.getObject("acars.block"));
+		_blockedAddrs.clear();
 		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
+		Collection addrs = (Collection) SystemData.getObject("acars.block");
+		for (Iterator i = addrs.iterator(); i.hasNext(); )
+			_blockedAddrs.add((String) i.next());
 
 		// Init the server socket
 		try {
@@ -128,11 +130,9 @@ public final class NetworkReader extends Worker {
 			ServerSocket socket = _channel.socket();
 			_channel.configureBlocking(false);
 
-			// Set the default receive buffer
-			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-
 			// Bind to the port
 			SocketAddress sAddr = new InetSocketAddress(SystemData.getInt("acars.port"));
+			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
 			socket.setReuseAddress(true);
 			socket.bind(sAddr);
 
@@ -194,6 +194,7 @@ public final class NetworkReader extends Worker {
 			}
 
 			// See if we have someone waiting to connect
+			long startTime = System.currentTimeMillis();
 			SelectionKey ssKey = _channel.keyFor(_cSelector);
 			if ((ssKey != null) && ssKey.isValid() && ssKey.isAcceptable()) {
 				try {
@@ -233,6 +234,11 @@ public final class NetworkReader extends Worker {
 					}
 				}
 			}
+			
+			// Check execution time
+			long execTime = System.currentTimeMillis() - startTime;
+			if (execTime > 2250)
+				log.warn("Excessive read time - " + execTime + "ms");
 			
 			// Log executiuon
 			_status.complete();

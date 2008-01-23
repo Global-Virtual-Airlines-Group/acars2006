@@ -121,6 +121,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 				entry.setRemoteHost(ac.getRemoteHost());
 				entry.setMessages(ac.getMsgsIn(), ac.getMsgsOut());
 				entry.setBytes(ac.getBytesIn(), ac.getBytesOut());
+				entry.setBufferReads(ac.getBufferReads());
 				entry.setBufferWrites(ac.getBufferWrites());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
