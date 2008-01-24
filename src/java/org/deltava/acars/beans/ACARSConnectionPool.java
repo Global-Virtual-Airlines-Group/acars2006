@@ -286,8 +286,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		return results;
 	}
 
-	public boolean isEmpty() {
-		return _cons.isEmpty();
+	public int size() {
+		return _cons.size();
 	}
 	
 	public boolean isDispatchOnline() {
