@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -210,7 +210,8 @@ public final class NetworkReader extends Worker {
 			}
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
-			if (!_pool.isEmpty()) {
+			long conTime = System.currentTimeMillis() - startTime;
+			if (_pool.size() > 0) {
 				_status.setMessage("Reading Inbound Messages");
 				Collection<TextEnvelope> msgs = _pool.read();
 				if (!msgs.isEmpty())
@@ -238,7 +239,8 @@ public final class NetworkReader extends Worker {
 			// Check execution time
 			long execTime = System.currentTimeMillis() - startTime;
 			if (execTime > 2250)
-				log.warn("Excessive read time - " + execTime + "ms");
+				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections), connection time = "
+						+ conTime + "ms");
 			
 			// Log executiuon
 			_status.complete();

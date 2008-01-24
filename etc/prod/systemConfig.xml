@@ -111,16 +111,15 @@
 		<sleep type="Integer">30000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
-		<position_interval type="Integer">45</position_interval>
+		<position_interval type="Integer">35</position_interval>
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>88</v2_0>
 				<v2_1>90</v2_1>
 			</map>
 
 			<map name="beta">
-				<b92>1</b92>
+				<b92>2</b92>
 			</map>
 
 			<latest type="Integer">91</latest>
@@ -137,15 +136,15 @@
 					<max type="Integer">4</max>
 				</logic>
 				<write>
-					<min type="Integer">2</min>
-					<max type="Integer">8</max>
+					<min type="Integer">1</min>
+					<max type="Integer">10</max>
 				</write>
 			</threads>
 		</pool>
 
 		<buffer>
 			<send type="Integer">32768</send>
-			<recv type="Integer">12288</recv>
+			<recv type="Integer">20480</recv>
 			<nio type="Integer">20480</nio>
 		</buffer>
 
@@ -154,7 +153,7 @@
 		</list>
 
 		<ack>
-			<ping type="Boolean">false</ping>
+			<ping type="Boolean">true</ping>
 			<position type="Boolean">true</position>
 			<text type="Boolean">false</text>
 		</ack>
