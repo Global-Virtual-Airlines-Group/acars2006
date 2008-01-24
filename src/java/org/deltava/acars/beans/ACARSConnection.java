@@ -388,7 +388,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		}
 	}
 
-	protected synchronized void write(String msg) {
+	protected void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
 
