@@ -3,17 +3,10 @@ package org.deltava.acars.workers;
 
 import java.util.*;
 import java.io.IOException;
+import java.nio.channels.Selector;
 
-import java.net.*;
-import java.nio.channels.*;
-
-import org.deltava.acars.*;
 import org.deltava.acars.beans.*;
-
 import org.deltava.acars.message.QuitMessage;
-import org.deltava.acars.security.UserBlocker;
-
-import org.deltava.beans.system.VersionInfo;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -26,18 +19,8 @@ import org.deltava.util.system.SystemData;
  */
 
 public final class NetworkReader extends Worker {
-
-	// System hello message
-	private static final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
-
+	
 	private Selector _cSelector;
-	private ServerSocketChannel _channel;
-
-	/**
-	 * The name of the SystemData attribute to store blocked addresses.
-	 */
-	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
-	private final Collection<String> _blockedAddrs = new HashSet<String>();
 
 	/**
 	 * Initializes the Worker.
@@ -46,98 +29,16 @@ public final class NetworkReader extends Worker {
 		super("Network I/O Reader", NetworkReader.class);
 	}
 
-	private void newConnection(SocketChannel sc) {
-		_status.setMessage("Opening connection from " + sc.socket().getInetAddress().getHostAddress());
-
-		// Create a new connection bean
-		ACARSConnection con = null;
-		if (SystemData.getBoolean("acars.debug"))
-			con = new ACARSDebugConnection(IDGenerator.generate(), sc);
-		else
-			con = new ACARSConnection(IDGenerator.generate(), sc);
-
-		// Check if the address is on the block list or from a banned user
-		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
-			log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
-			con.close();
-			return;
-		} else if (UserBlocker.isBanned(con.getRemoteAddr())) {
-			log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
-			con.close();
-			return;
-		}
-		
-		// Check if we have a connection from there already
-		if (!SystemData.getBoolean("acars.pool.multiple")) {
-			ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
-			boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
-			if ((oldCon != null) && oldCon.getIsDispatch())
-				log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher");
-			else if ((oldCon != null) && !killOld) {
-				con.close();
-				log.warn("Duplicate connection from " + con.getRemoteAddr());
-				return;
-			} else if (oldCon != null) {
-				oldCon.close();
-				log.warn("Closing original connection from " + con.getRemoteAddr());
-				_pool.remove(oldCon);
-			}
-		}
-
-		// Get the socket and set various socket options
-		try {
-			Socket s = sc.socket();
-			s.setSoLinger(false, 0);
-			s.setTcpNoDelay(true);
-			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
-			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-		} catch (SocketException se) {
-			log.error("Error setting socket options - " + se.getMessage(), se);
-		}
-
-		// Register the channel with the selector
-		log.info("New Connection from " + con.getRemoteAddr());
-		try {
-			_pool.add(con);
-			con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
-		} catch (ACARSException ae) {
-			log.error("Error adding to pool - " + ae.getMessage(), ae);
-			con.close();
-		}
-	}
-
 	/**
 	 * Initializes the worker.
 	 */
 	public final void open() {
 		super.open();
 		
-		// Load the list of blocked connections
-		_blockedAddrs.clear();
-		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
-		Collection addrs = (Collection) SystemData.getObject("acars.block");
-		for (Iterator i = addrs.iterator(); i.hasNext(); )
-			_blockedAddrs.add((String) i.next());
-
-		// Init the server socket
+		// Create the selector and attach it to the connection pool
 		try {
-			// Create the selector and attach it to the connection pool
 			_cSelector = Selector.open();
 			_pool.setSelector(_cSelector);
-
-			// Open the socket channel
-			_channel = ServerSocketChannel.open();
-			ServerSocket socket = _channel.socket();
-			_channel.configureBlocking(false);
-
-			// Bind to the port
-			SocketAddress sAddr = new InetSocketAddress(SystemData.getInt("acars.port"));
-			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-			socket.setReuseAddress(true);
-			socket.bind(sAddr);
-
-			// Add the server socket channel to the selector
-			_channel.register(_cSelector, SelectionKey.OP_ACCEPT);
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
 			throw new IllegalStateException(ie.getMessage());
@@ -145,8 +46,7 @@ public final class NetworkReader extends Worker {
 	}
 
 	/**
-	 * Shuts down the Worker. All existing connections the server socket will be closed.
-	 * @see Worker#close() 
+	 * Shuts down the Worker. All existing connections to the server socket will be closed.
 	 */
 	public final void close() {
 
@@ -164,14 +64,6 @@ public final class NetworkReader extends Worker {
 			i.remove();
 		}
 
-		// Try and close the server socket and the selector
-		try {
-			_channel.socket().close();
-			_cSelector.close();
-		} catch (IOException ie) {
-			log.error(ie.getMessage());
-		}
-
 		// Call the superclass close
 		super.close();
 	}
@@ -185,7 +77,7 @@ public final class NetworkReader extends Worker {
 
 		while (!Thread.currentThread().isInterrupted()) {
 			// Check for some data using our timeout value
-			_status.setMessage("Listening for new Connection");
+			_status.setMessage("Waiting for Data");
 			_status.execute();
 			try {
 				_cSelector.select(SystemData.getInt("acars.sleep"));
@@ -193,24 +85,8 @@ public final class NetworkReader extends Worker {
 				log.warn("Error on select - " + ie.getMessage());
 			}
 
-			// See if we have someone waiting to connect
-			long startTime = System.currentTimeMillis();
-			SelectionKey ssKey = _channel.keyFor(_cSelector);
-			if ((ssKey != null) && ssKey.isValid() && ssKey.isAcceptable()) {
-				try {
-					SocketChannel cc = _channel.accept();
-					if (cc != null)
-						newConnection(cc);
-				} catch (ClosedByInterruptException cie) {
-				} catch (IOException ie) {
-					log.error("Cannot accept connection - " + ie.getMessage(), ie);
-					_status.setStatus(WorkerStatus.STATUS_ERROR);
-					throw new RuntimeException("NetworkReader failure");
-				}
-			}
-
 			// Check if there are any messages waiting, and push them onto the raw input stack.
-			long conTime = System.currentTimeMillis() - startTime;
+			long startTime = System.currentTimeMillis();
 			if (_pool.size() > 0) {
 				_status.setMessage("Reading Inbound Messages");
 				Collection<TextEnvelope> msgs = _pool.read();
@@ -239,8 +115,7 @@ public final class NetworkReader extends Worker {
 			// Check execution time
 			long execTime = System.currentTimeMillis() - startTime;
 			if (execTime > 2250)
-				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections), connection time = "
-						+ conTime + "ms");
+				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections)");
 			
 			// Log executiuon
 			_status.complete();

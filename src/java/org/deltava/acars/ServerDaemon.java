@@ -125,12 +125,13 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		List<Worker> tasks = new ArrayList<Worker>();
 
 		// Init the singleton workers
+ 		tasks.add(new ConnectionHandler());
+ 		tasks.add(new NetworkReader());
 		tasks.add(new InputTranslator());
-		tasks.add(new NetworkReader());
+		tasks.add(new LogicProcessor());
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
-		tasks.add(new LogicProcessor());
 
 		// Try to init all of the worker threads
 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
