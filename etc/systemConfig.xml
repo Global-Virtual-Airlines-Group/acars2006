@@ -102,7 +102,7 @@
 		</map>
 
 		<port type="Integer">15527</port>
-		<sleep type="Integer">30000</sleep>
+		<sleep type="Integer">45000</sleep>
 		<timeout type="Integer">240</timeout>
 		<ban_length type="Integer">15</ban_length>
 		<position_interval type="Integer">125</position_interval>
@@ -113,10 +113,10 @@
 			</map>
 
 			<map name="beta">
-				<b92>1</b92>
+				<b92>3</b92>
 			</map>
 
-			<latest type="Integer">89</latest>
+			<latest type="Integer">91</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 
@@ -137,12 +137,12 @@
 		
 		<buffer>
 			<send type="Integer">20480</send>
-			<recv type="Integer">3072</recv>
-			<nio type="Integer">6144</nio>
+			<recv type="Integer">30720</recv>
+			<nio type="Integer">30720</nio>
 		</buffer>
 		
 		<ack>
-			<ping type="Boolean">false</ping>
+			<ping type="Boolean">true</ping>
 			<position type="Boolean">true</position>
 			<text type="Boolean">false</text>
 		</ack>

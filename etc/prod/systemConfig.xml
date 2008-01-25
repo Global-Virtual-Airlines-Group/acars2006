@@ -108,7 +108,7 @@
 		</map>
 
 		<port type="Integer">15527</port>
-		<sleep type="Integer">30000</sleep>
+		<sleep type="Integer">45000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
 		<position_interval type="Integer">35</position_interval>
@@ -144,8 +144,8 @@
 
 		<buffer>
 			<send type="Integer">32768</send>
-			<recv type="Integer">20480</recv>
-			<nio type="Integer">20480</nio>
+			<recv type="Integer">30720</recv>
+			<nio type="Integer">32768</nio>
 		</buffer>
 
 		<list name="login_msgs" attr="msg">
