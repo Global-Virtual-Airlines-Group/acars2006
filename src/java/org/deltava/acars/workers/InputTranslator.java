@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -24,7 +24,7 @@ public final class InputTranslator extends Worker {
 	 * Initializes the Worker.
 	 */
 	public InputTranslator() {
-		super("Input Stack Processor", InputTranslator.class);
+		super("Input Stack Processor", 30, InputTranslator.class);
 	}
 	
 	/**
