@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -36,7 +36,7 @@ public class LogicProcessor extends Worker {
 	 * Initializes the Worker.
 	 */
 	public LogicProcessor() {
-		super("Message Processor", LogicProcessor.class);
+		super("Message Processor", 40, LogicProcessor.class);
 	}
 
 	/**
@@ -48,6 +48,7 @@ public class LogicProcessor extends Worker {
 		int maxThreads = SystemData.getInt("acars.pool.threads.logic.max", minThreads);
 		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 2500, LogicProcessor.class);
 		_cmdPool.allowCoreThreadTimeOut(false);
+		_cmdPool.setSortBase(40);
 
 		// Initialize commands
 		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());

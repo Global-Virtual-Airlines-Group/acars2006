@@ -40,7 +40,7 @@ public class ConnectionHandler extends Worker {
 	 * Initializes the Worker.
 	 */
 	public ConnectionHandler() {
-		super("Connection Handler", ConnectionHandler.class);
+		super("Connection Handler", 10, ConnectionHandler.class);
 	}
 	
 	/**

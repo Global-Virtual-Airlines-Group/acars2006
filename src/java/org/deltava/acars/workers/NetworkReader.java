@@ -26,7 +26,7 @@ public final class NetworkReader extends Worker {
 	 * Initializes the Worker.
 	 */
 	public NetworkReader() {
-		super("Network I/O Reader", NetworkReader.class);
+		super("Network I/O Reader", 20, NetworkReader.class);
 	}
 
 	/**
@@ -79,15 +79,21 @@ public final class NetworkReader extends Worker {
 			// Check for some data using our timeout value
 			_status.setMessage("Waiting for Data");
 			_status.execute();
+			int consWaiting = 0;
 			try {
-				_cSelector.select(SystemData.getInt("acars.sleep"));
-			} catch (IOException ie) {
-				log.warn("Error on select - " + ie.getMessage());
+				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep"));
+			} catch (Exception e) {
+				log.warn("Error on select - " + e.getMessage());
+			}
+			
+			// Wait in case we just added a new connection
+			long startTime = 0;
+			synchronized (_pool) {
+				startTime = System.currentTimeMillis();
 			}
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
-			long startTime = System.currentTimeMillis();
-			if (_pool.size() > 0) {
+			if (consWaiting > 0) {
 				_status.setMessage("Reading Inbound Messages");
 				Collection<TextEnvelope> msgs = _pool.read();
 				if (!msgs.isEmpty())

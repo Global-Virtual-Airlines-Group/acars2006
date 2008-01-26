@@ -177,7 +177,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 * @param c the connection to add
 	 * @throws ACARSException if the connection exists, the pool is fool or a network error occurs
 	 */
-	public void add(ACARSConnection c) throws ACARSException {
+	public synchronized void add(ACARSConnection c) throws ACARSException {
 
 		// Check if we're already there
 		if (_cons.contains(c))
@@ -187,6 +187,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 		// Register the SocketChannel with the selector
 		try {
+			_cSelector.wakeup();
 			c.getChannel().register(_cSelector, SelectionKey.OP_READ);
 			_cons.add(c);
 		} catch (ClosedChannelException cce) {

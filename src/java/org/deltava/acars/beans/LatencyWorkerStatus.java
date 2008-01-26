@@ -1,10 +1,10 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 /**
  * A Worker status bean with a latency monitor.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 
@@ -15,10 +15,11 @@ public class LatencyWorkerStatus extends WorkerStatus {
 	/**
 	 * Initializes the status bean.
 	 * @param name the worker name
+	 * @param sortOrder the sort ordering value
 	 * @param entries the number of entries to track latency history for
 	 */
-	public LatencyWorkerStatus(String name, int entries) {
-		super(name);
+	public LatencyWorkerStatus(String name, int sortOrder, int entries) {
+		super(name, sortOrder);
 		_latency = new LatencyTracker(entries);
 	}
 

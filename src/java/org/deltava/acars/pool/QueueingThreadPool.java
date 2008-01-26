@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -10,9 +10,9 @@ import org.deltava.acars.beans.*;
 
 /**
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
- * continue to take work units even if the dynamic thread pool 
+ * continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 
@@ -20,6 +20,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	
 	protected Logger log;
 	private PoolWorkerFactory _tFactory;
+	private int _sortOrderBase;
 	
 	private final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
 	protected final BlockingQueue<PoolWorker> _queuedEntries = new LinkedBlockingQueue<PoolWorker>();
@@ -61,6 +62,14 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	}
 	
 	/**
+	 * Sets the base sort order for pool thread {@link WorkerStatus} beans.
+	 * @param sortBase the sort order base value
+	 */
+	public void setSortBase(int sortBase) {
+		_sortOrderBase = Math.max(0, sortBase);
+	}
+	
+	/**
 	 * Returns the status counters for each worker  bucket.
 	 * @return a Collection of WorkerStatus beans
 	 */
@@ -80,7 +89,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		PoolWorkerFactory.PoolThread pt = (PoolWorkerFactory.PoolThread) t;
 		LatencyWorkerStatus ws = _status.get(Integer.valueOf(pt.getID()));
 		if (ws == null) {
-			ws = new LatencyWorkerStatus(pt.getName(), 1024);
+			ws = new LatencyWorkerStatus(pt.getName(), _sortOrderBase + pt.getID(), 1024);
 			_status.put(Integer.valueOf(pt.getID()), ws);
 		}
 		
