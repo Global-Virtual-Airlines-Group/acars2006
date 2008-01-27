@@ -96,6 +96,7 @@ public class ConnectionHandler extends Worker {
 	
 	private void newConnection(SocketChannel sc) {
 		_status.setMessage("Opening connection from " + sc.socket().getInetAddress().getHostAddress());
+		long startTime = System.currentTimeMillis();
 
 		// Create a new connection bean
 		ACARSConnection con = null;
@@ -114,6 +115,11 @@ public class ConnectionHandler extends Worker {
 			con.close();
 			return;
 		}
+		
+		// Check execution time
+		long execTime = System.currentTimeMillis() - startTime;
+		if (execTime > 1250)
+			log.warn("Excessive connect time - " + execTime + "ms");
 		
 		// Check if we have a connection from there already
 		if (!SystemData.getBoolean("acars.pool.multiple")) {
@@ -142,6 +148,11 @@ public class ConnectionHandler extends Worker {
 		} catch (SocketException se) {
 			log.error("Error setting socket options - " + se.getMessage(), se);
 		}
+		
+		// Check execution time
+		execTime = System.currentTimeMillis() - startTime - execTime;
+		if (execTime > 1000)
+			log.warn("Excessive socket option time - " + execTime + "ms");
 
 		// Register the channel with the selector
 		log.info("New Connection from " + con.getRemoteAddr());
@@ -152,6 +163,11 @@ public class ConnectionHandler extends Worker {
 			log.error("Error adding to pool - " + ae.getMessage(), ae);
 			con.close();
 		}
+		
+		// Check execution time
+		execTime = System.currentTimeMillis() - startTime - execTime;
+		if (execTime > 1250)
+			log.warn("Excessive hello time - " + execTime + "ms");
 	}
 	
 	/**
@@ -162,7 +178,6 @@ public class ConnectionHandler extends Worker {
 		_status.setStatus(WorkerStatus.STATUS_START);
 		
 		while (!Thread.currentThread().isInterrupted()) {
-			// Check for some data using our timeout value
 			_status.setMessage("Listening for new Connection");
 			_status.execute();
 			try {
@@ -172,7 +187,6 @@ public class ConnectionHandler extends Worker {
 			}
 			
 			// See if we have someone waiting to connect
-			long startTime = System.currentTimeMillis();
 			SelectionKey ssKey = _channel.keyFor(_cSelector);
 			if ((ssKey != null) && ssKey.isValid() && ssKey.isAcceptable()) {
 				try {
@@ -186,11 +200,6 @@ public class ConnectionHandler extends Worker {
 					throw new RuntimeException("NetworkReader failure");
 				}
 			}
-			
-			// Check execution time
-			long execTime = System.currentTimeMillis() - startTime;
-			if (execTime > 2250)
-				log.warn("Excessive connect time - " + execTime + "ms");
 			
 			// Log executiuon
 			_status.complete();
