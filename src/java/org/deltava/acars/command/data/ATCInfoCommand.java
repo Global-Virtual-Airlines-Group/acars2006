@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -16,7 +16,7 @@ import org.deltava.util.servinfo.ServInfoLoader;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -70,9 +70,9 @@ public class ATCInfoCommand extends DataCommand {
 				info = new NetworkInfo(network);
 			} else
 				info = loader.getInfo();
-		} else if (info == null) {
+		} else if (info == null)
 			info = new NetworkInfo(network);
-		} else if (info.getExpired()) {
+		else if (info.getExpired()) {
 			synchronized (ServInfoLoader.class) {
 				if (!ServInfoLoader.isLoading(network)) {
 					log.info("Spawning new ServInfo load thread");
@@ -86,11 +86,12 @@ public class ATCInfoCommand extends DataCommand {
 		}
 
 		// Filter the controllers based on range from position
+		PositionMessage pmsg = ctx.getACARSConnection().getPosition();
 		ControllerMessage rspMsg = new ControllerMessage(env.getOwner(), msg.getID());
-		if (info != null)
-			rspMsg.addAll(info.getControllers(ctx.getACARSConnection().getPosition()));
+		if ((info != null) && (pmsg != null))
+			rspMsg.addAll(info.getControllers(pmsg));
 		
 		// Push the response
 		ctx.push(rspMsg, env.getConnectionID());
 	}
-}
+}	
