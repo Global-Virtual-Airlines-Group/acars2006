@@ -72,11 +72,12 @@ public class FilePIREPCommand extends ACARSCommand {
 		Connection con = null;
 		try {
 			con = ctx.getConnection();
-			GetFlightReports prdao = new GetFlightReports(con);
+			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
+			int flightID = (info == null) ? 0 : info.getFlightID();
 			
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
-			if ((info != null) && (info.getFlightID() != 0)) {
+			if (flightID != 0) {
 			   ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), info.getFlightID());
 			   if (afr2 != null) {
 			      ctx.release();
@@ -86,6 +87,16 @@ public class FilePIREPCommand extends ACARSCommand {
 			      ctx.push(ackMsg, ac.getID());
 			      return;
 			   }
+			} else {
+				List<FlightReport> dupes = prdao.checkDupes(usrLoc.getDB(), afr, usrLoc.getID());
+				if (dupes.size() > 0) {
+					ctx.release();
+
+			      // Log warning and return an ACK
+			      log.warn("Ignoring possible duplicate PIREP from " + ac.getUserID());
+			      ctx.push(ackMsg, ac.getID());
+			      return;
+				}
 			}
 
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
