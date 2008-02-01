@@ -22,11 +22,8 @@ import org.deltava.util.system.SystemData;
  * @since 2.1
  */
 
-public class ConnectionHandler extends Worker {
+public class ConnectionHandler extends Worker implements Thread.UncaughtExceptionHandler {
 	
-	// System hello message
-	private static final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
-
 	private Selector _cSelector;
 	private ServerSocketChannel _channel;
 
@@ -34,7 +31,82 @@ public class ConnectionHandler extends Worker {
 	 * The name of the SystemData attribute to store blocked addresses.
 	 */
 	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
-	private final Collection<String> _blockedAddrs = new HashSet<String>();
+	
+	/**
+	 * The list of blocked addresses.
+	 */
+	protected final Collection<String> _blockedAddrs = new HashSet<String>();
+	
+	private class ConnectWorker implements Runnable {
+
+		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
+
+		private SocketChannel _sc;
+		
+		ConnectWorker(SocketChannel c) {
+			super();
+			_sc = c;
+		}
+		
+		public void run() {
+			
+			// Create a new connection bean
+			ACARSConnection con = null;
+			if (SystemData.getBoolean("acars.debug"))
+				con = new ACARSDebugConnection(IDGenerator.generate(), _sc);
+			else
+				con = new ACARSConnection(IDGenerator.generate(), _sc);
+
+			// Check if the address is on the block list or from a banned user
+			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
+				log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
+				con.close();
+				return;
+			} else if (UserBlocker.isBanned(con.getRemoteAddr())) {
+				log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
+				con.close();
+				return;
+			}
+
+			// Check if we have a connection from there already
+			if (!SystemData.getBoolean("acars.pool.multiple")) {
+				ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
+				boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
+				if ((oldCon != null) && oldCon.getIsDispatch())
+					log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher");
+				else if ((oldCon != null) && !killOld) {
+					con.close();
+					log.warn("Duplicate connection from " + con.getRemoteAddr());
+					return;
+				} else if (oldCon != null) {
+					oldCon.close();
+					log.warn("Closing original connection from " + con.getRemoteAddr());
+					_pool.remove(oldCon);
+				}
+			}
+
+			// Get the socket and set various socket options
+			try {
+				Socket s = _sc.socket();
+				s.setSoLinger(false, 0);
+				s.setTcpNoDelay(true);
+				s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
+				s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
+			} catch (IOException ie) {
+				log.error("Error setting socket options - " + ie.getMessage(), ie);
+			}
+
+			// Register the channel with the selector
+			log.info("New Connection from " + con.getRemoteAddr());
+			try {
+				_pool.add(con);
+				con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
+			} catch (ACARSException ae) {
+				log.error("Error adding to pool - " + ae.getMessage(), ae);
+				con.close();
+			}
+		}
+	}
 	
 	/**
 	 * Initializes the Worker.
@@ -94,80 +166,11 @@ public class ConnectionHandler extends Worker {
 		super.close();
 	}
 	
-	private void newConnection(SocketChannel sc) {
-		_status.setMessage("Opening connection from " + sc.socket().getInetAddress().getHostAddress());
-		long startTime = System.currentTimeMillis();
-
-		// Create a new connection bean
-		ACARSConnection con = null;
-		if (SystemData.getBoolean("acars.debug"))
-			con = new ACARSDebugConnection(IDGenerator.generate(), sc);
-		else
-			con = new ACARSConnection(IDGenerator.generate(), sc);
-
-		// Check if the address is on the block list or from a banned user
-		if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
-			log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
-			con.close();
-			return;
-		} else if (UserBlocker.isBanned(con.getRemoteAddr())) {
-			log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
-			con.close();
-			return;
-		}
-		
-		// Check execution time
-		long execTime = System.currentTimeMillis() - startTime;
-		if (execTime > 1250)
-			log.warn("Excessive connect time - " + execTime + "ms");
-		
-		// Check if we have a connection from there already
-		if (!SystemData.getBoolean("acars.pool.multiple")) {
-			ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
-			boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
-			if ((oldCon != null) && oldCon.getIsDispatch())
-				log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher");
-			else if ((oldCon != null) && !killOld) {
-				con.close();
-				log.warn("Duplicate connection from " + con.getRemoteAddr());
-				return;
-			} else if (oldCon != null) {
-				oldCon.close();
-				log.warn("Closing original connection from " + con.getRemoteAddr());
-				_pool.remove(oldCon);
-			}
-		}
-
-		// Get the socket and set various socket options
-		try {
-			Socket s = sc.socket();
-			s.setSoLinger(false, 0);
-			s.setTcpNoDelay(true);
-			s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
-			s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-		} catch (SocketException se) {
-			log.error("Error setting socket options - " + se.getMessage(), se);
-		}
-		
-		// Check execution time
-		execTime = System.currentTimeMillis() - startTime - execTime;
-		if (execTime > 1000)
-			log.warn("Excessive socket option time - " + execTime + "ms");
-
-		// Register the channel with the selector
-		log.info("New Connection from " + con.getRemoteAddr());
-		try {
-			_pool.add(con);
-			con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
-		} catch (ACARSException ae) {
-			log.error("Error adding to pool - " + ae.getMessage(), ae);
-			con.close();
-		}
-		
-		// Check execution time
-		execTime = System.currentTimeMillis() - startTime - execTime;
-		if (execTime > 1250)
-			log.warn("Excessive hello time - " + execTime + "ms");
+	/**
+	 * Uncaught exception handler for Connection workers.
+	 */
+	public void uncaughtException(Thread t, Throwable e) {
+		log.error(t.getName() + " - " + e.getMessage(), e);
 	}
 	
 	/**
@@ -191,12 +194,20 @@ public class ConnectionHandler extends Worker {
 			if ((ssKey != null) && ssKey.isValid() && ssKey.isAcceptable()) {
 				try {
 					SocketChannel cc = _channel.accept();
-					if (cc != null)
-						newConnection(cc);
+					if (cc != null) {
+						String addr = cc.socket().getInetAddress().getHostAddress();
+						_status.setMessage("Opening connection from " + addr);
+						ConnectWorker wrk = new ConnectWorker(cc);
+						Thread wt = new Thread(wrk, "ConnectWorker-" + addr);
+						wt.setDaemon(true);
+						wt.setUncaughtExceptionHandler(this);
+						wt.start();
+					}
 				} catch (ClosedByInterruptException cie) {
 				} catch (IOException ie) {
 					log.error("Cannot accept connection - " + ie.getMessage(), ie);
 					_status.setStatus(WorkerStatus.STATUS_ERROR);
+					_status.complete();
 					throw new RuntimeException("NetworkReader failure");
 				}
 			}
