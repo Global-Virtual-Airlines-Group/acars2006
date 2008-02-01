@@ -95,9 +95,15 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 		// Get a write selector
 		try {
-			sc.configureBlocking(false);
 			_wSelector = Selector.open();
+			long startTime = System.currentTimeMillis();
+			sc.configureBlocking(false);
 			sc.register(_wSelector, SelectionKey.OP_WRITE);
+			
+			// Check execution time
+			long execTime = System.currentTimeMillis() - startTime;
+			if (execTime > 1250)
+				log.warn("Excessive connect time - " + execTime + "ms");
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress());
