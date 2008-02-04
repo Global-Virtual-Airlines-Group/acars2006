@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 
@@ -43,12 +43,14 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			Element re = new Element("route");
 			re.setAttribute("id", String.valueOf(rp.getID()));
 			re.setAttribute("useCount", String.valueOf(rp.getUseCount()));
+			re.addContent(XMLUtils.createElement("airline", rp.getAirline().getCode()));
 			re.addContent(formatAirport(rp.getAirportD(), "airportD"));
 			re.addContent(formatAirport(rp.getAirportA(), "airportA"));
 			if (rp.getAirportL() != null)
 				re.addContent(formatAirport(rp.getAirportL(), "airportL"));
 			re.addContent(XMLUtils.createElement("sid", rp.getSID()));
 			re.addContent(XMLUtils.createElement("star", rp.getSTAR()));
+			re.addContent(XMLUtils.createElement("cruiseAlt", rp.getCruiseAltitude()));
 			re.addContent(XMLUtils.createElement("comments", rp.getComments(), true));
 			
 			// Add the waypoints
