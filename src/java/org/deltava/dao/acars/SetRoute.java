@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -37,15 +37,18 @@ public class SetRoute extends DAO {
 			startTransaction();
 
 			// Write the data
-			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRPORT_D, AIRPORT_A, "
-					+ "AIRPORT_L, CREATEDON, USED, SID, STAR, REMARKS) VALUES (?, ?, ?, ?, NOW(), 1, ?, ?, ?)");
+			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRLINE, AIRPORT_D, "
+					+ "AIRPORT_A, AIRPORT_L, CREATEDON, USED, ALTITUDE, SID, STAR, REMARKS) VALUES "
+					+ "(?, ?, ?, ?, ?, NOW(), 1, ?, ?, ?, ?)");
 			_ps.setInt(1, msg.getSender().getID());
-			_ps.setString(2, msg.getAirportD().getIATA());
-			_ps.setString(3, msg.getAirportA().getIATA());
-			_ps.setString(4, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
-			_ps.setString(5, msg.getSID());
-			_ps.setString(6, msg.getSTAR());
-			_ps.setString(7, msg.getComments());
+			_ps.setString(2, msg.getAirline().getCode());
+			_ps.setString(3, msg.getAirportD().getIATA());
+			_ps.setString(4, msg.getAirportA().getIATA());
+			_ps.setString(5, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
+			_ps.setString(6, msg.getCruiseAltitude());
+			_ps.setString(7, msg.getSID());
+			_ps.setString(8, msg.getSTAR());
+			_ps.setString(9, msg.getComments());
 
 			// Save the data
 			_ps.executeUpdate();

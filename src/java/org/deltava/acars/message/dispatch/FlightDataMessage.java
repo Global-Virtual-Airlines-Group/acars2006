@@ -1,4 +1,4 @@
-// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -187,7 +187,7 @@ public class FlightDataMessage extends DispatchMessage {
 	}
 	
 	public void setNoSave(boolean noSave) {
-		_noSave = noSave;
+		_noSave = (_recipient != null) && noSave;
 	}
 	
 	public void setComments(String comments) {

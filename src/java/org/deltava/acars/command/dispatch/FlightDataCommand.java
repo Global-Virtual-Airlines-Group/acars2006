@@ -1,4 +1,4 @@
-// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -47,12 +47,18 @@ public class FlightDataCommand extends DispatchCommand {
 		
 		// Create the ACK message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
+		
+		// Check if this is saving a route
+		boolean isPlot = (msg.getRecipient() != null) && (msg.getRecipient().startsWith("$"));
 
 		// Get the recipient
-		Collection<ACARSConnection> dstC = ctx.getACARSConnections(msg.getRecipient());
-		if (dstC.isEmpty()) {
-			ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
-			log.warn("Cannot send dispatch message to " + msg.getRecipient());
+		Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
+		if (!isPlot) {
+			dstC.addAll(ctx.getACARSConnections(msg.getRecipient()));
+			if (dstC.isEmpty() && !isPlot) {
+				ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
+				log.warn("Cannot send dispatch message to " + msg.getRecipient());
+			}
 		}
 		
 		// Save the dispatch message data
@@ -70,10 +76,12 @@ public class FlightDataCommand extends DispatchCommand {
 		
 		// Send out the dispatch data
 		ackMsg.setEntry("msgs", String.valueOf(dstC.size()));
-		for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
-			ACARSConnection ac = i.next();
-			log.info("Dispatch info from " + usr.getPilotCode() + " to " + ac.getUserID());
-			ctx.push(msg, ac.getID());
+		if (!isPlot) {
+			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
+				ACARSConnection ac = i.next();
+				log.info("Dispatch info from " + usr.getPilotCode() + " to " + ac.getUserID());
+				ctx.push(msg, ac.getID());
+			}
 		}
 		
 		// Send out the ack
