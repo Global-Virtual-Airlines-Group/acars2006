@@ -75,6 +75,7 @@ public class FlightDataCommand extends DispatchCommand {
 		}
 		
 		// Send out the dispatch data
+		ackMsg.setEntry("routeID", String.valueOf(msg.getRouteID()));
 		ackMsg.setEntry("msgs", String.valueOf(dstC.size()));
 		if (!isPlot) {
 			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
