@@ -142,9 +142,10 @@ public final class SetInfo extends DAO {
 						+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
 				_ps.setInt(1, id);
 				_ps.setInt(2, tr.getType());
-				for (Iterator<NavigationDataBean> i = tr.getWaypoints().iterator(); i.hasNext(); ) {
-					Airway.AirwayIntersection ai = (Airway.AirwayIntersection) i.next();
-					_ps.setInt(3, ai.getSequence());
+				LinkedList<NavigationDataBean> wps = tr.getWaypoints();
+				for (int x = 0; x < wps.size(); x++) {
+					NavigationDataBean ai = wps.get(x);
+					_ps.setInt(3, x + 1);
 					_ps.setString(4, ai.getCode());
 					_ps.setDouble(5, ai.getLatitude());
 					_ps.setDouble(6, ai.getLongitude());
