@@ -2,6 +2,7 @@
 package org.deltava.acars.beans;
 
 import java.util.*;
+import java.util.concurrent.locks.*;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -37,6 +38,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
 	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
+	
+	// Pool read/write locks
+	private transient final ReentrantReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
+	private transient final Lock _rLock = _rwLock.readLock();
+	private transient final Lock _wLock = _rwLock.writeLock();
 
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
@@ -58,15 +64,19 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 * @return a Collection of MapEntry beans
 	 */
 	public Collection<RouteEntry> getMapEntries() {
-		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
-		Collection<RouteEntry> results = new LinkedHashSet<RouteEntry>(cons.size());
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-			RouteEntry re = RouteEntryHelper.build(con);
-			if (re != null)
-				results.add(re);
+		_rLock.lock();
+		Collection<RouteEntry> results = new LinkedHashSet<RouteEntry>(_cons.size());
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection con = i.next();
+				RouteEntry re = RouteEntryHelper.build(con);
+				if (re != null)
+					results.add(re);
+			}
+		} finally {
+			_rLock.unlock();
 		}
-
+		
 		return results;
 	}
 	
@@ -75,12 +85,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 * @return a Collection of byte arrays
 	 */
 	public Collection<byte[]> getSerializedInfo() {
-		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
-		Collection<RouteEntry> results = new ArrayList<RouteEntry>(cons.size());
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			RouteEntry re = RouteEntryHelper.build(i.next());
-			if (re != null)
-				results.add(re);
+		_rLock.lock();
+		Collection<RouteEntry> results = new ArrayList<RouteEntry>(_cons.size());
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				RouteEntry re = RouteEntryHelper.build(i.next());
+				if (re != null)
+					results.add(re);
+			}
+		} finally {
+			_rLock.unlock();
 		}
 		
 		return IPCUtils.serialize(results);
@@ -92,12 +106,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 */
 	public Collection<Integer> getFlightIDs() {
 		Collection<Integer> results = new TreeSet<Integer>();
-		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-			int id = con.getFlightID();
-			if (id != 0)
-				results.add(new Integer(id));
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection con = i.next();
+				int id = con.getFlightID();
+				if (id != 0)
+					results.add(new Integer(id));
+			}
+		} finally {
+			_rLock.unlock();
 		}
 		
 		return results;
@@ -109,9 +127,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 * @return a Collection of serialized ConnectionEntry beans
 	 */
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
-		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>(_cons);
-		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size());
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
+		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(_cons.size());
+		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = new ConnectionEntry(ac.getID());
@@ -189,9 +206,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		try {
 			_cSelector.wakeup();
 			c.getChannel().register(_cSelector, SelectionKey.OP_READ);
+			_wLock.lock();
 			_cons.add(c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce.getMessage());
+		} finally {
+			while (_rwLock.isWriteLockedByCurrentThread())
+				_wLock.unlock();
 		}
 	}
 
@@ -206,27 +227,33 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			return disCons;
 
 		// Loop through the channels
+		_wLock.lock();
 		long now = System.currentTimeMillis();
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection con = i.next();
 
-			// Calculate the inactivity timeout
-			long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
-			long idleTime = now - con.getLastActivity();
+				// Calculate the inactivity timeout
+				long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
+				long idleTime = now - con.getLastActivity();
 
-			// Have we exceeded the timeout interval
-			if (idleTime > timeout) {
-				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
-				con.close();
-				i.remove();
+				// Have we exceeded the timeout interval
+				if (idleTime > timeout) {
+					log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
+					con.close();
+					i.remove();
 				
-				// Add statistics
-				ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
-				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
-				ds.setBytes(con.getBytesIn(), con.getBytesOut());
-				_disConStats.add(ds);
-				disCons.add(con);
+					// Add statistics
+					ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
+					ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
+					ds.setBytes(con.getBytesIn(), con.getBytesOut());
+					_disConStats.add(ds);
+					disCons.add(con);
+				}
 			}
+		} finally {
+			while (_rwLock.isWriteLockedByCurrentThread())
+				_wLock.unlock();
 		}
 
 		// Return the list of dropped connections
@@ -234,12 +261,15 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 
 	public ACARSConnection getFrom(String remoteAddr) {
-
-		// Loop through the connections
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getRemoteAddr().equals(remoteAddr))
-				return c;
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getRemoteAddr().equals(remoteAddr))
+					return c;
+			}
+		} finally {
+			_rLock.unlock();
 		}
 		
 		// No connection from that address found, return false
@@ -247,12 +277,15 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 	
 	public ACARSConnection get(SocketChannel ch) {
-
-		// Loop through the connections
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getChannel().equals(ch))
-				return c;
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getChannel().equals(ch))
+					return c;
+			}
+		} finally {
+			_rLock.unlock();
 		}
 
 		// Return nothing if not found
@@ -260,10 +293,15 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 
 	public ACARSConnection get(long cid) {
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getID() == cid)
-				return c;
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getID() == cid)
+					return c;
+			}
+		} finally {
+			_rLock.unlock();
 		}
 
 		// Return nothing if not found
@@ -278,10 +316,15 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 		// Build results
 		Collection<ACARSConnection> results = new ArrayList<ACARSConnection>();
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getUserID().equalsIgnoreCase(pid))
-				results.add(c);
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getUserID().equalsIgnoreCase(pid))
+					results.add(c);
+			}
+		} finally {
+			_rLock.unlock();
 		}
 
 		return results;
@@ -292,10 +335,15 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 	
 	public boolean isDispatchOnline() {
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getIsDispatch())
-				return true;
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getIsDispatch())
+					return true;
+			}
+		} finally {
+			_rLock.unlock();
 		}
 		
 		return false;
@@ -322,8 +370,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 						results.add(env);
 					}
 				} catch (Exception e) {
-					con.close();
-					_cons.remove(con);
+					_wLock.lock();
+					try {
+						con.close();
+						_cons.remove(con);
+					} finally {
+						while (_rwLock.isWriteLockedByCurrentThread())
+							_wLock.unlock();
+					}
 					
 					// Add statistics
 					ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
@@ -347,8 +401,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		// Find the connection
 		int pos = _cons.indexOf(c);
 		if (pos != -1) {
-			c.close();
-			_cons.remove(pos);
+			try {
+				_wLock.lock();
+				_cons.remove(pos);
+				c.close();
+			} finally {
+				while (_rwLock.isWriteLockedByCurrentThread())
+					_wLock.unlock();
+			}
 		}
 	}
 
