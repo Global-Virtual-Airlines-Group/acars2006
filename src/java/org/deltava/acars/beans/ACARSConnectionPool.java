@@ -362,29 +362,31 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			// If the selection key is ready for reading, get the Connection and read
 			if ((sKey != null) && sKey.isValid() && sKey.isReadable()) {
 				ACARSConnection con = get((SocketChannel) sKey.channel());
-				try {
-					String msg = con.read();
-					if (msg != null) {
-						TextEnvelope env = new TextEnvelope(con.getUser(), msg, con.getID());
-						env.setVersion(con.getProtocolVersion());
-						results.add(env);
-					}
-				} catch (Exception e) {
-					_wLock.lock();
+				if (con != null) {
 					try {
-						con.close();
-						_cons.remove(con);
-					} finally {
-						while (_rwLock.isWriteLockedByCurrentThread())
-							_wLock.unlock();
+						String msg = con.read();
+						if (msg != null) {
+							TextEnvelope env = new TextEnvelope(con.getUser(), msg, con.getID());
+							env.setVersion(con.getProtocolVersion());
+							results.add(env);
+						}
+					} catch (Exception e) {
+						_wLock.lock();
+						try {
+							con.close();
+							_cons.remove(con);
+						} finally {
+							while (_rwLock.isWriteLockedByCurrentThread())
+								_wLock.unlock();
+						}
+						
+						// Add statistics
+						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
+						ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
+						ds.setBytes(con.getBytesIn(), con.getBytesOut());
+						_disConStats.add(ds);
+						_disCon.add(con);
 					}
-					
-					// Add statistics
-					ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
-					ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
-					ds.setBytes(con.getBytesIn(), con.getBytesOut());
-					_disConStats.add(ds);
-					_disCon.add(con);
 				}
 			}
 
