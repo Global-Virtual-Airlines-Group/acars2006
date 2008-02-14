@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <config env="dev" default="true">
 
 	<!-- Airline Information -->
@@ -93,7 +93,7 @@
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
 
 		<list name="block" attr="addr">
-			<addr>127.0.0.1</addr>
+			<!-- <addr>127.0.0.1</addr> -->
 		</list>
 
 		<!-- List of valid protocol revisions -->
@@ -109,14 +109,14 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_1>90</v2_1>
+				<v2_1>92</v2_1>
 			</map>
 
 			<map name="beta">
-				<b92>3</b92>
+				<b92>0</b92>
 			</map>
 
-			<latest type="Integer">91</latest>
+			<latest type="Integer">92</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 

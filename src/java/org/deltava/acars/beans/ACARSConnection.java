@@ -306,7 +306,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public String getRowClassName() {
 		return _isDispatch ? "opt2" : null;
 	}
-
+	
+	public int hashCode() {
+		return new Long(_id).hashCode();
+	}
+	
 	public int compareTo(ACARSConnection c2) {
 		if (!isAuthenticated())
 			return -1;
