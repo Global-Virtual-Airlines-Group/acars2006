@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -62,8 +62,6 @@ class FlightReportParser extends ElementParser {
 				afr.setAttribute(FlightReport.ATTR_IVAO, true);
 			else if (OnlineNetwork.FPI.equals(network))
 				afr.setAttribute(FlightReport.ATTR_FPI, true);
-			else if (OnlineNetwork.INTVAS.equals(network))
-				afr.setAttribute(FlightReport.ATTR_INTVAS, true);
 
 			// Set the times
 			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");

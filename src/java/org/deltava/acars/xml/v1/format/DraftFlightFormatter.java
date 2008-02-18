@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -53,8 +53,6 @@ class DraftFlightFormatter extends ElementFormatter {
 				fe.setAttribute("network", OnlineNetwork.IVAO);
 			else if (fr.hasAttribute(FlightReport.ATTR_FPI))
 				fe.setAttribute("network", OnlineNetwork.FPI);
-			else if (fr.hasAttribute(FlightReport.ATTR_INTVAS))
-				fe.setAttribute("network", OnlineNetwork.INTVAS);
 			
 			e.addContent(fe);
 		}
