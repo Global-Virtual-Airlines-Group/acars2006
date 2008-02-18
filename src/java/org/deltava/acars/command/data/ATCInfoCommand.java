@@ -1,6 +1,8 @@
 // Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.util.Collection;
+
 import org.deltava.acars.beans.MessageEnvelope;
 
 import org.deltava.acars.command.*;
@@ -11,6 +13,7 @@ import org.deltava.beans.servinfo.NetworkInfo;
 import org.deltava.dao.file.GetServInfo;
 
 import org.deltava.util.ThreadUtils;
+import org.deltava.util.system.SystemData;
 import org.deltava.util.servinfo.ServInfoLoader;
 
 /**
@@ -39,7 +42,8 @@ public class ATCInfoCommand extends DataCommand {
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		String network = msg.getFlag("network").toUpperCase();
-		if ("OFFLINE".equals(network))
+		Collection networkNames = (Collection) SystemData.getObject("online.networks");
+		if (!networkNames.contains(network))
 			return;
 
 		// Get the network info from the cache
@@ -48,7 +52,7 @@ public class ATCInfoCommand extends DataCommand {
 		
 		// If we get null, then block until we can load it; if we're expired, spawn a new loader thread
 		if ((info == null) && (!ServInfoLoader.isLoading(network))) {
-			log.info("Loading " + network + " data in main thread");
+			log.warn("Loading " + network + " data in main thread");
 			Thread t = null;
 			synchronized (ServInfoLoader.class) {
 				t = new Thread(loader, network + " ServInfo Loader");
@@ -75,7 +79,7 @@ public class ATCInfoCommand extends DataCommand {
 		else if (info.getExpired()) {
 			synchronized (ServInfoLoader.class) {
 				if (!ServInfoLoader.isLoading(network)) {
-					log.info("Spawning new ServInfo load thread");
+					log.warn("Spawning new ServInfo load thread");
 					Thread t = new Thread(loader, network + " ServInfo Loader");
 					t.setDaemon(true);
 					t.setPriority(Math.max(Thread.MIN_PRIORITY, Thread.currentThread().getPriority() - 1));
