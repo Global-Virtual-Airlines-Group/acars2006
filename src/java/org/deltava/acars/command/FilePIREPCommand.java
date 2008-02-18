@@ -7,6 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.RouteEntry;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.*;
@@ -114,8 +115,6 @@ public class FilePIREPCommand extends ACARSCommand {
 				int networkID = Event.NET_VATSIM;
 				if (afr.hasAttribute(FlightReport.ATTR_IVAO))
 					networkID = Event.NET_IVAO;
-				else if (afr.hasAttribute(FlightReport.ATTR_INTVAS))
-					networkID = Event.NET_INTVAS;
 				
 				// Load the event ID
 				GetEvent evdao = new GetEvent(con);
@@ -159,6 +158,19 @@ public class FilePIREPCommand extends ACARSCommand {
 			if ((a != null) && (afr.getDistance() > a.getRange()))
 				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
+			// Check for in-flight refueling
+			int fuelWeight = Integer.MAX_VALUE;
+			ctx.setMessage("Checking for In-Flight Refueling");
+			GetACARSData fddao = new GetACARSData(con);
+			List<RouteEntry> entries = fddao.getRouteEntries(flightID, false);
+			for (Iterator<RouteEntry> i = entries.iterator(); i.hasNext() && !afr.hasAttribute(FlightReport.ATTR_REFUELWARN); ) {
+				RouteEntry re = i.next();
+				if (re.getFuelRemaining() > (fuelWeight + 500))
+					afr.setAttribute(FlightReport.ATTR_REFUELWARN, true);
+				else if (fuelWeight > re.getFuelRemaining())
+					fuelWeight = re.getFuelRemaining();
+			}
+			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
 			GetSchedule sdao = new GetSchedule(con);
@@ -197,7 +209,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				info.setComplete(true);
 			} else {
 				afr.setFSVersion(2004);
-				log.warn("No Flight Information found for ACARS Connection");
+				log.warn("No Flight Information found for ACARS Connection for " + ac.getUserID());
 			}
 
 			// Update the checkride record (don't assume pilots check the box, because they don't)

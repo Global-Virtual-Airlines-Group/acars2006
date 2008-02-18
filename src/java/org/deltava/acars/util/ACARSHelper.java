@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -128,13 +128,9 @@ public class ACARSHelper {
 			afr.setAttribute(FlightReport.ATTR_VATSIM, true);
 		else if (OnlineNetwork.IVAO.equals(network))
 			afr.setAttribute(FlightReport.ATTR_IVAO, true);
-		else if (OnlineNetwork.FPI.equals(network))
-			afr.setAttribute(FlightReport.ATTR_FPI, true);
-		else if (OnlineNetwork.INTVAS.equals(network))
-			afr.setAttribute(FlightReport.ATTR_INTVAS, true);
 
 		// Get the Flight Simulator version
-		switch (Integer.parseInt(p.getProperty("fs_ver"))) {
+		switch (StringUtils.parse(p.getProperty("fs_ver"), 7)) {
 			case 2:
 				afr.setFSVersion(2000);
 				break;
