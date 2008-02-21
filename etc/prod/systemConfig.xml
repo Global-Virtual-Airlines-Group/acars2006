@@ -111,19 +111,19 @@
 		<sleep type="Integer">45000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
-		<position_interval type="Integer">35</position_interval>
+		<position_interval type="Integer">30</position_interval>
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
 				<v2_0>90</v2_0>
-				<v2_1>90</v2_1>
+				<v2_1>91</v2_1>
 			</map>
 
 			<map name="beta">
-				<b92>2</b92>
+				<b92>3</b92>
 			</map>
 
-			<latest type="Integer">91</latest>
+			<latest type="Integer">92</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 
