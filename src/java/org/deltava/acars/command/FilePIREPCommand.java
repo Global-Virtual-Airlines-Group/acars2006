@@ -159,7 +159,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
 			// Check for in-flight refueling
-			int fuelWeight = Integer.MAX_VALUE;
+			int fuelWeight = Integer.MAX_VALUE - 1000;
 			ctx.setMessage("Checking for In-Flight Refueling");
 			GetACARSData fddao = new GetACARSData(con);
 			List<RouteEntry> entries = fddao.getRouteEntries(flightID, false);
