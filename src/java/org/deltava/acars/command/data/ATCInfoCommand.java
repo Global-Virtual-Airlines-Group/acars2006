@@ -79,7 +79,7 @@ public class ATCInfoCommand extends DataCommand {
 		else if (info.getExpired()) {
 			synchronized (ServInfoLoader.class) {
 				if (!ServInfoLoader.isLoading(network)) {
-					log.warn("Spawning new ServInfo load thread");
+					log.info("Spawning new ServInfo load thread for " + network);
 					Thread t = new Thread(loader, network + " ServInfo Loader");
 					t.setDaemon(true);
 					t.setPriority(Math.max(Thread.MIN_PRIORITY, Thread.currentThread().getPriority() - 1));
