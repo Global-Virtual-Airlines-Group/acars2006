@@ -7,7 +7,6 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.RouteEntry;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.*;
@@ -159,17 +158,9 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
 			// Check for in-flight refueling
-			int fuelWeight = Integer.MAX_VALUE - 1000;
 			ctx.setMessage("Checking for In-Flight Refueling");
 			GetACARSData fddao = new GetACARSData(con);
-			List<RouteEntry> entries = fddao.getRouteEntries(flightID, false);
-			for (Iterator<RouteEntry> i = entries.iterator(); i.hasNext() && !afr.hasAttribute(FlightReport.ATTR_REFUELWARN); ) {
-				RouteEntry re = i.next();
-				if (re.getFuelRemaining() > (fuelWeight + 500))
-					afr.setAttribute(FlightReport.ATTR_REFUELWARN, true);
-				else if (fuelWeight > re.getFuelRemaining())
-					fuelWeight = re.getFuelRemaining();
-			}
+			afr.setAttribute(FlightReport.ATTR_REFUELWARN, fddao.checkRefuel(flightID, false));
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
