@@ -168,12 +168,15 @@ public class FilePIREPCommand extends ACARSCommand {
 			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
 			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
 			afr.setAttribute(FlightReport.ATTR_ACADEMY, isAcademy);
-
+			
+			// Check if this is a diversion
+			boolean isDivert = !afr.getAirportD().equals(info.getAirportD()) || !afr.getAirportA().equals(info.getAirportA());
+			
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			boolean isAssignment = (afr.getDatabaseID(FlightReport.DBID_ASSIGN) != 0);
 			int avgHours = sdao.getFlightTime(afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
-			if ((avgHours == 0) && (!isAcademy) && (!isAssignment)) {
+			if ((avgHours == 0) && (isDivert || ((!isAcademy) && (!isAssignment)))) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				if (!info.isScheduleValidated())
 					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
@@ -250,6 +253,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2750;
+		return 2500;
 	}
 }
