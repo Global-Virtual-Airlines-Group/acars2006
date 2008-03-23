@@ -180,11 +180,9 @@ public class LogicProcessor extends Worker {
 		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
-			_cmdPool.awaitTermination(1750, TimeUnit.MILLISECONDS);
+			_cmdPool.awaitTermination(3, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-		} finally {
-			super.close();
 		}
 		
 		flushLogs();
