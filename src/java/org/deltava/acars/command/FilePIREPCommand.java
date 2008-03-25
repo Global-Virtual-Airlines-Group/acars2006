@@ -107,6 +107,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setID(fr.getID());
 				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
+				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
 			}
 			
 			// Check if it's an Online Event flight
