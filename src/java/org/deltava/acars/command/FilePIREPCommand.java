@@ -108,6 +108,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
+				afr.setComments(fr.getComments());
 			}
 			
 			// Check if it's an Online Event flight
@@ -180,7 +181,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			if ((avgHours == 0) && (isDivert || ((!isAcademy) && (!isAssignment)))) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				if (!info.isScheduleValidated() && isDivert)
-					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, true);
+					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, !afr.hasAttribute(FlightReport.ATTR_CHARTER));
 			} else {
 				int minHours = (int) ((avgHours * 0.75) - 5); // fixed 0.5 hour pad
 				int maxHours = (int) ((avgHours * 1.15) + 5);
