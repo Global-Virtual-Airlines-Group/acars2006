@@ -73,7 +73,7 @@ public class FilePIREPCommand extends ACARSCommand {
 		try {
 			con = ctx.getConnection();
 			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
-			int flightID = (info == null) ? 0 : info.getFlightID();
+			int flightID = info.getFlightID();
 			
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
@@ -193,23 +193,18 @@ public class FilePIREPCommand extends ACARSCommand {
 			ctx.startTX();
 
 			// Get the position write DAO and write the positions
-			if (info != null) {
-				afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
-				afr.setFSVersion(info.getFSVersion());
-				if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
-					afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
+			afr.setFSVersion(info.getFSVersion());
+			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
+				afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
 				
-				// Mark the PIREP as filed
-				SetInfo idao = new SetInfo(con);
-				idao.logPIREP(info.getFlightID());
-				info.setComplete(true);
-			} else {
-				afr.setFSVersion(2004);
-				log.warn("No Flight Information found for ACARS Connection for " + ac.getUserID());
-			}
+			// Mark the PIREP as filed
+			SetInfo idao = new SetInfo(con);
+			idao.logPIREP(info.getFlightID());
+			info.setComplete(true);
 
 			// Update the checkride record (don't assume pilots check the box, because they don't)
-			if ((info != null) && afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
+			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
 				CheckRide cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
 				if (cr != null) {

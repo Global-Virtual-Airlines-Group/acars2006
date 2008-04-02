@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -127,35 +127,33 @@ public final class SetInfo extends DAO {
 			startTransaction();
 			
 			// Write the Route
-			if (tr != null) {
-				prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
-						+ "RUNWAY) VALUES (?, ?, ?, ?, ?)");
-				_ps.setInt(1, id);
-				_ps.setInt(2, tr.getType());
-				_ps.setString(3, tr.getName());
-				_ps.setString(4, tr.getTransition());
-				_ps.setString(5, tr.getRunway());
-				executeUpdate(1);
-			
-				// Write the route data
-				prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
-						+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
-				_ps.setInt(1, id);
-				_ps.setInt(2, tr.getType());
-				LinkedList<NavigationDataBean> wps = tr.getWaypoints();
-				for (int x = 0; x < wps.size(); x++) {
-					NavigationDataBean ai = wps.get(x);
-					_ps.setInt(3, x + 1);
-					_ps.setString(4, ai.getCode());
-					_ps.setDouble(5, ai.getLatitude());
-					_ps.setDouble(6, ai.getLongitude());
-					_ps.addBatch();
-				}
-				
-				// Write and clean up
-				_ps.executeBatch();
-				_ps.close();
+			prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
+				+ "RUNWAY) VALUES (?, ?, ?, ?, ?)");
+			_ps.setInt(1, id);
+			_ps.setInt(2, tr.getType());
+			_ps.setString(3, tr.getName());
+			_ps.setString(4, tr.getTransition());
+			_ps.setString(5, tr.getRunway());
+			executeUpdate(1);
+		
+			// Write the route data
+			prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
+					+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
+			_ps.setInt(1, id);
+			_ps.setInt(2, tr.getType());
+			LinkedList<NavigationDataBean> wps = tr.getWaypoints();
+			for (int x = 0; x < wps.size(); x++) {
+				NavigationDataBean ai = wps.get(x);
+				_ps.setInt(3, x + 1);
+				_ps.setString(4, ai.getCode());
+				_ps.setDouble(5, ai.getLatitude());
+				_ps.setDouble(6, ai.getLongitude());
+				_ps.addBatch();
 			}
+				
+			// Write and clean up
+			_ps.executeBatch();
+			_ps.close();
 			
 			// Commit
 			commitTransaction();
