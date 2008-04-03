@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.*;
@@ -24,7 +24,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -107,8 +107,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
 		_jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size"));
-		_jdbcPool.setProperties((Map<? extends Object, ? extends Object>) SystemData
-				.getObject("jdbc.connectProperties"));
+		_jdbcPool.setProperties((Map) SystemData.getObject("jdbc.connectProperties"));
 		_jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
 		_jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
 		_jdbcPool.setMaxRequests(SystemData.getInt("jdbc.max_reqs", 0));
