@@ -1,10 +1,8 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
 import java.util.*;
-
-import org.apache.log4j.Logger;
 
 import org.jdom.*;
 
@@ -16,13 +14,11 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A Parser for Position elements.
  * @author Luke
- * @version 1.0
+ * @version 2.1
  * @since 1.0
  */
 
 class PositionParser extends ElementParser {
-	
-	private static final Logger log = Logger.getLogger(PositionParser.class);
 	
 	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 	
