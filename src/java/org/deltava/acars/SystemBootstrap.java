@@ -55,6 +55,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	 */
 	public void contextDestroyed(ServletContextEvent e) {
 		_dGroup.interrupt();
+		_daemons.clear();
 		
 		// If ACARS is enabled, then clean out the active flags
 		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
@@ -73,7 +74,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 
 		// Shut down the JDBC connection pool
-		ThreadUtils.kill(_dGroup, 2000);
+		ThreadUtils.kill(_dGroup, 2500);
 		_jdbcPool.close();
 		
 		// Deregister JDBC divers
