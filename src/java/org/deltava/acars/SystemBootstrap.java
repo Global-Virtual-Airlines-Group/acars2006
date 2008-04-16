@@ -45,9 +45,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		PropertyConfigurator.configure(getClass().getResource("/etc/log4j.properties"));
 		SystemBootstrap.log = Logger.getLogger(SystemBootstrap.class);
 		log.info("Initialized log4j");
-		
-		// Set default character set
-		System.setProperty("mail.mime.charset", "UTF-8");
 	}
 	
 	/**
