@@ -118,6 +118,17 @@ public class LogicProcessor extends Worker {
 			boolean isAuthenticated = (_env.getOwner() != null);
 			if (isAuthenticated == msg.isAnonymous()) {
 				log.error(Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID());
+				
+				// Return an ACK requesting a login
+				if (!isAuthenticated) {
+					AcknowledgeMessage ackMsg = new AcknowledgeMessage(null, msg.getID());
+					ackMsg.setEntry("auth", "true");
+					ackMsg.setTime(msg.getTime());
+					MessageEnvelope env = new MessageEnvelope(ackMsg, _env.getConnectionID());
+					env.setCritical(true);
+					MSG_OUTPUT.add(env);
+				}
+					
 				return;
 			}
 			
