@@ -2,11 +2,9 @@
 package org.deltava.dao.acars;
 
 import java.sql.*;
-import java.util.*;
 
 import org.deltava.acars.message.InfoMessage;
 
-import org.deltava.beans.navdata.*;
 import org.deltava.dao.*;
 
 /**
@@ -96,71 +94,6 @@ public final class SetInfo extends DAO {
 	   } catch (SQLException se) {
 	      throw new DAOException(se);
 	   }
-	}
-	
-	/**
-	 * Deletes a Flight's SID/STAR data from the datbase.
-	 * @param id the Flight ID
-	 * @throws DAOException if a JDBC error occurs
-	 */
-	public void clearSIDSTAR(int id) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("DELETE FROM acars.FLIGHT_SIDSTAR WHERE (ID=?)");
-			_ps.setInt(1, id);
-			executeUpdate(0);
-		} catch (SQLException se) {
-			throw new DAOException(se);
-		}
-	}
-	
-	/**
-	 * Writes a Flight's SID/STAR data to the database.
-	 * @param id the Flight ID
-	 * @param tr the TerminalRoute bean
-	 * @throws DAOException if a JDBC error occurs
-	 */
-	public void writeSIDSTAR(int id, TerminalRoute tr) throws DAOException {
-		if (tr == null)
-			return;
-		
-		try {
-			startTransaction();
-			
-			// Write the Route
-			prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR (ID, TYPE, NAME, TRANSITION, "
-				+ "RUNWAY) VALUES (?, ?, ?, ?, ?)");
-			_ps.setInt(1, id);
-			_ps.setInt(2, tr.getType());
-			_ps.setString(3, tr.getName());
-			_ps.setString(4, tr.getTransition());
-			_ps.setString(5, tr.getRunway());
-			executeUpdate(1);
-		
-			// Write the route data
-			prepareStatementWithoutLimits("REPLACE INTO acars.FLIGHT_SIDSTAR_WP (ID, TYPE, SEQ, CODE, LATITUDE, "
-					+ "LONGITUDE) VALUES (?, ? ,?, ?, ?, ?)");
-			_ps.setInt(1, id);
-			_ps.setInt(2, tr.getType());
-			LinkedList<NavigationDataBean> wps = tr.getWaypoints();
-			for (int x = 0; x < wps.size(); x++) {
-				NavigationDataBean ai = wps.get(x);
-				_ps.setInt(3, x + 1);
-				_ps.setString(4, ai.getCode());
-				_ps.setDouble(5, ai.getLatitude());
-				_ps.setDouble(6, ai.getLongitude());
-				_ps.addBatch();
-			}
-				
-			// Write and clean up
-			_ps.executeBatch();
-			_ps.close();
-			
-			// Commit
-			commitTransaction();
-		} catch (SQLException se) {
-			rollbackTransaction();
-			throw new DAOException(se);
-		}
 	}
 	
 	/**

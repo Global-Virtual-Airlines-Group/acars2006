@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import org.deltava.dao.acars.SetInfo;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 2.0
+ * @version 2.1
  * @since 1.0
  */
 
@@ -110,12 +110,15 @@ public class InfoCommand extends ACARSCommand {
 			// Start a transaction
 			ctx.startTX();
 			
-			// Write the flight information and SID/STAR data
+			// Write the flight information
 			SetInfo iwdao = new SetInfo(c);
 			iwdao.write(msg, env.getConnectionID());
-			iwdao.clearSIDSTAR(msg.getFlightID());
-			iwdao.writeSIDSTAR(msg.getFlightID(), sid);
-			iwdao.writeSIDSTAR(msg.getFlightID(), star);
+			
+			// Write the SID/STAR data
+			SetACARSData dwdao = new SetACARSData(c);
+			dwdao.clearSIDSTAR(msg.getFlightID());
+			dwdao.writeSIDSTAR(msg.getFlightID(), sid);
+			dwdao.writeSIDSTAR(msg.getFlightID(), star);
 			
 			// Commit the transaction
 			ctx.commitTX();
