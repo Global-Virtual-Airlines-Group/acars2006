@@ -109,6 +109,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
 				afr.setComments(fr.getComments());
+				afr.setRemarks(fr.getRemarks());
 			}
 			
 			// Check if it's an Online Event flight
@@ -153,11 +154,17 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (a == null) {
 				log.warn("Invalid equipment type from " + p.getName() + " - " + afr.getEquipmentType());
 				afr.setEquipmentType(p.getEquipmentType());
-			}
+			} else {
+				// Check for excessive distance
+				if (afr.getDistance() > a.getRange())
+					afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 			
-			// Check for excessive distance
-			if ((a != null) && (afr.getDistance() > a.getRange()))
-				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
+				// Check for excessive weight
+				if ((a.getMaxTakeoffWeight() != 0) && (afr.getTakeoffWeight() > a.getMaxTakeoffWeight())) 
+					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+				else if ((a.getMaxLandingWeight()  != 0) && (afr.getLandingWeight() > a.getMaxLandingWeight()))
+					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+			}
 			
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
