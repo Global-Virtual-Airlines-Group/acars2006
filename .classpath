@@ -8,6 +8,6 @@
 	<classpathentry kind="lib" path="/DVA2006/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/deploy/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="/DVA2006/lib/deploy/jdom-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
