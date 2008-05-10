@@ -113,10 +113,10 @@
 			</map>
 
 			<map name="beta">
-				<b92>0</b92>
+				<b93>1</b93>
 			</map>
 
-			<latest type="Integer">92</latest>
+			<latest type="Integer">93</latest>
 			<dispatch type="Integer">1</dispatch>
 		</build>
 
