@@ -22,7 +22,7 @@ import org.deltava.util.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -89,6 +89,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			   }
 			} else {
 				List<FlightReport> dupes = prdao.checkDupes(usrLoc.getDB(), afr, usrLoc.getID());
+				dupes.addAll(prdao.checkDupes(usrLoc.getDB(), flightID));
 				if (dupes.size() > 0) {
 					ctx.release();
 
