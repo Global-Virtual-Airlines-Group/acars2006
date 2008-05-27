@@ -28,7 +28,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -56,14 +56,13 @@ public class AuthenticateCommand extends ACARSCommand {
 		int minBuild = Integer.MAX_VALUE;
 		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
 		if (msg.isDispatch())
-			minBuild = SystemData.getInt("acars.build.dispatch");
+			minBuild = cInfo.getMinimumDispatchBuild();
 		else
 			minBuild = cInfo.getMinimumBuild(msg.getVersion());
 
 		// Check the minimum build number
 		if (msg.getClientBuild() < minBuild) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg
-					.getID());
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if (minBuild == Integer.MAX_VALUE) {
 				errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
 				log.warn(errMsg.getEntry("error"));

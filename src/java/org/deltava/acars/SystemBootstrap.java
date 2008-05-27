@@ -24,7 +24,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -197,6 +197,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			int build = StringUtils.parse(ver.substring(1), 0);
 			cInfo.setMinimumBetaBuild(build, StringUtils.parse(minBuilds.get(ver).toString(), 0));
 		}
+		
+		// Set dispatch build
+		cInfo.setMinimumDispatchBuild(SystemData.getInt("acars.build.dispatch", 1));
 		
 		// Start the ACARS/Mailer/IPC daemons
 		Runnable tcDaemon = new TomcatDaemon();
