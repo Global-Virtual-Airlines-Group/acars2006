@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 2.1
  */
 
@@ -61,6 +61,7 @@ class DispatchInfoParser extends ElementParser {
 		
 		// Get the waypoints
 		Element rse = e.getChild("route");
+		msg.setRoute(rse.getChildTextTrim("text"));
 		for (Iterator i = rse.getChildren("waypoint").iterator(); i.hasNext(); ) {
 			Element wpe = (Element) i.next();
 			double lat = StringUtils.parse(wpe.getAttributeValue("lat"), 0.0);

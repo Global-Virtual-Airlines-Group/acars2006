@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.1
  */
 
@@ -28,10 +28,13 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	private String _eqType;
 	private String _cruiseAlt;
-	private final Collection<RouteWaypoint> _route = new LinkedHashSet<RouteWaypoint>();
+	
 	private Airport _airportD;
 	private Airport _airportA;
 	private Airport _airportL;
+	
+	private final Collection<RouteWaypoint> _route = new LinkedHashSet<RouteWaypoint>();
+	private String _routeText;
 	
 	private String _sid;
 	private String _star;
@@ -121,12 +124,20 @@ public class FlightDataMessage extends DispatchMessage {
 		return _route;
 	}
 	
+	public String getRoute() {
+		return _routeText;
+	}
+	
 	public void addWaypoint(RouteWaypoint wp) {
 		_route.add(wp);
 	}
 	
 	public void setRouteID(int id) {
 		_routeID = id;
+	}
+	
+	public void setRoute(String route) {
+		_routeText = route;
 	}
 	
 	public void setEquipmentType(String eqType) {

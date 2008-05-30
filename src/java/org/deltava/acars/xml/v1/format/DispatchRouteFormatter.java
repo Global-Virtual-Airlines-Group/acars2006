@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 2.0
  */
 
@@ -52,6 +52,7 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			re.addContent(XMLUtils.createElement("star", rp.getSTAR()));
 			re.addContent(XMLUtils.createElement("cruiseAlt", rp.getCruiseAltitude()));
 			re.addContent(XMLUtils.createElement("comments", rp.getComments(), true));
+			re.addContent(XMLUtils.createElement("route", rp.getRoute(), true));
 			
 			// Add the waypoints
 			Element wpe = new Element("waypoints");
