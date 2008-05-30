@@ -13,7 +13,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * A Data Access Object to write routes into the database.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 2.0
  */
 
@@ -38,8 +38,8 @@ public class SetRoute extends DAO {
 
 			// Write the data
 			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRLINE, AIRPORT_D, "
-					+ "AIRPORT_A, AIRPORT_L, CREATEDON, USED, ALTITUDE, SID, STAR, REMARKS) VALUES "
-					+ "(?, ?, ?, ?, ?, NOW(), 1, ?, ?, ?, ?)");
+					+ "AIRPORT_A, AIRPORT_L, CREATEDON, USED, ALTITUDE, SID, STAR, REMARKS, ROUTE) VALUES "
+					+ "(?, ?, ?, ?, ?, NOW(), 1, ?, ?, ?, ?, ?)");
 			_ps.setInt(1, msg.getSender().getID());
 			_ps.setString(2, msg.getAirline().getCode());
 			_ps.setString(3, msg.getAirportD().getIATA());
@@ -49,6 +49,7 @@ public class SetRoute extends DAO {
 			_ps.setString(7, msg.getSID());
 			_ps.setString(8, msg.getSTAR());
 			_ps.setString(9, msg.getComments());
+			_ps.setString(10, msg.getRoute());
 
 			// Save the data
 			_ps.executeUpdate();
