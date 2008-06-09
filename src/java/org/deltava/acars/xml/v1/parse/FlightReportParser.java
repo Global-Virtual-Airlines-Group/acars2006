@@ -4,6 +4,8 @@ package org.deltava.acars.xml.v1.parse;
 import java.text.*;
 import java.util.Date;
 
+import org.jdom.Document;
+
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.Airport;
 
@@ -18,7 +20,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -108,7 +110,9 @@ class FlightReportParser extends ElementParser {
 			msg.setPIREP(afr);
 		} catch (Exception ex) {
 			log.error("Error submitting PIREP from " + user.getPilotCode());
-			log.error(XMLUtils.format(e), ex);
+			Document doc = new Document();
+			doc.setRootElement(e);
+			log.error(XMLUtils.format(doc, "UTF-8"), ex);
 			throw new XMLException(ex.getMessage());
 		}
 
