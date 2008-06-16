@@ -1,17 +1,15 @@
+// Copyright 2004, 2005, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
 
-import org.deltava.dao.DAO;
-import org.deltava.dao.DAOException;
-
+import org.deltava.dao.*;
 import org.deltava.acars.beans.ACARSConnection;
-import org.deltava.beans.Pilot;
 
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -25,29 +23,28 @@ public final class SetConnection extends DAO {
 		super(c);
 	}
 	
+	/**
+	 * Logs an ACARS Connection record to the database.
+	 * @param c the ACARSConnection bean
+	 * @throws DAOException if a JDBC error occurs
+	 */
 	public void add(ACARSConnection c) throws DAOException {
-		
-		// Get the user information bean from the connection
-		Pilot usr = c.getUser();
-		if (usr == null)
-			throw new DAOException("Connection not Authenticated"); 
+		if (c.getUser() == null)
+			return;
 		
 		try {
-			// Init the prepared statement
-			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD) "
-			      + "VALUES (?, ?, ?, INET_ATON(?), ?, ?)");
+			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, " +
+					"CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, INET_ATON(?), ?, ?, ?)");
 			
 			// Set the prepared statement
 			_ps.setLong(1, c.getID());
-			_ps.setInt(2, usr.getID());
+			_ps.setInt(2, c.getUser().getID());
 			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
 			_ps.setString(4, c.getRemoteAddr());
 			_ps.setString(5, c.getRemoteHost());
 			_ps.setInt(6, c.getClientVersion());
-			
-			// Execute the prepared statement and close
-			_ps.executeUpdate();
-			_ps.close();
+			_ps.setInt(7, c.getBeta());
+			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se.getMessage());
 		}
