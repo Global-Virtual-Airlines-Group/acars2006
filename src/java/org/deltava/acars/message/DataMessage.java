@@ -1,4 +1,4 @@
-// Copyright 2005 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,7 +7,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS data request/response message.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -41,10 +41,11 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_DRAFTPIREP = 15;
 	public static final int REQ_TS2SERVERS = 16;
 	public static final int REQ_SCHED = 17;
+	public static final int REQ_NATS = 18;
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
-		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched"};
+		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat"};
 
 	/**
 	 * Creates the message.
