@@ -40,7 +40,7 @@ class FlightReportParser extends ElementParser {
 		// Build the PIREP
 		ACARSFlightReport afr = ACARSHelper.create(getChildText(e, "flightcode", "001"));
 		try {
-			afr.setLeg(Integer.parseInt(getChildText(e, "leg", "1")));
+			afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
 			afr.setAttribute(FlightReport.ATTR_ACARS, true);
 			afr.setDatabaseID(FlightReport.DBID_ACARS, Integer.parseInt(e.getChildTextTrim("flightID")));
 			afr.setDatabaseID(FlightReport.DBID_PILOT, user.getID());
@@ -52,6 +52,8 @@ class FlightReportParser extends ElementParser {
 			afr.setAirportD(getAirport(e.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(getAirport(e.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(e.getChildText("remarks"));
+			afr.setFDE(getChildText(e, "fde", null));
+			afr.setAircraftCode(getChildText(e, "code", null));
 
 			// Check if it's a checkride
 			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());

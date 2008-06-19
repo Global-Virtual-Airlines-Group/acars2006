@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -87,7 +87,7 @@ public class ACARSHelper {
 			a = SystemData.getAirline((String) aCodes.get(aCode.toString().toLowerCase()));
 		}
 
-		return new ACARSFlightReport(a, Integer.parseInt(fCode.toString()), 1);
+		return new ACARSFlightReport(a, StringUtils.parse(fCode.toString(), 1), 1);
 	}
 
 	/**
