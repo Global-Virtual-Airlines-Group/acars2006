@@ -39,12 +39,17 @@ public class OceanicTrackCommand extends DataCommand {
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		OceanicTrackMessage rspMsg = new OceanicTrackMessage(env.getOwner(), msg.getID());
+		for (Iterator<? extends OceanicWaypoints> i = OceanicWaypoints.CONC_ROUTES.iterator(); i.hasNext(); ) {
+			OceanicWaypoints route = i.next();
+			rspMsg.add(route);
+		}
 		
 		// Get the date
 		Date dt = msg.hasFlag("date") ? StringUtils.parseDate(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
 			GetRoute dao = new GetRoute(ctx.getConnection());
 			rspMsg.addAll(dao.getOceanicTrakcs(OceanicRoute.NAT, dt).values());
+
 		} catch (DAOException de) {
 			log.error("Error loading NAT tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
