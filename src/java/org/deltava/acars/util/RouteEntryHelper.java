@@ -12,10 +12,11 @@ import org.deltava.acars.message.InfoMessage;
 import org.deltava.acars.message.PositionMessage;
 
 /**
- * A utility class to turn PositionMessages into RouteEntry beans.
+ * A utility class to turn PositionMessages into MapRouteEntry beans.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
+ * @see MapRouteEntry
  */
 
 public class RouteEntryHelper {
@@ -35,7 +36,7 @@ public class RouteEntryHelper {
 			return null;
 
 		// Build the NamedRouteEntry
-		NamedRouteEntry result = new NamedRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
+		MapRouteEntry result = new MapRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
 		result.setClientBuild(con.getClientVersion());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
