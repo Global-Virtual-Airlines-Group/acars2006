@@ -2,6 +2,7 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import org.jdom.*;
 import org.jdom.output.*;
@@ -18,25 +19,36 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
 public final class OutputDispatcher extends Worker {
 
 	private final Map<Integer, MessageFormatter> _formatters = new HashMap<Integer, MessageFormatter>();
+	
 	private final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
+	private final XMLOutputter _tinyOut = new XMLOutputter(Format.getCompactFormat().setEncoding("UTF-8"));
 
 	private class DatedDocument extends Document {
 
+		private boolean _isCompact;
 		private long _time = Long.MAX_VALUE;
 
 		DatedDocument(Element el) {
 			super(el);
 		}
+		
+		boolean isCompact() {
+			return _isCompact;
+		}
 
-		public long getTime() {
+		long getTime() {
 			return _time;
+		}
+		
+		public void setCompact(boolean isCompact) {
+			_isCompact = isCompact;
 		}
 
 		public void setTime(long time) {
@@ -92,7 +104,7 @@ public final class OutputDispatcher extends Worker {
 			Map<Long, DatedDocument> docs = new HashMap<Long, DatedDocument>();
 
 			try {
-				MessageEnvelope env = MSG_OUTPUT.take();
+				MessageEnvelope env = MSG_OUTPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
 
 				// Translate and dispatch the messages on the bean output stack
@@ -152,7 +164,8 @@ public final class OutputDispatcher extends Worker {
 						Pilot user = users.get(conID);
 
 						// Convert the document to text
-						String xml = _xmlOut.outputString(doc);
+						XMLOutputter out = doc.isCompact() ? _tinyOut : _xmlOut;
+						String xml = out.outputString(doc);
 
 						// Push to the output stack
 						TextEnvelope outenv = new TextEnvelope(user, xml, conID.longValue());
