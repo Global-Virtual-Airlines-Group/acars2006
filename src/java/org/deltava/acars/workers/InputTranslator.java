@@ -2,6 +2,7 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
@@ -12,7 +13,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -24,7 +25,7 @@ public final class InputTranslator extends Worker {
 	 * Initializes the Worker.
 	 */
 	public InputTranslator() {
-		super("Input Stack Processor", 30, InputTranslator.class);
+		super("Input Translator", 30, InputTranslator.class);
 	}
 	
 	/**
@@ -61,32 +62,34 @@ public final class InputTranslator extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle");
 			try {
-				TextEnvelope env = RAW_INPUT.take();
+				TextEnvelope env = RAW_INPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
-				_status.setMessage("Translating Message from " + env.getOwnerID());
-				if (log.isDebugEnabled())
-					log.debug("Message received from " + env.getOwnerID());
+				if (env != null) {
+					_status.setMessage("Translating Message from " + env.getOwnerID());
+					if (log.isDebugEnabled())
+						log.debug("Message received from " + env.getOwnerID());
 				
-				// Get the proper message parser
-				MessageParser parser = _parsers.get(Integer.valueOf(env.getVersion()));
-				try {
-					Collection<Message> msgs = parser.parse(env);
-					for (Iterator<Message> i = msgs.iterator(); i.hasNext();) {
-						Message msg = i.next();
-						if (msg.getType() != Message.MSG_QUIT)
-							MSG_INPUT.add(new MessageEnvelope(msg, env.getConnectionID()));
+					// Get the proper message parser
+					MessageParser parser = _parsers.get(Integer.valueOf(env.getVersion()));
+					try {
+						Collection<Message> msgs = parser.parse(env);
+						for (Iterator<Message> i = msgs.iterator(); i.hasNext();) {
+							Message msg = i.next();
+							if (msg.getType() != Message.MSG_QUIT)
+								MSG_INPUT.add(new MessageEnvelope(msg, env.getConnectionID()));
+						}
+					} catch (Exception e) {
+						log.warn("Translation Error - " + e.getMessage(), e);
 					}
-				} catch (Exception e) {
-					log.warn("Translation Error - " + e.getMessage(), e);
 				}
-				
-				// Log execution
-				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
+			
+			// Log execution
+			_status.complete();
 		}
 	}
 }
