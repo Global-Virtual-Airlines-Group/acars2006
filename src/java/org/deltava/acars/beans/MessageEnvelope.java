@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.acars.message.Message;
@@ -6,21 +6,18 @@ import org.deltava.acars.message.Message;
 /**
  * An Envelope for Message beans.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
-public class MessageEnvelope extends Envelope {
+public class MessageEnvelope extends Envelope<Message> {
 
 	/**
-	 * @param msgData
-	 * @param conID
+	 * Initializes the Envelope.
+	 * @param msgData the Message
+	 * @param conID the connection ID
 	 */
 	public MessageEnvelope(Message msgData, long conID) {
-		super(msgData, conID);
-	}
-
-	public Message getMessage() {
-		return (Message) _payload;
+		super(msgData, msgData.getSender(), conID, msgData.getTime());
 	}
 }

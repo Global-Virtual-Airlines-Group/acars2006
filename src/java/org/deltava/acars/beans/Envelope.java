@@ -1,22 +1,22 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
 import org.deltava.acars.message.Message;
 
 /**
- * An Envelope is a bean used to link Messages or XML text with sender/addressee information.
+ * An Envelope is a bean used to link data with sender/addressee information.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
-public abstract class Envelope implements Comparable<Envelope> {
+public abstract class Envelope<T> implements Comparable<Envelope> {
 
 	/**
 	 * The envelope payload.
 	 */
-	protected Object _payload;
+	private T _payload;
 	
 	/**
 	 * The envelope timestamp.
@@ -28,23 +28,14 @@ public abstract class Envelope implements Comparable<Envelope> {
 	private boolean _critical;
 
 	// The bean should alraedy have what we need
-	protected Envelope(Message msgData, long conID) {
+	protected Envelope(T msgData, Pilot owner, long ts, long conID) {
 		super();
-		_owner = msgData.getSender();
+		_owner = owner;
 		_payload = msgData;
-		_timeStamp = msgData.getTime();
+		_timeStamp = ts;
 		_cid = conID;
 	}
 
-	// Since were getting text, we need to supply a userID and do the timestamp ourselves
-	protected Envelope(Pilot usrInfo, String msgText, long conID) {
-		super();
-		_owner = usrInfo;
-		_payload = msgText;
-		_timeStamp = System.currentTimeMillis();
-		_cid = conID;
-	}
-	
 	/**
 	 * Returns the connection ID for this Envelope.
 	 * @return the Connection ID
@@ -91,6 +82,14 @@ public abstract class Envelope implements Comparable<Envelope> {
 	 */
 	public void setCritical(boolean isCritical) {
 		_critical = isCritical;
+	}
+	
+	/**
+	 * Returns the Envelope payload.
+	 * @return the payload
+	 */
+	public T getMessage() {
+		return _payload;
 	}
 	
 	/**
