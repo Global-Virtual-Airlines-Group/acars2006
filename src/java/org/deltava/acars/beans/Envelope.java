@@ -27,7 +27,13 @@ public abstract class Envelope<T> implements Comparable<Envelope> {
 	private long _cid;
 	private boolean _critical;
 
-	// The bean should alraedy have what we need
+	/**
+	 * Initializes the envelope.
+	 * @param msgData the payload
+	 * @param owner the envelope owner
+	 * @param ts the original timestamp
+	 * @param conID the connection ID
+	 */
 	protected Envelope(T msgData, Pilot owner, long ts, long conID) {
 		super();
 		_owner = owner;

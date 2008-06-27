@@ -18,6 +18,6 @@ public class MessageEnvelope extends Envelope<Message> {
 	 * @param conID the connection ID
 	 */
 	public MessageEnvelope(Message msgData, long conID) {
-		super(msgData, msgData.getSender(), conID, msgData.getTime());
+		super(msgData, msgData.getSender(), msgData.getTime(), conID);
 	}
 }

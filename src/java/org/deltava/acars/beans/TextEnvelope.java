@@ -21,7 +21,7 @@ public class TextEnvelope extends Envelope<String> {
 	 * @param conID the Connection ID
 	 */
 	public TextEnvelope(Pilot usrInfo, String msgText, long conID) {
-		super(msgText, usrInfo, conID, System.currentTimeMillis());
+		super(msgText, usrInfo, System.currentTimeMillis(), conID);
 	}
 	
 	/**
