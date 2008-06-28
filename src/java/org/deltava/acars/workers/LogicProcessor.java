@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -193,6 +193,8 @@ public class LogicProcessor extends Worker {
 		try {
 			_cmdPool.shutdown();
 			_cmdPool.awaitTermination(3, TimeUnit.SECONDS);
+		} catch (InterruptedException ie) {
+			// empty
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
