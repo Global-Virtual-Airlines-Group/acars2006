@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private PositionMessage _pInfo;
 	private boolean _isUserBusy;
 	private boolean _isUserHidden;
+	private boolean _isMP;
 
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
@@ -99,9 +100,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 			long startTime = System.currentTimeMillis();
 			sc.configureBlocking(false);
 			sc.register(_wSelector, SelectionKey.OP_WRITE);
+			_lastActivityTime = System.currentTimeMillis();
 			
 			// Check execution time
-			long execTime = System.currentTimeMillis() - startTime;
+			long execTime = _lastActivityTime - startTime;
 			if (execTime > 1250)
 				log.warn("Excessive connect time - " + execTime + "ms");
 		} catch (IOException ie) {
@@ -172,6 +174,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public boolean getUserHidden() {
 		return _isUserHidden;
+	}
+	
+	public boolean getIsMP() {
+		return _isMP;
 	}
 
 	public long getLastActivity() {
@@ -297,6 +303,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public void setUserHidden(boolean isHidden) {
 		_isUserHidden = isHidden;
+	}
+	
+	public void setMP(boolean isMP) {
+		_isMP = isMP;
 	}
 
 	public void setUserLocation(UserData ud) {

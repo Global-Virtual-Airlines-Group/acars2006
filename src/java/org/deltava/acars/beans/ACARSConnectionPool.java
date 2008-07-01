@@ -15,6 +15,7 @@ import org.deltava.acars.message.InfoMessage;
 import org.deltava.util.IPCUtils;
 
 import org.deltava.acars.security.*;
+import org.deltava.acars.workers.MPAggregator;
 import org.deltava.acars.util.RouteEntryHelper;
 
 import org.gvagroup.acars.ACARSAdminInfo;
@@ -22,7 +23,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -36,6 +37,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
 	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
+	private transient final Collection<ACARSConnection> _mpCons = new LinkedHashSet<ACARSConnection>();
 	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
@@ -192,14 +194,26 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	/**
 	 * Adds a new connection to the pool.
 	 * @param c the connection to add
-	 * @throws ACARSException if the connection exists, the pool is fool or a network error occurs
+	 * @throws ACARSException if the connection exists, the pool is full or a network error occurs
 	 */
 	public synchronized void add(ACARSConnection c) throws ACARSException {
 
 		// Check if we're already there
-		if (_cons.contains(c))
+		if (_cons.contains(c)) {
+			if (c.getIsMP() && !_mpCons.contains(c)) {
+				try {
+					_wLock.lock();
+					_mpCons.add(c);
+				} finally {
+					while (_rwLock.isWriteLockedByCurrentThread())
+						_wLock.unlock();
+					
+					MPAggregator.wakeup();
+				}
+			}
+				
 			return;
-		else if (_cons.size() >= _maxSize)
+		} else if (_cons.size() >= _maxSize)
 			throw new ACARSException("Connection Pool full");
 
 		// Register the SocketChannel with the selector
@@ -307,6 +321,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 		// Return nothing if not found
 		return null;
 	}
+	
+	/**
+	 * Returns all multi-player connections.
+	 */
+	public List<ACARSConnection> getMP() {
+		return new ArrayList<ACARSConnection>(_mpCons);
+	}
 
 	public Collection<ACARSConnection> get(String pid) {
 
@@ -332,6 +353,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 	public int size() {
 		return _cons.size();
+	}
+	
+	public int MPsize() {
+		return _mpCons.size();
 	}
 	
 	public boolean isDispatchOnline() {
@@ -375,6 +400,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 						try {
 							con.close();
 							_cons.remove(con);
+							_mpCons.remove(con);
 						} finally {
 							while (_rwLock.isWriteLockedByCurrentThread())
 								_wLock.unlock();
@@ -406,6 +432,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			try {
 				_wLock.lock();
 				_cons.remove(pos);
+				_mpCons.remove(c);
 				c.close();
 			} finally {
 				while (_rwLock.isWriteLockedByCurrentThread())
