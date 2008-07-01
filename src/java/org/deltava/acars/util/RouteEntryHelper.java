@@ -37,7 +37,7 @@ public class RouteEntryHelper {
 
 		// Build the NamedRouteEntry
 		MapRouteEntry result = new MapRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
-		result.setClientBuild(con.getClientVersion());
+		result.setClientBuild(con.getClientVersion(), con.getBeta());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
 		result.setID(imsg.getFlightID());
