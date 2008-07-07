@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -37,7 +37,6 @@ public class DiagnosticCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	@SuppressWarnings("unchecked")
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message and the connection pool
