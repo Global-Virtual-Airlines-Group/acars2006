@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -19,7 +19,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -90,10 +90,15 @@ public class PositionCommand extends ACARSCommand {
 				return;
 			}
 		}
+		
+		// Log message received
+		ctx.push(ackMsg, env.getConnectionID());
+		if (log.isDebugEnabled())
+			log.debug("Received position from " + ac.getUserID());
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 45000) {
+			if (SetPosition.getMaxAge() > 35000) {
 				try {
 					Connection con = ctx.getConnection(true);
 					SetPosition dao = new SetPosition(con);
@@ -110,10 +115,5 @@ public class PositionCommand extends ACARSCommand {
 			while (_flushLock.isWriteLockedByCurrentThread())
 				w.unlock();
 		}
-
-		// Log message received
-		ctx.push(ackMsg, env.getConnectionID());
-		if (log.isDebugEnabled())
-			log.debug("Received position from " + ac.getUser().getPilotCode());
 	}
 }
