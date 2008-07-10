@@ -29,7 +29,7 @@ public final class SetConnection extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void add(ACARSConnection c) throws DAOException {
-		if (c.getUser() == null)
+		if ((c == null) || (c.getUser() == null))
 			return;
 		
 		try {
@@ -44,10 +44,25 @@ public final class SetConnection extends DAO {
 			_ps.setString(5, c.getRemoteHost());
 			_ps.setInt(6, c.getClientVersion());
 			_ps.setInt(7, c.getBeta());
-			_ps.setBoolean(8, c.getIsMP());
+			_ps.setBoolean(8, false);
 			executeUpdate(1);
 		} catch (SQLException se) {
-			throw new DAOException(se.getMessage());
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
+	 * Marks an ACARS Connection as using multi-player.
+	 * @param id the Connection ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void toggleMP(long id) throws DAOException {
+		try {
+			prepareStatement("UPDATE acars.CONS SET MP=? WHERE (ID=?)");
+			_ps.setBoolean(1, true);
+			executeUpdate(1);
+		} catch (SQLException se) {
+			throw new DAOException(se);
 		}
 	}
 }
