@@ -10,12 +10,14 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.acars.*;
+import org.deltava.beans.GeoLocation;
+import org.deltava.beans.schedule.GeoPosition;
+
 import org.deltava.acars.message.InfoMessage;
 
 import org.deltava.util.IPCUtils;
 
 import org.deltava.acars.security.*;
-import org.deltava.acars.workers.MPAggregator;
 import org.deltava.acars.util.RouteEntryHelper;
 
 import org.gvagroup.acars.ACARSAdminInfo;
@@ -37,7 +39,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
 	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
-	private transient final Collection<ACARSConnection> _mpCons = new LinkedHashSet<ACARSConnection>();
 	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
@@ -199,21 +200,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	public synchronized void add(ACARSConnection c) throws ACARSException {
 
 		// Check if we're already there
-		if (_cons.contains(c)) {
-			if (c.getIsMP() && !_mpCons.contains(c)) {
-				try {
-					_wLock.lock();
-					_mpCons.add(c);
-				} finally {
-					while (_rwLock.isWriteLockedByCurrentThread())
-						_wLock.unlock();
-					
-					MPAggregator.wakeup();
-				}
-			}
-				
+		if (_cons.contains(c))
 			return;
-		} else if (_cons.size() >= _maxSize)
+		else if (_cons.size() >= _maxSize)
 			throw new ACARSException("Connection Pool full");
 
 		// Register the SocketChannel with the selector
@@ -323,10 +312,29 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	}
 	
 	/**
-	 * Returns all multi-player connections.
+	 * Returns multi-player connections within a certain distance of a location
+	 * @param loc the Location
+	 * @param distance the distance in miles
+	 * @return a List of ACARSConnection beans
 	 */
-	public List<ACARSConnection> getMP() {
-		return new ArrayList<ACARSConnection>(_mpCons);
+	public List<ACARSConnection> getMP(GeoLocation loc, int distance) {
+		GeoPosition gp = new GeoPosition(loc);
+		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
+		_rLock.lock();
+		try {
+			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
+				ACARSConnection c = i.next();
+				if (c.getIsMP()) {
+					int d = gp.distanceTo(c.getPosition());
+					if ((d >= 0) && (d <= distance))
+						results.add(c);
+				}
+			}
+		} finally {
+			_rLock.unlock();
+		}
+		
+		return results;
 	}
 
 	public Collection<ACARSConnection> get(String pid) {
@@ -353,10 +361,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 
 	public int size() {
 		return _cons.size();
-	}
-	
-	public int MPsize() {
-		return _mpCons.size();
 	}
 	
 	public boolean isDispatchOnline() {
@@ -400,7 +404,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 						try {
 							con.close();
 							_cons.remove(con);
-							_mpCons.remove(con);
 						} finally {
 							while (_rwLock.isWriteLockedByCurrentThread())
 								_wLock.unlock();
@@ -432,7 +435,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 			try {
 				_wLock.lock();
 				_cons.remove(pos);
-				_mpCons.remove(c);
 				c.close();
 			} finally {
 				while (_rwLock.isWriteLockedByCurrentThread())
