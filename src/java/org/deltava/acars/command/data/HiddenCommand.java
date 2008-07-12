@@ -45,7 +45,7 @@ public class HiddenCommand extends DataCommand {
 		
 		// Send the update message
 		int msgType = isNowHidden ? DataMessage.REQ_REMOVEUSER : DataMessage.REQ_ADDUSER;
-		ConnectionMessage dmsg = new ConnectionMessage(env.getOwner(), msgType, ac.getID());
+		ConnectionMessage dmsg = new ConnectionMessage(env.getOwner(), msgType, msg.getID());
 		dmsg.add(ac);
 		
 		// Push the response
