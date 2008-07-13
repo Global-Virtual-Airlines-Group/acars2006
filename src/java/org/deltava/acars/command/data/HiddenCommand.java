@@ -1,7 +1,7 @@
 // Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.util.Iterator;
+import java.util.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -48,10 +48,22 @@ public class HiddenCommand extends DataCommand {
 		ConnectionMessage dmsg = new ConnectionMessage(env.getOwner(), msgType, msg.getID());
 		dmsg.add(ac);
 		
-		// Push the response
+		// Get a list of authenticated connections
+		Collection<ACARSConnection> authCons = ctx.getACARSConnections("*");
+		for (Iterator<ACARSConnection> i = authCons.iterator(); i.hasNext(); ) {
+			ACARSConnection con = i.next();
+			if (!con.isAuthenticated())
+				i.remove();
+		}
+		
+		// Push the login announcement to everyone not in HR; send a userlist to HR
 		for (Iterator<ACARSConnection> i = ctx.getACARSConnections("*").iterator(); i.hasNext(); ) {
 			ACARSConnection con = i.next();
-			if ((con.getID() != ac.getID()) && !con.getUser().isInRole("HR"))
+			if (con.getUser().isInRole("HR")) {
+				ConnectionMessage rspMsg = new ConnectionMessage(con.getUser(), DataMessage.REQ_USRLIST, msg.getID());
+				rspMsg.addAll(authCons);
+				ctx.push(rspMsg, con.getID());
+			} else
 				ctx.push(dmsg, con.getID());
 		}
 	}
@@ -61,6 +73,6 @@ public class HiddenCommand extends DataCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 225;
+		return 275;
 	}
 }
