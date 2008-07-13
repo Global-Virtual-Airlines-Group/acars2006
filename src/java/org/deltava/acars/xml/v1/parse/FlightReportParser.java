@@ -96,10 +96,8 @@ class FlightReportParser extends ElementParser {
 			try {
 				afr.setTakeoffN1(Double.parseDouble(getChildText(e, "takeoffN1", "0")));
 				afr.setLandingN1(Double.parseDouble(getChildText(e, "landingN1", "0")));
-			} catch (NumberFormatException nfe) {
-				throw new IllegalArgumentException("Invalid N1 - " + nfe.getMessage());
-			} catch (IllegalArgumentException iae) {
-
+			} catch (Exception ex) {
+				throw new IllegalArgumentException("Invalid N1 - " + ex.getMessage(), ex);
 			}
 
 			// Load the 0X/1X/2X/4X times
