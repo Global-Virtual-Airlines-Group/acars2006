@@ -65,7 +65,7 @@ public class CommandContext extends ConnectionContext {
 	 * Returns the ACARS Connection Pool.
 	 * @return the connection pool
 	 */
-	ACARSConnectionPool getACARSConnectionPool() {
+	public ACARSConnectionPool getACARSConnectionPool() {
 		return _pool;
 	}
 

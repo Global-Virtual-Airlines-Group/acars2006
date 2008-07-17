@@ -37,19 +37,21 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_DISPATCH = 15;
 	public static final int MSG_MPUPDATE = 16;
 	public static final int MSG_MPINIT = 17;
+	public static final int MSG_MPREMOVE = 18;
 
 	/**
 	 * XML message codes.
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "raw", "datarsp",
-	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "mp", "mpinit"};
+	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "mp", "mpinit", "mpquit"};
 	
 	/**
 	 * XML message type descriptions.
 	 */
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 						"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect",
-						"End Flight", "System Message", "Flight Report", "Error", "Dispatch Data", "MP Update", "MP Init"};
+						"End Flight", "System Message", "Flight Report", "Error", "Dispatch Data", "MP Update", "MP Init",
+						"MP Remove"};
 
 	/**
 	 * Returns the message type.
@@ -63,7 +65,16 @@ public interface Message extends java.io.Serializable {
 	public void setTime(long ts);
 	public long getTime();
 	
+	/**
+	 * Updates the message protocol version
+	 * @param pVersion the protocol version
+	 */ 
 	void setProtocolVersion(int pVersion);
+	
+	/**
+	 * Returns the message protocol version.
+	 * @return the protocol version
+	 */
 	public int getProtocolVersion();
 
 	/**

@@ -1,12 +1,15 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import static org.deltava.acars.workers.Worker.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.message.mp.RemoveMessage;
 
 import org.deltava.dao.acars.SetInfo;
 import org.deltava.dao.DAOException;
@@ -16,7 +19,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -50,9 +53,16 @@ public class EndFlightCommand extends ACARSCommand {
 		}
 		
 		// If the flight was already ended, then just send the ACK and abort
-		if (iMsg.getEndTime() != null) {
+		if ((iMsg.getEndTime() != null) && (iMsg.getLivery() == null)) {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
+		}
+		
+		// Save an MPRemove message if we are an MP connection
+		if (iMsg.getLivery() != null) {
+			iMsg.setLivery(null);
+			RemoveMessage mrmsg = new RemoveMessage(con.getUser());
+			MSG_INPUT.add(new MessageEnvelope(mrmsg, con.getID()));
 		}
 
 		// Write the info to the database
@@ -66,7 +76,7 @@ public class EndFlightCommand extends ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-
+		
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
 		con.setPosition(null);

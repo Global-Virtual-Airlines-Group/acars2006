@@ -66,6 +66,8 @@ public class DiagnosticCommand extends ACARSCommand {
 					QuitMessage qmsg = new QuitMessage(ac.getUser());
 					qmsg.setFlightID(ac.getFlightID());
 					qmsg.setDispatch(ac.getIsDispatch());
+					qmsg.setHidden(ac.getUserHidden());
+					qmsg.setMP(ac.getIsMP());
 					MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
 
 					// Send the ACK

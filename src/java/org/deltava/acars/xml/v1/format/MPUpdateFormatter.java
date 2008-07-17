@@ -5,6 +5,8 @@ import java.util.*;
 
 import org.jdom.Element;
 
+import org.deltava.acars.beans.MPUpdate;
+
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 
@@ -32,21 +34,32 @@ public class MPUpdateFormatter extends ElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "positions");
-		for (Iterator<LocationMessage> i = mpmsg.getResponse().iterator(); i.hasNext(); ) {
-			LocationMessage lmsg = i.next();
+		for (Iterator<MPUpdate> i = mpmsg.getResponse().iterator(); i.hasNext(); ) {
+			MPUpdate upd = i.next();
+			LocationMessage lmsg = upd.getLocation();
 			
 			// Build the element
 			Element le = new Element("pos");
+			le.setAttribute("id", String.valueOf(upd.getID()));
 			le.setAttribute("lat", StringUtils.format(lmsg.getLatitude(), "##0.000000"));
 			le.setAttribute("lon", StringUtils.format(lmsg.getLongitude(), "##0.000000"));
-			le.setAttribute("flags", String.valueOf(lmsg.getFlags()));
-			le.addContent(XMLUtils.createElement("h", String.valueOf(lmsg.getHeading())));
-			le.addContent(XMLUtils.createElement("s", String.valueOf(lmsg.getAspeed())));
-			le.addContent(XMLUtils.createElement("a", String.valueOf(lmsg.getAltitude())));
-			le.addContent(XMLUtils.createElement("p", String.valueOf(lmsg.getPitch())));
-			le.addContent(XMLUtils.createElement("b", String.valueOf(lmsg.getBank())));
-			le.addContent(XMLUtils.createElement("fl", String.valueOf(lmsg.getFlaps())));
-			le.addContent(XMLUtils.createElement("l", String.valueOf(lmsg.getLights())));
+			le.setAttribute("f", String.valueOf(lmsg.getFlags()));
+			le.setAttribute("h", String.valueOf(lmsg.getHeading()));
+			le.setAttribute("s", String.valueOf(lmsg.getAspeed()));
+			le.setAttribute("a", String.valueOf(lmsg.getAltitude()));
+			le.setAttribute("p", String.valueOf(lmsg.getPitch()));
+			le.setAttribute("b", String.valueOf(lmsg.getBank()));
+			le.setAttribute("fl", String.valueOf(lmsg.getFlaps()));
+			le.setAttribute("l", String.valueOf(lmsg.getLights()));
+			
+			// Add livery data
+			if (mpmsg.hasLivery()) {
+				le.addContent(XMLUtils.createElement("eqType", upd.getEquipmentType()));
+				le.addContent(XMLUtils.createElement("airline", upd.getAirlineCode()));
+				le.addContent(XMLUtils.createElement("livery", upd.getLiveryCode()));
+			}
+			
+			// Add child element
 			e.addContent(le);
 		}
 		

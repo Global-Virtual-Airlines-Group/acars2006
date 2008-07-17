@@ -13,7 +13,7 @@ import org.deltava.beans.Pilot;
  */
 
 public class InitMessage extends AbstractMessage {
-
+	
 	/**
 	 * Initializes the Message.
 	 * @param msgFrom the originating Pilot

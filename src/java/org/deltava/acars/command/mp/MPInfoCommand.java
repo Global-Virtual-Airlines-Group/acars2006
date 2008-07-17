@@ -1,5 +1,5 @@
 // Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.command;
+package org.deltava.acars.command.mp;
 
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
+import org.deltava.acars.command.ACARSCommand;
+import org.deltava.acars.command.CommandContext;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.*;
 
@@ -76,8 +78,9 @@ public class MPInfoCommand extends ACARSCommand {
 		oldPM.setLights(msg.getLights());
 
 		// Build the update message
-		MPUpdateMessage updmsg = new MPUpdateMessage(false);
-		updmsg.add(msg);
+		MPUpdateMessage updmsg = new MPUpdateMessage(false, 0);
+		MPUpdate upd = new MPUpdate(ac.getFlightID(), oldPM);
+		updmsg.add(upd);
 		
 		// Get the connections to notify
 		int maxDistance = SystemData.getInt("mp.max_range", 40);
@@ -89,5 +92,13 @@ public class MPInfoCommand extends ACARSCommand {
 			ACARSConnection c = i.next();
 			ctx.push(updmsg, c.getID());
 		}
+	}
+	
+	public final boolean isLogged() {
+		return false;
+	}
+	
+	public final int getMaxExecTime() {
+		return 150;
 	}
 }

@@ -9,6 +9,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.command.dispatch.*;
+import org.deltava.acars.command.mp.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
@@ -64,7 +65,8 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_ERROR), new ErrorCommand());
 		_commands.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPInfoCommand());
-		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new MPInitCommand());
+		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
+		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());
@@ -150,7 +152,8 @@ public class LogicProcessor extends Worker {
 			// Calculate and log execution time
 			long execTime = System.currentTimeMillis() - startTime;
 			int userID = (_env.getOwner() == null) ? 0 : _env.getOwner().getID();
-			SetStatistics.queue(new CommandEntry(_cmd.getClass(), userID, execTime));
+			if (_cmd.isLogged())
+				SetStatistics.queue(new CommandEntry(_cmd.getClass(), userID, execTime));
 			if (execTime > _cmd.getMaxExecTime())
 				log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 		}

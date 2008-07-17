@@ -107,11 +107,14 @@ public final class NetworkReader extends Worker {
 						ACARSConnection con = ic.next();
 						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
 						if (con.isAuthenticated()) {
-							log.debug("QUIT Message from " + con.getUser().getName());
+							if (log.isDebugEnabled());
+								log.debug("QUIT Message from " + con.getUser().getName());
+								
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
 							qmsg.setDispatch(con.getIsDispatch());
+							qmsg.setMP(con.getIsMP());
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}

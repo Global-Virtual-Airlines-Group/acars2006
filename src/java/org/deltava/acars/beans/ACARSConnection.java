@@ -31,7 +31,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
-	private static final int MAX_WRITE_ATTEMPTS = 32;
+	private transient static final int MAX_WRITE_ATTEMPTS = 32;
 
 	// Byte byffer decoder and character set
 	private transient final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
@@ -63,7 +63,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private PositionMessage _pInfo;
 	private boolean _isUserBusy;
 	private boolean _isUserHidden;
-	private boolean _isMP;
 
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
@@ -167,7 +166,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public PositionMessage getPosition() {
 		return _pInfo;
 	}
-
+	
 	public boolean getUserBusy() {
 		return _isUserBusy;
 	}
@@ -177,7 +176,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	}
 	
 	public boolean getIsMP() {
-		return _isMP;
+		return (_fInfo != null) && (_fInfo.getLivery() != null);
 	}
 
 	public long getLastActivity() {
@@ -267,7 +266,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public void setPosition(PositionMessage msg) {
 		_pInfo = msg;
 	}
-
+	
 	public void setProtocolVersion(int pv) {
 		if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
 			_protocolVersion = pv;
@@ -305,10 +304,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		_isUserHidden = isHidden;
 	}
 	
-	public void setMP(boolean isMP) {
-		_isMP = isMP;
-	}
-
 	public void setUserLocation(UserData ud) {
 		_userData = ud;
 	}
