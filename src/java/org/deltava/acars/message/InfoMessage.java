@@ -16,7 +16,7 @@ import org.deltava.beans.schedule.Airport;
 public class InfoMessage extends AbstractMessage {
 	
 	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1
-	private int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004, 2006};
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004, 2006};
 	
 	// Bean fields
 	private int _flightID;
@@ -24,6 +24,8 @@ public class InfoMessage extends AbstractMessage {
 	private Date _endTime;
 	
 	private String _eqType;
+	private String _livery;
+	
 	private String _flightCode;
 	private Airport _airportA;
 	private Airport _airportD;
@@ -81,6 +83,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public String getEquipmentType() {
 		return _eqType;
+	}
+	
+	public String getLivery() {
+		return _livery;
 	}
 	
 	public String getFlightCode() {
@@ -186,6 +192,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setEquipmentType(String newEQ) {
 		_eqType = newEQ;
+	}
+	
+	public void setLivery(String code) {
+		_livery = code;
 	}
 	
 	public void setFlightCode(String newCode) {

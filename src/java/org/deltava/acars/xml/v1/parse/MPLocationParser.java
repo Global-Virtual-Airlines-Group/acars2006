@@ -67,6 +67,7 @@ public class MPLocationParser extends ElementParser {
 			msg.setFlag(FLAG_AFTERBURNER, (attr.indexOf('A') > 0));
 			msg.setFlag(FLAG_GEARDOWN, (attr.indexOf('G') > 0));
 			msg.setFlag(FLAG_SPARMED, (attr.indexOf('S') > 0));
+			msg.setFlag(FLAG_ONGROUND, (attr.indexOf('O') > 0));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing MP Position data - " + ex.getMessage(), ex);
 		}

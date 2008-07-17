@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -55,6 +55,7 @@ class FlightInfoParser extends ElementParser {
 		// Load the bean
 		msg.setFlightID(StringUtils.parse(getChildText(e, "flight_id", "0"), 0));
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
+		msg.setLivery(getChildText(e, "livery", null));
 		msg.setFlightCode(fCode);
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
 		msg.setComments(getChildText(e, "remarks", null));

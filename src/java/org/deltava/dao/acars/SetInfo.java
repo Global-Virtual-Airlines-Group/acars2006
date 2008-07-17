@@ -10,20 +10,20 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
-public final class SetInfo extends DAO {
+public class SetInfo extends DAO {
 
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
-		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN) "
-		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, MP) "
+		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
-		+ "SCHED_VALID=?, DISPATCH_PLAN=?, END_TIME=NULL WHERE (ID=?)";
+		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -58,8 +58,9 @@ public final class SetInfo extends DAO {
 			_ps.setBoolean(12, msg.isOffline());
 			_ps.setBoolean(13, msg.isScheduleValidated());
 			_ps.setBoolean(14, msg.isDispatchPlan());
+			_ps.setBoolean(15, (msg.getLivery() != null));
 			if (msg.getFlightID() != 0)
-				_ps.setInt(15, msg.getFlightID());
+				_ps.setInt(16, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(0);
