@@ -48,6 +48,7 @@ public class Formatter extends MessageFormatter {
 		_eFormatters.put(TS2ServerMessage.class, new TS2ServerFormatter());
 		_eFormatters.put(TerminalRouteMessage.class, new TerminalRouteFormatter());
 		_eFormatters.put(OceanicTrackMessage.class, new OceanicRouteFormatter());
+		_eFormatters.put(LiveryMessage.class, new LiveryFormatter());
 		
 		// Dispatch response formatters
 		_eFormatters.put(FlightDataMessage.class, new DispatchInfoFormatter());
