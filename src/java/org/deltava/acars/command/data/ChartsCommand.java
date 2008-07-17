@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to display approach charts.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -41,7 +41,6 @@ public class ChartsCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 
 		// Check the airport
-		ChartsMessage rspMsg = new ChartsMessage(env.getOwner(), msg.getID());
 		Airport a = SystemData.getAirport(msg.getFlag("id"));
 		if (a == null) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -58,11 +57,15 @@ public class ChartsCommand extends DataCommand {
 			// Get the DAO and the charts
 			GetChart dao = new GetChart(con);
 			Collection<Chart> charts = dao.getCharts(a);
+			ChartsMessage rspMsg = new ChartsMessage(env.getOwner(), msg.getID());
 			for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
 				Chart ch = ci.next();
 				if ((ch.getImgType() != Chart.PDF) || !noPDF)
 					rspMsg.add(ch);
 			}
+			
+			// Push the response
+			ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -71,8 +74,5 @@ public class ChartsCommand extends DataCommand {
 		} finally {
 			ctx.release();
 		}
-
-		// Push the response
-		ctx.push(rspMsg, env.getConnectionID());
 	}
 }
