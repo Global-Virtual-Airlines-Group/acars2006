@@ -57,6 +57,12 @@
 		<baseDN>ou=dva,o=sce</baseDN>
 	</security>
 
+	<!-- Multiplayer properties -->
+	<mp>
+		<max_range type="Integer">40</max_range>
+		<max_aircraft type="Integer">30</max_aircraft>
+	</mp>
+
 	<!-- Online network properties -->
 	<online>
 		<default_network>VATSIM</default_network>

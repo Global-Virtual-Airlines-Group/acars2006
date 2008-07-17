@@ -8,6 +8,7 @@ import org.jdom.Element;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
 import org.deltava.acars.message.dispatch.*;
+import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.acars.xml.*;
 
 /**
@@ -55,6 +56,9 @@ public class Formatter extends MessageFormatter {
 		_eFormatters.put(RouteInfoMessage.class, new DispatchRouteFormatter());
 		_eFormatters.put(CompleteMessage.class, new ServiceCompleteFormatter());
 		_eFormatters.put(ProgressResponseMessage.class, new DispatchProgressFormatter());
+		
+		// MP response formatters
+		_eFormatters.put(MPUpdateMessage.class, new MPUpdateFormatter());
 	}
 
 	/**
