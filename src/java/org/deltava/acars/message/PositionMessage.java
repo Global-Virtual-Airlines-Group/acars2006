@@ -1,41 +1,24 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
-
-import java.util.Date;
 
 import org.deltava.beans.*;
 
 import org.deltava.util.StringUtils;
 
-import org.gvagroup.acars.ACARSFlags;
-
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
-public class PositionMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags, Comparable {
+public class PositionMessage extends LocationMessage {
 
 	// Flight phase constants
-	public static final int PHASE_UNKNOWN = 0;
-	public static final int PHASE_PREFLIGHT = 1;
-	public static final int PHASE_TAXI = 2;
-	public static final int PHASE_AIRBORNE = 3;
-	public static final int PHASE_LANDED = 4;
-	public static final int PHASE_SHUTDOWN = 5;
-	public static final String[] FLIGHT_PHASES = { "???", "Preflight", "Taxi Out", "Airborne", "Landed", "Shutdown" };
+    public static final String[] FLIGHT_PHASES = {"N/A", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne",
+    	"Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
 
-	// Basic position/flight information fields
-	private double latitude;
-	private double longitude;
-	private int altitude;
 	private int r_altitude;
-	private int heading;
-	private double pitch;
-	private double bank;
-	private int aspeed;
 	private int gspeed;
 	private int vspeed;
 	private double mach;
@@ -45,14 +28,12 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 	private int _fuelFlow;
 	private double _gForce;
 	private double _angleOfAttack;
-	private int flaps;
 	private int _frameRate;
 
 	// Wind information
 	private int _windHeading;
 	private int _windSpeed;
 
-	private int flags;
 	private int simRate = 1;
 
 	// Flight phase
@@ -60,28 +41,12 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 	private boolean _noFlood;
 	private boolean _isLogged;
 
-	// Date
-	private Date _dt;
-
 	/**
 	 * Creates a new Position Message.
 	 * @param msgFrom the originating Pilot
 	 */
 	public PositionMessage(Pilot msgFrom) {
 		super(Message.MSG_POSITION, msgFrom);
-		_dt = new Date();
-	}
-
-	public Date getDate() {
-		return _dt;
-	}
-
-	public int getAltitude() {
-		return altitude;
-	}
-
-	public int getAspeed() {
-		return aspeed;
 	}
 
 	public double getAngleOfAttack() {
@@ -96,24 +61,8 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 		return _frameRate;
 	}
 
-	public int getFlaps() {
-		return flaps;
-	}
-
 	public int getGspeed() {
 		return gspeed;
-	}
-
-	public int getHeading() {
-		return heading;
-	}
-
-	public double getPitch() {
-		return pitch;
-	}
-
-	public double getBank() {
-		return bank;
 	}
 
 	public int getFuelFlow() {
@@ -126,14 +75,6 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 
 	public int getWindHeading() {
 		return _windHeading;
-	}
-
-	public double getLatitude() {
-		return latitude;
-	}
-
-	public double getLongitude() {
-		return longitude;
 	}
 
 	public double getMach() {
@@ -172,16 +113,8 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 		return vspeed;
 	}
 
-	public int getFlags() {
-		return flags;
-	}
-
 	public double getG() {
 		return _gForce;
-	}
-
-	public boolean isFlagSet(int mask) {
-		return ((flags & mask) != 0);
 	}
 
 	public void setNoFlood(boolean noFlood) {
@@ -192,20 +125,6 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 		_isLogged = isLogged;
 	}
 
-	public void setDate(Date dt) {
-		if (dt != null)
-			_dt = dt;
-	}
-
-	public void setAltitude(int alt) {
-		if ((alt >= -1500) && (alt <= 100000))
-			altitude = alt;
-	}
-
-	public void setAspeed(int i) {
-		if ((i >= 0) && (i <= 700))
-			aspeed = i;
-	}
 
 	public void setAngleOfAttack(double aoa) {
 		if (aoa > 99.99)
@@ -226,11 +145,6 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 			_frameRate = rate;
 	}
 
-	public void setFlaps(int fl) {
-		if ((fl >= 0) || (fl < 16))
-			flaps = fl;
-	}
-
 	public void setGspeed(int i) {
 		if ((i >= -30) && (i <= 3000))
 			gspeed = i;
@@ -240,34 +154,9 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 		_gForce = gForce;
 	}
 
-	public void setHeading(int i) {
-		if ((i >= 0) && (i <= 360))
-			heading = i;
-	}
-
-	public void setPitch(double p) {
-		if ((p >= -89) && (p <= 89))
-			pitch = p;
-	}
-
-	public void setBank(double b) {
-		if ((b >= -99) && (b <= 99))
-			bank = b;
-	}
-
 	public void setFuelFlow(int flow) {
 		if ((flow >= 0) && (flow < 120000))
 			_fuelFlow = flow;
-	}
-
-	public void setLatitude(double l) {
-		if ((l >= -90) && (l <= 90))
-			latitude = l;
-	}
-
-	public void setLongitude(double l) {
-		if ((l >= -180) && (l <= 180))
-			longitude = l;
 	}
 
 	public void setMach(double m) {
@@ -316,18 +205,5 @@ public class PositionMessage extends AbstractMessage implements GeospaceLocation
 	public void setVspeed(int i) {
 		if ((i >= -7000) && (i <= 7000))
 			vspeed = i;
-	}
-
-	public void setFlag(int mask, boolean isSet) {
-		flags = (isSet) ? (flags | mask) : (flags & (~mask));
-	}
-
-	public void setFlags(int flg) {
-		flags = flg;
-	}
-
-	public int compareTo(Object o2) {
-		PositionMessage msg2 = (PositionMessage) o2;
-		return _dt.compareTo(msg2.getDate());
 	}
 }

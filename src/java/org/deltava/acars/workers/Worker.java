@@ -11,7 +11,7 @@ import org.deltava.acars.beans.*;
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -21,6 +21,7 @@ public abstract class Worker implements Runnable {
 	public static final BlockingQueue<MessageEnvelope> MSG_INPUT = new LinkedBlockingQueue<MessageEnvelope>();
 	public static final BlockingQueue<MessageEnvelope> MSG_OUTPUT = new PriorityBlockingQueue<MessageEnvelope>();
 	protected static final BlockingQueue<TextEnvelope> RAW_OUTPUT = new PriorityBlockingQueue<TextEnvelope>();
+	public static final BlockingQueue<ACARSConnection> MP_UPDATE = new LinkedBlockingQueue<ACARSConnection>();
 	
 	protected Logger log;
 	private String _name;

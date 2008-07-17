@@ -14,7 +14,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A Parser for Position elements.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ class PositionParser extends ElementParser {
 			msg.setFuelRemaining(Integer.parseInt(getChildText(e, "fuel", "0")));
 			msg.setFlaps(Integer.parseInt(getChildText(e, "flaps", "0")));
 			msg.setFlags(Integer.parseInt(getChildText(e, "flags", "0")));
+			msg.setLights(Integer.parseInt(getChildText(e, "lights", "0")));
 			msg.setAngleOfAttack(Double.parseDouble(getChildText(e, "aoa", "0")));
 			msg.setG(Double.parseDouble(getChildText(e, "g", "1")));
 			msg.setN1(Double.parseDouble(getChildText(e, "n1", "0")));
@@ -70,7 +71,7 @@ class PositionParser extends ElementParser {
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
-			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[PositionMessage.PHASE_UNKNOWN]));
+			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setNoFlood(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
