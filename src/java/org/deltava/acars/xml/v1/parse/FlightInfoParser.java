@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-class FlightInfoParser extends ElementParser {
+class FlightInfoParser extends ElementParser<InfoMessage> {
 
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
@@ -30,7 +30,7 @@ class FlightInfoParser extends ElementParser {
 	 * @return an InfoMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public InfoMessage parse(Element e, Pilot user) throws XMLException {
 
 		// Create the bean
 		InfoMessage msg = new InfoMessage(user);

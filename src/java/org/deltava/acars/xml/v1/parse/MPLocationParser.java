@@ -8,7 +8,6 @@ import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
 
-import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPMessage;
 import org.deltava.acars.xml.XMLException;
 
@@ -21,7 +20,7 @@ import static org.gvagroup.acars.ACARSFlags.*;
  * @since 2.2
  */
 
-public class MPLocationParser extends ElementParser {
+class MPLocationParser extends ElementParser<MPMessage> {
 	
 	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
@@ -31,7 +30,7 @@ public class MPLocationParser extends ElementParser {
 	 * @return an MPMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public MPMessage parse(Element e, Pilot user) throws XMLException {
 
 		// Create the bean
 		MPMessage msg = new MPMessage(user);

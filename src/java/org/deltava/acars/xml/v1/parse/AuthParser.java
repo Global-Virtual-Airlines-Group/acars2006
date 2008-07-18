@@ -13,19 +13,19 @@ import org.deltava.util.StringUtils;
 /**
  * A Parser for Authentication elements.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
-class AuthParser extends ElementParser {
+class AuthParser extends ElementParser<AuthenticateMessage> {
 
 	/**
 	 * Convert an XML authentication element into an AuthenticationMessage.
 	 * @param e the XML element
-	 * @return a AuthenticationMessage
+	 * @return an AuthenticationMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(org.jdom.Element e, Pilot user) throws XMLException {
+	public AuthenticateMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
 
 		// Get the user ID and password and validate
 		String userID = getChildText(e, "user", null);

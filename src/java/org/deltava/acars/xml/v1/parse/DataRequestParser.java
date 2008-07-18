@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Iterator;
@@ -14,11 +14,11 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for DataRequest elements.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
-class DataRequestParser extends ElementParser {
+class DataRequestParser extends ElementParser<DataRequestMessage> {
 
 	/**
 	 * Convert an XML data request element into a DataRequestMessage.
@@ -26,7 +26,7 @@ class DataRequestParser extends ElementParser {
 	 * @return a DataRequestMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public DataRequestMessage parse(Element e, Pilot user) throws XMLException {
 
 		// Get the request type and validate
 		String rType = getChildText(e, "reqtype", null);

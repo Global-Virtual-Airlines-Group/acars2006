@@ -17,7 +17,7 @@ import org.deltava.acars.message.Message;
  * @since 1.0
  */
 
-abstract class ElementParser {
+abstract class ElementParser<T extends Message> {
 
 	protected static final Logger log = Logger.getLogger(ElementParser.class);
 	
@@ -28,7 +28,7 @@ abstract class ElementParser {
 	 * @return a Message or null if no message should be generated
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public abstract Message parse(Element e, Pilot user) throws XMLException;
+	public abstract T parse(Element e, Pilot user) throws XMLException;
 	
 	/**
 	 * Helper method to parse XML text with a default value.
