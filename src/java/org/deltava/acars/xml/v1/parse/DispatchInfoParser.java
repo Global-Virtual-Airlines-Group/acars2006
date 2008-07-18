@@ -9,7 +9,6 @@ import org.deltava.beans.Pilot;
 import org.deltava.beans.navdata.*;
 
 import org.deltava.acars.beans.*;
-import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 
 import org.deltava.util.StringUtils;
@@ -22,7 +21,7 @@ import org.deltava.util.system.SystemData;
  * @since 2.1
  */
 
-class DispatchInfoParser extends ElementParser {
+class DispatchInfoParser extends ElementParser<FlightDataMessage> {
 
 	/**
 	 * Convert an XML dispatch request element into a FlightDataMessage.
@@ -30,7 +29,7 @@ class DispatchInfoParser extends ElementParser {
 	 * @param user the originating user
 	 * @return a FlightDataMessage
 	 */
-	public Message parse(Element e, Pilot user) {
+	public FlightDataMessage parse(Element e, Pilot user) {
 		FlightDataMessage msg = new FlightDataMessage(user);
 		msg.setRecipient(getChildText(e, "recipient", null));
 		

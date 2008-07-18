@@ -8,10 +8,7 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.beans.FuelTank;
-import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RequestMessage;
-
-import org.deltava.acars.xml.XMLException;
 
 import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
@@ -23,15 +20,14 @@ import org.deltava.util.system.SystemData;
  * @since 2.0
  */
 
-class DispatchRequestParser extends ElementParser {
+class DispatchRequestParser extends ElementParser<RequestMessage> {
 
 	/**
 	 * Convert an XML dispatch request element into a DispatchRequestMessage.
 	 * @param e the XML element
 	 * @return a RequestMessage
-	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public RequestMessage parse(Element e, Pilot user) {
 		
 		// Create the message
 		RequestMessage msg = new RequestMessage(user);

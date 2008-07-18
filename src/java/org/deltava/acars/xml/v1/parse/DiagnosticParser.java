@@ -1,27 +1,25 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
-import org.deltava.acars.xml.XMLException;
 
 /**
- * A Parser for Diagnostic elements.
+ * A Parser for Diagnostic message elements.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
-class DiagnosticParser extends ElementParser {
+class DiagnosticParser extends ElementParser<DiagnosticMessage> {
 
 	/**
 	 * Convert an XML diag element into a DiagnosticMessage.
 	 * @param e the XML element
 	 * @return a DiagnosticMessage
-	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(org.jdom.Element e, Pilot user) throws XMLException {
+	public DiagnosticMessage parse(org.jdom.Element e, Pilot user) {
 
 		// Create the message
 		DiagnosticMessage msg = new DiagnosticMessage(user);

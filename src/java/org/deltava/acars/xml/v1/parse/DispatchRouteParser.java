@@ -1,11 +1,10 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
 
-import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RouteRequestMessage;
 
 import org.deltava.acars.xml.XMLException;
@@ -15,11 +14,11 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for route request messages.
  * @author Luke
- * @version 2.0
+ * @version 2.2
  * @since 2.0
  */
 
-class DispatchRouteParser extends ElementParser {
+class DispatchRouteParser extends ElementParser<RouteRequestMessage> {
 
 	/**
 	 * Convert an XML route request element into a RouteRequestMessage.
@@ -27,7 +26,7 @@ class DispatchRouteParser extends ElementParser {
 	 * @return a RouteMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public RouteRequestMessage parse(Element e, Pilot user) throws XMLException {
 		
 		// Create the message
 		RouteRequestMessage msg = new RouteRequestMessage(user);

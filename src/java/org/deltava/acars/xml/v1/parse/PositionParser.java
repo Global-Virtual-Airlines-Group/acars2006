@@ -18,7 +18,7 @@ import org.deltava.acars.xml.XMLException;
  * @since 1.0
  */
 
-class PositionParser extends ElementParser {
+class PositionParser extends ElementParser<PositionMessage> {
 	
 	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 	
@@ -28,7 +28,7 @@ class PositionParser extends ElementParser {
 	 * @return a PositionMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public PositionMessage parse(Element e, Pilot user) throws XMLException {
 		
 		// Create the bean
 		PositionMessage msg = new PositionMessage(user);

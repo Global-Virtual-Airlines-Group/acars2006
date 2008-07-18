@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom.Element;
@@ -6,17 +6,16 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.AcknowledgeMessage;
-import org.deltava.acars.message.Message;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A parser for Acknowledge elements.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
-class AckParser extends ElementParser {
+class AckParser extends ElementParser<AcknowledgeMessage> {
 
 	/**
 	 * Convert an XML ack element into an AcknowledgeMessage.
@@ -24,7 +23,7 @@ class AckParser extends ElementParser {
 	 * @return an AcknowledgeMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(Element e, Pilot user) throws XMLException {
+	public AcknowledgeMessage parse(Element e, Pilot user) throws XMLException {
 		
 		// Get the id of the message we are acking
 		String txtID = e.getAttributeValue("id");

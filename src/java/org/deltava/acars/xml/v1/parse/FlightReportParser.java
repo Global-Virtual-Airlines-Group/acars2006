@@ -24,7 +24,7 @@ import org.deltava.acars.xml.XMLException;
  * @since 1.0
  */
 
-class FlightReportParser extends ElementParser {
+class FlightReportParser extends ElementParser<FlightReportMessage> {
 
 	/**
 	 * Convert an XML flight report element into a FlightReportMessage.
@@ -32,7 +32,7 @@ class FlightReportParser extends ElementParser {
 	 * @return a FlightReportMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public Message parse(org.jdom.Element e, Pilot user) throws XMLException {
+	public FlightReportMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
 
 		// Build the message bean
 		FlightReportMessage msg = new FlightReportMessage(user);
