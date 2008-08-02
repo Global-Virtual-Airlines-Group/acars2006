@@ -89,6 +89,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 		
 		// Close the Log4J manager
+		log.error("Shut down " + SystemData.get("airline.code"));
 		LogManager.shutdown();
 	}
 	
