@@ -123,14 +123,16 @@
 				<v1_4>76</v1_4>
 				<v2_0>90</v2_0>
 				<v2_1>92</v2_1>
+				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
-				<b93>5</b93>
+				<b93>0</b93>
+				<b100>1</b100>
 			</map>
 
-			<latest type="Integer">92</latest>
-			<dispatch type="Integer">4</dispatch>
+			<latest type="Integer">93</latest>
+			<dispatch type="Integer">6</dispatch>
 		</build>
 
 		<pool>
