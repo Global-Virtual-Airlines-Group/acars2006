@@ -1,14 +1,17 @@
 // Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.*;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.beans.UserData;
+
+import org.deltava.beans.*;
 import org.deltava.beans.acars.FlightInfo;
+import org.deltava.beans.event.Event;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.testing.*;
 
@@ -18,7 +21,7 @@ import org.deltava.dao.acars.SetInfo;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -91,6 +94,27 @@ public class InfoCommand extends ACARSCommand {
 				GetSchedule sdao = new GetSchedule(c);
 				int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
 				msg.setScheduleValidated(avgTime > 0);
+				
+				// If we're not valid, check against draft PIREPs
+				if (!msg.isScheduleValidated()) {
+					GetFlightReports prdao = new GetFlightReports(c);
+					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+					for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !msg.isScheduleValidated(); ) {
+						FlightReport fr = i.next();
+						boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(FlightReport.DBID_ASSIGN) > 0);
+						isOK &= msg.getAirportD().equals(fr.getAirportD());
+						isOK &= msg.getAirportA().equals(fr.getAirportA());
+						msg.setScheduleValidated(isOK);
+					}
+				}
+				
+				// If we're still not valid, check for an event
+				if (!msg.isScheduleValidated()) {
+					GetEvent edao = new GetEvent(c); 
+					boolean isOK = (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_VATSIM) > 0);
+					isOK |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_IVAO) > 0);
+					msg.setScheduleValidated(isOK);
+				}
 			} else
 				msg.setScheduleValidated(true);
 

@@ -1,9 +1,9 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.schedule.*; 
 
 import org.deltava.acars.beans.FuelTank;
@@ -12,20 +12,23 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 2.0
+ * @version 2.2
  * @since 2.0
  */
 
-public class RequestMessage extends DispatchMessage {
+public class RequestMessage extends DispatchMessage implements GeoLocation {
 	
 	private Airline _a;
 	private Airport _airportD;
 	private Airport _airportA;
 	private Airport _airportL;
 	
+	private GeoLocation _loc = new GeoPosition(0, 0);
+	
 	private String _eqType;
 	private int _maxGrossWeight;
 	private int _zeroFuelWeight;
+	private boolean _routeValid;
 	
 	private final Map<FuelTank, Integer> _tankSizes = new TreeMap<FuelTank, Integer>();
 
@@ -70,6 +73,22 @@ public class RequestMessage extends DispatchMessage {
 	}
 	
 	/**
+	 * Returns the requesting pilot's latitude.
+	 * @return the latitude in degrees
+	 */
+	public double getLatitude() {
+		return _loc.getLatitude();
+	}
+	
+	/**
+	 * Returns the requesting pilot's longitude.
+	 * @return the longitude in degrees
+	 */
+	public double getLongitude() {
+		return _loc.getLongitude();
+	}
+	
+	/**
 	 * Returns the equipment type used by the Pilot.
 	 * @return the equipment type
 	 */
@@ -91,6 +110,14 @@ public class RequestMessage extends DispatchMessage {
 	 */
 	public int getZeroFuelWeight() {
 		return _zeroFuelWeight;
+	}
+
+	/**
+	 * Returns whether the requested route is valid.
+	 * @return TRUE if the route is valid, otherwise FALSE
+	 */
+	public boolean isRouteValid() {
+		return _routeValid;
 	}
 	
 	/**
@@ -136,6 +163,14 @@ public class RequestMessage extends DispatchMessage {
 	}
 	
 	/**
+	 * Updates the location of the pilot.
+	 * @param loc the requesting Pilot's location
+	 */
+	public void setLocation(GeoLocation loc) {
+		_loc = new GeoPosition(loc);
+	}
+	
+	/**
 	 * Updates the airline used on this flight.
 	 * @param a the Airline
 	 */
@@ -165,5 +200,13 @@ public class RequestMessage extends DispatchMessage {
 	 */
 	public void setAirportL(Airport a) {
 		_airportL = a;
+	}
+	
+	/**
+	 * Updates whether this is a valid route.
+	 * @param isValid TRUE if the route is valid, otherwise FALSE
+	 */
+	public void setRouteValid(boolean isValid) {
+		_routeValid = isValid;
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 2.0
+ * @version 2.2
  * @since 2.0
  */
 
@@ -36,6 +36,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		Element e = initDataResponse(pe, reqmsg.getRequestTypeName());
 		e.addContent(XMLUtils.createElement("originator", msg.getSenderID()));
 		e.addContent(XMLUtils.createElement("id", Long.toHexString(msg.getID())));
+		e.addContent(XMLUtils.createElement("routeValid", String.valueOf(reqmsg.isRouteValid())));
 		
 		// Add MGW and ZFW
 		e.addContent(XMLUtils.createElement("maxweight", String.valueOf(reqmsg.getMaxWeight())));
