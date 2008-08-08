@@ -65,7 +65,12 @@ public class ChartsCommand extends DataCommand {
 			}
 			
 			// Push the response
-			ctx.push(rspMsg, env.getConnectionID());
+			if (rspMsg.getResponse().size() == 0) {
+				SystemTextMessage txtMsg = new SystemTextMessage();
+				txtMsg.addMessage("No charts available for " + a);
+				ctx.push(txtMsg, env.getConnectionID());
+			} else
+				ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
