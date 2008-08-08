@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.acars.beans.ACARSConnection;
 import org.deltava.acars.message.*;
@@ -35,7 +36,7 @@ public class RouteEntryHelper {
 			return null;
 
 		// Build the MapRouteEntry bean
-		MapRouteEntry result = new MapRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
+		MapRouteEntry result = new MapRouteEntry(new Date(), new GeoPosition(msg), usr, imsg.getEquipmentType());
 		result.setClientBuild(con.getClientVersion(), con.getBeta());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
