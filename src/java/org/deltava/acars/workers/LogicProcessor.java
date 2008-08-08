@@ -94,6 +94,7 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new RouteRequestCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
 		
 		log.info("Loaded " + (_commands.size() + _dataCommands.size() + _dspCommands.size()) + " commands");
 	}

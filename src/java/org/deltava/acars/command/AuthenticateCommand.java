@@ -192,9 +192,14 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
 		con.setBeta(msg.getBeta());
-		con.setIsDispatch(msg.isDispatch());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff * 1000);
+		
+		// If we're a dispatcher, set the default location and range
+		if (msg.isDispatch()) {
+			con.setIsDispatch(msg.isDispatch());
+			con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
+		}
 
 		// Save the connection data
 		try {
@@ -221,7 +226,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.commitTX();
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error("Error logging connection", de);
+			log.error("Error logging connection - " + de.getMessage(), de);
 		} finally {
 			ctx.release();
 		}

@@ -44,8 +44,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _protocolVersion = 1;
 	private int _clientVersion;
 	private int _beta;
-	private boolean _isDispatch;
 	private long _dispatcherID;
+	
+	private boolean _isDispatch;
+	private GeoLocation _loc;
+	private int _range;
 
 	// Input/output network buffers
 	private transient final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
@@ -214,6 +217,14 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public long getDispatcherID() {
 		return _dispatcherID;
 	}
+	
+	public GeoLocation getLocation() {
+		return _isDispatch ? _loc : _pInfo;
+	}
+	
+	public int getDispatchRange() {
+		return _range;
+	}
 
 	public int getClientVersion() {
 		return _clientVersion;
@@ -306,6 +317,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	
 	public void setUserLocation(UserData ud) {
 		_userData = ud;
+	}
+	
+	public void setDispatchRange(GeoLocation loc, int range) {
+		_loc = loc;
+		_range = Math.max(0, range);
 	}
 
 	public String getRowClassName() {
