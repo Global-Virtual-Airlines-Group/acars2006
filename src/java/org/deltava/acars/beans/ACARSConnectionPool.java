@@ -29,7 +29,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
  * @since 1.0
  */
 
-public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
+public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
@@ -66,13 +66,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 * Returns network data in a format suitable for Google Maps.
 	 * @return a Collection of MapEntry beans
 	 */
-	public Collection<RouteEntry> getMapEntries() {
+	public Collection<ACARSMapEntry> getMapEntries() {
 		_rLock.lock();
-		Collection<RouteEntry> results = new LinkedHashSet<RouteEntry>(_cons.size());
+		Collection<ACARSMapEntry> results = new LinkedHashSet<ACARSMapEntry>(_cons.size());
 		try {
 			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
 				ACARSConnection con = i.next();
-				RouteEntry re = RouteEntryHelper.build(con);
+				ACARSMapEntry re = RouteEntryHelper.build(con);
 				if (re != null)
 					results.add(re);
 			}
@@ -89,10 +89,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<RouteEntry> {
 	 */
 	public Collection<byte[]> getSerializedInfo() {
 		_rLock.lock();
-		Collection<RouteEntry> results = new ArrayList<RouteEntry>(_cons.size());
+		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(_cons.size());
 		try {
 			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				RouteEntry re = RouteEntryHelper.build(i.next());
+				ACARSMapEntry re = RouteEntryHelper.build(i.next());
 				if (re != null)
 					results.add(re);
 			}

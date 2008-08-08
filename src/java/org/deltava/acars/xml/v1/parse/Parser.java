@@ -45,6 +45,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new DispatchRouteParser());
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new DispatchCompletionParser());
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressParser());
+		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new DispatchRangeParser());
 	}
 	
 	/**
@@ -76,7 +77,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 			msgs.add(rawMsg);
 
 		// Split up the XML
-		Collection<Document> xdocs = new ArrayList<Document>();
+		final Collection<Document> xdocs = new ArrayList<Document>();
 		try {
 			SAXBuilder builder = new SAXBuilder();
 			for (Iterator<String> i = msgs.iterator(); i.hasNext();) {
@@ -92,7 +93,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 		}
 		
 		// Parse the XML documents
-		Collection<Message> results = new ArrayList<Message>();
+		final Collection<Message> results = new ArrayList<Message>();
 		for (Iterator<Document> i = xdocs.iterator(); i.hasNext();) {
 			Document xdoc = i.next();
 			Element root = xdoc.getRootElement();

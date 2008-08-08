@@ -6,6 +6,7 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.event.Event;
+import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.dao.*;
 
@@ -91,7 +92,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (ac.getIsDispatch() && !ac.getUserBusy()) {
-				ctx.push(msg, ac.getID(), true);
+				GeoPosition gp = new GeoPosition(ac.getLocation());
+				if (gp.distanceTo(msg) <= ac.getDispatchRange())
+					ctx.push(msg, ac.getID(), true);
+				
 				reqsSent++;
 			}
 		}

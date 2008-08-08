@@ -7,16 +7,13 @@ import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 
 import org.deltava.acars.beans.ACARSConnection;
-
-import org.deltava.acars.message.InfoMessage;
-import org.deltava.acars.message.PositionMessage;
+import org.deltava.acars.message.*;
 
 /**
- * A utility class to turn PositionMessages into MapRouteEntry beans.
+ * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
  * @version 2.2
  * @since 1.0
- * @see MapRouteEntry
  */
 
 public class RouteEntryHelper {
@@ -24,9 +21,11 @@ public class RouteEntryHelper {
 	/**
 	 * Builds a route Entry from the current connection data.
 	 * @param con the ACARS connection
-	 * @return a RouteEntry bean
+	 * @return a MapRouteEntry bean
 	 */
-	public static RouteEntry build(ACARSConnection con) {
+	public static final ACARSMapEntry build(ACARSConnection con) {
+		if (con.getIsDispatch())
+			return buildDispatch(con);
 
 		// Extract data from the connection
 		Pilot usr = con.getUser();
@@ -35,9 +34,10 @@ public class RouteEntryHelper {
 		if ((usr == null) || (msg == null) || (imsg == null))
 			return null;
 
-		// Build the NamedRouteEntry
+		// Build the MapRouteEntry bean
 		MapRouteEntry result = new MapRouteEntry(new Date(), msg, usr, imsg.getEquipmentType());
 		result.setClientBuild(con.getClientVersion(), con.getBeta());
+		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
 		result.setID(imsg.getFlightID());
@@ -59,6 +59,27 @@ public class RouteEntryHelper {
 		result.setAOA(msg.getAngleOfAttack());
 		result.setG(msg.getG());
 		result.setFuelRemaining(msg.getFuelRemaining());
+		return result;
+	}
+	
+	/**
+	 * Builds an ACARS Map Entry for a dispatch connection.
+	 * @param ac the ACARS connection
+	 * @return a DispatchMapEntry bean
+	 */
+	public static final ACARSMapEntry buildDispatch(ACARSConnection ac) {
+		
+		// Get data from the entry
+		Pilot usr = ac.getUser();
+		GeoLocation loc = ac.getLocation();
+		if ((loc == null) || (usr == null))
+			return null;
+		
+		// Build the DispatchMapEntry bean
+		DispatchMapEntry result = new DispatchMapEntry(usr, loc);
+		result.setClientBuild(ac.getClientVersion(), ac.getBeta());
+		result.setBusy(ac.getUserBusy());
+		result.setRange(ac.getDispatchRange());
 		return result;
 	}
 }
