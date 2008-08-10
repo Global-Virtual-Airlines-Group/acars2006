@@ -2,7 +2,6 @@
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.*;
-import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.acars.message.DispatchMessage;
 
@@ -47,7 +46,7 @@ public class RangeMessage extends DispatchMessage {
 	 * @param loc the location
 	 */
 	public void setLocation(GeoLocation loc) {
-		_loc = new GeoPosition(loc);
+		_loc = loc;
 	}
 	
 	/**
