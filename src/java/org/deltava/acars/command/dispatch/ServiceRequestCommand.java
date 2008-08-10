@@ -93,8 +93,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			ACARSConnection ac = i.next();
 			if (ac.getIsDispatch() && !ac.getUserBusy()) {
 				GeoPosition gp = new GeoPosition(ac.getLocation());
-				if (gp.distanceTo(msg) <= ac.getDispatchRange())
+				int distance = gp.distanceTo(msg);
+				if (distance <= ac.getDispatchRange())
 					ctx.push(msg, ac.getID(), true);
+				else
+					log.warn("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
 				
 				reqsSent++;
 			}
