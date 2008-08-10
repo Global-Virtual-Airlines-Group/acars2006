@@ -51,9 +51,9 @@ public class RangeMessage extends DispatchMessage {
 	
 	/**
 	 * Sets the service range.
-	 * @param range the range in miles
+	 * @param range the range in miles, or zero for unlimited
 	 */
 	public void setRange(int range) {
-		_range = Math.max(20, range);
+		_range = (range < 1) ? Integer.MAX_VALUE : Math.max(100, range); 
 	}
 }
