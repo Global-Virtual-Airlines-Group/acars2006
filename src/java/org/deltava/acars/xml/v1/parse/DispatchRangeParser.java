@@ -4,11 +4,12 @@ package org.deltava.acars.xml.v1.parse;
 import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.schedule.GeoPosition;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.dispatch.RangeMessage;
 
 import org.deltava.util.StringUtils;
+import org.deltava.util.system.SystemData;
 
 /**
  * A parser for Dispatch service range elements.
@@ -27,14 +28,18 @@ public class DispatchRangeParser extends ElementParser<RangeMessage> {
 	 */
 	public RangeMessage parse(Element e, Pilot user) {
 		
-		// Create the message
+		// Create the and set range
 		RangeMessage msg = new RangeMessage(user);
-		
-		// Get the range Data
 		msg.setRange(StringUtils.parse(getChildText(e, "range", null), Integer.MAX_VALUE));
-		double lat = StringUtils.parse(getChildText(e, "lat", "0.0"), 0.0d);
-		double lng = StringUtils.parse(getChildText(e, "lng", "0.0"), 0.0d);
-		msg.setLocation(new GeoPosition(lat, lng));
+		
+		// Check for an airport
+		Airport a = SystemData.getAirport(getChildText(e, "airport", null));
+		if (a == null) {
+			double lat = StringUtils.parse(getChildText(e, "lat", "0.0"), 0.0d);
+			double lng = StringUtils.parse(getChildText(e, "lng", "0.0"), 0.0d);
+			msg.setLocation(new GeoPosition(lat, lng));
+		} else
+			msg.setLocation(a);
 		
 		// Return the message
 		return msg;
