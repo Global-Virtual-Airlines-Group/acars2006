@@ -43,7 +43,7 @@ public class RouteRequestCommand extends DispatchCommand {
 		RouteRequestMessage msg = (RouteRequestMessage) env.getMessage();
 
 		try {
-			RouteInfoMessage rmsg = new RouteInfoMessage(usr);
+			RouteInfoMessage rmsg = new RouteInfoMessage(usr, msg.getID());
 			Connection con = ctx.getConnection();
 			
 			// Load the routes
