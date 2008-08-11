@@ -135,7 +135,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				errMsg.setEntry("error", "ACARS Server access disabled");
 			else if (UserBlocker.isBanned(usr))
 				errMsg.setEntry("error", "ACARS Server temporary lockout");
-			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
+			else if (msg.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
 			else
 				errMsg.setEntry("error", "Authentication Failed");
