@@ -34,7 +34,7 @@ public final class SetConnection extends DAO {
 		
 		try {
 			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, " +
-					"CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, INET_ATON(?), ?, ?, ?)");
+					"CLIENT_BUILD, BETA_BUILD, DISPATCH) VALUES (?, ?, ?, INET_ATON(?), ?, ?, ?, ?)");
 			
 			// Set the prepared statement
 			_ps.setLong(1, c.getID());
@@ -44,6 +44,7 @@ public final class SetConnection extends DAO {
 			_ps.setString(5, c.getRemoteHost());
 			_ps.setInt(6, c.getClientVersion());
 			_ps.setInt(7, c.getBeta());
+			_ps.setBoolean(8, c.getIsDispatch());
 			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
