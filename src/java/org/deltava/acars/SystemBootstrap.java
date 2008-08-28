@@ -202,6 +202,13 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Set dispatch build
 		cInfo.setMinimumDispatchBuild(SystemData.getInt("acars.build.dispatch", 1));
 		
+		// Set no dispatch builds
+		Collection noDspBuilds = (Collection) SystemData.getObject("acars.build.noDispatch");
+		for (Iterator i = noDspBuilds.iterator(); i.hasNext(); ) {
+			int build = StringUtils.parse(i.next().toString(), 0);
+			cInfo.addNoDispatchBuild(build);
+		}
+		
 		// Start the ACARS/Mailer/IPC daemons
 		Runnable tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);

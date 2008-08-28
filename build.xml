@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project default="deploy">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
@@ -10,7 +10,7 @@
 				<pathelement location="../DVA2006/lib/servlet-api-2.5.jar" />
 	    		<pathelement location="../DVA2006/lib/deploy/jdom-1.1.jar" />
 	    		<pathelement location="lib/deploy/log4j-1.2.15.jar" />
-	    		<pathelement location="lib/deploy/golgotha_ipc-1.21.jar" />
+	    		<pathelement location="lib/deploy/golgotha_ipc-1.22.jar" />
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>
