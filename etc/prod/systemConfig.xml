@@ -132,7 +132,10 @@
 			</map>
 
 			<latest type="Integer">93</latest>
-			<dispatch type="Integer">6</dispatch>
+			<dispatch type="Integer">7</dispatch>
+			<list name="noDispatch" attr="build" unique="true">
+				<build>92</build>
+			</list>
 		</build>
 
 		<pool>
