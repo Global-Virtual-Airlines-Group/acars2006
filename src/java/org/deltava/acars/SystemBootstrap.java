@@ -3,6 +3,7 @@ package org.deltava.acars;
 
 import java.sql.*;
 import java.util.*;
+import java.io.IOException;
 
 import javax.servlet.*;
 
@@ -102,6 +103,14 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Initialize system data
 		SystemData.init();
 		SharedData.addApp(SystemData.get("airline.code"));
+		
+		// Load the profanity filter
+		try {
+			log.info("Initializing Content Filter");
+			ProfanityFilter.init(ConfigLoader.getStream("/etc/profanity.txt"));
+		} catch (IOException ie) {
+			log.warn("Cannot load Profanity Filter - " + ie.getMessage());
+		}
 
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
