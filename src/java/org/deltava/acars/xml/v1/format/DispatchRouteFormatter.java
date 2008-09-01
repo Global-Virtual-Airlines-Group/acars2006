@@ -64,6 +64,9 @@ public class DispatchRouteFormatter extends ElementFormatter {
 				we.setAttribute("lat", StringUtils.format(nd.getLatitude(), "##0.00000"));
 				we.setAttribute("lon", StringUtils.format(nd.getLongitude(), "##0.00000"));
 				we.setAttribute("uniqueID", nd.toString());
+				if (nd.getRegion() != null)
+					we.setAttribute("region", nd.getRegion());
+				
 				String airway = rp.getAirway(nd);
 				if (airway != null)
 					we.setAttribute("airway", airway);
