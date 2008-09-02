@@ -34,6 +34,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, reqmsg.getRequestTypeName());
+		e.setAttribute("id", String.valueOf(reqmsg.getID()));
 		e.addContent(XMLUtils.createElement("originator", msg.getSenderID()));
 		e.addContent(XMLUtils.createElement("id", Long.toHexString(msg.getID())));
 		e.addContent(XMLUtils.createElement("routeValid", String.valueOf(reqmsg.isRouteValid())));
