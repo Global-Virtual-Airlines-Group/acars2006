@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -9,7 +9,7 @@ import org.deltava.beans.schedule.Airport;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 2.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -156,6 +156,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public boolean isScheduleValidated() {
 		return _scheduleValidated;
+	}
+	
+	public boolean matches(Airport org, Airport dst) {
+		return (_airportD.equals(org) && _airportA.equals(dst));
 	}
 	
 	public synchronized void addPosition(PositionMessage pmsg) {
