@@ -21,6 +21,8 @@ public class RouteInfoMessage extends DispatchMessage {
 	private long _parent;
 	private boolean _routeValid;
 	
+	private String _msg;
+	
 	/**
 	 * Creates the Message.
 	 * @param msgFrom the originating Pilot
@@ -47,6 +49,14 @@ public class RouteInfoMessage extends DispatchMessage {
 	public long getParentID() {
 		return _parent;
 	}
+	
+	/**
+	 * Returns the message sent to the dispatcher or pilot requesting routes.
+	 * @return the message
+	 */
+	public String getMessage() {
+		return _msg;
+	}
 
 	/**
 	 * Returns if the route as valid.
@@ -62,6 +72,14 @@ public class RouteInfoMessage extends DispatchMessage {
 	 */
 	public void addPlan(RoutePlan rp) {
 		_plans.add(rp);
+	}
+	
+	/**
+	 * Sets an additional message to return to the user requesting routes.
+	 * @param msg the message
+	 */
+	public void setMessage(String msg) {
+		_msg = msg;
 	}
 	
 	/**

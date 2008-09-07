@@ -5,6 +5,7 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.RoutePlan;
 import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.GeoPosition;
 
@@ -43,10 +44,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 		
 		// Get the inbound message
 		RequestMessage msg = (RequestMessage) env.getMessage();
-		UserData ud = ctx.getACARSConnection().getUserData();
 		
 		// Check minimum build number
 		ACARSConnection c = ctx.getACARSConnection();
+		UserData ud = c.getUserData();
 		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
 		if (cInfo.getNoDispatchBuilds().contains(Integer.valueOf(c.getClientVersion()))) {
 			log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientVersion());
@@ -110,12 +111,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			if (ac.getIsDispatch() && !ac.getUserBusy()) {
 				GeoPosition gp = new GeoPosition(ac.getLocation());
 				int distance = gp.distanceTo(msg);
-				if (distance <= ac.getDispatchRange())
+				if (distance <= ac.getDispatchRange()) {
+					reqsSent++;
 					ctx.push(msg, ac.getID(), true);
-				else
-					log.warn("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
-				
-				reqsSent++;
+				} else
+					log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
 			}
 		}
 		
@@ -127,9 +127,35 @@ public class ServiceRequestCommand extends DispatchCommand {
 				txtMsg.addMessage("You are requesting an Invalid Route, and are unlikely to receive Service!");
 			
 			ctx.push(txtMsg, env.getConnectionID());
+			return;
+		}
+
+		// If we have no dispatchers in range, then send back system routes
+		log.info("No Dispatchers for " + c.getUserID() + ", doing Auto-Dispatch");
+		Collection<RoutePlan> plans = new ArrayList<RoutePlan>();
+		try {
+			GetACARSRoute rdao = new GetACARSRoute(ctx.getConnection());
+			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
+		} catch (DAOException de) {
+			log.error("Cannot load Dispatch routes - " + de.getMessage(), de);
+			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			errorMsg.setEntry("error", "Cannot load Dispatch routes");
+			ctx.push(errorMsg, env.getConnectionID());
+		} finally {
+			ctx.release();
+		}
+		
+		// Return back the routes
+		if (!plans.isEmpty()) {
+			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
+			for (RoutePlan rp : plans)
+				rmsg.addPlan(rp);
+
+			rmsg.setMessage("No Dispatchers available, loaded " + plans.size() + " Dispatch routes from database");
+			ctx.push(rmsg, env.getConnectionID());
 		} else {
 			SystemTextMessage txtMsg = new SystemTextMessage();
-			txtMsg.addMessage("No available Dispatchers within range!");
+			txtMsg.addMessage("No available Dispatchers within range, and no Dispatch routes found.");
 			ctx.push(txtMsg, env.getConnectionID());
 			ctx.push(new CancelMessage(env.getOwner()), env.getConnectionID());
 		}
