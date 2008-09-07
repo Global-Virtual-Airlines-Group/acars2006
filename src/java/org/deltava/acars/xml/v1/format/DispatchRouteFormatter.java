@@ -37,6 +37,8 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		Element e = initDataResponse(pe, "routes");
 		e.setAttribute("routeValid", String.valueOf(rmsg.isRouteValid()));
 		e.setAttribute("id", String.valueOf(rmsg.getParentID()));
+		if (!StringUtils.isEmpty(rmsg.getMessage()))
+			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
 		
 		// Add the routes
 		for (Iterator<RoutePlan> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
