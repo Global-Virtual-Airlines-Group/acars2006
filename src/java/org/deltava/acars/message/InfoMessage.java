@@ -41,14 +41,13 @@ public class InfoMessage extends AbstractMessage {
 	private boolean _flightComplete;
 	private boolean _checkRide;
 	private boolean _scheduleValidated;
+	
 	private boolean _dispatchPlan;
+	private int _dispatcherID;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
-	private final Set<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
+	private final Collection<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
 	
-	// Constant for splitting waypoint lists
-	private final static String WAYPOINT_SPACER = " ";
-
 	public InfoMessage(Pilot msgFrom) {
 		super(Message.MSG_INFO, msgFrom);
 	}
@@ -117,21 +116,17 @@ public class InfoMessage extends AbstractMessage {
 		return _waypoints;
 	}
 	
-	public String getAllWaypoints(char sep) {
+	public String getAllWaypoints() {
 		
 		StringBuilder buf = new StringBuilder();
 		for (Iterator<String> i = _waypoints.iterator(); i.hasNext(); ) {
 			buf.append(i.next());
 			if (i.hasNext())
-				buf.append(sep);
+				buf.append(' ');
 		}
 		
 		// Return the buffer
 		return buf.toString();
-	}
-	
-	public String getAllWaypoints() {
-		return getAllWaypoints(WAYPOINT_SPACER.charAt(0));
 	}
 	
 	public synchronized Collection<PositionMessage> getPositions() {
@@ -152,6 +147,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public boolean isDispatchPlan() {
 		return _dispatchPlan;
+	}
+	
+	public int getDispatcherID() {
+		return _dispatcherID;
 	}
 	
 	public boolean isScheduleValidated() {
@@ -235,6 +234,10 @@ public class InfoMessage extends AbstractMessage {
 		_dispatchPlan = isDP;
 	}
 	
+	public void setDispatcherID(int id) {
+		_dispatcherID = Math.max(0, id);
+	}
+	
 	public void setStartTime(Date dt) {
 		_startTime = dt;
 	}
@@ -249,8 +252,18 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setWaypoints(String wpList) {
 		
+		// Remove any non-alphanumeric character with a space
+		StringBuilder buf = new StringBuilder();
+		for (int x = 0; x < wpList.length(); x++) {
+			char c = wpList.charAt(x);
+			if (Character.isLetterOrDigit(c))
+				buf.append(c);
+			else
+				buf.append(' ');
+		}
+		
 		// Split into a tokenizer - replace periods with the waypoint spacer
-		StringTokenizer wpTokens = new StringTokenizer(wpList.replaceAll("[.]+", WAYPOINT_SPACER), WAYPOINT_SPACER);
+		StringTokenizer wpTokens = new StringTokenizer(buf.toString(), " ");
 		while (wpTokens.hasMoreTokens())
 			addWaypoint(wpTokens.nextToken());
 	}

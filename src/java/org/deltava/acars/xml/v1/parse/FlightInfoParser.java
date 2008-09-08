@@ -68,6 +68,7 @@ class FlightInfoParser extends ElementParser<InfoMessage> {
 		msg.setComplete(Boolean.valueOf(getChildText(e, "complete", null)).booleanValue());
 		msg.setDispatchPlan(Boolean.valueOf(getChildText(e, "dispatchPlan", "false")).booleanValue());
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
+		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		
 		// Load SID data
 		Element sid = e.getChild("sid");
@@ -80,8 +81,7 @@ class FlightInfoParser extends ElementParser<InfoMessage> {
 			msg.setSTAR(getChildText(star, "name", "") + "." + getChildText(star, "transition", "") + "." + getChildText(star, "rwy", ""));
 
 		// Load waypoints
-		String waypoints = getChildText(e, "route", "DIRECT");
-		msg.setWaypoints(StringUtils.strip(waypoints, "-,\'\""));
+		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		return msg;
 	}
 	
