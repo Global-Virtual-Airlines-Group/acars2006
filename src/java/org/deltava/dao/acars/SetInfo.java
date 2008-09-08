@@ -18,12 +18,12 @@ public class SetInfo extends DAO {
 
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
-		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, MP) "
-		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, "
+		+ "DISPATCHER_ID, MP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
-		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?)";
+		+ "SCHED_VALID=?, DISPATCH_PLAN=?, DISPATCHER_ID=?, MP=?, END_TIME=NULL WHERE (ID=?)";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -58,9 +58,10 @@ public class SetInfo extends DAO {
 			_ps.setBoolean(12, msg.isOffline());
 			_ps.setBoolean(13, msg.isScheduleValidated());
 			_ps.setBoolean(14, msg.isDispatchPlan());
-			_ps.setBoolean(15, (msg.getLivery() != null));
+			_ps.setInt(15, msg.getDispatcherID());
+			_ps.setBoolean(16, (msg.getLivery() != null));
 			if (msg.getFlightID() != 0)
-				_ps.setInt(16, msg.getFlightID());
+				_ps.setInt(17, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(0);
