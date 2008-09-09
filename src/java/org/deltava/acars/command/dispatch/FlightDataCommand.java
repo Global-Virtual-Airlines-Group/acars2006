@@ -62,16 +62,15 @@ public class FlightDataCommand extends DispatchCommand {
 		}
 		
 		// Save the dispatch message data
-		try {
-			SetRoute dao = new SetRoute(ctx.getConnection());
-			if ((msg.getRouteID() == 0) && !msg.getNoSave())
+		if ((msg.getRouteID() == 0) && !msg.getNoSave()) {
+			try {
+				SetRoute dao = new SetRoute(ctx.getConnection());
 				dao.save(msg, con.getClientVersion());
-			else if (msg.getRouteID() > 0)
-				dao.use(msg.getRouteID());
-		} catch (DAOException de) {
-			log.warn("Cannot save/update route data - " + de.getMessage(), de);
-		} finally {
-			ctx.release();
+			} catch (DAOException de) {
+				log.warn("Cannot save/update route data - " + de.getMessage(), de);
+			} finally {
+				ctx.release();
+			}
 		}
 		
 		// Send out the dispatch data

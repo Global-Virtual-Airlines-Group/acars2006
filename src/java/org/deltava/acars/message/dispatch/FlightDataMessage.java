@@ -4,7 +4,9 @@ package org.deltava.acars.message.dispatch;
 import java.util.*;
 
 import org.deltava.beans.*;
+import org.deltava.beans.navdata.NavigationDataBean;
 import org.deltava.beans.schedule.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
@@ -33,7 +35,7 @@ public class FlightDataMessage extends DispatchMessage {
 	private Airport _airportA;
 	private Airport _airportL;
 	
-	private final Collection<RouteWaypoint> _route = new LinkedHashSet<RouteWaypoint>();
+	private final Collection<NavigationDataBean> _route = new LinkedHashSet<NavigationDataBean>();
 	private String _routeText;
 	
 	private String _sid;
@@ -120,7 +122,7 @@ public class FlightDataMessage extends DispatchMessage {
 		return _txCode;
 	}
 	
-	public Collection<RouteWaypoint> getWaypoints() {
+	public Collection<NavigationDataBean> getWaypoints() {
 		return _route;
 	}
 	
@@ -128,7 +130,7 @@ public class FlightDataMessage extends DispatchMessage {
 		return _routeText;
 	}
 	
-	public void addWaypoint(RouteWaypoint wp) {
+	public void addWaypoint(NavigationDataBean wp) {
 		_route.add(wp);
 	}
 	

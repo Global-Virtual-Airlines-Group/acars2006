@@ -19,11 +19,11 @@ public class SetInfo extends DAO {
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
 		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, "
-		+ "DISPATCHER_ID, MP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "MP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
-		+ "SCHED_VALID=?, DISPATCH_PLAN=?, DISPATCHER_ID=?, MP=?, END_TIME=NULL WHERE (ID=?)";
+		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -42,8 +42,9 @@ public class SetInfo extends DAO {
 	public void write(InfoMessage msg, long cid) throws DAOException {
 		boolean isNew = (msg.getFlightID() == 0);
 		try {
-			// Set the prepared statement
-			prepareStatement(isNew ? ISQL : USQL);
+			startTransaction();
+			
+			prepareStatementWithoutLimits(isNew ? ISQL : USQL);
 			_ps.setLong(1, cid);
 			_ps.setString(2, msg.getFlightCode());
 			_ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
@@ -58,19 +59,35 @@ public class SetInfo extends DAO {
 			_ps.setBoolean(12, msg.isOffline());
 			_ps.setBoolean(13, msg.isScheduleValidated());
 			_ps.setBoolean(14, msg.isDispatchPlan());
-			_ps.setInt(15, msg.getDispatcherID());
-			_ps.setBoolean(16, (msg.getLivery() != null));
+			_ps.setBoolean(15, (msg.getLivery() != null));
 			if (msg.getFlightID() != 0)
-				_ps.setInt(17, msg.getFlightID());
+				_ps.setInt(16, msg.getFlightID());
 			
 			// Write to the database
-			executeUpdate(0);
+			executeUpdate(1);
 			
-			// If we're writing a new entry, get the database ID otherwise clean out SID/STAR data
+			// If we're writing a new entry, get the database ID
 			if (isNew)
 				msg.setFlightID(getNewID());
+			
+			// Save route usage if using auto-Dispatch
+			if (isNew && (msg.getRouteID() != 0)) {
+				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID, DISPATCHER_ID) VALUES (?, ?, ?)");
+				_ps.setInt(1, msg.getFlightID());
+				_ps.setInt(2, msg.getRouteID());
+				_ps.setInt(3, msg.getDispatcherID());
+				executeUpdate(0);
+				
+				// Save route usage
+				prepareStatementWithoutLimits("UPDATE acars.ROUTES SET USED=USED+1, LASTUSED=NOW() WHERE (ID=?) LIMIT 1");
+				_ps.setInt(1, msg.getRouteID());
+				executeUpdate(0);
+			}
+				
+			commitTransaction();
 		} catch (SQLException se) {
-			throw new DAOException(se.getMessage());
+			rollbackTransaction();
+			throw new DAOException(se);
 		}
 	}
 	

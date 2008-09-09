@@ -5,9 +5,8 @@ import java.sql.*;
 import java.util.*;
 
 import org.deltava.dao.*;
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.navdata.*;
 
-import org.deltava.acars.beans.RouteWaypoint;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 
 /**
@@ -61,18 +60,18 @@ public class SetRoute extends DAO {
 			// Save the waypoints
 			int seq = -1;
 			prepareStatementWithoutLimits("INSERT INTO acars.ROUTE_WP (ID, SEQ, CODE, ITEMTYPE, LATITUDE, "
-					+ "LONGITUDE, AIRWAY) VALUES (?, ?, ?, ?, ?, ?, ?)");
+					+ "LONGITUDE, AIRWAY, REGION) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 			_ps.setInt(1, msg.getRouteID());
-			for (Iterator<RouteWaypoint> i = msg.getWaypoints().iterator(); i.hasNext();) {
-				RouteWaypoint wp = i.next();
-				if (!wp.isInTerminalRoute()) {
-					NavigationDataBean nd = wp.getWaypoint();
+			for (Iterator<NavigationDataBean> i = msg.getWaypoints().iterator(); i.hasNext();) {
+				NavigationDataBean nd = i.next();
+				if (!nd.isInTerminalRoute()) {
 					_ps.setInt(2, ++seq);
 					_ps.setString(3, nd.getCode());
 					_ps.setInt(4, nd.getType());
 					_ps.setDouble(5, nd.getLatitude());
 					_ps.setDouble(6, nd.getLongitude());
-					_ps.setString(7, wp.getAirway());
+					_ps.setString(7, nd.getAirway());
+					_ps.setString(8, nd.getRegion());
 					_ps.addBatch();
 				}
 			}
@@ -82,21 +81,6 @@ public class SetRoute extends DAO {
 			commitTransaction();
 		} catch (SQLException se) {
 			rollbackTransaction();
-			throw new DAOException(se);
-		}
-	}
-
-	/**
-	 * Tracks usage of a dispatch route.
-	 * @param id the route's database ID
-	 * @throws DAOException if a JDBC error occurs
-	 */
-	public void use(int id) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("UPDATE acars.ROUTES SET USED=USED+1, LASTUSED=NOW() WHERE (ID=?) LIMIT 1");
-			_ps.setInt(1, id);
-			executeUpdate(0);
-		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
 	}
