@@ -53,7 +53,8 @@ public class RouteRequestCommand extends DispatchCommand {
 				rmsg.addPlan(rp);
 			
 			// Send the response
-			rmsg.setMessage("Loaded " + plans.size() + " Dispatch routes from database");
+			if (!ctx.getACARSConnection().getIsDispatch())
+				rmsg.setMessage("Loaded " + plans.size() + " Dispatch routes from database");
 			ctx.push(rmsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Cannot load route data - " + de.getMessage(), de);

@@ -46,6 +46,7 @@ class ConnectionFormatter extends ElementFormatter {
 			if (con.isAuthenticated()) {
 				Pilot usr = con.getUser();
 				ce.setAttribute("id", usr.getPilotCode());
+				ce.setAttribute("dbID", Integer.toHexString(usr.getID()));
 				ce.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
 				ce.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
 				ce.addContent(XMLUtils.createElement("name", usr.getName()));

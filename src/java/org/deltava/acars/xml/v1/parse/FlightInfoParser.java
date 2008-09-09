@@ -69,6 +69,7 @@ class FlightInfoParser extends ElementParser<InfoMessage> {
 		msg.setDispatchPlan(Boolean.valueOf(getChildText(e, "dispatchPlan", "false")).booleanValue());
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
+		msg.setRouteID(StringUtils.parse(getChildText(e, "routeID", "0"), 0));
 		
 		// Load SID data
 		Element sid = e.getChild("sid");

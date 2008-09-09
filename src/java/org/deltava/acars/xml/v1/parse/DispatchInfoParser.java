@@ -68,10 +68,13 @@ class DispatchInfoParser extends ElementParser<FlightDataMessage> {
 			NavigationDataBean nd = NavigationDataBean.create(wpe.getAttributeValue("type"), lat, lng);
 			nd.setCode(wpe.getAttributeValue("code"));
 			nd.setRegion(wpe.getAttributeValue("region"));
-			RouteWaypoint wp = new RouteWaypoint(nd);
-			wp.setInTerminalRoute(Boolean.valueOf(wpe.getAttributeValue("tr")).booleanValue());
-			wp.setAirway(wpe.getAttributeValue("airway"));
-			msg.addWaypoint(wp);
+			boolean inTR = Boolean.valueOf(wpe.getAttributeValue("tr")).booleanValue();
+			if (inTR)
+				nd.setAirway(".");
+			else
+				nd.setAirway(wpe.getAttributeValue("airway"));
+			
+			msg.addWaypoint(nd);
 		}
 		
 		// Return the message

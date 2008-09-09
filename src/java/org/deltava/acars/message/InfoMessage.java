@@ -44,6 +44,7 @@ public class InfoMessage extends AbstractMessage {
 	
 	private boolean _dispatchPlan;
 	private int _dispatcherID;
+	private int _routeID;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
 	private final Collection<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
@@ -153,6 +154,10 @@ public class InfoMessage extends AbstractMessage {
 		return _dispatcherID;
 	}
 	
+	public int getRouteID() {
+		return _routeID;
+	}
+	
 	public boolean isScheduleValidated() {
 		return _scheduleValidated;
 	}
@@ -236,6 +241,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setDispatcherID(int id) {
 		_dispatcherID = Math.max(0, id);
+	}
+	
+	public void setRouteID(int id) {
+		_routeID = Math.max(0, id);
 	}
 	
 	public void setStartTime(Date dt) {

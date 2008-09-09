@@ -1,11 +1,11 @@
-// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
 import org.jdom.Element;
 
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.navdata.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -67,9 +67,8 @@ class DispatchInfoFormatter extends ElementFormatter {
 		// Add waypoints
 		Element re = new Element("route");
 		e.addContent(re);
-		for (Iterator<RouteWaypoint> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
-			RouteWaypoint wp = i.next();
-			NavigationDataBean nd = wp.getWaypoint();
+		for (Iterator<NavigationDataBean> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
+			NavigationDataBean nd = i.next();
 			Element wpe = new Element("waypoint");
 			wpe.setAttribute("code", nd.getCode());
 			wpe.setAttribute("type", nd.getTypeName());
@@ -78,10 +77,10 @@ class DispatchInfoFormatter extends ElementFormatter {
 			wpe.setAttribute("uniqueID", nd.toString());
 			if (nd.getRegion() != null)
 				wpe.setAttribute("region", nd.getRegion());
-			if (wp.getAirway() != null)
-				wpe.setAttribute("airway", wp.getAirway());
-			if (wp.isInTerminalRoute())
-				wpe.setAttribute("tr", String.valueOf(wp.isInTerminalRoute()));
+			if ((nd.getAirway() != null) && (nd.getAirway().length() > 1))
+				wpe.setAttribute("airway", nd.getAirway());
+			if (nd.isInTerminalRoute())
+				wpe.setAttribute("tr", String.valueOf(nd.isInTerminalRoute()));
 			
 			re.addContent(wpe);
 		}
