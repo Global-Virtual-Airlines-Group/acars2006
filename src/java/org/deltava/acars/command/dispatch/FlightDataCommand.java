@@ -62,7 +62,8 @@ public class FlightDataCommand extends DispatchCommand {
 		}
 		
 		// Save the dispatch message data
-		if ((msg.getRouteID() == 0) && !msg.getNoSave()) {
+		boolean canCreate = usr.isInRole("Route");
+		if ((msg.getRouteID() == 0) && canCreate && !msg.getNoSave()) {
 			try {
 				SetRoute dao = new SetRoute(ctx.getConnection());
 				dao.save(msg, con.getClientVersion());
