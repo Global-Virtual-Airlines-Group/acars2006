@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.testing.*;
-import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.beans.*;
@@ -114,13 +113,13 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Check if it's an Online Event flight
 			if ((afr.getDatabaseID(FlightReport.DBID_EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
-				int networkID = Event.NET_VATSIM;
+				OnlineNetwork network = OnlineNetwork.VATSIM;
 				if (afr.hasAttribute(FlightReport.ATTR_IVAO))
-					networkID = Event.NET_IVAO;
+					network = OnlineNetwork.IVAO;
 				
 				// Load the event ID
 				GetEvent evdao = new GetEvent(con);
-				afr.setDatabaseID(FlightReport.DBID_EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), networkID));
+				afr.setDatabaseID(FlightReport.DBID_EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
 			}
 			
 			// Reload the User

@@ -6,7 +6,6 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.RoutePlan;
-import org.deltava.beans.event.Event;
 import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.dao.*;
@@ -86,8 +85,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// If we're still not valid, check for an event
 			if (!routeValid) {
 				GetEvent edao = new GetEvent(con); 
-				routeValid |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_VATSIM) > 0);
-				routeValid |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_IVAO) > 0);
+				routeValid |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.VATSIM) > 0);
+				routeValid |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.IVAO) > 0);
 				if (routeValid)
 					log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using Online Event");
 			}
