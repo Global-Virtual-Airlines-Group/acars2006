@@ -32,8 +32,8 @@
 			<continueBatchOnError>true</continueBatchOnError>
 			<useServerPrepStmts>true</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
-			<useLocalSessionState>true</useLocalSessionState>
-			<useCursorFetch>false</useCursorFetch>
+			<useLocalSessionState>false</useLocalSessionState>
+			<useCursorFetch>true</useCursorFetch>
 			<maintainTimeStats>false</maintainTimeStats>
 			<validationQuery>/* ping */</validationQuery>
 		</map>

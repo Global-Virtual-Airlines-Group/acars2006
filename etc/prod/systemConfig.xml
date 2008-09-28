@@ -34,7 +34,7 @@
 			<useCompression>false</useCompression>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>true</autoReconnect>
-			<useLocalSessionState>true</useLocalSessionState>
+			<useLocalSessionState>false</useLocalSessionState>
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
