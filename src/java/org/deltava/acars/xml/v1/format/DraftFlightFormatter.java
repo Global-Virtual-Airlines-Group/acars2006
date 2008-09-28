@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -48,11 +48,9 @@ class DraftFlightFormatter extends ElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			if (fr.hasAttribute(FlightReport.ATTR_VATSIM))
-				fe.setAttribute("network", OnlineNetwork.VATSIM);
+				fe.setAttribute("network", OnlineNetwork.VATSIM.toString());
 			else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
-				fe.setAttribute("network", OnlineNetwork.IVAO);
-			else if (fr.hasAttribute(FlightReport.ATTR_FPI))
-				fe.setAttribute("network", OnlineNetwork.FPI);
+				fe.setAttribute("network", OnlineNetwork.IVAO.toString());
 			
 			e.addContent(fe);
 		}

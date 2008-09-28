@@ -9,6 +9,7 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ControllerMessage;
 
+import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.NetworkInfo;
 import org.deltava.dao.file.GetServInfo;
 
@@ -19,7 +20,7 @@ import org.deltava.util.servinfo.ServInfoLoader;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  */
 
@@ -41,7 +42,7 @@ public class ATCInfoCommand extends DataCommand {
 		
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		String network = msg.getFlag("network").toUpperCase();
+		OnlineNetwork network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
 		Collection networkNames = (Collection) SystemData.getObject("online.networks");
 		if (!networkNames.contains(network))
 			return;

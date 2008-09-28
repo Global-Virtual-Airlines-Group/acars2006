@@ -11,7 +11,6 @@ import org.deltava.acars.message.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.FlightInfo;
-import org.deltava.beans.event.Event;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.testing.*;
 
@@ -111,8 +110,8 @@ public class InfoCommand extends ACARSCommand {
 				// If we're still not valid, check for an event
 				if (!msg.isScheduleValidated()) {
 					GetEvent edao = new GetEvent(c); 
-					boolean isOK = (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_VATSIM) > 0);
-					isOK |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), Event.NET_IVAO) > 0);
+					boolean isOK = (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.VATSIM) > 0);
+					isOK |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.VATSIM) > 0);
 					msg.setScheduleValidated(isOK);
 				}
 			} else
