@@ -60,12 +60,10 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 
 			// Get the online network
 			String network = getChildText(e, "network", "Offline").toUpperCase();
-			if (OnlineNetwork.VATSIM.equals(network))
+			if (OnlineNetwork.VATSIM.toString().equals(network))
 				afr.setAttribute(FlightReport.ATTR_VATSIM, true);
-			else if (OnlineNetwork.IVAO.equals(network))
+			else if (OnlineNetwork.IVAO.toString().equals(network))
 				afr.setAttribute(FlightReport.ATTR_IVAO, true);
-			else if (OnlineNetwork.FPI.equals(network))
-				afr.setAttribute(FlightReport.ATTR_FPI, true);
 
 			// Set the times
 			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
