@@ -44,7 +44,7 @@ public class ATCInfoCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		OnlineNetwork network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
 		Collection networkNames = (Collection) SystemData.getObject("online.networks");
-		if (!networkNames.contains(network))
+		if (!networkNames.contains(network.toString()))
 			return;
 
 		// Get the network info from the cache
