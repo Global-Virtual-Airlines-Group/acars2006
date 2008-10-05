@@ -42,10 +42,15 @@ public class ATCInfoCommand extends DataCommand {
 		
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		OnlineNetwork network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
-		Collection networkNames = (Collection) SystemData.getObject("online.networks");
-		if (!networkNames.contains(network.toString()))
-			return;
+		OnlineNetwork network = null;
+		try {
+			network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
+			Collection networkNames = (Collection) SystemData.getObject("online.networks");
+			if (!networkNames.contains(network.toString()))
+				return;
+		} catch (IllegalArgumentException iae) {
+			log.warn("Unknown Online network - " + msg.getFlag("network"));
+		}
 
 		// Get the network info from the cache
 		NetworkInfo info = GetServInfo.getCachedInfo(network);
