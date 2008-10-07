@@ -56,6 +56,13 @@
 		<auth>org.deltava.security.MirrorAuthenticator</auth>
 		<baseDN>ou=dva,o=sce</baseDN>
 	</security>
+	
+	<!-- Maximum held pirep value -->
+	<users>
+		<pirep>
+			<maxHeld type="Integer">3</maxHeld>
+		</pirep>
+	</users>
 
 	<!-- Multiplayer properties -->
 	<mp>

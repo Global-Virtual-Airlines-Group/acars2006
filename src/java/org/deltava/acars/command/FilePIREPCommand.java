@@ -17,6 +17,7 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 
 import org.deltava.util.*;
+import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to file a Flight Report.
@@ -193,14 +194,22 @@ public class FilePIREPCommand extends ACARSCommand {
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}
 			
-			// Start the transaction
-			ctx.startTX();
-
+			// Load held PIREP count
+			ctx.setMessage("Checking Held Flight Reports for " + ac.getUserID());
+			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
+			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
+				afr.setComments("Automatically Held due to " + heldPIREPs + " held Flight Reports");
+				afr.setStatus(FlightReport.HOLD);
+			}
+			
 			// Get the position write DAO and write the positions
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			afr.setFSVersion(info.getFSVersion());
 			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
 				afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+			
+			// Start the transaction
+			ctx.startTX();
 				
 			// Mark the PIREP as filed
 			SetInfo idao = new SetInfo(con);
