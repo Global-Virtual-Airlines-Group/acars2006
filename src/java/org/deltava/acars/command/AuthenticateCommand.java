@@ -180,7 +180,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			usrTime.convertTo(usr.getTZ());
 
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "It is " + now.toString() + ". Your system clock is set to" + usrTime.toString() + " ( " + timeDiff + " seconds off)");
+			errMsg.setEntry("error", "It is " + now.toString() + ". Your system clock is set to " + usrTime.toString() + " ( " + timeDiff + " seconds off)");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
 		} else if (Math.abs(timeDiff) > 900)
