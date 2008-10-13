@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.jdom.Element;
 
-import org.deltava.beans.acars.RoutePlan;
+import org.deltava.beans.acars.DispatchRoute;
 import org.deltava.beans.navdata.*;
 
 import org.deltava.acars.message.Message;
@@ -41,8 +41,8 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
 		
 		// Add the routes
-		for (Iterator<RoutePlan> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
-			RoutePlan rp = i.next();
+		for (Iterator<DispatchRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
+			DispatchRoute rp = i.next();
 			Element re = new Element("route");
 			re.setAttribute("id", String.valueOf(rp.getID()));
 			re.setAttribute("useCount", String.valueOf(rp.getUseCount()));

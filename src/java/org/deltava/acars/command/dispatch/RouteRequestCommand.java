@@ -5,7 +5,7 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.RoutePlan;
+import org.deltava.beans.acars.DispatchRoute;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.message.AcknowledgeMessage;
@@ -48,8 +48,8 @@ public class RouteRequestCommand extends DispatchCommand {
 			
 			// Load the routes
 			GetACARSRoute rdao = new GetACARSRoute(con);
-			Collection<RoutePlan> plans = rdao.getRoutes(msg.getAirportD(), msg.getAirportA());
-			for (RoutePlan rp : plans)
+			Collection<DispatchRoute> plans = rdao.getRoutes(msg.getAirportD(), msg.getAirportA());
+			for (DispatchRoute rp : plans)
 				rmsg.addPlan(rp);
 			
 			// Send the response
