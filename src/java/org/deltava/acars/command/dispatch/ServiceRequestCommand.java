@@ -5,7 +5,7 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.RoutePlan;
+import org.deltava.beans.acars.DispatchRoute;
 import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.dao.*;
@@ -131,7 +131,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 
 		// If we have no dispatchers in range, then send back system routes
 		log.info("No Dispatchers for " + c.getUserID() + ", doing Auto-Dispatch");
-		Collection<RoutePlan> plans = new ArrayList<RoutePlan>();
+		Collection<DispatchRoute> plans = new ArrayList<DispatchRoute>();
 		try {
 			GetACARSRoute rdao = new GetACARSRoute(ctx.getConnection());
 			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
@@ -147,7 +147,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		// Return back the routes
 		if (!plans.isEmpty()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
-			for (RoutePlan rp : plans)
+			for (DispatchRoute rp : plans)
 				rmsg.addPlan(rp);
 
 			rmsg.setMessage("No Dispatchers available, loaded " + plans.size() + " Dispatch routes from database");

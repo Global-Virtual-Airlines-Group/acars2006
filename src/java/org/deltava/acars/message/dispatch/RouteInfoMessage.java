@@ -4,7 +4,7 @@ package org.deltava.acars.message.dispatch;
 import java.util.*;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.RoutePlan;
+import org.deltava.beans.acars.DispatchRoute;
 
 import org.deltava.acars.message.DispatchMessage;
 
@@ -17,7 +17,7 @@ import org.deltava.acars.message.DispatchMessage;
 
 public class RouteInfoMessage extends DispatchMessage {
 
-	private final Collection<RoutePlan> _plans = new ArrayList<RoutePlan>();
+	private final Collection<DispatchRoute> _plans = new ArrayList<DispatchRoute>();
 	private long _parent;
 	private boolean _routeValid;
 	
@@ -38,7 +38,7 @@ public class RouteInfoMessage extends DispatchMessage {
 	 * Returns the associated RoutePlan beans.
 	 * @return a List of RoutePlan beans
 	 */
-	public Collection<RoutePlan> getPlans() {
+	public Collection<DispatchRoute> getPlans() {
 		return _plans;
 	}
 	
@@ -70,7 +70,7 @@ public class RouteInfoMessage extends DispatchMessage {
 	 * Adds a flight route plan to the message.
 	 * @param rp a RoutePlan bean
 	 */
-	public void addPlan(RoutePlan rp) {
+	public void addPlan(DispatchRoute rp) {
 		_plans.add(rp);
 	}
 	
