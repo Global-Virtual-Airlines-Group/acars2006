@@ -2,6 +2,7 @@
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.deltava.beans.Pilot;
 
@@ -65,8 +66,20 @@ public class FlightDataCommand extends DispatchCommand {
 		boolean canCreate = usr.isInRole("Route");
 		if ((msg.getRouteID() == 0) && canCreate && !msg.getNoSave()) {
 			try {
-				SetRoute dao = new SetRoute(ctx.getConnection());
-				dao.save(msg, con.getClientVersion());
+				Connection c = ctx.getConnection();
+				
+				// Check for a duplicate
+				GetACARSRoute rdao = new GetACARSRoute(c);
+				int dupeID = rdao.hasDuplicate(msg.getAirportD(), msg.getAirportA(), msg.getRoute());
+				
+				// Write the route
+				if (dupeID == 0) {
+					SetRoute dao = new SetRoute(c);
+					dao.save(msg, con.getClientVersion());
+				} else {
+					log.warn(con.getUser().getName() + " attempting to save duplicate of Route #" + dupeID);
+					msg.setRouteID(dupeID);
+				}
 			} catch (DAOException de) {
 				log.warn("Cannot save/update route data - " + de.getMessage(), de);
 			} finally {
