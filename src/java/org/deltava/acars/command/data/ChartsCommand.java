@@ -58,6 +58,7 @@ public class ChartsCommand extends DataCommand {
 			GetChart dao = new GetChart(con);
 			Collection<Chart> charts = dao.getCharts(a);
 			ChartsMessage rspMsg = new ChartsMessage(env.getOwner(), msg.getID());
+			rspMsg.setAirport(a);
 			for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
 				Chart ch = ci.next();
 				if ((ch.getImgType() != Chart.PDF) || !noPDF)
