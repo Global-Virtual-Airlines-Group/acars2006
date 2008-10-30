@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to display the connected Pilot list.
  * @author Luke
- * @version 1.0
+ * @version 2.2
  * @since 1.0
  */
 
@@ -53,6 +53,6 @@ public class UserListCommand extends DataCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 500;
+		return 250;
 	}
 }
