@@ -44,10 +44,11 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_NATS = 18;
 	public static final int REQ_HIDE = 19;
 	public static final int REQ_LIVERIES = 20;
+	public static final int REQ_WX = 21;
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
-		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat", "hide", "liveries"};
+		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat", "hide", "liveries", "wx"};
 
 	/**
 	 * Creates the message.
