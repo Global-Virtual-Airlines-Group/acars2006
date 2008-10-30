@@ -44,6 +44,25 @@
 		<auto_commit type="Boolean">true</auto_commit>
 		<log_stack type="Boolean">true</log_stack>
 	</jdbc>
+	
+	<schedule>
+		<!-- FlightAware download data -->
+		<flightaware>
+			<enabled type="Boolean">true</enabled>
+			<download>
+				<user>gvagroup</user>			
+				<pwd>***REMOVED***</pwd>			
+			</download>
+		</flightaware>
+	</schedule>
+
+	<!-- Weather download locations -->
+	<weather>
+		<url>
+			<metar>ftp://tgftp.nws.noaa.gov/data/observations/metar/stations/</metar>
+			<taf>ftp://tgftp.nws.noaa.gov/data/forecasts/taf/stations/</taf>
+		</url>	
+	</weather>
 
 	<security>
 		<auth>org.deltava.security.ApacheSQLAuthenticator</auth>

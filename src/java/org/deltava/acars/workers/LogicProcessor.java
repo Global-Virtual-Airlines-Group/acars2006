@@ -85,6 +85,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TRINFO), new TerminalRouteCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_NATS), new OceanicTrackCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LIVERIES), new LiveryListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_WX), new WeatherCommand());
 		
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());

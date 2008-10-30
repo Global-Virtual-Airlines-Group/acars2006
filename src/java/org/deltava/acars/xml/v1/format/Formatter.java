@@ -49,6 +49,7 @@ public class Formatter extends MessageFormatter {
 		_eFormatters.put(TerminalRouteMessage.class, new TerminalRouteFormatter());
 		_eFormatters.put(OceanicTrackMessage.class, new OceanicRouteFormatter());
 		_eFormatters.put(LiveryMessage.class, new LiveryFormatter());
+		_eFormatters.put(WXMessage.class, new WeatherFormatter());
 		
 		// Dispatch response formatters
 		_eFormatters.put(FlightDataMessage.class, new DispatchInfoFormatter());
