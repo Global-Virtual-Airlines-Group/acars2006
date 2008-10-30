@@ -22,7 +22,7 @@ import org.deltava.util.XMLUtils;
 public class LiveryFormatter extends ElementFormatter {
 
 	/**
-	 * Formats a ChartsMessage bean into an XML element.
+	 * Formats a LiveryMessage bean into an XML element.
 	 * @param msg the Message
 	 * @return an XML element
 	 */
