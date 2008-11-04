@@ -8,7 +8,6 @@ import java.util.*;
 
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
-import org.deltava.acars.security.UserBlocker;
 
 import org.deltava.beans.system.VersionInfo;
 
@@ -18,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 2.1
+ * @version 2.3
  * @since 2.1
  */
 
@@ -60,10 +59,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			// Check if the address is on the block list or from a banned user
 			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
 				log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
-				con.close();
-				return;
-			} else if (UserBlocker.isBanned(con.getRemoteAddr())) {
-				log.warn("Refusing connection from banned user " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
 				con.close();
 				return;
 			}

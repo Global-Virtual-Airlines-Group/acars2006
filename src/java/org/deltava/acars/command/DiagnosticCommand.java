@@ -14,8 +14,6 @@ import org.deltava.acars.message.*;
 
 import static org.deltava.acars.workers.Worker.*;
 
-import org.deltava.acars.security.UserBlocker;
-
 import org.deltava.dao.*;
 import org.deltava.mail.*;
 
@@ -24,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 1.0
  */
 
@@ -129,7 +127,6 @@ public class DiagnosticCommand extends ACARSCommand {
 				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
-						UserBlocker.ban(ac);
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 						
 						// Save the QUIT message
@@ -165,7 +162,7 @@ public class DiagnosticCommand extends ACARSCommand {
 							
 							// Restrict ACARS access
 							if (p != null) {
-								p.setACARSRestriction(Pilot.ACARS_RESTRICT);
+								p.setACARSRestriction(Pilot.ACARS_BLOCK);
 								
 								// Update the pilot record
 								SetPilot pwdao = new SetPilot(con);

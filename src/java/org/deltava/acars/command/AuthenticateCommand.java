@@ -17,8 +17,6 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.*;
-import org.deltava.acars.security.UserBlocker;
-
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
@@ -28,7 +26,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 1.0
  */
 
@@ -114,7 +112,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			}
 
 			// Check security access before we validate the password
-			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || UserBlocker.isBanned(usr))
+			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
 				throw new SecurityException();
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
@@ -133,8 +131,6 @@ public class AuthenticateCommand extends ACARSCommand {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
 				errMsg.setEntry("error", "ACARS Server access disabled");
-			else if (UserBlocker.isBanned(usr))
-				errMsg.setEntry("error", "ACARS Server temporary lockout");
 			else if (msg.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
 			else

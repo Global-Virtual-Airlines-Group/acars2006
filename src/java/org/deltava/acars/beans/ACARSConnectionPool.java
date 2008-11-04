@@ -17,7 +17,6 @@ import org.deltava.acars.message.InfoMessage;
 
 import org.deltava.util.IPCUtils;
 
-import org.deltava.acars.security.*;
 import org.deltava.acars.util.RouteEntryHelper;
 
 import org.gvagroup.acars.ACARSAdminInfo;
@@ -25,7 +24,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 1.0
  */
 
@@ -172,14 +171,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 		return IPCUtils.serialize(results); 
 	}
 	
-	/**
-	 * Returns banned user data to a web application.
-	 * @return a Collection of BannedUser beans
-	 */
-	public Collection<BannedUser> getBanInfo() {
-		return UserBlocker.getBans();
-	}
-
 	/**
 	 * Returns ACARS connection statistics.
 	 * @return a Collection of CollectionStats beans
