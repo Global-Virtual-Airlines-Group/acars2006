@@ -22,11 +22,7 @@ public abstract class DataMessage extends AbstractMessage {
 	 */
 	public static final int REQ_ILIST = 2;
 	
-	/**
-	 * @deprecated
-	 */
-	public static final int REQ_PLIST = 3;
-	
+	public static final int REQ_VALIDATE = 3;
 	public static final int REQ_ADDUSER = 4;
 	public static final int REQ_REMOVEUSER = 5;
 	public static final int REQ_TRINFO = 6;
@@ -47,7 +43,7 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_WX = 21;
 	
 	private int _reqType = REQ_UNKNOWN;
-	public static final String[] REQ_TYPES = {"?", "pilots", "info", "position", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
+	public static final String[] REQ_TYPES = {"?", "pilots", "info", "validate", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
 		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat", "hide", "liveries", "wx"};
 
 	/**
