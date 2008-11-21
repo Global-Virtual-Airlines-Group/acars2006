@@ -29,7 +29,7 @@
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF"
 				verbose="yes" trust="yes" password="${webapp.dev.pwd}">
 			<fileset file="WEB-INF/web.xml">
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -41,7 +41,7 @@
 			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
 			<fileset dir="lib/deploy" includes="*.jar">
 				<exclude name="log4j*.jar" />
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -54,7 +54,7 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -72,7 +72,7 @@
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc"
 			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
 			<fileset dir="etc" includes="*.*">
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -88,7 +88,7 @@
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}"
 			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
 			<fileset file="WEB-INF/web.xml">
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
@@ -100,7 +100,7 @@
 			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
 			<fileset dir="lib/deploy" includes="*.jar">
 				<exclude name="log4j*.jar" />
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
@@ -113,14 +113,14 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
 			</fileset>
 			<fileset dir="lib/deploy">
 				<include name="log4j*.jar" />
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
@@ -131,7 +131,7 @@
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/classes/etc"
 			verbose="yes" trust="yes" password="${webapp.ssh.pwd}">
 			<fileset dir="etc/prod" includes="*.*">
-				<modified seldirs="false" algorithm="digest">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
