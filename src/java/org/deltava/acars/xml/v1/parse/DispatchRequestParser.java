@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for DispatchRequest elements.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 
@@ -32,6 +32,7 @@ class DispatchRequestParser extends ElementParser<RequestMessage> {
 		
 		// Create the message
 		RequestMessage msg = new RequestMessage(user);
+		msg.setAutoDispatch(Boolean.valueOf(e.getAttributeValue("autoDispatch")).booleanValue());
 		
 		// Get the max gross weight of the aircraft
 		Element ie = e.getChild("info");

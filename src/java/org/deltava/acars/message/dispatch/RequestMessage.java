@@ -12,7 +12,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 
@@ -29,6 +29,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	private int _maxGrossWeight;
 	private int _zeroFuelWeight;
 	private boolean _routeValid;
+	private boolean _autoDispatch;
 	
 	private final Map<FuelTank, Integer> _tankSizes = new TreeMap<FuelTank, Integer>();
 
@@ -111,6 +112,15 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	public int getZeroFuelWeight() {
 		return _zeroFuelWeight;
 	}
+	
+	/**
+	 * Returns if automatic dispatch services requested.
+	 * @return TRUE if auto-dispatch, otherwise FALSE
+	 * @see RequestMessage#setAutoDispatch(boolean)
+	 */
+	public boolean isAutoDispatch() {
+		return _autoDispatch;
+	}
 
 	/**
 	 * Returns whether the requested route is valid.
@@ -168,6 +178,15 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public void setLocation(GeoLocation loc) {
 		_loc = new GeoPosition(loc);
+	}
+	
+	/**
+	 * Enables auto-dispatch mode, where human dispatcher intervention is
+	 * skipped if routes already exist in the database.
+	 * @param isAuto TRUE if auto-dispatch mode, otherwise FALSE
+	 */
+	public void setAutoDispatch(boolean isAuto) {
+		_autoDispatch = isAuto;
 	}
 	
 	/**

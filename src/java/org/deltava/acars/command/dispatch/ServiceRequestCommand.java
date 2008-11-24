@@ -59,6 +59,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		}
 		
 		// Validate that the route is valid
+		Collection<DispatchRoute> plans = new ArrayList<DispatchRoute>();
 		try {
 			Connection con = ctx.getConnection();
 			
@@ -93,6 +94,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// Set the flag
 			msg.setRouteValid(routeValid);
+
+			// Load existing plans
+			GetACARSRoute rdao = new GetACARSRoute(con);
+			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
 		} catch (DAOException de) {
 			log.error("Cannot validate route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -102,19 +107,21 @@ public class ServiceRequestCommand extends DispatchCommand {
 			ctx.release();
 		}
 
-		// Send to dispatchers
+		// Send to dispatchers if not in auto dispatch mode
 		int reqsSent = 0;
 		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-			ACARSConnection ac = i.next();
-			if (ac.getIsDispatch() && !ac.getUserBusy()) {
-				GeoPosition gp = new GeoPosition(ac.getLocation());
-				int distance = gp.distanceTo(msg);
-				if (distance <= ac.getDispatchRange()) {
-					reqsSent++;
-					ctx.push(msg, ac.getID(), true);
-				} else
-					log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
+		if (!msg.isAutoDispatch() || plans.isEmpty()) {
+			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
+				ACARSConnection ac = i.next();
+				if (ac.getIsDispatch() && !ac.getUserBusy()) {
+					GeoPosition gp = new GeoPosition(ac.getLocation());
+					int distance = gp.distanceTo(msg);
+					if (distance <= ac.getDispatchRange()) {
+						reqsSent++;
+						ctx.push(msg, ac.getID(), true);
+					} else
+						log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
+				}
 			}
 		}
 		
@@ -129,21 +136,6 @@ public class ServiceRequestCommand extends DispatchCommand {
 			return;
 		}
 
-		// If we have no dispatchers in range, then send back system routes
-		log.info("No Dispatchers for " + c.getUserID() + ", doing Auto-Dispatch");
-		Collection<DispatchRoute> plans = new ArrayList<DispatchRoute>();
-		try {
-			GetACARSRoute rdao = new GetACARSRoute(ctx.getConnection());
-			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
-		} catch (DAOException de) {
-			log.error("Cannot load Dispatch routes - " + de.getMessage(), de);
-			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot load Dispatch routes");
-			ctx.push(errorMsg, env.getConnectionID());
-		} finally {
-			ctx.release();
-		}
-		
 		// Return back the routes
 		if (!plans.isEmpty()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
