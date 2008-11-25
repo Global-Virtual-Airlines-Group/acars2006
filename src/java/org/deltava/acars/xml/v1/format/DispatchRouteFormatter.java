@@ -7,6 +7,7 @@ import org.jdom.Element;
 
 import org.deltava.beans.acars.DispatchRoute;
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.ExternalFlightRoute;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RouteInfoMessage;
@@ -16,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 
@@ -41,10 +42,11 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
 		
 		// Add the routes
-		for (Iterator<DispatchRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
+		for (Iterator<? extends DispatchRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
 			DispatchRoute rp = i.next();
 			Element re = new Element("route");
 			re.setAttribute("id", String.valueOf(rp.getID()));
+			re.setAttribute("external", String.valueOf(rp instanceof ExternalFlightRoute));
 			re.setAttribute("useCount", String.valueOf(rp.getUseCount()));
 			re.addContent(XMLUtils.createElement("airline", rp.getAirline().getCode()));
 			re.addContent(formatAirport(rp.getAirportD(), "airportD"));
@@ -68,7 +70,6 @@ public class DispatchRouteFormatter extends ElementFormatter {
 				we.setAttribute("uniqueID", nd.toString());
 				if (nd.getRegion() != null)
 					we.setAttribute("region", nd.getRegion());
-				
 				String airway = rp.getAirway(nd);
 				if (airway != null)
 					we.setAttribute("airway", airway);

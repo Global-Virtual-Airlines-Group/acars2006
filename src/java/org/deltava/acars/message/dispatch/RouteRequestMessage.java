@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * A message to transmit route information requests.
  * @author Luke
- * @version 2.0
+ * @version 2.3
  * @since 2.0
  */
 
@@ -18,6 +18,7 @@ public class RouteRequestMessage extends DispatchMessage {
 	
 	private Airport _airportD;
 	private Airport _airportA;
+	private boolean _extRoutes;
 
 	/**
 	 * Creates the Message.
@@ -44,6 +45,14 @@ public class RouteRequestMessage extends DispatchMessage {
 	}
 	
 	/**
+	 * Returns whether external route sources should be searched.
+	 * @return TRUE if external sources should be queried, otherwise FALSE
+	 */
+	public boolean getExternalRoutes() {
+		return _extRoutes;
+	}
+	
+	/**
 	 * Updates the departure Airport.
 	 * @param a the Airport
 	 */
@@ -57,5 +66,13 @@ public class RouteRequestMessage extends DispatchMessage {
 	 */
 	public void setAirportA(Airport a) {
 		_airportA = a;
+	}
+
+	/**
+	 * Update whether external route sources should be searched.
+	 * @param doExternal TRUE if external sources should be queried, otherwise FALSE
+	 */
+	public void setExternalRoutes(boolean doExternal) {
+		_extRoutes = doExternal;
 	}
 }

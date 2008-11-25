@@ -54,6 +54,7 @@
 				<pwd>***REMOVED***</pwd>			
 			</download>
 		</flightaware>
+		<cache>/var/cache/sched</cache>
 	</schedule>
 
 	<!-- Weather download locations -->

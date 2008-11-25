@@ -14,7 +14,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for route request messages.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 
@@ -32,6 +32,7 @@ class DispatchRouteParser extends ElementParser<RouteRequestMessage> {
 		RouteRequestMessage msg = new RouteRequestMessage(user);
 		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
+		msg.setExternalRoutes(Boolean.valueOf(e.getAttributeValue("external")).booleanValue());
 		return msg;
 	}
 }
