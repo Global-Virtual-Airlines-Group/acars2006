@@ -54,6 +54,7 @@
 				<pwd>18f14fe837c03e585d20b955d797fd711cd907b0</pwd>			
 			</download>
 		</flightaware>
+		<cache>/var/cache/sched</cache>
 	</schedule>
 
 	<!-- Weather download locations -->
