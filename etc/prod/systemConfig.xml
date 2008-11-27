@@ -122,7 +122,7 @@
 
 	<!-- SMTP server data -->
 	<smtp>
-		<server>endor.gvagroup.org</server>
+		<server>pollux.gvagroup.org</server>
 		<errors-to>acars@gvagroup.org</errors-to>
 		<testMode type="Boolean">false</testMode>
 	</smtp>
