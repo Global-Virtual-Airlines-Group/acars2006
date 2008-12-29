@@ -21,7 +21,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 
@@ -108,7 +108,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		}
 
 		// Send to dispatchers if not in auto dispatch mode
-		int reqsSent = 0;
+		int reqsSent = 0; int outOfRange = 0;
 		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
 			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
@@ -119,8 +119,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 					if (distance <= ac.getDispatchRange()) {
 						reqsSent++;
 						ctx.push(msg, ac.getID(), true);
-					} else
+					} else {
+						outOfRange++;
 						log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
+					}
 				}
 			}
 		}
@@ -141,11 +143,19 @@ public class ServiceRequestCommand extends DispatchCommand {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
 			for (DispatchRoute rp : plans)
 				rmsg.addPlan(rp);
+			
+			// Build message
+			StringBuilder buf = new StringBuilder("No Dispatchers available");
+			if (outOfRange > 0)
+				buf.append(" (" + outOfRange + " out of range)");
 
-			rmsg.setMessage("No Dispatchers available, loaded " + plans.size() + " Dispatch routes from database");
+			buf.append(", loaded " + plans.size() + " Dispatch routes from database");
+			rmsg.setMessage(buf.toString());
 			ctx.push(rmsg, env.getConnectionID());
 		} else {
 			SystemTextMessage txtMsg = new SystemTextMessage();
+			if (outOfRange > 0)
+				txtMsg.addMessage(outOfRange + " Dispatchers online, but out of range");
 			txtMsg.addMessage("No available Dispatchers within range, and no Dispatch routes found.");
 			ctx.push(txtMsg, env.getConnectionID());
 			ctx.push(new CancelMessage(env.getOwner()), env.getConnectionID());
