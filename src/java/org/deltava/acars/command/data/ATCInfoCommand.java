@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ import org.deltava.util.servinfo.ServInfoLoader;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 1.0
  */
 
@@ -50,6 +50,7 @@ public class ATCInfoCommand extends DataCommand {
 				return;
 		} catch (IllegalArgumentException iae) {
 			log.warn("Unknown Online network - " + msg.getFlag("network"));
+			return;
 		}
 
 		// Get the network info from the cache
