@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -20,7 +20,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.2
+ * @version 2.3
  * @since 1.0
  */
 
@@ -49,6 +49,7 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 			afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
 			afr.setDate(new Date());
 			afr.setSubmittedOn(afr.getDate());
+			afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
 			afr.setAirportD(getAirport(e.getChildTextTrim("airportD").toUpperCase()));
 			afr.setAirportA(getAirport(e.getChildTextTrim("airportA").toUpperCase()));
 			afr.setRemarks(e.getChildText("remarks"));
