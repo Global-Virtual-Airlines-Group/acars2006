@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -69,7 +69,7 @@ public class RouteRequestCommand extends DispatchCommand {
 			
 			// Load the routes
 			GetACARSRoute rdao = new GetACARSRoute(con);
-			Collection<DispatchRoute> plans = rdao.getRoutes(msg.getAirportD(), msg.getAirportA());
+			Collection<DispatchRoute> plans = rdao.getRoutes(msg.getAirportD(), msg.getAirportA(), true);
 			for (DispatchRoute rp : plans)
 				rmsg.addPlan(rp);
 			
