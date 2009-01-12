@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -97,7 +97,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 
 			// Load existing plans
 			GetACARSRoute rdao = new GetACARSRoute(con);
-			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
+			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA(), true));
 		} catch (DAOException de) {
 			log.error("Cannot validate route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

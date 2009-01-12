@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -60,7 +60,7 @@ public class FlightValidationCommand extends DataCommand {
 			
 			// Check for dispatch routes
 			GetACARSRoute drdao = new GetACARSRoute(con);
-			int dRoutes = drdao.getRoutes(airportD, airportA).size();
+			int dRoutes = drdao.getRoutes(airportD, airportA, true).size();
 			rspMsg.setEntry("dispatchRoutes", String.valueOf(dRoutes));
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
