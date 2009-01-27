@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Weather data messages.
  * @author Luke
- * @version 2.2
+ * @version 2.4
  * @since 2.2
  */
 
@@ -30,6 +30,8 @@ class WeatherFormatter extends ElementFormatter {
 		
 		// Cast the message
 		WXMessage wxmsg = (WXMessage) msg;
+		if (wxmsg.getAirport() == null)
+			return null;
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
