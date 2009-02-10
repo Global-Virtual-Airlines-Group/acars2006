@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.acars.beans.*;
 
 import org.deltava.dao.*;
@@ -19,7 +19,7 @@ import org.gvagroup.common.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 2.2
+ * @version 2.4
  * @since 1.0
  */
 
@@ -41,45 +41,52 @@ public class IPCDaemon implements Runnable {
 	public void run() {
 		log.info("Starting");
 		ConnectionPool cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		ACARSConnectionPool acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				EventDispatcher.waitForEvent();
-				Collection<SystemEvent> events = EventDispatcher.getEvents();
 				Connection con = null;
+				Collection<SystemEvent> events = EventDispatcher.getEvents();
 				try {
 					for (Iterator<SystemEvent> i = events.iterator(); i.hasNext(); ) {
 						SystemEvent event = i.next();
-						int userID = (event instanceof UserEvent) ? ((UserEvent) event).getUserID() : 0;
+						con = cPool.getConnection(true);
+						Pilot usr = null; GetPilot pdao = new GetPilot(con);
+						if (event instanceof UserEvent) {
+							int userID = ((UserEvent) event).getUserID();
+							GetUserData uddao = new GetUserData(con);
+							UserData ud = uddao.get(userID);
+							usr = pdao.get(ud);
+							if (usr == null) {
+								log.warn("Unknown User ID - " + userID);
+								continue;
+							}
+						}
 						
 						switch (event.getCode()) {
 							case SystemEvent.AIRLINE_RELOAD:
 								log.warn("ACARS Reloading Airlines");
-								con = cPool.getConnection(true);
 								GetAirline aldao = new GetAirline(con);
 								SystemData.add("airlines", aldao.getAll());
 								break;
 								
 							case SystemEvent.AIRPORT_RELOAD:
 								log.warn("ACARS Reloading Airports");
-								con = cPool.getConnection(true);
 								GetAirport apdao = new GetAirport(con);
 								SystemData.add("airports", apdao.getAll());
 								break;
 								
 							case UserEvent.USER_SUSPEND:
-								log.warn("User Suspended - Validating all Credentials");
-								ACARSConnectionPool acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
-								con = cPool.getConnection(true);
+								log.warn(usr.getName() + " Suspended - Validating all Credentials");
 								
 								// Validate all of the connections
-								SetPilot.invalidate(userID);
-								GetPilot pdao = new GetPilot(con);
+								SetPilot.invalidate(usr.getID());
 								for (Iterator<ACARSConnection> ci = acPool.get("*").iterator(); ci.hasNext(); ) {
 									ACARSConnection ac = ci.next();
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
-										if (p.getStatus() != Pilot.ACTIVE) {
+										if (usr.getStatus() != Pilot.ACTIVE) {
 											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatusName());
 											ac.close();
 										}
@@ -89,7 +96,16 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case UserEvent.USER_INVALIDATE:
-								SetPilot.invalidate(userID);
+								log.warn("Invalidated User " + usr.getName());
+								
+								// Reload the user
+								SetPilot.invalidate(usr.getID());
+								for (Iterator<ACARSConnection> ci = acPool.get(usr.getPilotCode()).iterator(); ci.hasNext(); ) {
+									ACARSConnection ac = ci.next();
+									log.info("Updated ACARS Connection record for " + ac.getUser().getName());
+									ac.setUser(usr);
+								}
+								
 								break;
 								
 							default:

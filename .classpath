@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="/DVA2006/lib/deploy/jdom-1.1.jar"/>
 	<classpathentry kind="lib" path="/DVA2006/lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="/DVA2006/lib/deploy/edtftpj-2.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.24.jar"/>
+	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.24.jar" sourcepath="/IPC"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

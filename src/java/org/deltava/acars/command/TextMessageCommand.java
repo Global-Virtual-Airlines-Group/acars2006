@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -13,13 +13,12 @@ import org.deltava.dao.acars.SetMessage;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 1.0
+ * @version 2.4
  * @since 1.0
  */
 
@@ -42,21 +41,38 @@ public class TextMessageCommand extends ACARSCommand {
 			return;
 		}
 		
+		// Check if HR or dispatch is online
+		boolean hasHR = usr.isInRole("HR") || usr.isInRole("Dispatch");
+		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
+		for (Iterator<ACARSConnection> i = cons.iterator(); !hasHR && i.hasNext(); ) {
+			ACARSConnection ac = i.next();
+			hasHR |= ac.getUser().isInRole("HR") || ac.getUser().isInRole("Dispatch");
+		}
+		
 		// If we have messaging restrictions on this user, apply the profanity filter
+		TextMessage txtRsp = null;
 		switch (usr.getACARSRestriction()) {
 			case Pilot.ACARS_NOMSGS:
 				log.warn(usr.getName() + " attempted to send message!");
+				txtRsp = new TextMessage(null, "ACARS text Message blocked");
+				txtRsp.setRecipient(usr.getPilotCode());
+				ctx.push(txtRsp, env.getConnectionID());
 				return;
 				
 			case Pilot.ACARS_RESTRICT:
-				if (ProfanityFilter.flag(msg.getText())) {
-					log.warn("Questionable content received from " + usr.getName());
-					msg.setText(ProfanityFilter.filter(msg.getText()));
+				if (!hasHR) {
+					log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
+					txtRsp = new TextMessage(null, "ACARS text Message blocked");
+					txtRsp.setRecipient(usr.getPilotCode());
+					ctx.push(txtRsp, env.getConnectionID());
+					return;
 				}
+				
+				break;
 		}
 		
 		// Create the outbound message
-		TextMessage txtRsp = new TextMessage(usr, msg.getText());
+		txtRsp = new TextMessage(usr, msg.getText());
 		txtRsp.setRecipient(msg.getRecipient());
 		
 		// Send an ACK on the message

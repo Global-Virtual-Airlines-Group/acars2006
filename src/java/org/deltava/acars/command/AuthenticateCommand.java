@@ -112,7 +112,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			}
 
 			// Check security access before we validate the password
-			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE))
+			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
 				throw new SecurityException();
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
