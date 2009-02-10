@@ -46,7 +46,9 @@ public class TextMessageCommand extends ACARSCommand {
 		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
 		for (Iterator<ACARSConnection> i = cons.iterator(); !hasHR && i.hasNext(); ) {
 			ACARSConnection ac = i.next();
-			hasHR |= ac.getUser().isInRole("HR") || ac.getUser().isInRole("Dispatch");
+			Pilot p = ac.getUser();
+			if (p != null)
+				hasHR |= p.isInRole("HR") || p.isInRole("Dispatch");
 		}
 		
 		// If we have messaging restrictions on this user, apply the profanity filter
