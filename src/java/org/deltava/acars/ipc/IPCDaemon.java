@@ -86,9 +86,9 @@ public class IPCDaemon implements Runnable {
 									ACARSConnection ac = ci.next();
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
-										if (usr.getStatus() != Pilot.ACTIVE) {
+										if (p.getStatus() != Pilot.ACTIVE) {
 											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatusName());
-											ac.close();
+											acPool.remove(ac);
 										}
 									}
 								}
