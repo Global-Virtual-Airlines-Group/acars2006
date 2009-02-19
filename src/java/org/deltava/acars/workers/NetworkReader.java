@@ -1,12 +1,16 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
+import java.sql.Connection;
 import java.util.*;
 import java.io.IOException;
 import java.nio.channels.Selector;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
+import org.deltava.jdbc.ConnectionPool;
+
+import org.deltava.dao.SetACARSLog;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -14,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 2.1
+ * @version 2.4
  * @since 1.0
  */
 
@@ -103,13 +107,15 @@ public final class NetworkReader extends Worker {
 				Collection<ACARSConnection> disCon = _pool.checkConnections();
 				if (!disCon.isEmpty()) {
 					_status.setMessage("Handling disconnections");
+					Collection<Long> conIDs = new HashSet<Long>();
 					for (Iterator<ACARSConnection> ic = disCon.iterator(); ic.hasNext();) {
 						ACARSConnection con = ic.next();
 						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
 						if (con.isAuthenticated()) {
-							if (log.isDebugEnabled());
+							if (log.isDebugEnabled())
 								log.debug("QUIT Message from " + con.getUser().getName());
 								
+							conIDs.add(new Long(con.getID()));
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());
@@ -118,16 +124,34 @@ public final class NetworkReader extends Worker {
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}
+					
+					// Save the end times
+					logCloseConnections(conIDs);
 				}
 			}
 			
 			// Check execution time
 			long execTime = System.currentTimeMillis() - startTime;
-			if (execTime > 2250)
+			if (execTime > 2500)
 				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections)");
 			
 			// Log executiuon
 			_status.complete();
+		}
+	}
+	
+	private void logCloseConnections(Collection<Long> ids) {
+		_status.setMessage("Loggng Closed Connections");
+		Connection con = null;
+		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		try {
+			con = cp.getConnection(true);
+			SetACARSLog dao = new SetACARSLog(con);
+			dao.closeConnections(ids);
+		} catch (Exception e) {
+			log.error("Error logging closed Connections - " + e.getMessage(), e);
+		} finally {
+			cp.release(con);
 		}
 	}
 }
