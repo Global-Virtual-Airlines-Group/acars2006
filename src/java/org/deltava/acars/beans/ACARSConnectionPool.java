@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 2.3
+ * @version 2.4
  * @since 1.0
  */
 
@@ -133,7 +133,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
-				ConnectionEntry entry = new ConnectionEntry(ac.getID());
+				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
 				entry.setClientBuild(ac.getClientVersion());
 				entry.setBeta(ac.getBeta());
 				entry.setRemoteAddr(ac.getRemoteAddr());
@@ -144,7 +144,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 				entry.setBufferWrites(ac.getBufferWrites());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
-				entry.setDispatch(ac.getIsDispatch());
 				entry.setUserHidden(ac.getUserHidden());
 				
 				// Get the flight information
