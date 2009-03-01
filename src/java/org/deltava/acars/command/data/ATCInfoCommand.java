@@ -10,7 +10,7 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ControllerMessage;
 
-import org.deltava.beans.OnlineNetwork;
+import org.deltava.beans.*;
 import org.deltava.beans.servinfo.NetworkInfo;
 
 import org.deltava.dao.file.GetServInfo;
@@ -64,12 +64,16 @@ public class ATCInfoCommand extends DataCommand {
 		} catch (Exception e) {
 			log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
 		}
+		
+		// Get the position
+		GeoLocation loc = ctx.getACARSConnection().getPosition();
+		if (loc == null)
+			loc = SystemData.getAirport(ctx.getACARSConnection().getUser().getHomeAirport());
 
 		// Filter the controllers based on range from position
-		PositionMessage pmsg = ctx.getACARSConnection().getPosition();
 		ControllerMessage rspMsg = new ControllerMessage(env.getOwner(), msg.getID());
-		if ((info != null) && (pmsg != null))
-			rspMsg.addAll(info.getControllers(pmsg));
+		if (info != null)
+			rspMsg.addAll(info.getControllers(loc));
 		
 		// Push the response
 		ctx.push(rspMsg, env.getConnectionID());
