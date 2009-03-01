@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 2.2
+ * @version 2.4
  * @since 1.0
  */
 
@@ -68,6 +68,13 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("flightEQ", inf.getEquipmentType()));
 				ce.addContent(XMLUtils.createElement("airportD", inf.getAirportD().getICAO()));
 				ce.addContent(XMLUtils.createElement("airportA", inf.getAirportA().getICAO()));
+			}
+			
+			// Display position if present
+			PositionMessage pos = con.getPosition();
+			if (pos != null) {
+				ce.addContent(XMLUtils.createElement("lat", StringUtils.format(pos.getLatitude(), "##0.0000")));
+				ce.addContent(XMLUtils.createElement("lng", StringUtils.format(pos.getLongitude(), "##0.0000")));
 			}
 			
 			// Add connection specific stuff
