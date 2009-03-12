@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * A parser for ACARS Protocol v1 messages.
  * @author Luke
- * @version 2.2
+ * @version 2.4
  * @since 1.0
  */
 
@@ -162,7 +162,11 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 						results.add(msg);
 					}
 				} catch (Exception e) {
-					log.warn("Message parse exception - " + e.getMessage());
+					if (e instanceof XMLException)
+						log.warn("Message parse exception - " + e.getMessage());
+					else
+						log.error("Message parse exception - " + e.getMessage(), e);
+					
 					results.add(new ErrorMessage(env.getOwner(), e.getMessage(), id));
 				}
 			}
