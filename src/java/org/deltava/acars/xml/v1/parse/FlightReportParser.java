@@ -20,7 +20,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.3
+ * @version 2.4
  * @since 1.0
  */
 
@@ -88,16 +88,13 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 			afr.setLandingWeight(StringUtils.parse(getChildText(e, "landingWeight", "1"), 0));
 			afr.setLandingSpeed(StringUtils.parse(getChildText(e, "landingSpeed", "0"), 0));
 			afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
+			afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
 			afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
 			afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
 
 			// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
-			try {
-				afr.setTakeoffN1(Double.parseDouble(getChildText(e, "takeoffN1", "0")));
-				afr.setLandingN1(Double.parseDouble(getChildText(e, "landingN1", "0")));
-			} catch (Exception ex) {
-				throw new IllegalArgumentException("Invalid N1 - " + ex.getMessage(), ex);
-			}
+			afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
+			afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
 
 			// Load the 0X/1X/2X/4X times
 			afr.setTime(0, StringUtils.parse(getChildText(e, "time0X", "0"), 0));
