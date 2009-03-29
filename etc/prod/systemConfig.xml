@@ -34,12 +34,14 @@
 			<useCompression>false</useCompression>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>true</autoReconnect>
-			<useLocalSessionState>false</useLocalSessionState>
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
 			<useServerPrepStmts>true</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
+			<useLocalSessionState>false</useLocalSessionState>
+			<elideSetAutoCommits>true</elideSetAutoCommits>
+			<cacheServerConfiguration>true</cacheServerConfiguration>
 			<useCursorFetch>true</useCursorFetch>
 			<maintainTimeStats>false</maintainTimeStats>
 			<validationQuery>/* ping */</validationQuery>
