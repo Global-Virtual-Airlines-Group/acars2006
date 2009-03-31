@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 import org.jdom.Element;
 
+import org.apache.log4j.Logger;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.mp.MPMessage;
@@ -16,12 +17,13 @@ import static org.gvagroup.acars.ACARSFlags.*;
 /**
  * A parser for multi-player location elements.
  * @author Luke
- * @version 2.2
+ * @version 2.5
  * @since 2.2
  */
 
 class MPLocationParser extends ElementParser<MPMessage> {
 	
+	private static final Logger log = Logger.getLogger(MPLocationParser.class);
 	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
 	/**
@@ -43,8 +45,10 @@ class MPLocationParser extends ElementParser<MPMessage> {
 				de = de + "." + String.valueOf(ms);
 			}
 			
-			if (de != null)
+			if (de != null) {
+				de = de.replace('-', '/');
 				msg.setDate(_mdtf.parse(de));
+			}
 		} catch (Exception ex) {
 			log.warn("Unparseable date - " + de);
 		}
