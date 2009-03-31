@@ -1,9 +1,7 @@
-// Copyright 2004, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom.Element;
-
-import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
 
@@ -13,14 +11,12 @@ import org.deltava.acars.message.Message;
 /**
  * A parser for XML command elements.
  * @author Luke
- * @version 1.0
+ * @version 2.5
  * @since 1.0
  */
 
 abstract class ElementParser<T extends Message> {
 
-	protected static final Logger log = Logger.getLogger(ElementParser.class);
-	
 	/**
 	 * Convert the XML element into a Message.
 	 * @param e the XML element

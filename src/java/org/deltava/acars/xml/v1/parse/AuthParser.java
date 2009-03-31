@@ -3,6 +3,8 @@ package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
@@ -18,6 +20,8 @@ import org.deltava.util.*;
  */
 
 class AuthParser extends ElementParser<AuthenticateMessage> {
+	
+	private static final Logger log = Logger.getLogger(AuthParser.class);
 
 	/**
 	 * Convert an XML authentication element into an AuthenticationMessage.
@@ -56,7 +60,7 @@ class AuthParser extends ElementParser<AuthenticateMessage> {
 				utc = utc + ".000";
 			
 			try {
-				Date utcDate = StringUtils.parseDate(utc, "MM/dd/yyyy HH:mm:ss.SSS");
+				Date utcDate = StringUtils.parseDate(utc.replace('-', '/'), "MM/dd/yyyy HH:mm:ss.SSS");
 				msg.setClientUTC(utcDate);
 			} catch (IllegalArgumentException iae) {
 				log.warn("Unparseable UTC date - " + utc);

@@ -4,6 +4,8 @@ package org.deltava.acars.xml.v1.parse;
 import java.text.*;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import org.jdom.Document;
 
 import org.deltava.beans.*;
@@ -20,11 +22,13 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.4
+ * @version 2.5
  * @since 1.0
  */
 
 class FlightReportParser extends ElementParser<FlightReportMessage> {
+	
+	private static final Logger log = Logger.getLogger(FlightReportParser.class);
 
 	/**
 	 * Convert an XML flight report element into a FlightReportMessage.
