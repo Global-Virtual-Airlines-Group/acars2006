@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
@@ -8,12 +8,12 @@ import org.deltava.beans.Pilot;
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.XMLException;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 
 /**
  * A Parser for Authentication elements.
  * @author Luke
- * @version 2.2
+ * @version 2.5
  * @since 1.0
  */
 
@@ -32,19 +32,22 @@ class AuthParser extends ElementParser<AuthenticateMessage> {
 		String pwd = getChildText(e, "password", null);
 		if (StringUtils.isEmpty(userID) || StringUtils.isEmpty(pwd))
 			throw new XMLException("Missing userID/password");
-
+		
+		// Parse the userID
+		UserID id = new UserID(userID);
+		boolean isDBID = !id.hasAirlineCode();
+		isDBID |= Boolean.valueOf(getChildText(e, "isID", null)).booleanValue();
+		if (isDBID && (id.getUserID() < 1))
+			throw new XMLException("Invalid Database ID - " + userID);
+		
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setVersion(getChildText(e, "version", "v1.2"));
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
-		msg.setDatabaseID(Boolean.valueOf(getChildText(e, "isID", null)).booleanValue());
 		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
 		msg.setBeta(StringUtils.parse(getChildText(e, "beta", "0"), 0));
-		
-		// Validate the database ID
-		if (msg.isID() && (StringUtils.parse(userID, 0) < 1))
-			throw new XMLException("Invalid Database ID - " + userID);
+		msg.setDatabaseID(isDBID);
 		
 		// Get the user's local UTC time
 		String utc = getChildText(e, "localUTC", null);
