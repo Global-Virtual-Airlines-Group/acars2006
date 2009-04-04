@@ -1,9 +1,8 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.*;
 import java.util.*;
-import java.io.IOException;
 
 import javax.servlet.*;
 
@@ -25,7 +24,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 2.2
+ * @version 2.5
  * @since 1.0
  */
 
@@ -104,14 +103,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SystemData.init();
 		SharedData.addApp(SystemData.get("airline.code"));
 		
-		// Load the profanity filter
-		try {
-			log.info("Initializing Content Filter");
-			ProfanityFilter.init(ConfigLoader.getStream("/etc/profanity.txt"));
-		} catch (IOException ie) {
-			log.warn("Cannot load Profanity Filter - " + ie.getMessage());
-		}
-
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
 		_jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size"));
