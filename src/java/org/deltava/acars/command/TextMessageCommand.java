@@ -13,12 +13,13 @@ import org.deltava.dao.acars.SetMessage;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.util.UserID;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 2.4
+ * @version 2.5
  * @since 1.0
  */
 
@@ -83,6 +84,10 @@ public class TextMessageCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 		}
 		
+		// Check if the recipient has a databsae ID
+		UserID rcptID = new UserID(msg.getRecipient());
+		boolean isDBID = !rcptID.hasAirlineCode();
+		
 		// Push the message back to everyone if needed
 		Pilot rUsr = null;
 		if (msg.isPublic()) {
@@ -93,8 +98,12 @@ public class TextMessageCommand extends ACARSCommand {
 			Collection<ACARSConnection> dstC = ctx.getACARSConnections(usr.isInRole("HR") ? msg.getRecipient() : "*");
 			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
-				if (ac.getUserID().equalsIgnoreCase(msg.getRecipient()))  {
-					rUsr = ac.getUser();
+				Pilot p = ac.getUser();
+				if (isDBID && ac.isAuthenticated() && (p.getID() == rcptID.getUserID())) {
+					rUsr = p;
+					ctx.push(txtRsp, ac.getID());
+				} else if (ac.getUserID().equalsIgnoreCase(msg.getRecipient()))  {
+					rUsr = p;
 					ctx.push(txtRsp, ac.getID());
 				} else if (ac.getUserHidden() && !ac.getUserBusy())
 					ctx.push(txtRsp, ac.getID());
