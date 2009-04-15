@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.io.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 2.3
+ * @version 2.5
  * @since 2.3
  */
 
@@ -49,8 +49,10 @@ public class WeatherCommand extends DataCommand {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		String type = msg.getFlag("type").toUpperCase();
 		String code = msg.getFlag("code").toUpperCase();
+		String type = msg.getFlag("type").toUpperCase();
+		if (type == null)
+			type = "metar";
 		
 		// Create the response
 		WXMessage wxMsg = new WXMessage(env.getOwner(), msg.getID());
