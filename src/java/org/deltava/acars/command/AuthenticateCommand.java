@@ -200,6 +200,10 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Save the connection data
 		try {
 			Connection c = ctx.getConnection();
+			
+			// Get the IP Address info
+			GetIPLocation ipdao = new GetIPLocation(c);
+			con.setAddressInfo(ipdao.get(con.getRemoteAddr()));
 
 			// Start a transaction
 			ctx.startTX();
@@ -267,7 +271,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			sysMsg.addMessage("You are logged in as " + usr.getName() + " from " + con.getRemoteAddr());
 		else
 			sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
-
+			
 		// Add system-defined messages
 		@SuppressWarnings("unchecked")
 		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -14,6 +14,7 @@ import java.nio.channels.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.system.IPAddressInfo;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.ProtocolInfo;
@@ -23,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 2.2
+ * @version 2.5
  * @since 1.0
  */
 
@@ -62,6 +63,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private long _id;
 	private Pilot _userInfo;
 	private UserData _userData;
+	private IPAddressInfo _addrInfo;
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
 	private boolean _isUserBusy;
@@ -160,6 +162,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public long getID() {
 		return _id;
+	}
+	
+	public IPAddressInfo getAddressInfo() {
+		return _addrInfo;
 	}
 
 	public InfoMessage getFlightInfo() {
@@ -317,6 +323,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	
 	public void setUserLocation(UserData ud) {
 		_userData = ud;
+	}
+	
+	public void setAddressInfo(IPAddressInfo addrInfo) {
+		_addrInfo = addrInfo;
 	}
 	
 	public void setDispatchRange(GeoLocation loc, int range) {
