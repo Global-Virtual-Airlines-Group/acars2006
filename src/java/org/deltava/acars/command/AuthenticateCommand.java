@@ -26,7 +26,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 2.5
+ * @version 2.6
  * @since 1.0
  */
 
@@ -98,14 +98,13 @@ public class AuthenticateCommand extends ACARSCommand {
 			GetUserData udao = new GetUserData(c);
 
 			// If we're using a database ID to authenticate, load it differently
-			if (msg.isID()) {
+			if (!usrID.hasAirlineCode()) {
 				ud = udao.get(StringUtils.parse(msg.getUserID(), 0));
 				if (ud == null)
 					throw new SecurityException("Invalid database ID - " + msg.getUserID());
 
 				usr = pdao.get(ud);
 			} else {
-				pdao.setQueryMax(1);
 				usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
 				if (usr != null)
 					ud = udao.get(usr.getID());
@@ -254,6 +253,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("rank", usr.getRank());
 		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
+		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
 			ackMsg.setEntry("unrestricted", "true");
