@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -238,6 +238,14 @@ public class FilePIREPCommand extends ACARSCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
+			
+			// Flush the position queue
+			if (SetPosition.size() > 0) {
+				ctx.setMessage("Flushing Position Queue");
+				SetPosition pwdao = new SetPosition(con);
+				int flushed = pwdao.flush();
+				log.info("Flushed " + flushed + " Position records from queue");
+			}
 			
 			// Commit the transaction
 			ctx.commitTX();
