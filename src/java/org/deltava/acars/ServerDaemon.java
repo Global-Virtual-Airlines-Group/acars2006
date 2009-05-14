@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 2.1
+ * @version 2.6
  * @since 1.0
  */
 
@@ -91,6 +91,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	    SystemData.add(SystemData.JDBC_POOL, jdbcPool);
  	}
  	
+ 	/**
+ 	 * Initializes the list of airports.
+ 	 */
  	protected void initAirports() {
  		
  		// Get the Connection Pool
@@ -98,9 +101,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		
  		Connection c = null;
  		try {
- 			c = pool.getConnection(true);
- 			
- 			// Load the airports
+ 			c = pool.getConnection();
             log.info("Loading Airports");
             GetAirport dao = new GetAirport(c);
             SystemData.add("airports", dao.getAll());

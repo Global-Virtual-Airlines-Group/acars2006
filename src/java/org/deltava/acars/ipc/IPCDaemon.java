@@ -19,7 +19,7 @@ import org.gvagroup.common.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 2.4
+ * @version 2.6
  * @since 1.0
  */
 
@@ -51,7 +51,7 @@ public class IPCDaemon implements Runnable {
 				try {
 					for (Iterator<SystemEvent> i = events.iterator(); i.hasNext(); ) {
 						SystemEvent event = i.next();
-						con = cPool.getConnection(true);
+						con = cPool.getConnection();
 						Pilot usr = null; GetPilot pdao = new GetPilot(con);
 						if (event instanceof UserEvent) {
 							int userID = ((UserEvent) event).getUserID();

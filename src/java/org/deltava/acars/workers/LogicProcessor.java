@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 1.0
  */
 
@@ -168,7 +168,7 @@ public class LogicProcessor extends Worker {
 		Connection con = null;
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
-			con = cp.getConnection(true);
+			con = cp.getConnection();
 			if (SetPosition.size() > 0) {
 				SetPosition dao = new SetPosition(con);
 				int entries = dao.flush();

@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 2.5
+ * @version 2.6
  * @since 1.0
  */
 
@@ -112,7 +112,7 @@ public class TextMessageCommand extends ACARSCommand {
 		
 		// Write the message
 		try {
-			SetMessage dao = new SetMessage(ctx.getConnection(true));
+			SetMessage dao = new SetMessage(ctx.getConnection());
 			dao.write(msg, (rUsr == null) ? 0 : rUsr.getID());
 		} catch (DAOException de) {
 			log.error("Error writing text message - " + de.getMessage(), de);
