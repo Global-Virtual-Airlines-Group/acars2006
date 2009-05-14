@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 2.4
+ * @version 2.6
  * @since 1.0
  */
 
@@ -145,7 +145,7 @@ public final class NetworkReader extends Worker {
 		Connection con = null;
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
-			con = cp.getConnection(true);
+			con = cp.getConnection();
 			SetACARSLog dao = new SetACARSLog(con);
 			dao.closeConnections(ids);
 		} catch (Exception e) {

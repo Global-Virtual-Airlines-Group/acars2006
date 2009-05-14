@@ -91,7 +91,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		UserData ud = null;
 		Pilot usr = null;
 		try {
-			Connection c = ctx.getConnection(true);
+			Connection c = ctx.getConnection();
 
 			// Get the DAOs
 			GetPilot pdao = new GetPilot(c);

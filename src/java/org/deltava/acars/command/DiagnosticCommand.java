@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 1.0
  */
 
@@ -208,7 +208,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				if (!sentMessage) {
 					Connection con = null;
 					try {
-						con = ctx.getConnection(true);
+						con = ctx.getConnection();
 						
 						// Get the airlines
 						GetPilotDirectory pdao = new GetPilotDirectory(con);
