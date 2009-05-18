@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -16,11 +16,12 @@ import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
+import org.deltava.util.StringUtils;
 
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -129,6 +130,12 @@ public class InfoCommand extends ACARSCommand {
 			GetNavRoute navdao = new GetNavRoute(c);
 			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.SID, msg.getSID());
 			TerminalRoute star = navdao.getRoute(msg.getAirportA(), TerminalRoute.STAR, msg.getSTAR());
+			
+			// Log unknown SID/STAR
+			if ((sid == null) && (!StringUtils.isEmpty(msg.getSID())))
+				log.info("Unknown SID - " + msg.getSID());
+			if ((star == null) && (!StringUtils.isEmpty(msg.getSTAR())))
+				log.info("Unknown STAR - " + msg.getSTAR());
 			
 			// Start a transaction
 			ctx.startTX();
