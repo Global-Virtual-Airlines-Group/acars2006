@@ -77,6 +77,7 @@ public class WeatherCommand extends DataCommand {
 			// Load the airport location
 			GetNavData navdao = new GetNavData(ctx.getConnection());
 			AirportLocation ap = navdao.getAirport(code);
+			ctx.release();
 			
 			if (isFA) {
 				GetFAWeather dao = new GetFAWeather();

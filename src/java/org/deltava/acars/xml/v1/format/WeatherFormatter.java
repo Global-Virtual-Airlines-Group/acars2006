@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Weather data messages.
  * @author Luke
- * @version 2.4
+ * @version 2.6
  * @since 2.2
  */
 
@@ -39,10 +39,12 @@ class WeatherFormatter extends ElementFormatter {
 		e.setAttribute("icao", wxmsg.getAirport().getICAO());
 		for (Iterator<WeatherDataBean> i = wxmsg.getResponse().iterator(); i.hasNext(); ) {
 			WeatherDataBean wx = i.next();
-			Element ew = XMLUtils.createElement("wx", wx.getData(), true);
-			ew.setAttribute("type", wx.getType());
-			ew.setAttribute("valid", StringUtils.format(wx.getDate(), "MM/dd/yyyy HH:mm"));
-			e.addContent(ew);
+			if (wx.getDate() != null) {
+				Element ew = XMLUtils.createElement("wx", wx.getData(), true);
+				ew.setAttribute("type", wx.getType());
+				ew.setAttribute("valid", StringUtils.format(wx.getDate(), "MM/dd/yyyy HH:mm"));
+				e.addContent(ew);
+			}
 		}
 		
 		return pe;
