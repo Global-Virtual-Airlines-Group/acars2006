@@ -113,12 +113,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Check if it's an Online Event flight
+			OnlineNetwork network = afr.getNetwork();
 			if ((afr.getDatabaseID(FlightReport.DBID_EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
-				OnlineNetwork network = OnlineNetwork.VATSIM;
-				if (afr.hasAttribute(FlightReport.ATTR_IVAO))
-					network = OnlineNetwork.IVAO;
-				
-				// Load the event ID
 				GetEvent evdao = new GetEvent(con);
 				afr.setDatabaseID(FlightReport.DBID_EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
 			}
@@ -132,6 +128,13 @@ public class FilePIREPCommand extends ACARSCommand {
 			DateTime dt = new DateTime(afr.getDate());
 			dt.convertTo(p.getTZ());
 			afr.setDate(dt.getDate());
+			
+			// Check that the user has an online network ID
+			if ((network != null) && (!p.hasNetworkID(network))) {
+				log.warn(p.getName() + " does not have a " + network.toString() + " ID");
+				afr.setComments("No " + network.toString() + " ID, resetting Online Network flag");
+				afr.setNetwork(null);
+			}
 			
 			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
