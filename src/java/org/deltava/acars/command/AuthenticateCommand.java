@@ -59,7 +59,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			minBuild = cInfo.getMinimumBuild(msg.getVersion());
 
 		// Check the minimum build number
-		if (msg.getClientBuild() < minBuild) {
+		if ((msg.getClientBuild() < minBuild) || (minBuild == 0)) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if (minBuild == Integer.MAX_VALUE) {
 				errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
@@ -296,6 +296,6 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 3000;
+		return 2750;
 	}
 }
