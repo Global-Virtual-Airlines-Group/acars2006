@@ -150,13 +150,13 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>90</v2_0>
 				<v2_1>93</v2_1>
+				<v2_2>95</v2_2>
 				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
-				<b95>12</b95>
+				<b95>15</b95>
 				<b100>1</b100>
 			</map>
 
@@ -168,7 +168,7 @@
 		</build>
 
 		<pool>
-			<size type="Integer">128</size>
+			<size type="Integer">144</size>
 			<multiple type="Boolean">false</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
