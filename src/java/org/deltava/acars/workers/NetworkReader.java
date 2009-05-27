@@ -78,22 +78,27 @@ public final class NetworkReader extends Worker {
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
+		long lastExecTime = 0;
 
 		while (!Thread.currentThread().isInterrupted()) {
+			
 			// Check for some data using our timeout value
 			_status.setMessage("Waiting for Data");
 			_status.execute();
 			int consWaiting = 0;
 			try {
+				long runInterval = System.currentTimeMillis() - lastExecTime;
+				if (runInterval < 50)
+					Thread.sleep(50 - runInterval);
+				
 				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep"));
 			} catch (Exception e) {
 				log.warn("Error on select - " + e.getMessage());
 			}
 			
 			// Wait in case we just added a new connection
-			long startTime = 0;
 			synchronized (_pool) {
-				startTime = System.currentTimeMillis();
+				lastExecTime = System.currentTimeMillis();
 			}
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
@@ -131,7 +136,7 @@ public final class NetworkReader extends Worker {
 			}
 			
 			// Check execution time
-			long execTime = System.currentTimeMillis() - startTime;
+			long execTime = System.currentTimeMillis() - lastExecTime;
 			if (execTime > 2500)
 				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections)");
 			
