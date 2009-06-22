@@ -132,7 +132,6 @@
 	<!-- ACARS Server Properties -->
 	<acars>
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
-
 		<list name="block" attr="addr">
 			<addr>127.0.0.1</addr>
 		</list>
@@ -149,14 +148,13 @@
 		<position_interval type="Integer">30</position_interval>
 		<build>
 			<map name="minimum">
-				<v1_4>76</v1_4>
-				<v2_1>93</v2_1>
+				<v1_4>77</v1_4>
 				<v2_2>95</v2_2>
 				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
-				<b95>15</b95>
+				<b96>1</b96>
 				<b100>1</b100>
 			</map>
 
