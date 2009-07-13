@@ -123,7 +123,11 @@ public class LogicProcessor extends Worker {
 			// Get the message and start time
 			long startTime = System.currentTimeMillis();
 			Message msg = _env.getMessage();
-			_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + _env.getOwnerID());
+			if (msg.getType() == Message.MSG_DATAREQ) {
+				DataMessage dmsg = (DataMessage) msg;
+				_status.setMessage("Processing " + DataMessage.REQ_TYPES[dmsg.getRequestType()] + " message from " + _env.getOwnerID());
+			} else
+				_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + _env.getOwnerID());
 
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
