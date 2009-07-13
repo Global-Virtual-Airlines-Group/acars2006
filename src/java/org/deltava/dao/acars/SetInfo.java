@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -53,7 +53,7 @@ public class SetInfo extends DAO {
 			_ps.setString(6, msg.getAirportD().getIATA());
 			_ps.setString(7, msg.getAirportA().getIATA());
 			_ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
-			_ps.setString(9, msg.getAllWaypoints());
+			_ps.setString(9, msg.getRoute());
 			_ps.setString(10, msg.getComments());
 			_ps.setInt(11, msg.getFSVersion());
 			_ps.setBoolean(12, msg.isOffline());

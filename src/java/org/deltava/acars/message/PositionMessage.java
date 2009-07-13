@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -125,7 +125,6 @@ public class PositionMessage extends LocationMessage {
 		_isLogged = isLogged;
 	}
 
-
 	public void setAngleOfAttack(double aoa) {
 		if (aoa > 99.99)
 			aoa = 99.99;
@@ -165,13 +164,11 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setN1(double nn1) {
-		if ((nn1 >= 0) && (nn1 <= 145))
-			this.n1 = nn1;
+		this.n1 = Math.max(0, nn1);
 	}
 
 	public void setN2(double nn2) {
-		if ((nn2 >= 0) && (nn2 <= 145))
-			this.n2 = nn2;
+		this.n2 = Math.max(0, nn2);
 	}
 
 	public void setPhase(int newPhase) {
@@ -198,8 +195,7 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setWindSpeed(int spd) {
-		if (spd >= 0)
-			_windSpeed = spd;
+		_windSpeed = Math.max(0, spd);
 	}
 
 	public void setVspeed(int i) {

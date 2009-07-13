@@ -117,7 +117,7 @@ public class InfoMessage extends AbstractMessage {
 		return _waypoints;
 	}
 	
-	public String getAllWaypoints() {
+	public String getRoute() {
 		
 		StringBuilder buf = new StringBuilder();
 		for (Iterator<String> i = _waypoints.iterator(); i.hasNext(); ) {

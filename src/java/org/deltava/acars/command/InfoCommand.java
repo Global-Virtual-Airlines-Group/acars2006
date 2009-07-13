@@ -146,9 +146,14 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Write the SID/STAR data
 			SetACARSData dwdao = new SetACARSData(c);
-			dwdao.clearSIDSTAR(msg.getFlightID());
-			dwdao.writeSIDSTAR(msg.getFlightID(), sid);
-			dwdao.writeSIDSTAR(msg.getFlightID(), star);
+			if (sid != null) {
+				dwdao.clearSID(msg.getFlightID());
+				dwdao.writeSIDSTAR(msg.getFlightID(), sid);
+			}
+			if (star != null) {
+				dwdao.clearSTAR(msg.getFlightID());
+				dwdao.writeSIDSTAR(msg.getFlightID(), star);
+			}
 			
 			// Commit the transaction
 			ctx.commitTX();

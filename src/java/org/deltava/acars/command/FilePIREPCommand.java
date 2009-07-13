@@ -7,6 +7,8 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.*;
+import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.schedule.*;
 
@@ -98,6 +100,14 @@ public class FilePIREPCommand extends ACARSCommand {
 			      ctx.push(ackMsg, ac.getID());
 			      return;
 				}
+			}
+			
+			// Flush the position queue
+			if (SetPosition.size() > 0) {
+				ctx.setMessage("Flushing Position Queue");
+				SetPosition pwdao = new SetPosition(con);
+				int flushed = pwdao.flush();
+				log.info("Flushed " + flushed + " Position records from queue");
 			}
 
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
@@ -205,7 +215,42 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setStatus(FlightReport.HOLD);
 			}
 			
-			// Get the position write DAO and write the positions
+			// Get the takeoff/touchdown points
+			GetNavRoute navdao = new GetNavRoute(con);
+			List<RouteEntry> tdEntries = fddao.getTakeoffLanding(info.getFlightID(), false);
+			if (tdEntries.size() > 2) {
+				int ofs = 0; RouteEntry entry = tdEntries.get(0);
+				GeoPosition adPos = new GeoPosition(info.getAirportD());
+				while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
+					ofs++;
+					entry = tdEntries.get(ofs);
+				}
+			
+				// Trim out spurious takeoff entries
+				if (ofs > 0)
+					tdEntries.subList(0, ofs - 1).clear();
+				if (tdEntries.size() > 2)
+					tdEntries.subList(1, tdEntries.size() - 1).clear();
+			}
+			
+			// Get the runways used
+			Runway rD = null; Runway rA = null;
+			if (tdEntries.size() == 2) {
+				Runway r = navdao.getBestRunway(info.getAirportD().getICAO(), tdEntries.get(0), tdEntries.get(0).getHeading());
+				if (r != null) {
+					int dist = GeoUtils.distanceFeet(r, tdEntries.get(0));
+					rD = new RunwayDistance(r, dist);
+				}
+				
+				// Load the arrival runway
+				r = navdao.getBestRunway(afr.getAirportA().getICAO(), tdEntries.get(1), tdEntries.get(1).getHeading());
+				if (r != null) {
+					int dist = GeoUtils.distanceFeet(r, tdEntries.get(1));
+					rA = new RunwayDistance(r, dist);
+				}
+			}
+			
+			// Set misc options
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			afr.setFSVersion(info.getFSVersion());
 			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
@@ -213,7 +258,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Start the transaction
 			ctx.startTX();
-				
+			
 			// Mark the PIREP as filed
 			SetInfo idao = new SetInfo(con);
 			idao.logPIREP(info.getFlightID());
@@ -235,20 +280,39 @@ public class FilePIREPCommand extends ACARSCommand {
 				} else
 					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
 			}
+			
+			// Write the runway data
+			SetACARSData awdao = new SetACARSData(con);
+			awdao.writeRunways(info.getFlightID(), rD, rA);
+			
+			// Parse the route and check for actual SID/STAR
+			List<String> wps = StringUtils.split(info.getRoute(), " ");
+			wps.remove(info.getAirportD().getICAO());
+			wps.remove(info.getAirportA().getICAO());
+			if (wps.size() > 2) {
+				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + info.getFlightID());
+				
+				// Check actual SID/STAR
+				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.SID, wps.get(0), wps.get(1), rD);
+				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
+					log.warn("Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+					awdao.clearSID(info.getFlightID());	
+					awdao.writeSIDSTAR(info.getFlightID(), aSID);	
+				}
+				
+				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
+				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
+					log.warn("Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+					awdao.clearSTAR(info.getFlightID());	
+					awdao.writeSIDSTAR(info.getFlightID(), aSTAR);	
+				}
+			}
 
 			// Get the write DAO and save the PIREP
 			ctx.setMessage("Saving Flight report for flight " + afr.getFlightCode() + " for " + ac.getUserID());
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
-			
-			// Flush the position queue
-			if (SetPosition.size() > 0) {
-				ctx.setMessage("Flushing Position Queue");
-				SetPosition pwdao = new SetPosition(con);
-				int flushed = pwdao.flush();
-				log.info("Flushed " + flushed + " Position records from queue");
-			}
 			
 			// Commit the transaction
 			ctx.commitTX();
