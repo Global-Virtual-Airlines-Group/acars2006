@@ -22,7 +22,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.5
+ * @version 2.6
  * @since 1.0
  */
 
@@ -109,9 +109,11 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 			// Save the PIREP
 			msg.setPIREP(afr);
 		} catch (Exception ex) {
-			log.error("Error submitting PIREP from " + user.getPilotCode());
+			if (user != null)
+				log.error("Error submitting PIREP from " + user.getPilotCode());
+			
 			Document doc = new Document();
-			doc.setRootElement(e);
+			doc.setRootElement((org.jdom.Element) e.clone());
 			log.error(XMLUtils.format(doc, "UTF-8"), ex);
 			throw new XMLException(ex.getMessage());
 		}

@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available Airline data.
  * @author Luke
- * @version 1.0
+ * @version 2.6
  * @since 1.0
  */
 
@@ -42,9 +42,9 @@ public class AirlineListCommand extends DataCommand {
 		UserData usrData = ctx.getACARSConnection().getUserData();
 
 		// Only retrieve airlines applicable to the specific user
-		Map airlines = (Map) SystemData.getObject("airlines");
+		Map<?, ?> airlines = (Map<?, ?>) SystemData.getObject("airlines");
 		AirlineMessage rspMsg = new AirlineMessage(env.getOwner(), msg.getID());
-		for (Iterator ai = airlines.values().iterator(); ai.hasNext();) {
+		for (Iterator<?> ai = airlines.values().iterator(); ai.hasNext();) {
 			Airline a = (Airline) ai.next();
 			if (a.getActive() && a.getApplications().contains(usrData.getAirlineCode()))
 				rspMsg.add(a);

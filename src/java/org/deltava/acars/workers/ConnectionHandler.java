@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 2.1
  */
 
@@ -119,8 +119,8 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		// Load the list of blocked connections
 		_blockedAddrs.clear();
 		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
-		Collection addrs = (Collection) SystemData.getObject("acars.block");
-		for (Iterator i = addrs.iterator(); i.hasNext(); )
+		Collection<?> addrs = (Collection<?>) SystemData.getObject("acars.block");
+		for (Iterator<?> i = addrs.iterator(); i.hasNext(); )
 			_blockedAddrs.add((String) i.next());
 		
 		try {
@@ -199,6 +199,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 						wt.start();
 					}
 				} catch (ClosedByInterruptException cie) {
+					// empty
 				} catch (IOException ie) {
 					log.error("Cannot accept connection - " + ie.getMessage(), ie);
 					_status.setStatus(WorkerStatus.STATUS_ERROR);

@@ -41,7 +41,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	
  	protected ACARSConnectionPool _conPool;
  	
- 	protected static void initLog(Class loggerClass) {
+ 	protected static void initLog(Class<?> loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
         log = Logger.getLogger(loggerClass);
  	}
@@ -51,7 +51,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
         // Get and load the authenticator
         String authClass = SystemData.get("security.auth");
         try {
-           Class c = Class.forName(authClass);
+           Class<?> c = Class.forName(authClass);
            log.debug("Loaded class " + authClass);
            Authenticator auth = (Authenticator) c.newInstance();
            
@@ -72,7 +72,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
  	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 1));
- 	    jdbcPool.setProperties((Map) SystemData.getObject("jdbc.connectProperties"));
+ 	    jdbcPool.setProperties((Map<?, ?>) SystemData.getObject("jdbc.connectProperties"));
  	    jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
  	    jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
  	    

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -26,6 +26,7 @@ public class ACARSHelper {
 
 	// singleton constructor
 	private ACARSHelper() {
+		super();
 	}
 
 	/**
@@ -83,7 +84,7 @@ public class ACARSHelper {
 			log.warn("Bad Flight Code - " + flightCode);
 			
 			// Look it up
-			Map aCodes = (Map) SystemData.getObject("airline.defaultCodes");
+			Map<?, ?> aCodes = (Map<?, ?>) SystemData.getObject("airline.defaultCodes");
 			a = SystemData.getAirline((String) aCodes.get(aCode.toString().toLowerCase()));
 		}
 
@@ -229,7 +230,7 @@ public class ACARSHelper {
 
 		// Parse through the elements
 		Properties props = new Properties();
-		for (Iterator i = cmdE.getChildren().iterator(); i.hasNext();) {
+		for (Iterator<?> i = cmdE.getChildren().iterator(); i.hasNext();) {
 			Element e = (Element) i.next();
 			props.setProperty(e.getName(), e.getTextTrim());
 		}

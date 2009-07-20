@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
@@ -7,11 +7,11 @@ import org.deltava.acars.message.Message;
 /**
  * An Envelope is a bean used to link data with sender/addressee information.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
-public abstract class Envelope<T> implements Comparable<Envelope> {
+public abstract class Envelope<T> implements Comparable<Envelope<T>> {
 
 	/**
 	 * The envelope payload.
@@ -101,7 +101,7 @@ public abstract class Envelope<T> implements Comparable<Envelope> {
 	/**
 	 * Compares two Envelopes by comparing their timestamps and connection IDs.
 	 */
-	public int compareTo(Envelope e2) {
+	public int compareTo(Envelope<T> e2) {
 		int tmpResult = Boolean.valueOf(_critical).compareTo(Boolean.valueOf(e2._critical));
 		if (tmpResult == 0)
 			tmpResult = new Long(_timeStamp).compareTo(new Long(e2._timeStamp));

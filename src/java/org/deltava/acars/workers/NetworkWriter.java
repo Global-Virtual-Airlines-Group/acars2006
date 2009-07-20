@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 2.1
+ * @version 2.6
  * @since 1.0
  */
 
@@ -58,9 +58,10 @@ public class NetworkWriter extends Worker {
 
 		// Create initial writer threads
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.write.min", 1));
-		int maxThreads = SystemData.getInt("acars.pool.threads.write.max", minThreads);
-		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 2250, NetworkWriter.class);
+		int maxThreads = Math.max(minThreads, SystemData.getInt("acars.pool.threads.write.max", minThreads));
+		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 1500, NetworkWriter.class);
 		_ioPool.allowCoreThreadTimeOut(false);
+		_ioPool.prestartCoreThread();
 		_ioPool.setSortBase(60);
 	}
 

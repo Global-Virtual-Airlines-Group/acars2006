@@ -54,7 +54,9 @@ public abstract class AbstractMessage implements Message {
 		if (id == 0) {
 			try {
 				id = Long.parseLong(newID, 16);
-			} catch (Exception e) { }
+			} catch (Exception e) {
+				// empty
+			}
 		}
 	}
 

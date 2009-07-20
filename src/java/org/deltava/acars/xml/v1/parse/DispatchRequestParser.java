@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for DispatchRequest elements.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 2.0
  */
 
@@ -54,7 +54,7 @@ class DispatchRequestParser extends ElementParser<RequestMessage> {
 		// Get the fuel tanks
 		Element tse = e.getChild("tanks");
 		if (tse != null) {
-			for (Iterator i = tse.getChildren().iterator(); i.hasNext(); ) {
+			for (Iterator<?> i = tse.getChildren().iterator(); i.hasNext(); ) {
 				Element te = (Element) i.next();
 				FuelTank tank = FuelTank.get(te.getAttributeValue("name"));
 				msg.addTank(tank, StringUtils.parse(te.getAttributeValue("size"), 0));
