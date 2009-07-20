@@ -27,7 +27,7 @@ public class TestFuelTanks extends TestCase {
 			assertNull(t);
 			fail("IllegalArgumentException expected");
 		} catch (IllegalArgumentException iae) {
-			
+			// empty
 		}
 	}
 }
