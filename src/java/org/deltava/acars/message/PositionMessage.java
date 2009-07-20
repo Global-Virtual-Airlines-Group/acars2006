@@ -126,17 +126,11 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setAngleOfAttack(double aoa) {
-		if (aoa > 99.99)
-			aoa = 99.99;
-		else if (aoa < -99.99)
-			aoa = -99.99;
-			
-		_angleOfAttack = aoa;
+		_angleOfAttack = Math.max(-90, Math.min(90, aoa));
 	}
 
 	public void setFuelRemaining(int fr) {
-		if (fr >= 0)
-			fuelRemaining = fr;
+		fuelRemaining = Math.max(0, fr);
 	}
 
 	public void setFrameRate(int rate) {
@@ -154,13 +148,12 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setFuelFlow(int flow) {
-		if ((flow >= 0) && (flow < 120000))
-			_fuelFlow = flow;
+		_fuelFlow = Math.max(0, flow);
 	}
 
 	public void setMach(double m) {
-		if ((m >= 0) && (m <= 4.2))
-			this.mach = m;
+		if (m <= 4.2)
+			this.mach = Math.max(0, m);
 	}
 
 	public void setN1(double nn1) {

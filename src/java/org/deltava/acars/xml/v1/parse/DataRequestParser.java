@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Iterator;
@@ -12,9 +12,9 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.xml.XMLException;
 
 /**
- * A parser for DataRequest elements.
+ * A parser for Data Request elements.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -39,7 +39,7 @@ class DataRequestParser extends ElementParser<DataRequestMessage> {
 		// Load the flags
 		Element flagsE = e.getChild("flags");
 		if (flagsE != null) {
-			for (Iterator i = flagsE.getChildren().iterator(); i.hasNext();) {
+			for (Iterator<?> i = flagsE.getChildren().iterator(); i.hasNext();) {
 				Element fe = (Element) i.next();
 				msg.addFlag(fe.getName(), fe.getTextTrim());
 			}

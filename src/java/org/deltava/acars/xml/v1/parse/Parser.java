@@ -15,14 +15,16 @@ import org.deltava.util.StringUtils;
 /**
  * A parser for ACARS Protocol v1 messages.
  * @author Luke
- * @version 2.4
+ * @version 2.6
  * @since 1.0
  */
 
 public class Parser extends org.deltava.acars.xml.MessageParser {
 
-	private final Map<Integer, ElementParser> _eParsers = new HashMap<Integer, ElementParser>();
-	private final Map<Integer, ElementParser> _dspParsers = new HashMap<Integer, ElementParser>();
+	private final Map<Integer, ElementParser<? extends Message>> _eParsers = 
+		new HashMap<Integer, ElementParser<? extends Message>>();
+	private final Map<Integer, ElementParser<? extends DispatchMessage>> _dspParsers = 
+		new HashMap<Integer, ElementParser<? extends DispatchMessage>>();
 	
 	/**
 	 * Initializes the Parser.
@@ -115,7 +117,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 			}
 			
 			// Get the commands
-			for (Iterator cmds = root.getChildren("CMD").iterator(); cmds.hasNext();) {
+			for (Iterator<?> cmds = root.getChildren("CMD").iterator(); cmds.hasNext();) {
 				Element cmdE = (Element) cmds.next();
 
 				// Get message type
@@ -139,7 +141,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 						case Message.MSG_DISPATCH:
 							String reqType = cmdE.getChildTextTrim("reqtype"); 
 							int dspType = StringUtils.arrayIndexOf(DispatchMessage.REQ_TYPES, reqType);
-							ElementParser dp = _dspParsers.get(Integer.valueOf(dspType));
+							ElementParser<? extends DispatchMessage> dp = _dspParsers.get(Integer.valueOf(dspType));
 							if (dp != null)
 								msg = dp.parse(cmdE, env.getOwner());
 							else
@@ -148,7 +150,7 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 							break;
 
 						default:
-							ElementParser ep = _eParsers.get(Integer.valueOf(msgType));
+							ElementParser<? extends Message> ep = _eParsers.get(Integer.valueOf(msgType));
 							if (ep != null)
 								msg = ep.parse(cmdE, env.getOwner());
 							else

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -14,13 +14,14 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
 public class Formatter extends MessageFormatter {
 	
-	private final Map<Class, ElementFormatter> _eFormatters = new HashMap<Class, ElementFormatter>();
+	private final Map<Class<? extends Message>, ElementFormatter> _eFormatters = 
+		new HashMap<Class<? extends Message>, ElementFormatter>();
 
 	/**
 	 * Initializes the Message Formatter.
@@ -81,7 +82,7 @@ public class Formatter extends MessageFormatter {
 		// Format the message
 		Element e = efmt.format(msg);
 		if ((msg instanceof DataResponseMessage) && (e != null))
-			e.setAttribute("id", Long.toHexString(((DataResponseMessage) msg).getParentID()).toUpperCase());
+			e.setAttribute("id", Long.toHexString(((DataResponseMessage<?>) msg).getParentID()).toUpperCase());
 			
 		return e;
 	}

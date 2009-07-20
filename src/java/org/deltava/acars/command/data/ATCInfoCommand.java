@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 2.4
+ * @version 2.6
  * @since 1.0
  */
 
@@ -45,7 +45,7 @@ public class ATCInfoCommand extends DataCommand {
 		OnlineNetwork network = null;
 		try {
 			network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
-			Collection networkNames = (Collection) SystemData.getObject("online.networks");
+			Collection<?> networkNames = (Collection<?>) SystemData.getObject("online.networks");
 			if (!networkNames.contains(network.toString()))
 				return;
 		} catch (IllegalArgumentException iae) {

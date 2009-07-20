@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.deltava.jdbc.*;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 2.1
+ * @version 2.6
  * @since 1.0
  */
 
@@ -31,7 +31,7 @@ public class CommandContext extends ConnectionContext {
 	 * @param env the Message envlope to process
 	 * @param status the current Worker Thread status
 	 */
-	public CommandContext(ACARSConnectionPool acp, Envelope env, WorkerStatus status) {
+	public CommandContext(ACARSConnectionPool acp, Envelope<Message> env, WorkerStatus status) {
 		super();
 		_pool = acp;
 		_ac = _pool.get(env.getConnectionID());

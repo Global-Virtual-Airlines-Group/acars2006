@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 2.1
  */
 
@@ -52,7 +52,7 @@ class DispatchInfoParser extends ElementParser<FlightDataMessage> {
 		
 		// Get the fuel data
 		Element tse = e.getChild("fuel");
-		for (Iterator i = tse.getChildren().iterator(); i.hasNext(); ) {
+		for (Iterator<?> i = tse.getChildren().iterator(); i.hasNext(); ) {
 			Element te = (Element) i.next();
 			FuelTank tank = FuelTank.get(te.getAttributeValue("name"));
 			msg.addFuel(tank, StringUtils.parse(te.getAttributeValue("load"), 0));
@@ -61,7 +61,7 @@ class DispatchInfoParser extends ElementParser<FlightDataMessage> {
 		// Get the waypoints
 		Element rse = e.getChild("route");
 		msg.setRoute(rse.getChildTextTrim("text"));
-		for (Iterator i = rse.getChildren("waypoint").iterator(); i.hasNext(); ) {
+		for (Iterator<?> i = rse.getChildren("waypoint").iterator(); i.hasNext(); ) {
 			Element wpe = (Element) i.next();
 			double lat = StringUtils.parse(wpe.getAttributeValue("lat"), 0.0);
 			double lng = StringUtils.parse(wpe.getAttributeValue("lon"), 0.0);

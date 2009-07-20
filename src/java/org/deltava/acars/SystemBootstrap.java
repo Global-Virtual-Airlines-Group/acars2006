@@ -106,7 +106,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
 		_jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size"));
-		_jdbcPool.setProperties((Map) SystemData.getObject("jdbc.connectProperties"));
+		_jdbcPool.setProperties((Map<?, ?>) SystemData.getObject("jdbc.connectProperties"));
 		_jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
 		_jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
 		_jdbcPool.setMaxRequests(SystemData.getInt("jdbc.max_reqs", 0));
@@ -129,7 +129,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Get and load the authenticator
 		String authClass = SystemData.get("security.auth");
 		try {
-			Class c = Class.forName(authClass);
+			Class<?> c = Class.forName(authClass);
 			log.debug("Loaded class " + authClass);
 			Authenticator auth = (Authenticator) c.newInstance();
 
@@ -185,15 +185,15 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Set minimum client builds
 		ACARSClientInfo cInfo = new ACARSClientInfo();
 		cInfo.setLatest(SystemData.getInt("acars.build.latest"));
-		Map minBuilds = (Map) SystemData.getObject("acars.build.minimum");
-		for (Iterator i = minBuilds.keySet().iterator(); i.hasNext(); ) {
+		Map<?, ?> minBuilds = (Map<?, ?>) SystemData.getObject("acars.build.minimum");
+		for (Iterator<?> i = minBuilds.keySet().iterator(); i.hasNext(); ) {
 			String ver = (String) i.next();
 			cInfo.setMinimumBuild(ver.replace('_', '.'), StringUtils.parse(minBuilds.get(ver).toString(), 0));
 		}
 		
 		// Set beta builds
-		minBuilds = (Map) SystemData.getObject("acars.build.beta");
-		for (Iterator i = minBuilds.keySet().iterator(); i.hasNext(); ) {
+		minBuilds = (Map<?, ?>) SystemData.getObject("acars.build.beta");
+		for (Iterator<?> i = minBuilds.keySet().iterator(); i.hasNext(); ) {
 			String ver = (String) i.next();
 			int build = StringUtils.parse(ver.substring(1), 0);
 			cInfo.setMinimumBetaBuild(build, StringUtils.parse(minBuilds.get(ver).toString(), 0));
@@ -203,8 +203,8 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		cInfo.setMinimumDispatchBuild(SystemData.getInt("acars.build.dispatch", 1));
 		
 		// Set no dispatch builds
-		Collection noDspBuilds = (Collection) SystemData.getObject("acars.build.noDispatch");
-		for (Iterator i = noDspBuilds.iterator(); i.hasNext(); ) {
+		Collection<?> noDspBuilds = (Collection<?>) SystemData.getObject("acars.build.noDispatch");
+		for (Iterator<?> i = noDspBuilds.iterator(); i.hasNext(); ) {
 			int build = StringUtils.parse(i.next().toString(), 0);
 			cInfo.addNoDispatchBuild(build);
 		}

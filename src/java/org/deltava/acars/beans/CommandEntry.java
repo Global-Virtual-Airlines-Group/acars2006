@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * A bean to log ACARS command invocations.
  * @author Luke
- * @version 1.0
+ * @version 2.6
  * @since 1.1
  */
 
@@ -23,7 +23,7 @@ public class CommandEntry implements Comparable<CommandEntry> {
 	 * @param id the database ID of the user executing the command
 	 * @param execTime the execution time in milliseconds
 	 */
-	public CommandEntry(Class cmd, int id, long execTime) {
+	public CommandEntry(Class<?> cmd, int id, long execTime) {
 		super();
 		_name = cmd.getSimpleName();
 		_execTime = execTime;

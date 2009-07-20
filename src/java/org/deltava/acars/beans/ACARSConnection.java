@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 2.5
+ * @version 2.6
  * @since 1.0
  */
 
@@ -116,6 +116,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 			try {
 				sc.close();
 			} catch (Exception e) {
+				// empty
 			}
 		} finally {
 			_channel = sc;
@@ -137,6 +138,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 			_wSelector.close();
 			_channel.close();
 		} catch (Exception e) {
+			// empty
 		}
 	}
 
@@ -386,6 +388,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 					_msgBuffer.append(c);
 			}
 		} catch (CharacterCodingException cce) {
+			// empty
 		}
 
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing

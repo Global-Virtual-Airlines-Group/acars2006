@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.beans.*;
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -36,7 +36,7 @@ public abstract class Worker implements Runnable {
 	 * @param loggerClass the logging class
 	 * @throws NullPointerException if name is null
 	 */
-	protected Worker(String name, int sortOrder, Class loggerClass) {
+	protected Worker(String name, int sortOrder, Class<?> loggerClass) {
 		super();
 		_name = name.trim();
 		log = Logger.getLogger(loggerClass);
