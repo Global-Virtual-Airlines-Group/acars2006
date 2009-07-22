@@ -236,14 +236,14 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Get the runways used
 			Runway rD = null; Runway rA = null;
 			if (tdEntries.size() == 2) {
-				Runway r = navdao.getBestRunway(info.getAirportD().getICAO(), tdEntries.get(0), tdEntries.get(0).getHeading());
+				Runway r = navdao.getBestRunway(info.getAirportD().getICAO(), afr.getFSVersion(), tdEntries.get(0), tdEntries.get(0).getHeading());
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, tdEntries.get(0));
 					rD = new RunwayDistance(r, dist);
 				}
 				
 				// Load the arrival runway
-				r = navdao.getBestRunway(afr.getAirportA().getICAO(), tdEntries.get(1), tdEntries.get(1).getHeading());
+				r = navdao.getBestRunway(afr.getAirportA().getICAO(), afr.getFSVersion(), tdEntries.get(1), tdEntries.get(1).getHeading());
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, tdEntries.get(1));
 					rA = new RunwayDistance(r, dist);
