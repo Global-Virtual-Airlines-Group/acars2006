@@ -126,6 +126,7 @@ public final class OutputDispatcher extends Worker {
 							doc = new DatedDocument(e);
 							docs.put(new Long(env.getConnectionID()), doc);
 							users.put(new Long(env.getConnectionID()), ac.getUser());
+							doc.setCompact(false);
 						}
 
 						// Get the formatter
