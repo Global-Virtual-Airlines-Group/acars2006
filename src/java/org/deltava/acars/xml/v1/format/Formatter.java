@@ -81,7 +81,7 @@ public class Formatter extends MessageFormatter {
 
 		// Format the message
 		Element e = efmt.format(msg);
-		if ((msg instanceof DataResponseMessage) && (e != null))
+		if ((msg instanceof DataResponseMessage<?>) && (e != null))
 			e.setAttribute("id", Long.toHexString(((DataResponseMessage<?>) msg).getParentID()).toUpperCase());
 			
 		return e;
