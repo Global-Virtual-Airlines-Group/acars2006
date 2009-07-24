@@ -157,11 +157,17 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setN1(double nn1) {
-		this.n1 = Math.max(0, nn1);
+		if (Double.isNaN(nn1))
+			this.n1 = 0;
+		else
+			this.n1 = Math.max(0, nn1);
 	}
 
 	public void setN2(double nn2) {
-		this.n2 = Math.max(0, nn2);
+		if (Double.isNaN(nn2))
+			this.n2 = 0;
+		else
+			this.n2 = Math.max(0, nn2);
 	}
 
 	public void setPhase(int newPhase) {
