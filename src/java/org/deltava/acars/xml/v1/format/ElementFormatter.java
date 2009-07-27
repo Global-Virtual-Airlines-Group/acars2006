@@ -1,4 +1,4 @@
-// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 1.0
+ * @version 2.6
  * @since 1.0
  */
 
@@ -40,6 +40,7 @@ abstract class ElementFormatter {
 			ae.setAttribute("iata", a.getIATA());
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
+			ae.setAttribute("adse", String.valueOf(a.getADSE()));
 			
 			// Attach airlines
 			for (Iterator<String> i = a.getAirlineCodes().iterator(); i.hasNext(); ) {
