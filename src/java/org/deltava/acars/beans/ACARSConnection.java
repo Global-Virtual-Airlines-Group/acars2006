@@ -395,7 +395,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
 			if ((_msgBuffer.length() > 54) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
-				log.warn("Malformed message - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
+				log.warn("Malformed message from " + getRemoteHost() + " - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
 				_msgBuffer.setLength(0);
 			}
 
