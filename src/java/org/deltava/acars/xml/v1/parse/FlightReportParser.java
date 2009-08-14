@@ -46,19 +46,23 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 		try {
 			afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
 			afr.setAttribute(FlightReport.ATTR_ACARS, true);
-			afr.setDatabaseID(FlightReport.DBID_ACARS, Integer.parseInt(e.getChildTextTrim("flightID")));
-			afr.setDatabaseID(FlightReport.DBID_PILOT, user.getID());
-			afr.setRank(user.getRank());
+			afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 			afr.setStatus(FlightReport.SUBMITTED);
 			afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
 			afr.setDate(new Date());
 			afr.setSubmittedOn(afr.getDate());
 			afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
-			afr.setAirportD(getAirport(e.getChildTextTrim("airportD").toUpperCase()));
-			afr.setAirportA(getAirport(e.getChildTextTrim("airportA").toUpperCase()));
+			afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
+			afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
 			afr.setRemarks(e.getChildText("remarks"));
 			afr.setFDE(getChildText(e, "fde", null));
 			afr.setAircraftCode(getChildText(e, "code", null));
+			
+			// Add user data
+			if (user != null) {
+				afr.setDatabaseID(FlightReport.DBID_PILOT, user.getID());
+				afr.setRank(user.getRank());
+			}
 
 			// Check if it's a checkride
 			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
@@ -71,8 +75,8 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 				afr.setAttribute(FlightReport.ATTR_IVAO, true);
 
 			// Set the times
-			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 			try {
+				final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 				afr.setStartTime(dtf.parse(e.getChildTextTrim("startTime")));
 				afr.setTaxiTime(dtf.parse(e.getChildTextTrim("taxiOutTime")));
 				afr.setTakeoffTime(dtf.parse(e.getChildTextTrim("takeoffTime")));
