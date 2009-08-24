@@ -255,6 +255,9 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
+		ackMsg.setEntry("airportCode", usr.getAirportCodeTypeName());
+		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType()));
+		
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
