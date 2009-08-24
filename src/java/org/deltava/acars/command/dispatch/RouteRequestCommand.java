@@ -23,13 +23,13 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 2.0
  */
 
 public class RouteRequestCommand extends DispatchCommand {
 
-	public class PopulatedFARoute extends DispatchRoute implements ExternalFlightRoute {
+	protected class PopulatedFARoute extends DispatchRoute implements ExternalFlightRoute {
 		
 		private String _source;
 		
@@ -60,7 +60,7 @@ public class RouteRequestCommand extends DispatchCommand {
 		Pilot usr = env.getOwner();
 		ACARSConnection ac = ctx.getACARSConnection();
 		RouteRequestMessage msg = (RouteRequestMessage) env.getMessage();
-		boolean doExternal = msg.getExternalRoutes() && usr.isInRole("Route") && ac.getIsDispatch()
+		boolean doExternal = msg.getExternalRoutes() && ac.getIsDispatch()
 			&& SystemData.getBoolean("schedule.flightaware.enabled");
 
 		try {
