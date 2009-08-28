@@ -35,7 +35,8 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private transient static final int MAX_WRITE_ATTEMPTS = 32;
 
 	// Byte byffer decoder and character set
-	private transient final CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+	private transient final Charset cs = Charset.forName("UTF-8"); 
+	private transient final CharsetDecoder decoder = cs.newDecoder();
 
 	private transient SocketChannel _channel;
 	private transient Selector _wSelector;
@@ -351,7 +352,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 			return 1;
 
 		Pilot usr = c2.getUser();
-		return new Integer(_userInfo.getPilotNumber()).compareTo(new Integer(usr.getPilotNumber()));
+		return Integer.valueOf(_userInfo.getPilotNumber()).compareTo(Integer.valueOf(usr.getPilotNumber()));
 	}
 
 	/* Here are the basic I/O methods, read and write */
@@ -438,10 +439,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 		int writeCount = 1;
 		try {
-			int ofs = 0;
-			byte[] msgBytes = msg.getBytes();
+			byte[] msgBytes = msg.getBytes(cs);
 
 			// Keep writing until the message is done
+			int ofs = 0;
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
 
@@ -454,7 +455,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(250) > 0) {
+					if (_wSelector.select(225) > 0) {
 						_bytesOut += _channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
