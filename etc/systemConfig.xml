@@ -142,13 +142,12 @@
 		<build>
 			<map name="minimum">
 				<v1_4>76</v1_4>
-				<v2_0>93</v2_0>
-				<v2_1>94</v2_1>
+				<v2_2>95</v2_2>
 				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
-				<b95>2</b95>
+				<b96>2</b96>
 				<b100>1</b100>
 			</map>
 
@@ -165,11 +164,11 @@
 			<threads>
 				<logic>
 					<min type="Integer">1</min>
-					<max type="Integer">4</max>
+					<max type="Integer">3</max>
 				</logic>
 				<write>
 					<min type="Integer">1</min>
-					<max type="Integer">6</max>
+					<max type="Integer">4</max>
 				</write>
 			</threads>
 		</pool>
