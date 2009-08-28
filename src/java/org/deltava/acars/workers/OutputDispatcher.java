@@ -124,8 +124,9 @@ public final class OutputDispatcher extends Worker {
 							Element e = new Element(ProtocolInfo.RSP_ELEMENT_NAME);
 							e.setAttribute("version", String.valueOf(ac.getProtocolVersion()));
 							doc = new DatedDocument(e);
-							docs.put(new Long(env.getConnectionID()), doc);
-							users.put(new Long(env.getConnectionID()), ac.getUser());
+							Long id = new Long(env.getConnectionID());
+							docs.put(id, doc);
+							users.put(id, ac.getUser());
 							doc.setCompact(false);
 						}
 
@@ -140,13 +141,13 @@ public final class OutputDispatcher extends Worker {
 
 						try {
 							Element msgE = fmt.format(msg);
-							if (msgE == null)
-								return;
-
+							
 							// Add the element to the XML document's root element
-							Element root = doc.getRootElement();
-							root.addContent(msgE);
-							doc.setTime(msg.getTime());
+							if (msgE != null) {
+								Element root = doc.getRootElement();
+								root.addContent(msgE);
+								doc.setTime(msg.getTime());
+							}
 						} catch (Exception e) {
 							log.error("Cannot dispatch - " + e.getMessage(), e);
 						}
