@@ -57,12 +57,6 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 			afr.setRemarks(e.getChildText("remarks"));
 			afr.setFDE(getChildText(e, "fde", null));
 			afr.setAircraftCode(getChildText(e, "code", null));
-			
-			// Add user data
-			if (user != null) {
-				afr.setDatabaseID(FlightReport.DBID_PILOT, user.getID());
-				afr.setRank(user.getRank());
-			}
 
 			// Check if it's a checkride
 			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());

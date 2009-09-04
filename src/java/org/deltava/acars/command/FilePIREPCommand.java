@@ -134,6 +134,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetPilot.invalidateID(usrLoc.getID());
 			Pilot p = pdao.get(usrLoc);
 			
+			// Add user data
+			afr.setDatabaseID(FlightReport.DBID_PILOT, p.getID());
+			afr.setRank(p.getRank());
+			
 			// Convert the date into the user's local time zone
 			DateTime dt = new DateTime(afr.getDate());
 			dt.convertTo(p.getTZ());
