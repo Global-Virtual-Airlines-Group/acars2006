@@ -42,6 +42,11 @@ public final class OutputDispatcher extends Worker {
 		boolean isCompact() {
 			return _isCompact;
 		}
+		
+		boolean isEmpty() {
+			Element r = getRootElement();
+			return (r == null) || (r.getChildren().isEmpty());
+		}
 
 		long getTime() {
 			return _time;
@@ -119,12 +124,12 @@ public final class OutputDispatcher extends Worker {
 
 					// Get the XML document, if none exists create it
 					if (ac != null) {
-						DatedDocument doc = docs.get(new Long(env.getConnectionID()));
+						Long id = new Long(env.getConnectionID());
+						DatedDocument doc = docs.get(id);
 						if (doc == null) {
 							Element e = new Element(ProtocolInfo.RSP_ELEMENT_NAME);
 							e.setAttribute("version", String.valueOf(ac.getProtocolVersion()));
 							doc = new DatedDocument(e);
-							Long id = new Long(env.getConnectionID());
 							docs.put(id, doc);
 							users.put(id, ac.getUser());
 							doc.setCompact(false);
@@ -160,19 +165,22 @@ public final class OutputDispatcher extends Worker {
 				// Dump the messages to the output stack
 				if (!docs.isEmpty()) {
 					_status.setMessage("Pushing messages to XML Output Stack");
-					for (Iterator<Long> i = docs.keySet().iterator(); i.hasNext();) {
-						Long conID = i.next();
-						DatedDocument doc = docs.get(conID);
+					for (Iterator<Map.Entry<Long, DatedDocument>> i = docs.entrySet().iterator(); i.hasNext();) {
+						Map.Entry<Long, DatedDocument> me = i.next();
+						Long conID = me.getKey();
+						DatedDocument doc = me.getValue();
 						Pilot user = users.get(conID);
 
 						// Convert the document to text
-						XMLOutputter out = doc.isCompact() ? _tinyOut : _xmlOut;
-						String xml = out.outputString(doc);
+						if (!doc.isEmpty()) {
+							XMLOutputter out = doc.isCompact() ? _tinyOut : _xmlOut;
+							String xml = out.outputString(doc);
 
-						// Push to the output stack
-						TextEnvelope outenv = new TextEnvelope(user, xml, conID.longValue());
-						outenv.setTime(doc.getTime());
-						RAW_OUTPUT.add(outenv);
+							// Push to the output stack
+							TextEnvelope outenv = new TextEnvelope(user, xml, conID.longValue());
+							outenv.setTime(doc.getTime());
+							RAW_OUTPUT.add(outenv);
+						}
 					}
 				}
 			} catch (InterruptedException ie) {
