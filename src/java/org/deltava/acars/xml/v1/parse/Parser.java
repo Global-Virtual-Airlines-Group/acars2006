@@ -26,11 +26,15 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 	private final Map<Integer, ElementParser<? extends DispatchMessage>> _dspParsers = 
 		new HashMap<Integer, ElementParser<? extends DispatchMessage>>();
 	
+	private final SAXBuilder builder = new SAXBuilder(false);
+	
 	/**
 	 * Initializes the Parser.
 	 */
 	public Parser() {
 		super(1);
+		builder.setReuseParser(true);
+		builder.setFastReconfigure(true);
 		_eParsers.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPLocationParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_ACK), new AckParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_AUTH), new AuthParser());
@@ -81,7 +85,6 @@ public class Parser extends org.deltava.acars.xml.MessageParser {
 		// Split up the XML
 		final Collection<Document> xdocs = new ArrayList<Document>();
 		try {
-			SAXBuilder builder = new SAXBuilder();
 			for (Iterator<String> i = msgs.iterator(); i.hasNext();) {
 				String req = i.next();
 				xdocs.add(builder.build(new java.io.StringReader(req)));
