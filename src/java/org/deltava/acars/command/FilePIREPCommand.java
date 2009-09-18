@@ -333,23 +333,21 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Send a notification message if a check ride
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
-				MessageContext mctxt = new MessageContext();
-				mctxt.addData("user", p);
-
-				// Load the template
-				GetMessageTemplate mtdao = new GetMessageTemplate(con);
-				mctxt.setTemplate(mtdao.get("CRSUBMIT"));
-				mctxt.addData("pirep", afr);
-
-				// Get the check ride equipment type
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType());
 				if (crEQ != null) {
+					MessageContext mctxt = new MessageContext();
+					mctxt.addData("user", p);
+					
+					// Load the template
+					GetMessageTemplate mtdao = new GetMessageTemplate(con);
+					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
+					mctxt.addData("pirep", afr);
+					
 					mctxt.addData("airline", eq.getOwner().getName());
 					mctxt.addData("url", "http://www." + eq.getOwner().getDomain() + "/");
 
 					// Load the equipment type ACPs
-					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null,
-							true, Ranks.RANK_ACP);
+					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null, true, Ranks.RANK_ACP);
 
 					// Send the message to the CP
 					Mailer mailer = new Mailer(p);
