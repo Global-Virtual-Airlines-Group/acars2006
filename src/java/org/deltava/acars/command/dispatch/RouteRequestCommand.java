@@ -18,6 +18,7 @@ import org.deltava.acars.command.*;
 import org.deltava.dao.*;
 import org.deltava.dao.wsdl.GetFARoutes;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -78,7 +79,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				GetFARoutes fadao = new GetFARoutes();
 				fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
 				fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
-				Collection<FlightRoute> eroutes = fadao.getRouteData(msg.getAirportD(), msg.getAirportA());
+				Collection<? extends FlightRoute> eroutes = fadao.getRouteData(msg.getAirportD(), msg.getAirportA());
 				
 				// Load the waypoints for each route
 				GetNavRoute navdao = new GetNavRoute(con);
@@ -95,12 +96,15 @@ public class RouteRequestCommand extends DispatchCommand {
 					if (rp instanceof ExternalFlightRoute)
 						dr.setSource(((ExternalFlightRoute) rp).getSource());
 					
-					// Load the SID waypoints
-					TerminalRoute sid = navdao.getRoute(rp.getSID());
-					if (sid != null) {
-						dr.setSID(rp.getSID());
-						for (NavigationDataBean nd : sid.getWaypoints())
-							dr.addWaypoint(nd, sid.getCode());
+					// Load best SID
+					if (!StringUtils.isEmpty(rp.getSID()) && (rp.getSID().contains("."))) {
+						StringTokenizer tkns = new StringTokenizer(rp.getSID(), ".");
+						TerminalRoute sid = navdao.getBestRoute(rp.getAirportD(), TerminalRoute.SID, tkns.nextToken(), tkns.nextToken(), (String) null);
+						if (sid != null) {
+							dr.setSID(sid.getCode());
+							for (NavigationDataBean nd : sid.getWaypoints())
+								dr.addWaypoint(nd, sid.getCode());
+						}
 					}
 					
 					// Load the route waypoints
@@ -108,12 +112,15 @@ public class RouteRequestCommand extends DispatchCommand {
 					for (NavigationDataBean nd : points)
 						dr.addWaypoint(nd, nd.getAirway());
 					
-					// Load the STAR waypoints
-					TerminalRoute star = navdao.getRoute(rp.getSTAR());
-					if (star != null) {
-						dr.setSTAR(rp.getSTAR());
-						for (NavigationDataBean nd : star.getWaypoints())
-							dr.addWaypoint(nd, star.getCode());
+					// Load best STAR
+					if (!StringUtils.isEmpty(rp.getSTAR()) && (rp.getSTAR().contains("."))) {
+						StringTokenizer tkns = new StringTokenizer(rp.getSTAR(), ".");
+						TerminalRoute star = navdao.getBestRoute(rp.getAirportA(), TerminalRoute.STAR, tkns.nextToken(), tkns.nextToken(), (String) null);
+						if (star != null) {
+							dr.setSTAR(rp.getSTAR());
+							for (NavigationDataBean nd : star.getWaypoints())
+								dr.addWaypoint(nd, star.getCode());
+						}
 					}
 					
 					// Save the converted route
