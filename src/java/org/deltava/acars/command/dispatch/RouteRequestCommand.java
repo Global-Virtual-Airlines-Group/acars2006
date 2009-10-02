@@ -76,10 +76,22 @@ public class RouteRequestCommand extends DispatchCommand {
 			
 			// If plans is empty and external routes are available, load them
 			if (plans.isEmpty() && doExternal) {
-				GetFARoutes fadao = new GetFARoutes();
-				fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
-				fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
-				Collection<? extends FlightRoute> eroutes = fadao.getRouteData(msg.getAirportD(), msg.getAirportA());
+				Collection<FlightRoute> eroutes = new ArrayList<FlightRoute>();
+				GetCachedRoutes rcdao = new GetCachedRoutes(con);
+				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
+				
+				// Go to flightaware if nothing loaded
+				if (eroutes.isEmpty()) {
+					GetFARoutes fadao = new GetFARoutes();
+					fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
+					fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
+					Collection<? extends FlightRoute> faroutes = fadao.getRouteData(msg.getAirportD(), msg.getAirportA());
+					if (!faroutes.isEmpty()) {
+						eroutes.addAll(faroutes);
+						SetCachedRoutes rcwdao = new SetCachedRoutes(con);
+						rcwdao.write(faroutes);
+					}
+				}
 				
 				// Load the waypoints for each route
 				GetNavRoute navdao = new GetNavRoute(con);
