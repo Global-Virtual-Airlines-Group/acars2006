@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -7,7 +7,7 @@ import org.jdom.Element;
 
 import org.deltava.beans.acars.DispatchRoute;
 import org.deltava.beans.navdata.*;
-import org.deltava.beans.schedule.ExternalFlightRoute;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RouteInfoMessage;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 2.0
  */
 
@@ -42,22 +42,32 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
 		
 		// Add the routes
-		for (Iterator<? extends DispatchRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
-			DispatchRoute rp = i.next();
+		for (Iterator<? extends PopulatedRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
+			PopulatedRoute rp = i.next();
 			Element re = new Element("route");
 			re.setAttribute("id", String.valueOf(rp.getID()));
-			re.setAttribute("external", String.valueOf(rp instanceof ExternalFlightRoute));
-			re.setAttribute("useCount", String.valueOf(rp.getUseCount()));
-			re.addContent(XMLUtils.createElement("airline", rp.getAirline().getCode()));
 			re.addContent(formatAirport(rp.getAirportD(), "airportD"));
 			re.addContent(formatAirport(rp.getAirportA(), "airportA"));
-			if (rp.getAirportL() != null)
-				re.addContent(formatAirport(rp.getAirportL(), "airportL"));
 			re.addContent(XMLUtils.createElement("sid", rp.getSID()));
 			re.addContent(XMLUtils.createElement("star", rp.getSTAR()));
 			re.addContent(XMLUtils.createElement("cruiseAlt", rp.getCruiseAltitude()));
 			re.addContent(XMLUtils.createElement("comments", rp.getComments(), true));
 			re.addContent(XMLUtils.createElement("route", rp.getRoute(), true));
+			
+			// Add external properties
+			if (rp instanceof ExternalFlightRoute) {
+				re.setAttribute("external", "true");
+				re.addContent(XMLUtils.createElement("source", ((ExternalFlightRoute) rp).getSource(), true));
+			}
+			
+			// Add dispatch route properties
+			if (rp instanceof DispatchRoute) {
+				DispatchRoute dr = (DispatchRoute) rp;
+				re.setAttribute("useCount", String.valueOf(dr.getUseCount()));
+				re.addContent(XMLUtils.createElement("airline", dr.getAirline().getCode()));
+				if (dr.getAirportL() != null)
+					re.addContent(formatAirport(dr.getAirportL(), "airportL"));
+			}
 			
 			// Add the waypoints
 			Element wpe = new Element("waypoints");
