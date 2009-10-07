@@ -5,7 +5,7 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.DispatchRoute;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 
@@ -30,19 +30,6 @@ import org.deltava.util.system.SystemData;
 
 public class RouteRequestCommand extends DispatchCommand {
 
-	protected class PopulatedFARoute extends DispatchRoute implements ExternalFlightRoute {
-		
-		private String _source;
-		
-		public String getSource() {
-			return _source;
-		}
-		
-		public void setSource(String src) {
-			_source = src;
-		}
-	}
-	
 	/**
 	 * Initializes the Command.
 	 */
@@ -96,7 +83,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				// Load the waypoints for each route
 				GetNavRoute navdao = new GetNavRoute(con);
 				for (FlightRoute rp : eroutes) {
-					PopulatedFARoute dr = new PopulatedFARoute();
+					ExternalDispatchRoute dr = new ExternalDispatchRoute();
 					dr.setAirportD(msg.getAirportD());
 					dr.setAirportA(msg.getAirportA());
 					dr.setAirline(SystemData.getAirline(ac.getUserData().getAirlineCode()));

@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.TerminalRouteMessage;
 
 import org.deltava.beans.navdata.TerminalRoute;
-import org.deltava.dao.GetNavRoute;
+import org.deltava.dao.GetNavAirway;
 
 import org.deltava.util.system.SystemData;
 
@@ -47,7 +47,7 @@ public class TerminalRouteCommand extends DataCommand {
 			Connection con = ctx.getConnection();
 			
 			// Get the DAO and find the Routes in the DAFIF database
-			GetNavRoute dao = new GetNavRoute(con);
+			GetNavAirway dao = new GetNavAirway(con);
 			routes = dao.getAll();
 		} catch (Exception e) {
 			log.error("Error loading terminal routes - " + e.getMessage(), e);
