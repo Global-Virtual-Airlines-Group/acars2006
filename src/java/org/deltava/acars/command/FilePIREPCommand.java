@@ -222,7 +222,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 
 			// Get the takeoff/touchdown points
-			GetNavRoute navdao = new GetNavRoute(con);
+			GetNavAirway navdao = new GetNavAirway(con);
 			List<RouteEntry> tdEntries = fddao.getTakeoffLanding(info.getFlightID(), false);
 			if (tdEntries.size() > 2) {
 				int ofs = 0;

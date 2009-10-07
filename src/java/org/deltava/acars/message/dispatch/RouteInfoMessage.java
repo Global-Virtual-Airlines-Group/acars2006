@@ -1,23 +1,23 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.DispatchRoute;
+import org.deltava.beans.schedule.PopulatedRoute;
 
 import org.deltava.acars.message.DispatchMessage;
 
 /**
  * A message to store route search results.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 2.0
  */
 
 public class RouteInfoMessage extends DispatchMessage {
 
-	private final Collection<DispatchRoute> _plans = new ArrayList<DispatchRoute>();
+	private final Collection<PopulatedRoute> _plans = new ArrayList<PopulatedRoute>();
 	private long _parent;
 	private boolean _routeValid;
 	
@@ -38,7 +38,7 @@ public class RouteInfoMessage extends DispatchMessage {
 	 * Returns the associated RoutePlan beans.
 	 * @return a List of RoutePlan beans
 	 */
-	public Collection<DispatchRoute> getPlans() {
+	public Collection<PopulatedRoute> getPlans() {
 		return _plans;
 	}
 	
@@ -68,9 +68,9 @@ public class RouteInfoMessage extends DispatchMessage {
 	
 	/**
 	 * Adds a flight route plan to the message.
-	 * @param rp a RoutePlan bean
+	 * @param rp a PopulatedRoute bean
 	 */
-	public void addPlan(DispatchRoute rp) {
+	public void addPlan(PopulatedRoute rp) {
 		_plans.add(rp);
 	}
 	

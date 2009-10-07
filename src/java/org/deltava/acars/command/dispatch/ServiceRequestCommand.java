@@ -5,10 +5,11 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.DispatchRoute;
-import org.deltava.beans.schedule.GeoPosition;
+import org.deltava.beans.acars.*;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
+import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -21,7 +22,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 2.3
+ * @version 2.6
  * @since 2.0
  */
 
@@ -59,7 +60,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		}
 		
 		// Validate that the route is valid
-		Collection<DispatchRoute> plans = new ArrayList<DispatchRoute>();
+		Collection<PopulatedRoute> plans = new ArrayList<PopulatedRoute>();
 		try {
 			Connection con = ctx.getConnection();
 			
@@ -94,12 +95,26 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// Set the flag
 			msg.setRouteValid(routeValid);
-
+			
 			// Load existing plans
 			GetACARSRoute rdao = new GetACARSRoute(con);
 			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA(), true));
+			
+			// If we don't have any plans but have cached routes, use them
+			if (plans.isEmpty()) {
+				GetCachedRoutes rcdao = new GetCachedRoutes(con);
+				GetNavRoute navdao = new GetNavRoute(con);
+				Collection<? extends FlightRoute> faRoutes = rcdao.getRoutes(msg.getAirportD(), msg.getAirportA());
+				for (FlightRoute fr : faRoutes) {
+					PopulatedRoute pr = navdao.populate(fr);
+					ExternalDispatchRoute edr = new ExternalDispatchRoute(pr);
+					edr.setAirline(SystemData.getAirline(ud.getAirlineCode()));
+					edr.setAirportL(msg.getAirportL());
+					plans.add(edr);
+				}
+			}
 		} catch (DAOException de) {
-			log.error("Cannot validate route - " + de.getMessage(), de);
+			log.error("Cannot validate/load route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot validate route");
 			ctx.push(errorMsg, env.getConnectionID());
@@ -141,7 +156,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		// Return back the routes
 		if (!plans.isEmpty()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
-			for (DispatchRoute rp : plans)
+			for (PopulatedRoute rp : plans)
 				rmsg.addPlan(rp);
 			
 			// Build message

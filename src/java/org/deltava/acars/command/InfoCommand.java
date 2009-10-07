@@ -127,7 +127,7 @@ public class InfoCommand extends ACARSCommand {
 				ackMsg.setEntry("crName", cr.getName());
 			
 			// Get the SID/STAR data
-			GetNavRoute navdao = new GetNavRoute(c);
+			GetNavAirway navdao = new GetNavAirway(c);
 			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.SID, msg.getSID());
 			TerminalRoute star = navdao.getRoute(msg.getAirportA(), TerminalRoute.STAR, msg.getSTAR());
 			

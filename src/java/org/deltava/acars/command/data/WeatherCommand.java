@@ -1,9 +1,6 @@
 // Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.io.*;
-import java.net.*;
-
 import org.deltava.beans.wx.*;
 import org.deltava.beans.navdata.AirportLocation;
 
@@ -19,7 +16,6 @@ import org.deltava.dao.file.GetNOAAWeather;
 import org.deltava.dao.wsdl.GetFAWeather;
 
 import org.deltava.util.cache.*;
-import org.deltava.util.ftp.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -87,31 +83,16 @@ public class WeatherCommand extends DataCommand {
 				wx.setAirport(ap);
 				wxMsg.add(wx);
 			} else {
-				try {
-					URL url = new URL(SystemData.get("weather.url." + wt.toString().toLowerCase()));
-					if (!"ftp".equalsIgnoreCase(url.getProtocol()))
-						throw new DAOException("FTP expected - " + url.toExternalForm());
-
-					// Connect to the FTP site and change directories
-					FTPConnection ftpc = new FTPConnection(url.getHost());
-					ftpc.connect("anonymous", "golgotha@" + InetAddress.getLocalHost().getHostName());
-					ftpc.getClient().chdir(url.getPath());
-					
-					// Download the file we want
-					InputStream is = ftpc.get(code + ".TXT", false);
-					GetNOAAWeather dao = new GetNOAAWeather(is);
-					WeatherDataBean wx = dao.get(wt);
-					ftpc.close();
-					wx.setAirport(ap);
-					wxMsg.add(wx);
-				} catch (FTPClientException fe) {
-					WeatherDataBean wx = WeatherDataBean.create(wt);
-					wx.setAirport(ap);
+				// Download the file we want
+				GetNOAAWeather dao = new GetNOAAWeather();
+				WeatherDataBean wx = dao.get(wt, code);
+				if (wx == null) {
+					wx = WeatherDataBean.create(wt);
 					wx.setData("Weather data not available");
-					wxMsg.add(wx);
-				} catch (Exception e) {
-					throw new DAOException(e);
 				}
+					
+				wx.setAirport(ap);
+				wxMsg.add(wx);
 			}
 			
 			// Send the respose
