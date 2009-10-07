@@ -6,9 +6,15 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.navdata.Runway;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.wx.METAR;
+
+import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.dao.*;
+import org.deltava.dao.file.GetNOAAWeather;
+
 import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.beans.*;
@@ -102,11 +108,41 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// If we don't have any plans but have cached routes, use them
 			if (plans.isEmpty()) {
-				GetCachedRoutes rcdao = new GetCachedRoutes(con);
+				GetNOAAWeather wxdao = new GetNOAAWeather();
+				GetACARSRunways rwdao = new GetACARSRunways(con);
+				
+				// Get the departure runways based on weather
+				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
+				List<Runway> rwyD = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
+				if (wxD != null) {
+					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
+					Collections.sort(rwyD, rcmp);
+				}
+				
+				// Convert runways to strings
+				List<String> rD = new ArrayList<String>();
+				for (Runway r : rwyD)
+					rD.add("RW" + r.getName());
+				
+				// Get the arrival runways based on weather
+				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
+				List<Runway> rwyA = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
+				if (wxA != null) {
+					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
+					Collections.sort(rwyA, rcmp);
+				}
+				
+				// Convert runways to strings
+				List<String> rA = new ArrayList<String>();
+				for (Runway r : rwyA)
+					rA.add("RW" + r.getName());
+				
+				// Populate the routes
 				GetNavRoute navdao = new GetNavRoute(con);
+				GetCachedRoutes rcdao = new GetCachedRoutes(con);
 				Collection<? extends FlightRoute> faRoutes = rcdao.getRoutes(msg.getAirportD(), msg.getAirportA());
 				for (FlightRoute fr : faRoutes) {
-					PopulatedRoute pr = navdao.populate(fr);
+					PopulatedRoute pr = navdao.populate(fr, rD, rA);
 					ExternalDispatchRoute edr = new ExternalDispatchRoute(pr);
 					edr.setAirline(SystemData.getAirline(ud.getAirlineCode()));
 					edr.setAirportL(msg.getAirportL());
