@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.navdata.Runway;
+import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.wx.METAR;
 
@@ -112,7 +112,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				GetACARSRunways rwdao = new GetACARSRunways(con);
 				
 				// Get the departure runways based on weather
-				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
+				METAR wxD = wxdao.getMETAR(new AirportLocation(msg.getAirportD()));
 				List<Runway> rwyD = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
 				if (wxD != null) {
 					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
@@ -125,7 +125,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 					rD.add("RW" + r.getName());
 				
 				// Get the arrival runways based on weather
-				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
+				METAR wxA = wxdao.getMETAR(new AirportLocation(msg.getAirportA()));
 				List<Runway> rwyA = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
 				if (wxA != null) {
 					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
@@ -164,7 +164,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
 			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
-				if (ac.getIsDispatch() && !ac.getUserBusy()) {
+				if (ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden()) {
 					GeoPosition gp = new GeoPosition(ac.getLocation());
 					int distance = gp.distanceTo(msg);
 					if (distance <= ac.getDispatchRange()) {
