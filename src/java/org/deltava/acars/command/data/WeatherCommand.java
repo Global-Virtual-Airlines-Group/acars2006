@@ -79,19 +79,17 @@ public class WeatherCommand extends DataCommand {
 				GetFAWeather dao = new GetFAWeather();
 				dao.setUser(SystemData.get("schedule.flightaware.download.user"));
 				dao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
-				WeatherDataBean wx = dao.get(wt, code);
-				wx.setAirport(ap);
+				WeatherDataBean wx = dao.get(wt, ap);
 				wxMsg.add(wx);
 			} else {
 				// Download the file we want
 				GetNOAAWeather dao = new GetNOAAWeather();
-				WeatherDataBean wx = dao.get(wt, code);
+				WeatherDataBean wx = dao.get(wt, ap);
 				if (wx == null) {
 					wx = WeatherDataBean.create(wt);
 					wx.setData("Weather data not available");
 				}
 					
-				wx.setAirport(ap);
 				wxMsg.add(wx);
 			}
 			
