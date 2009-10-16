@@ -8,6 +8,9 @@ import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.wx.METAR;
+
+import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.AcknowledgeMessage;
@@ -16,6 +19,7 @@ import org.deltava.acars.message.dispatch.*;
 import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
+import org.deltava.dao.file.GetNOAAWeather;
 import org.deltava.dao.wsdl.GetFARoutes;
 
 import org.deltava.util.StringUtils;
@@ -68,7 +72,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
 				
 				// Go to flightaware if nothing loaded
-				if (eroutes.isEmpty()) {
+				if (eroutes.isEmpty() && usr.isInRole("Route")) {
 					GetFARoutes fadao = new GetFARoutes();
 					fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
 					fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
@@ -78,6 +82,28 @@ public class RouteRequestCommand extends DispatchCommand {
 						SetCachedRoutes rcwdao = new SetCachedRoutes(con);
 						rcwdao.write(faroutes);
 					}
+				}
+				
+				// Get the departure and arrival weather
+				GetNOAAWeather wxdao = new GetNOAAWeather();
+				METAR wxD = wxdao.getMETAR(new AirportLocation(msg.getAirportD()));
+				METAR wxA = wxdao.getMETAR(new AirportLocation(msg.getAirportA()));
+				
+				// Get best runways
+				GetACARSRunways rwdao = new GetACARSRunways(con);
+				List<Runway> dRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
+				List<Runway> aRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
+				
+				// Sort runways based on wind heading
+				if (wxD != null) {
+					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
+					Collections.sort(dRwys, Collections.reverseOrder(rcmp));
+					dRwys.add(null);
+				}
+				if (wxA != null) {
+					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
+					Collections.sort(aRwys, Collections.reverseOrder(rcmp));
+					aRwys.add(null);
 				}
 				
 				// Load the waypoints for each route
@@ -98,11 +124,15 @@ public class RouteRequestCommand extends DispatchCommand {
 					// Load best SID
 					if (!StringUtils.isEmpty(rp.getSID()) && (rp.getSID().contains("."))) {
 						StringTokenizer tkns = new StringTokenizer(rp.getSID(), ".");
-						TerminalRoute sid = navdao.getBestRoute(rp.getAirportD(), TerminalRoute.SID, tkns.nextToken(), tkns.nextToken(), (String) null);
-						if (sid != null) {
-							dr.setSID(sid.getCode());
-							for (NavigationDataBean nd : sid.getWaypoints())
-								dr.addWaypoint(nd, sid.getCode());
+						String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute sid = null;
+						for (Iterator<Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
+							Runway rwy = ri.next();
+							sid = navdao.getBestRoute(rp.getAirportD(), TerminalRoute.SID, name, wp, rwy);
+							if (sid != null) {
+								dr.setSID(sid.getCode());
+								for (NavigationDataBean nd : sid.getWaypoints())
+									dr.addWaypoint(nd, sid.getCode());
+							}
 						}
 					}
 					
@@ -114,11 +144,15 @@ public class RouteRequestCommand extends DispatchCommand {
 					// Load best STAR
 					if (!StringUtils.isEmpty(rp.getSTAR()) && (rp.getSTAR().contains("."))) {
 						StringTokenizer tkns = new StringTokenizer(rp.getSTAR(), ".");
-						TerminalRoute star = navdao.getBestRoute(rp.getAirportA(), TerminalRoute.STAR, tkns.nextToken(), tkns.nextToken(), (String) null);
-						if (star != null) {
-							dr.setSTAR(rp.getSTAR());
-							for (NavigationDataBean nd : star.getWaypoints())
-								dr.addWaypoint(nd, star.getCode());
+						String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute star = null;
+						for (Iterator<Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
+							Runway rwy = ri.next();
+							star = navdao.getBestRoute(rp.getAirportA(), TerminalRoute.STAR, name, wp, rwy);
+							if (star != null) {
+								dr.setSTAR(star.getCode());
+								for (NavigationDataBean nd : star.getWaypoints())
+									dr.addWaypoint(nd, star.getCode());
+							}
 						}
 					}
 					
