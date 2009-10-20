@@ -34,13 +34,7 @@ class AirportFormatter extends ElementFormatter {
 		Element e = initDataResponse(pe, "airports");
 		for (Iterator<Airport> i = amsg.getResponse().iterator(); i.hasNext(); ) {
 			Airport a = i.next();
-			Element ae = formatAirport(a, "airport");
-			
-			// Add UTC offset
-			TimeZone tz = a.getTZ().getTimeZone();
-			long ofs = tz.getOffset(System.currentTimeMillis()) / 1000;
-			ae.setAttribute("utcOffset", String.valueOf(ofs));
-			e.addContent(ae);
+			e.addContent(formatAirport(a, "airport"));
 		}
 		
 		return pe;
