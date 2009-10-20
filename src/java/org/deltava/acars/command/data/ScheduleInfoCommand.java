@@ -67,6 +67,7 @@ public class ScheduleInfoCommand extends DataCommand {
 			GetSchedule sdao = new GetSchedule(con);
 			sdao.setQueryMax(sc.getMaxResults());
 			rspMsg.addAll(sdao.search(sc, "RAND()"));
+			ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -75,8 +76,5 @@ public class ScheduleInfoCommand extends DataCommand {
 		} finally {
 			ctx.release();
 		}
-		
-		// Push the response
-		ctx.push(rspMsg, env.getConnectionID());
 	}
 }
