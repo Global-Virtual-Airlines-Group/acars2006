@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import org.jdom.Element;
 
-import org.deltava.beans.wx.WeatherDataBean;
+import org.deltava.beans.wx.*;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.WXMessage;
@@ -43,6 +43,14 @@ class WeatherFormatter extends ElementFormatter {
 				Element ew = XMLUtils.createElement("wx", wx.getData(), true);
 				ew.setAttribute("type", wx.getType());
 				ew.setAttribute("valid", StringUtils.format(wx.getDate(), "MM/dd/yyyy HH:mm"));
+				if (wx instanceof METAR) {
+					METAR m = (METAR) wx;
+					ew.setAttribute("temp", String.valueOf(m.getTemperature()));
+					ew.setAttribute("wSpeed", String.valueOf(m.getWindSpeed()));
+					ew.setAttribute("wDir", String.valueOf(m.getWindDirection()));
+					ew.setAttribute("wGust", String.valueOf(m.getWindGust()));
+				}
+				
 				e.addContent(ew);
 			}
 		}

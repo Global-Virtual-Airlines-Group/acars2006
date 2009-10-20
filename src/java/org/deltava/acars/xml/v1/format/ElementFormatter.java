@@ -42,6 +42,11 @@ abstract class ElementFormatter {
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 			ae.setAttribute("adse", String.valueOf(a.getADSE()));
 			
+			// Add UTC offset
+			TimeZone tz = a.getTZ().getTimeZone();
+			long ofs = tz.getOffset(System.currentTimeMillis()) / 1000;
+			ae.setAttribute("utcOffset", String.valueOf(ofs));
+			
 			// Attach airlines
 			for (Iterator<String> i = a.getAirlineCodes().iterator(); i.hasNext(); ) {
 				String aCode = i.next();
