@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.text.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An XML Formatter for Oceanic Route messages.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 2.2
  */
 
@@ -46,6 +46,7 @@ public class OceanicRouteFormatter extends ElementFormatter {
 			// Build the track element
 			Element te = new Element("track");
 			te.setAttribute("code", ow.getTrack());
+			te.setAttribute("route", ow.getTypeName());
 			te.setAttribute("type", ow.isFixed() ? "C" : (isEast ? "E" : "W"));
 			te.setAttribute("color", ow.isFixed() ? "#2040E0" : (isEast ? "#EEEEEE" : "#EEEE44"));
 			te.setAttribute("track", ow.getWaypointCodes());
