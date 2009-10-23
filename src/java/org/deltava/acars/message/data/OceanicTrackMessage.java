@@ -1,19 +1,19 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.schedule.OceanicWaypoints;
+import org.deltava.beans.navdata.OceanicTrack;
 
 import org.deltava.acars.message.*;
 
 /**
  * An ACARS data response message to store Oceanic track data.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 2.2
  */
 
-public class OceanicTrackMessage extends DataResponseMessage<OceanicWaypoints> {
+public class OceanicTrackMessage extends DataResponseMessage<OceanicTrack> {
 
 	/**
 	 * Instantiates the Message.
