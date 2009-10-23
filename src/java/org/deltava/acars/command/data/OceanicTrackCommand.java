@@ -3,7 +3,8 @@ package org.deltava.acars.command.data;
 
 import java.util.*;
 
-import org.deltava.beans.schedule.*;
+import org.deltava.beans.navdata.*;
+
 import org.deltava.dao.*;
 import org.deltava.util.*;
 
@@ -38,14 +39,18 @@ public class OceanicTrackCommand extends DataCommand {
 		
 		// Get the message and the route type
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		String routeType = msg.hasFlag("type") ? msg.getFlag("type") : "NAT"; 
-		int rType = StringUtils.arrayIndexOf(OceanicRoute.TYPES, routeType.toUpperCase(), OceanicRoute.NAT);
+		OceanicTrackInfo.Type rType = OceanicTrackInfo.Type.NAT;
+		try {
+			rType = OceanicTrackInfo.Type.valueOf(msg.getFlag("type").toUpperCase());
+		} catch (Exception e) {
+			log.warn("Unknown Oceanic Route type - " + msg.getFlag("type"));
+		}
 		
 		// Get the response and add the Concorde tracks if pulling down NATs
 		OceanicTrackMessage rspMsg = new OceanicTrackMessage(env.getOwner(), msg.getID());
-		if (rType == OceanicRoute.NAT) {
-			for (Iterator<? extends OceanicWaypoints> i = OceanicWaypoints.CONC_ROUTES.iterator(); i.hasNext(); ) {
-				OceanicWaypoints route = i.next();
+		if (rType == OceanicTrackInfo.Type.NAT) {
+			for (Iterator<? extends OceanicTrack> i = OceanicTrack.CONC_ROUTES.iterator(); i.hasNext(); ) {
+				OceanicTrack route = i.next();
 				rspMsg.add(route);
 			}
 		}
@@ -53,10 +58,10 @@ public class OceanicTrackCommand extends DataCommand {
 		// Get the date
 		Date dt = msg.hasFlag("date") ? StringUtils.parseDate(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
-			GetRoute dao = new GetRoute(ctx.getConnection());
-			rspMsg.addAll(dao.getOceanicTrakcs(rType, dt).values());
+			GetOceanicRoute dao = new GetOceanicRoute(ctx.getConnection());
+			rspMsg.addAll(dao.getOceanicTracks(rType, dt).values());
 		} catch (DAOException de) {
-			String trackType = OceanicRoute.TYPES[rType];
+			String trackType = OceanicTrackInfo.TYPES[rType.ordinal()];
 			log.error("Error loading " + trackType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot load " + msg.getFlag("date") + " " + trackType + " data");

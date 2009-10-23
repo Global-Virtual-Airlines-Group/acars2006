@@ -7,8 +7,7 @@ import java.util.*;
 import org.jdom.Element;
 
 import org.deltava.beans.MapEntry;
-import org.deltava.beans.navdata.NavigationDataBean;
-import org.deltava.beans.schedule.*;
+import org.deltava.beans.navdata.*;
 import org.deltava.util.*;
 
 import org.deltava.acars.message.Message;
@@ -39,9 +38,9 @@ public class OceanicRouteFormatter extends ElementFormatter {
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "nat");
 		e.setAttribute("date", StringUtils.format(dt, "MM/dd/yyyy"));
-		for (Iterator<OceanicWaypoints> i = omsg.getResponse().iterator(); i.hasNext(); ) {
-			OceanicWaypoints ow = i.next();
-			boolean isEast = (ow.getDirection() == OceanicWaypoints.EAST);
+		for (Iterator<OceanicTrack> i = omsg.getResponse().iterator(); i.hasNext(); ) {
+			OceanicTrack ow = i.next();
+			boolean isEast = (ow.getDirection() == OceanicTrackInfo.Direction.EAST);
 			
 			// Build the track element
 			Element te = new Element("track");
@@ -49,7 +48,7 @@ public class OceanicRouteFormatter extends ElementFormatter {
 			te.setAttribute("route", ow.getTypeName());
 			te.setAttribute("type", ow.isFixed() ? "C" : (isEast ? "E" : "W"));
 			te.setAttribute("color", ow.isFixed() ? "#2040E0" : (isEast ? "#EEEEEE" : "#EEEE44"));
-			te.setAttribute("track", ow.getWaypointCodes());
+			te.setAttribute("track", ow.getRoute());
 			for (Iterator<NavigationDataBean> wi = ow.getWaypoints().iterator(); wi.hasNext();) {
 				NavigationDataBean ndb = wi.next();
 				Element we = XMLUtils.createElement("waypoint", ndb.getInfoBox(), true);
