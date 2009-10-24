@@ -3,10 +3,12 @@ package org.deltava.acars.command;
 
 import java.util.*;
 
+import org.deltava.beans.Pilot;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
-import static org.deltava.acars.workers.Worker.*;
 
+import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.jdbc.*;
 
@@ -57,16 +59,20 @@ public class CommandContext extends ConnectionContext {
 		return _pool.get(pilotID);
 	}
 	
-	public ACARSConnection getACARSConnection(long id) {
-		return _pool.get(id);
-	}
-
 	/**
 	 * Returns the ACARS Connection Pool.
 	 * @return the connection pool
 	 */
 	public ACARSConnectionPool getACARSConnectionPool() {
 		return _pool;
+	}
+	
+	/**
+	 * Returns the Pilot associated with this ACARS Connection. 
+	 * @return a Pilot bean, or null
+	 */
+	public Pilot getUser() {
+		return _ac.getUser();
 	}
 
 	/**
