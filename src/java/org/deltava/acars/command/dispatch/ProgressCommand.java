@@ -1,7 +1,5 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
-
-import java.util.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -11,7 +9,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 2.1
+ * @version 2.7
  * @since 2.1
  */
 
@@ -35,13 +33,8 @@ public class ProgressCommand extends DispatchCommand {
 		ProgressRequestMessage msg = (ProgressRequestMessage) env.getMessage();
 
 		// Find the Connection
-		Collection<ACARSConnection> cons = ctx.getACARSConnections(msg.getRecipient());
-		if (cons.isEmpty())
-			return;
-		
-		// Get the connection and ensure we can respond
-		ACARSConnection ac = cons.iterator().next();
-		if ((ac.getFlightInfo() == null) || (ac.getPosition() == null))
+		ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
+		if ((ac == null) || (ac.getFlightInfo() == null) || (ac.getPosition() == null))
 			return;
 		
 		// Construct the message

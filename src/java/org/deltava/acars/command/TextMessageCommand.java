@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -35,7 +35,7 @@ public class TextMessageCommand extends ACARSCommand {
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the inbound message and the owner
-		Pilot usr = env.getOwner();
+		Pilot usr = ctx.getUser();
 		TextMessage msg = (TextMessage) env.getMessage();
 		if (usr == null) {
 			log.warn("Attempt to send anonymous message");
@@ -44,7 +44,7 @@ public class TextMessageCommand extends ACARSCommand {
 		
 		// Check if HR or dispatch is online
 		boolean hasHR = usr.isInRole("HR") || usr.isInRole("Dispatch");
-		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
 		for (Iterator<ACARSConnection> i = cons.iterator(); !hasHR && i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			Pilot p = ac.getUser();
@@ -95,7 +95,15 @@ public class TextMessageCommand extends ACARSCommand {
 			log.info("Public message from " + usr.getPilotCode());
 		} else {
 			log.info("Message from " + usr.getPilotCode() + " to " + msg.getRecipient());
-			Collection<ACARSConnection> dstC = ctx.getACARSConnections(usr.isInRole("HR") ? msg.getRecipient() : "*");
+			Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
+			if (usr.isInRole("HR")) {
+				ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
+				if (ac != null)
+					dstC.add(ac);
+			} else
+				dstC.addAll(ctx.getACARSConnectionPool().getAll());
+
+			// Send the message
 			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
 				Pilot p = ac.getUser();

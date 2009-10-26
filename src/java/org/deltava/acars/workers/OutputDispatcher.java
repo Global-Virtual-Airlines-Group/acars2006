@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -120,7 +120,7 @@ public final class OutputDispatcher extends Worker {
 						log.debug("Dispatching message to " + env.getOwnerID());
 
 					// Determine the protocol version for each message
-					ACARSConnection ac = _pool.get(env.getConnectionID());
+					ACARSConnection ac = _pool.get(Long.valueOf(env.getConnectionID()));
 
 					// Get the XML document, if none exists create it
 					if (ac != null) {

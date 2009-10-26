@@ -19,7 +19,7 @@ import org.gvagroup.common.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -40,8 +40,9 @@ public class IPCDaemon implements Runnable {
 	 */
 	public void run() {
 		log.info("Starting");
+		
+		ACARSConnectionPool acPool = null;
 		ConnectionPool cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		ACARSConnectionPool acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
@@ -82,7 +83,8 @@ public class IPCDaemon implements Runnable {
 								
 								// Validate all of the connections
 								SetPilot.invalidate(usr.getID());
-								for (Iterator<ACARSConnection> ci = acPool.get("*").iterator(); ci.hasNext(); ) {
+								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
+								for (Iterator<ACARSConnection> ci = acPool.getAll().iterator(); ci.hasNext(); ) {
 									ACARSConnection ac = ci.next();
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
@@ -100,8 +102,9 @@ public class IPCDaemon implements Runnable {
 								
 								// Reload the user
 								SetPilot.invalidate(usr.getID());
-								for (Iterator<ACARSConnection> ci = acPool.get(usr.getPilotCode()).iterator(); ci.hasNext(); ) {
-									ACARSConnection ac = ci.next();
+								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
+								ACARSConnection ac = acPool.get(usr.getPilotCode());
+								if (ac != null) {
 									log.info("Updated ACARS Connection record for " + ac.getUser().getName());
 									ac.setUser(usr);
 								}

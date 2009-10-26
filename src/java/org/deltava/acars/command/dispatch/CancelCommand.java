@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.dispatch.CancelMessage;
 /**
  * An ACARS Command to cancel Dispatch service requests.
  * @author Luke
- * @version 2.1
+ * @version 2.7
  * @since 2.0
  */
 
@@ -37,9 +37,17 @@ public class CancelCommand extends DispatchCommand {
 		ACARSConnection con = ctx.getACARSConnection();
 		if (!con.getIsDispatch())
 			con.setDispatcherID(0);
+		
+		// Get the dispatchers
+		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>();
+		if (msg.getRecipient() != null) {
+			ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
+			if (ac != null)
+				cons.add(ac);
+		} else
+			cons.addAll(ctx.getACARSConnectionPool().getAll());
 
 		// Send to dispatchers
-		Collection<ACARSConnection> cons = ctx.getACARSConnections((msg.getRecipient() == null) ? "*" : msg.getRecipient());
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (ac.getIsDispatch() || (ac.getDispatcherID() == env.getConnectionID()))

@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.1
  */
 
@@ -65,7 +65,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 			// Check if we have a connection from there already
 			if (!SystemData.getBoolean("acars.pool.multiple")) {
-				ACARSConnection oldCon = _pool.getFrom(con.getRemoteAddr());
+				ACARSConnection oldCon = _pool.get(con.getRemoteAddr());
 				boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
 				if ((oldCon != null) && oldCon.getIsDispatch())
 					log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher");
