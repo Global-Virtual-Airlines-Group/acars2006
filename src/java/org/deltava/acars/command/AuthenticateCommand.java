@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.*;
 import org.deltava.beans.system.*;
 
+import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ConnectionMessage;
@@ -223,18 +224,24 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			// Commit
 			ctx.commitTX();
+
+			// Add the user again so they are registered with this user ID
+			ctx.getACARSConnectionPool().add(con);
+		} catch (ACARSException ae) {
+			log.error("Error logging connection - " + ae.getMessage());
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			log.error("Error logging connection - " + de.getMessage(), de);
 		} finally {
 			ctx.release();
 		}
+		
 
 		// Tell everybody else that someone has logged on
 		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, msg.getID());
 		drMsg.add(con);
 		if (con.getUserHidden()) {
-			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().get("*").iterator(); i.hasNext();) {
+			for (Iterator<ACARSConnection> i = ctx.getACARSConnectionPool().getAll().iterator(); i.hasNext();) {
 				ACARSConnection ac = i.next();
 				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drMsg, ac.getID());

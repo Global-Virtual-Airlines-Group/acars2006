@@ -2,7 +2,7 @@
 package org.deltava.acars.beans;
 
 import java.util.*;
-import java.util.concurrent.locks.*;
+import java.util.concurrent.*;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -24,7 +24,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 2.5
+ * @version 2.7
  * @since 1.0
  */
 
@@ -33,21 +33,19 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
-	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 25000;
+	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 22500;
 
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
-	private final List<ACARSConnection> _cons = new ArrayList<ACARSConnection>();
+	private final ConcurrentMap<Object, ACARSConnection> _cons = new ConcurrentHashMap<Object, ACARSConnection>();
 	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
-	// Pool read/write locks
-	private transient final ReentrantReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
-	private transient final Lock _rLock = _rwLock.readLock();
-	private transient final Lock _wLock = _rwLock.writeLock();
-
 	// Inactivity timeout
 	private long _inactivityTimeout = -1;
+	
+	// Last inactivity check time
+	private long _inactivityLastRun = 0;
 
 	// The selector to use for non-blocking I/O reads
 	private Selector _cSelector;
@@ -62,21 +60,25 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	}
 
 	/**
+	 * Returns all ACARS Connections.
+	 * @return a Collection of ACARSConnection beans
+	 */
+	public Collection<ACARSConnection> getAll() {
+		return new LinkedHashSet<ACARSConnection>(_cons.values());
+	}
+
+	/**
 	 * Returns network data in a format suitable for Google Maps.
 	 * @return a Collection of MapEntry beans
 	 */
 	public Collection<ACARSMapEntry> getMapEntries() {
-		_rLock.lock();
-		Collection<ACARSMapEntry> results = new LinkedHashSet<ACARSMapEntry>(_cons.size());
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection con = i.next();
-				ACARSMapEntry re = RouteEntryHelper.build(con);
-				if (re != null)
-					results.add(re);
-			}
-		} finally {
-			_rLock.unlock();
+		Collection<ACARSConnection> cons = getAll();
+		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
+			ACARSMapEntry re = RouteEntryHelper.build(con);
+			if (re != null)
+				results.add(re);
 		}
 		
 		return results;
@@ -87,16 +89,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @return a Collection of byte arrays
 	 */
 	public Collection<byte[]> getSerializedInfo() {
-		_rLock.lock();
-		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(_cons.size());
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSMapEntry re = RouteEntryHelper.build(i.next());
-				if (re != null)
-					results.add(re);
-			}
-		} finally {
-			_rLock.unlock();
+		Collection<ACARSConnection> cons = getAll();
+		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+			ACARSMapEntry re = RouteEntryHelper.build(i.next());
+			if (re != null)
+				results.add(re);
 		}
 		
 		return IPCUtils.serialize(results);
@@ -107,30 +105,35 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @return a Collection of Integer flight IDs
 	 */
 	public Collection<Integer> getFlightIDs() {
+		Collection<ACARSConnection> cons = getAll();
 		Collection<Integer> results = new TreeSet<Integer>();
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection con = i.next();
-				int id = con.getFlightID();
-				if (id != 0)
-					results.add(new Integer(id));
-			}
-		} finally {
-			_rLock.unlock();
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
+			int id = con.getFlightID();
+			if (id != 0)
+				results.add(Integer.valueOf(id));
 		}
 		
 		return results;
 	}
 
 	/**
+	 * Returns the time of the last connection inacitivity check.
+	 * @return the date/time of the last inactivity check
+	 */
+	public Date getLastInactivityCheck() {
+		return new Date(_inactivityLastRun);
+	}
+	
+	/**
 	 * Returns Connection Pool data to a web application.
 	 * @param showHidden TRUE if stealth connections should be displayed, otherwise FALSE
 	 * @return a Collection of serialized ConnectionEntry beans
 	 */
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
-		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(_cons.size());
-		for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext(); ) {
+		Collection<ACARSConnection> cons = getAll();
+		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size());
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
@@ -177,7 +180,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 */
 	public Collection<ConnectionStats> getStatistics() {
 		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>();
-		results.addAll(_cons);
+		results.addAll(getAll());
 		results.addAll(_disConStats);
 		_disConStats.clear();
 		return results;
@@ -190,23 +193,23 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 */
 	public synchronized void add(ACARSConnection c) throws ACARSException {
 
-		// Check if we're already there
-		if (_cons.contains(c))
+		// Check if we're already there, and just adding a USER ID
+		if (_cons.containsValue(c)) {
+			_cons.putIfAbsent(c.getUserID(), c);
 			return;
-		else if (_cons.size() >= _maxSize)
-			throw new ACARSException("Connection Pool full");
+		} else if (size() >= _maxSize)
+			throw new ACARSException("Connection Pool full - " + size() + " connections");
 
 		// Register the SocketChannel with the selector
 		try {
 			_cSelector.wakeup();
-			c.getChannel().register(_cSelector, SelectionKey.OP_READ);
-			_wLock.lock();
-			_cons.add(c);
+			SocketChannel sc = c.getChannel();
+			sc.register(_cSelector, SelectionKey.OP_READ);
+			_cons.put(Long.valueOf(c.getID()), c);
+			_cons.put(sc, c);
+			_cons.putIfAbsent(c.getRemoteAddr(), c);
 		} catch (ClosedChannelException cce) {
-			throw new ACARSException(cce.getMessage());
-		} finally {
-			while (_rwLock.isWriteLockedByCurrentThread())
-				_wLock.unlock();
+			throw new ACARSException(cce);
 		}
 	}
 
@@ -219,87 +222,48 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
 		if (_inactivityTimeout == -1)
 			return disCons;
+		
+		// Check if we need to do another check
+		long now = System.currentTimeMillis();
+		if ((now - _inactivityLastRun) <= 2500)
+			return disCons;
 
 		// Loop through the channels
-		_wLock.lock();
-		long now = System.currentTimeMillis();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection con = i.next();
+		_inactivityLastRun = now;
+		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
 
-				// Calculate the inactivity timeout
-				long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
-				long idleTime = now - con.getLastActivity();
+			// Calculate the inactivity timeout
+			long timeout = con.isAuthenticated() ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
+			long idleTime = now - con.getLastActivity();
 
-				// Have we exceeded the timeout interval
-				if (idleTime > timeout) {
-					log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
-					con.close();
-					i.remove();
+			// Have we exceeded the timeout interval
+			if (idleTime > timeout) {
+				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
+				con.close();
+				remove(con);
 				
-					// Add statistics
-					ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
-					ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
-					ds.setBytes(con.getBytesIn(), con.getBytesOut());
-					_disConStats.add(ds);
-					disCons.add(con);
-				}
+				// Add statistics
+				ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
+				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
+				ds.setBytes(con.getBytesIn(), con.getBytesOut());
+				_disConStats.add(ds);
+				disCons.add(con);
 			}
-		} finally {
-			while (_rwLock.isWriteLockedByCurrentThread())
-				_wLock.unlock();
 		}
-
+		
 		// Return the list of dropped connections
 		return disCons;
 	}
-
-	public ACARSConnection getFrom(String remoteAddr) {
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getRemoteAddr().equals(remoteAddr))
-					return c;
-			}
-		} finally {
-			_rLock.unlock();
-		}
-		
-		// No connection from that address found, return false
-		return null;
-	}
 	
-	public ACARSConnection get(SocketChannel ch) {
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getChannel().equals(ch))
-					return c;
-			}
-		} finally {
-			_rLock.unlock();
-		}
-
-		// Return nothing if not found
-		return null;
-	}
-
-	public ACARSConnection get(long cid) {
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getID() == cid)
-					return c;
-			}
-		} finally {
-			_rLock.unlock();
-		}
-
-		// Return nothing if not found
-		return null;
+	/**
+	 * Returns an ACARS Connection based on a key. The key may be a {@link SocketChannel}, an IP
+	 * address, a pilot ID or a Connection ID.
+	 * @param o the key
+	 * @return an ACARSConnection, or null if not found
+	 */
+	public ACARSConnection get(Object o) {
+		return _cons.get(o);
 	}
 	
 	/**
@@ -311,59 +275,30 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	public List<ACARSConnection> getMP(GeoLocation loc, int distance) {
 		GeoPosition gp = new GeoPosition(loc);
 		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getIsMP()) {
-					int d = gp.distanceTo(c.getPosition());
-					if ((d >= 0) && (d <= distance))
-						results.add(c);
+		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getIsMP()) {
+				int d = gp.distanceTo(c.getPosition());
+				if ((d >= 0) && (d <= distance))
+					results.add(c);
 				}
-			}
-		} finally {
-			_rLock.unlock();
 		}
 		
 		return results;
 	}
 
-	public Collection<ACARSConnection> get(String pid) {
-
-		// Wildcard matches everyone
-		if (("*".equals(pid)) || (pid == null))
-			return new ArrayList<ACARSConnection>(_cons);
-
-		// Build results
-		Collection<ACARSConnection> results = new ArrayList<ACARSConnection>();
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getUserID().equalsIgnoreCase(pid))
-					results.add(c);
-			}
-		} finally {
-			_rLock.unlock();
-		}
-
-		return results;
-	}
-
+	/**
+	 * Returns the size of the connection pool.
+	 */
 	public int size() {
-		return _cons.size();
+		return getAll().size();
 	}
 	
 	public boolean isDispatchOnline() {
-		_rLock.lock();
-		try {
-			for (Iterator<ACARSConnection> i = _cons.iterator(); i.hasNext();) {
-				ACARSConnection c = i.next();
-				if (c.getIsDispatch())
-					return true;
-			}
-		} finally {
-			_rLock.unlock();
+		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getIsDispatch())
+				return true;
 		}
 		
 		return false;
@@ -381,7 +316,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 			// If the selection key is ready for reading, get the Connection and read
 			if ((sKey != null) && sKey.isValid() && sKey.isReadable()) {
-				ACARSConnection con = get((SocketChannel) sKey.channel());
+				ACARSConnection con = _cons.get(sKey.channel());
 				if (con != null) {
 					try {
 						String msg = con.read();
@@ -391,14 +326,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 							results.add(env);
 						}
 					} catch (Exception e) {
-						_wLock.lock();
-						try {
-							con.close();
-							_cons.remove(con);
-						} finally {
-							while (_rwLock.isWriteLockedByCurrentThread())
-								_wLock.unlock();
-						}
+						con.close();
+						remove(con);
 						
 						// Add statistics
 						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
@@ -419,19 +348,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	}
 
 	public void remove(ACARSConnection c) {
-
-		// Find the connection
-		int pos = _cons.indexOf(c);
-		if (pos != -1) {
-			try {
-				_wLock.lock();
-				_cons.remove(pos);
-				c.close();
-			} finally {
-				while (_rwLock.isWriteLockedByCurrentThread())
-					_wLock.unlock();
-			}
-		}
+		while (_cons.containsValue(c))
+			_cons.values().remove(c);
 	}
 
 	public void setSelector(Selector cs) {

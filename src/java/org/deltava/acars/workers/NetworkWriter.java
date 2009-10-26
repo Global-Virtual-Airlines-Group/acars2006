@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -108,7 +108,7 @@ public class NetworkWriter extends Worker {
 				_status.execute();
 				_status.setMessage("Dispatching - " + _ioPool.getActiveCount() + " threads");
 				while (env != null) {
-					ACARSConnection ac = _pool.get(env.getConnectionID());
+					ACARSConnection ac = _pool.get(Long.valueOf(env.getConnectionID()));
 					if (ac != null)
 						_ioPool.execute(new ConnectionWriter(ac, env));
 	

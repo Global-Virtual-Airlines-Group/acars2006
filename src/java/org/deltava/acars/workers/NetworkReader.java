@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -56,7 +56,7 @@ public final class NetworkReader extends Worker {
 
 		// Close all of the connections
 		_status.setMessage("Closing connections");
-		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection con = i.next();
 			if (con.isAuthenticated())
 				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");
@@ -88,8 +88,8 @@ public final class NetworkReader extends Worker {
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 50)
-					Thread.sleep(50 - runInterval);
+				if (runInterval < 75)
+					Thread.sleep(75 - runInterval);
 				
 				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep"));
 			} catch (Exception e) {

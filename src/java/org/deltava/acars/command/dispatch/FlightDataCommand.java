@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 2.2
+ * @version 2.7
  * @since 1.1
  */
 
@@ -55,7 +55,7 @@ public class FlightDataCommand extends DispatchCommand {
 		// Get the recipient
 		Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
 		if (!isPlot) {
-			dstC.addAll(ctx.getACARSConnections(msg.getRecipient()));
+			dstC.add(ctx.getACARSConnection(msg.getRecipient()));
 			if (dstC.isEmpty() && !isPlot) {
 				ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
 				log.warn("Cannot send dispatch message to " + msg.getRecipient());

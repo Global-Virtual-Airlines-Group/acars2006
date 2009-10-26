@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -55,7 +55,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				}
 
 				// Try and get the connection
-				Collection<ACARSConnection> cons = cPool.get(msg.getRequestData());
+				Collection<ACARSConnection> cons = Collections.singleton(cPool.get(msg.getRequestData()));
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
 					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
@@ -124,7 +124,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				
 				// Kick any connections from this address
 				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
-				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
+				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
@@ -194,7 +194,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				
 				// Search for logged-in HR role members
 				boolean sentMessage = false;
-				for (Iterator<ACARSConnection> i = cPool.get("*").iterator(); i.hasNext(); ) {
+				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getUser().isInRole("HR") && (ac.getUser().getID() != usr.getID())) {
 						sentMessage = true;

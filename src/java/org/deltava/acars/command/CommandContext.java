@@ -15,7 +15,7 @@ import org.deltava.jdbc.*;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -36,7 +36,7 @@ public class CommandContext extends ConnectionContext {
 	public CommandContext(ACARSConnectionPool acp, Envelope<Message> env, WorkerStatus status) {
 		super();
 		_pool = acp;
-		_ac = _pool.get(env.getConnectionID());
+		_ac = _pool.get(Long.valueOf(env.getConnectionID()));
 		_msgTime = env.getTime();
 		_status = status;
 	}
@@ -55,7 +55,7 @@ public class CommandContext extends ConnectionContext {
 	 * @return a Collection of ACARSConnection beans
 	 * @see ACARSConnectionPool#get(String)
 	 */
-	public Collection<ACARSConnection> getACARSConnections(String pilotID) {
+	public ACARSConnection getACARSConnection(String pilotID) {
 		return _pool.get(pilotID);
 	}
 	
@@ -86,7 +86,7 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.isAuthenticated() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
@@ -104,7 +104,7 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.get("*").iterator(); i.hasNext();) {
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.getIsDispatch() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));

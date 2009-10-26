@@ -28,7 +28,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.0
  */
 
@@ -160,7 +160,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 
 		// Send to dispatchers if not in auto dispatch mode
 		int reqsSent = 0; int outOfRange = 0;
-		Collection<ACARSConnection> cons = ctx.getACARSConnections("*");
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
 			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();

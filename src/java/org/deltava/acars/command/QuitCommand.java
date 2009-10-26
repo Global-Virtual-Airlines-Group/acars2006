@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 2.2
+ * @version 2.6
  * @since 1.0
  */
 
@@ -72,7 +72,7 @@ public class QuitCommand extends ACARSCommand {
 		drmsg.setDispatch(msg.isDispatch());
 		
 		// Get all connections
-		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().get("*");
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
 		if (msg.isHidden()) {
 			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 				ACARSConnection ac = i.next();
