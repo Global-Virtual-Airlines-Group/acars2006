@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -259,6 +259,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 
 			// Set misc options
+			afr.setClientBuild(ac.getClientVersion());
+			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			afr.setFSVersion(info.getFSVersion());
 			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
