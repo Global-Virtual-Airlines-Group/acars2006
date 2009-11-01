@@ -155,11 +155,12 @@
 
 			<map name="beta">
 				<b96>10</b96>
+				<b97>1</b97>
 				<b100>1</b100>
 			</map>
 
 			<latest type="Integer">96</latest>
-			<dispatch type="Integer">14</dispatch>
+			<dispatch type="Integer">16</dispatch>
 			<list name="noDispatch" attr="build" unique="true">
 				<build>94</build>
 			</list>
