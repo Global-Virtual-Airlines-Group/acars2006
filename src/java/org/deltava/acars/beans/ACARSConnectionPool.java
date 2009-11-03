@@ -38,7 +38,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
 	private final ConcurrentMap<Object, ACARSConnection> _cons = new ConcurrentHashMap<Object, ACARSConnection>();
-	private transient final Collection<ACARSConnection> _disCon = new ArrayList<ACARSConnection>();
+	private transient final BlockingQueue<ACARSConnection> _disCon = new LinkedBlockingQueue<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
 	// Inactivity timeout
@@ -216,8 +216,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	public Collection<ACARSConnection> checkConnections() {
 
 		// Start with the list of dropped connections
-		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon);
-		_disCon.clear();
+		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon.size() + 2);
+		_disCon.drainTo(disCons);
 
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
 		if (_inactivityTimeout == -1)
@@ -306,16 +306,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 	public Collection<TextEnvelope> read() {
 		Collection<SelectionKey> keys = _cSelector.selectedKeys();
-		if ((keys == null) || (keys.isEmpty()))
+		if ((keys == null) || keys.isEmpty())
 			return Collections.emptySet();
 
 		// Get the list of channels waiting for input
-		Collection<TextEnvelope> results = new ArrayList<TextEnvelope>();
+		Collection<TextEnvelope> results = new ArrayList<TextEnvelope>(keys.size());
 		for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = i.next();
 
 			// If the selection key is ready for reading, get the Connection and read
-			if ((sKey != null) && sKey.isValid() && sKey.isReadable()) {
+			if (sKey.isValid() && sKey.isReadable()) {
 				ACARSConnection con = _cons.get(sKey.channel());
 				if (con != null) {
 					try {
