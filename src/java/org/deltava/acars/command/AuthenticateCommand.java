@@ -211,6 +211,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Get the DAO and write the connection
 			SetConnection cwdao = new SetConnection(c);
 			cwdao.add(con);
+			
+			// Log the login
+			SetPilotLogin pwdao = new SetPilotLogin(c);
+			pwdao.login(ud.getID(), con.getRemoteHost(), ud.getDB());
 
 			// Save login hostname/IP address forever
 			SetSystemData sysdao = new SetSystemData(c);
