@@ -109,9 +109,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				int flushed = pwdao.flush();
 				log.info("Flushed " + flushed + " Position records from queue");
 			}
+			
+			// Create comments field
+			Collection<String> comments = new ArrayList<String>();
 
-			// If we found a draft flight report, save its database ID and copy
-			// its ID to the PIREP we will file
+			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
 			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
 			List<FlightReport> dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 			if (!dFlights.isEmpty()) {
@@ -120,7 +122,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
 				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
-				afr.setComments(fr.getComments());
+				if (!StringUtils.isEmpty(fr.getComments()))
+					comments.add(fr.getComments());
 			}
 
 			// Check if it's an Online Event flight
@@ -146,20 +149,41 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check that the user has an online network ID
 			if ((network != null) && (!p.hasNetworkID(network))) {
-				log.warn(p.getName() + " does not have a " + network.toString() + " ID");
-				afr.setComments("No " + network.toString() + " ID, resetting Online Network flag");
+				log.info(p.getName() + " does not have a " + network.toString() + " ID");
+				comments.add("No " + network.toString() + " ID, resetting Online Network flag");
 				afr.setNetwork(null);
 			}
 
 			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
 			GetEquipmentType eqdao = new GetEquipmentType(con);
+			EquipmentType eq = eqdao.get(p.getEquipmentType(), usrLoc.getDB());
 			Collection<String> promoEQ = eqdao.getPrimaryTypes(usrLoc.getDB(), afr.getEquipmentType());
-			if (promoEQ.contains(p.getEquipmentType()))
-				afr.setCaptEQType(promoEQ);
+			
+			// Loop through the eq types, not all may have the same minimum promotion stage length!!
+			if (promoEQ.contains(p.getEquipmentType())) {
+				boolean canPromote = (afr.getTime(1) > 3600) || (afr.getTime(1) > (afr.getTime(2) + afr.getTime(4)));
+				if (canPromote) {
+					for (Iterator<String> i = promoEQ.iterator(); i.hasNext(); ) {
+						String pType = i.next();
+						EquipmentType pEQ = eqdao.get(pType, usrLoc.getDB());
+						if (pEQ == null)
+							i.remove();
+						else if (afr.getDistance() < pEQ.getPromotionMinLength()) {
+							log.info("Minimum " + pType + " flight length is "  +  pEQ.getPromotionMinLength() + ", distance=" + afr.getDistance());
+							comments.add("Minimum flight length for promotion to Captain in " + pType + " is "  +  pEQ.getPromotionMinLength() + " miles");
+							i.remove();
+						}
+					}
+
+					afr.setCaptEQType(promoEQ);
+				} else {
+					log.info("Time at 1X = " + afr.getTime(1) + " time at 2X/4X = " + (afr.getTime(2) + afr.getTime(4)));
+					comments.add("Time at 1X = " + afr.getTime(1) + " time at 2X/4X = " + (afr.getTime(2) + afr.getTime(4)));
+				}
+			}
 
 			// Check if the user is rated to fly the aircraft
-			EquipmentType eq = eqdao.get(p.getEquipmentType(), usrLoc.getDB());
 			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType())) {
 				log.warn(p.getName() + " not rated in " + afr.getEquipmentType() + " ratings = " + p.getRatings());
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
@@ -168,8 +192,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check for historic aircraft
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(afr.getEquipmentType());
-			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null)
-					&& (a.getHistoric()));
+			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null) && (a.getHistoric()));
 			if (a == null) {
 				log.warn("Invalid equipment type from " + p.getName() + " - " + afr.getEquipmentType());
 				afr.setEquipmentType(p.getEquipmentType());
@@ -257,6 +280,10 @@ public class FilePIREPCommand extends ACARSCommand {
 					rA = new RunwayDistance(r, dist);
 				}
 			}
+			
+			// Save comments
+			if (!comments.isEmpty())
+				afr.setComments(StringUtils.listConcat(comments, "\r\n"));
 
 			// Set misc options
 			afr.setClientBuild(ac.getClientVersion());
