@@ -25,6 +25,8 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	
 	private Selector _cSelector;
 	private ServerSocketChannel _channel;
+	
+	private final IDGenerator gen = new IDGenerator();
 
 	/**
 	 * The name of the SystemData attribute to store blocked addresses.
@@ -41,10 +43,12 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
 
 		private SocketChannel _sc;
+		private long _id;
 		
-		ConnectWorker(SocketChannel c) {
+		ConnectWorker(SocketChannel c, long id) {
 			super();
 			_sc = c;
+			_id = id;
 		}
 		
 		public void run() {
@@ -52,9 +56,9 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			// Create a new connection bean
 			ACARSConnection con = null;
 			if (SystemData.getBoolean("acars.debug"))
-				con = new ACARSDebugConnection(IDGenerator.generate(), _sc);
+				con = new ACARSDebugConnection(_id, _sc);
 			else
-				con = new ACARSConnection(IDGenerator.generate(), _sc);
+				con = new ACARSConnection(_id, _sc);
 
 			// Check if the address is on the block list or from a banned user
 			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
@@ -190,9 +194,10 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				try {
 					SocketChannel cc = _channel.accept();
 					if (cc != null) {
+						gen.reset();
 						String addr = cc.socket().getInetAddress().getHostAddress();
 						_status.setMessage("Opening connection from " + addr);
-						ConnectWorker wrk = new ConnectWorker(cc);
+						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());
 						Thread wt = new Thread(wrk, "ConnectWorker-" + addr);
 						wt.setDaemon(true);
 						wt.setUncaughtExceptionHandler(this);
