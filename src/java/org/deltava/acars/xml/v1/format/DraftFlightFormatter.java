@@ -1,4 +1,4 @@
-// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -9,12 +9,13 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.DraftPIREPMessage;
 
 import org.deltava.beans.*;
+import org.deltava.beans.flight.FlightReport;
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 2.2
+ * @version 2.7
  * @since 1.0
  */
 
