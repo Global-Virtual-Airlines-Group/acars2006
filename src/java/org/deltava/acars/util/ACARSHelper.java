@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.jdom.*;
 
 import org.deltava.beans.*;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.util.StringUtils;
@@ -16,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
