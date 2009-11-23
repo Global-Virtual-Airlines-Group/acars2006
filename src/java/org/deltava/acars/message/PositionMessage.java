@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -126,7 +126,8 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setAngleOfAttack(double aoa) {
-		_angleOfAttack = Math.max(-90, Math.min(90, aoa));
+		if (!Double.isNaN(aoa))
+			_angleOfAttack = Math.max(-90, Math.min(90, aoa));
 	}
 
 	public void setFuelRemaining(int fr) {
@@ -134,8 +135,7 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setFrameRate(int rate) {
-		if (rate > 0)
-			_frameRate = rate;
+		_frameRate = Math.max(0, rate);
 	}
 
 	public void setGspeed(int i) {
@@ -144,7 +144,8 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setG(double gForce) {
-		_gForce = gForce;
+		if (!Double.isNaN(gForce))
+			_gForce = gForce;
 	}
 
 	public void setFuelFlow(int flow) {
