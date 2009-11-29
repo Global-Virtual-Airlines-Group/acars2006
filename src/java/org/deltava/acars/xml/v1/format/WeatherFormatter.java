@@ -40,9 +40,8 @@ class WeatherFormatter extends ElementFormatter {
 		for (Iterator<WeatherDataBean> i = wxmsg.getResponse().iterator(); i.hasNext(); ) {
 			WeatherDataBean wx = i.next();
 			if (wx.getDate() != null) {
-				String wxData = XMLUtils.stripInvalidUnicode(wx.getData());
-				Element ew = XMLUtils.createElement("wx", wxData, true);
-				ew.setAttribute("type", wx.getType());
+				Element ew = XMLUtils.createElement("wx", wx.getData(), true);
+				ew.setAttribute("type", wx.getType().toString());
 				ew.setAttribute("valid", StringUtils.format(wx.getDate(), "MM/dd/yyyy HH:mm"));
 				if (wx instanceof METAR) {
 					METAR m = (METAR) wx;

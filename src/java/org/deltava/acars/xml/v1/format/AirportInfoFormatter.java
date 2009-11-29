@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * A formatter for AirportInfoMessages.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.6
  */
 
@@ -41,7 +41,7 @@ public class AirportInfoFormatter extends ElementFormatter {
 		if (amsg.getMETAR() != null) {
 			METAR wx = amsg.getMETAR();
 			Element ew = XMLUtils.createElement("wx", wx.getData(), true);
-			ew.setAttribute("type", wx.getType());
+			ew.setAttribute("type", wx.getType().toString());
 			ew.setAttribute("valid", StringUtils.format(wx.getDate(), "MM/dd/yyyy HH:mm"));
 			ew.setAttribute("temp", String.valueOf(wx.getTemperature()));
 			ew.setAttribute("wSpeed", String.valueOf(wx.getWindSpeed()));

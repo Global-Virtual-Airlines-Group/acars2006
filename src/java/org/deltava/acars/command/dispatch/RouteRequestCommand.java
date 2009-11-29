@@ -19,7 +19,6 @@ import org.deltava.acars.message.dispatch.*;
 import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.file.GetNOAAWeather;
 import org.deltava.dao.wsdl.GetFARoutes;
 
 import org.deltava.util.StringUtils;
@@ -28,7 +27,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.0
  */
 
@@ -85,9 +84,9 @@ public class RouteRequestCommand extends DispatchCommand {
 				}
 				
 				// Get the departure and arrival weather
-				GetNOAAWeather wxdao = new GetNOAAWeather();
-				METAR wxD = wxdao.getMETAR(new AirportLocation(msg.getAirportD()));
-				METAR wxA = wxdao.getMETAR(new AirportLocation(msg.getAirportA()));
+				GetWeather wxdao = new GetWeather(con);
+				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
+				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
 				
 				// Get best runways
 				GetACARSRunways rwdao = new GetACARSRunways(con);
