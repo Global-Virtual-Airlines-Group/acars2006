@@ -1,6 +1,8 @@
 // Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.sql.Connection;
+
 import org.deltava.beans.wx.*;
 import org.deltava.beans.navdata.AirportLocation;
 
@@ -12,7 +14,6 @@ import org.deltava.acars.message.data.WXMessage;
 import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.file.GetNOAAWeather;
 import org.deltava.dao.wsdl.GetFAWeather;
 
 import org.deltava.util.cache.*;
@@ -21,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.3
  */
 
@@ -70,10 +71,11 @@ public class WeatherCommand extends DataCommand {
 		// Get the weather source
 		boolean isFA = "FA".equals(msg.getFilter()) && SystemData.getBoolean("schedule.flightaware.enabled");
 		try {
+			Connection c = ctx.getConnection();
+			
 			// Load the airport location
-			GetNavData navdao = new GetNavData(ctx.getConnection());
+			GetNavData navdao = new GetNavData(c);
 			AirportLocation ap = navdao.getAirport(code);
-			ctx.release();
 			
 			if (isFA) {
 				GetFAWeather dao = new GetFAWeather();
@@ -83,8 +85,8 @@ public class WeatherCommand extends DataCommand {
 				wxMsg.add(wx);
 			} else {
 				// Download the file we want
-				GetNOAAWeather dao = new GetNOAAWeather();
-				WeatherDataBean wx = dao.get(wt, ap);
+				GetWeather dao = new GetWeather(c);
+				WeatherDataBean wx = dao.get(wt, code);
 				if (wx == null) {
 					wx = WeatherDataBean.create(wt);
 					wx.setData("Weather data not available");

@@ -14,7 +14,6 @@ import org.deltava.beans.wx.METAR;
 import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.dao.*;
-import org.deltava.dao.file.GetNOAAWeather;
 
 import org.deltava.util.system.SystemData;
 
@@ -109,11 +108,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// If we don't have any plans but have cached routes, use them
 			if (plans.isEmpty()) {
-				GetNOAAWeather wxdao = new GetNOAAWeather();
+				GetWeather wxdao = new GetWeather(con);
 				GetACARSRunways rwdao = new GetACARSRunways(con);
 				
 				// Get the departure runways based on weather
-				METAR wxD = wxdao.getMETAR(new AirportLocation(msg.getAirportD()));
+				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
 				List<Runway> rwyD = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
 				if (wxD != null) {
 					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
@@ -126,7 +125,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 					rD.add("RW" + r.getName());
 				
 				// Get the arrival runways based on weather
-				METAR wxA = wxdao.getMETAR(new AirportLocation(msg.getAirportA()));
+				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
 				List<Runway> rwyA = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
 				if (wxA != null) {
 					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());

@@ -2,6 +2,7 @@
 package org.deltava.acars.command.data;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.navdata.*;
@@ -10,7 +11,6 @@ import org.deltava.beans.wx.METAR;
 import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.dao.*;
-import org.deltava.dao.file.GetNOAAWeather;
 
 import org.deltava.acars.beans.MessageEnvelope;
 
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 2.6
  */
 
@@ -52,13 +52,15 @@ public class AirportInfoCommand extends DataCommand {
 			return;
 		
 		try {
+			Connection c = ctx.getConnection();
+			
 			// Get the weather
-			GetNOAAWeather wxdao = new GetNOAAWeather();
-			METAR wxD = wxdao.getMETAR(new AirportLocation(aD));
-			METAR wxA = (aA == null) ? null : wxdao.getMETAR(new AirportLocation(aA));
+			GetWeather wxdao = new GetWeather(c);
+			METAR wxD = wxdao.getMETAR(aD.getICAO());
+			METAR wxA = (aA == null) ? null : wxdao.getMETAR(aA.getICAO());
 			
 			// Get the runway choices
-			GetACARSRunways rwdao = new GetACARSRunways(ctx.getConnection());
+			GetACARSRunways rwdao = new GetACARSRunways(c);
 			List<Runway> rwyD = rwdao.getPopularRunways(aD, aA, true);
 			List<Runway> rwyA = rwdao.getPopularRunways(aD, aA, false);
 			if (wxD != null)
