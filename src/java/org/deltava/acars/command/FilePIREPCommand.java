@@ -76,13 +76,15 @@ public class FilePIREPCommand extends ACARSCommand {
 		try {
 			con = ctx.getConnection();
 			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
+			GetACARSData fddao = new GetACARSData(con);
 			int flightID = info.getFlightID();
 
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
 			if (flightID != 0) {
+				int dupeID = fddao.getDuplicateID(flightID);
 				ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), info.getFlightID());
-				if (afr2 != null) {
+				if ((afr2 != null) || (dupeID > 0)) {
 					ctx.release();
 
 					// Log warning and return an ACK
@@ -163,15 +165,15 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Loop through the eq types, not all may have the same minimum promotion stage length!!
 			if (promoEQ.contains(p.getEquipmentType())) {
-				FlightPromotionHelper helper = new FlightPromotionHelper(afr); 
-				for (Iterator<String> i = promoEQ.iterator(); i.hasNext(); ) {
+				FlightPromotionHelper helper = new FlightPromotionHelper(afr);
+				for (Iterator<String> i = promoEQ.iterator(); i.hasNext();) {
 					String pType = i.next();
 					EquipmentType pEQ = eqdao.get(pType, usrLoc.getDB());
 					boolean isOK = helper.canPromote(pEQ);
 					if (!isOK) {
 						i.remove();
 						if (!StringUtils.isEmpty(helper.getLastComment()))
-							comments.add(helper.getLastComment());
+							comments.add("Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
 
@@ -205,7 +207,6 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
-			GetACARSData fddao = new GetACARSData(con);
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, fddao.checkRefuel(flightID, false));
 
 			// Check if it's a Flight Academy flight
@@ -387,8 +388,7 @@ public class FilePIREPCommand extends ACARSCommand {
 		} catch (Exception e) {
 			ctx.rollbackTX();
 			log.error(ac.getUserID() + " - " + e.getMessage(), e);
-			ackMsg.setEntry("error", "PIREP Submission failed - "
-					+ e.getMessage());
+			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
 		} finally {
 			ctx.release();
 			ctx.push(ackMsg, ac.getID(), true);
