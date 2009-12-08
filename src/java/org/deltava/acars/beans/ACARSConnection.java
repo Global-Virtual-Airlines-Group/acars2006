@@ -53,8 +53,8 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _range;
 
 	// Input/output network buffers
-	private transient final ByteBuffer _iBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
-	private transient final ByteBuffer _oBuffer = ByteBuffer.allocate(SystemData.getInt("acars.buffer.nio"));
+	private transient final ByteBuffer _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
+	private transient final ByteBuffer _oBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
 
 	// The the actual buffers for messages
 	private transient final StringBuilder _msgBuffer = new StringBuilder();
