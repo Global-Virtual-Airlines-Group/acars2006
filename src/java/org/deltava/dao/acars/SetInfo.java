@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 2.6
+ * @version 2.7
  * @since 1.0
  */
 
@@ -19,9 +19,9 @@ public class SetInfo extends DAO {
 	// SQL update statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
 		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, "
-		+ "MP) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "MP) VALUES (CONV(?,10,16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
+	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=CONV(?,10,16), FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
 		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	

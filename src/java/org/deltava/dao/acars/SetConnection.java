@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -9,7 +9,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 2.2
+ * @version 2.7
  * @since 1.0
  */
 
@@ -34,9 +34,7 @@ public final class SetConnection extends DAO {
 		
 		try {
 			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, " +
-					"CLIENT_BUILD, BETA_BUILD, DISPATCH) VALUES (?, ?, ?, INET_ATON(?), ?, ?, ?, ?)");
-			
-			// Set the prepared statement
+					"CLIENT_BUILD, BETA_BUILD, DISPATCH) VALUES (CONV(?,10,16), ?, ?, INET_ATON(?), ?, ?, ?, ?)");
 			_ps.setLong(1, c.getID());
 			_ps.setInt(2, c.getUser().getID());
 			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
