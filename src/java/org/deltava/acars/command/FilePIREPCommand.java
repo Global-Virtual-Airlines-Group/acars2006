@@ -82,16 +82,41 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
 			if (flightID != 0) {
-				int dupeID = fddao.getDuplicateID(flightID);
-				ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), info.getFlightID());
-				if ((afr2 != null) || (dupeID > 0)) {
-					ctx.release();
+				ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), flightID);
+				if (afr2 != null) {
+					ctx.release();	
 
+					// Save the PIREP ID in the ACK message
+					ackMsg.setEntry("domain", usrLoc.getDomain());
+					ackMsg.setEntry("pirepID", afr2.getHexID());
+					
 					// Log warning and return an ACK
-					log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID());
+					log.warn("Flight " + flightID + " already has PIREP");
 					ctx.push(ackMsg, ac.getID());
 					return;
 				}
+				
+				// Check for flight ID filed around the same time
+				int dupeID = fddao.getDuplicateID(flightID);
+				if (dupeID > 0)
+					afr2 = prdao.getACARS(usrLoc.getDB(), dupeID);
+				
+				// If it has a PIREP, ACK with that PIREP's ID. If it doesn't, use that flight ID for this PIREP.
+				if (afr2 != null) {
+					ctx.release();
+					
+					// Save the PIREP ID in the ACK message
+					ackMsg.setEntry("domain", usrLoc.getDomain());
+					ackMsg.setEntry("pirepID", afr2.getHexID());
+
+					// Log warning and return an ACK
+					log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID() + ", ID = " + dupeID);
+					ctx.push(ackMsg, ac.getID());
+					return;
+				}
+				
+				// Use the original flight ID
+				afr.setDatabaseID(FlightReport.DBID_ACARS, dupeID);
 			} else {
 				List<FlightReport> dupes = prdao.checkDupes(usrLoc.getDB(), afr, usrLoc.getID());
 				dupes.addAll(prdao.checkDupes(usrLoc.getDB(), flightID));
