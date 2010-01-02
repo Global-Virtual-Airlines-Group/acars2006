@@ -11,7 +11,7 @@
 	    		<pathelement location="../DVA2006/lib/deploy/jdom-1.1.1.jar" />
 	    		<pathelement location="../DVA2006/lib/deploy/edtftpj-2.0.1.jar" />
 	    		<pathelement location="lib/deploy/log4j-1.2.15.jar" />
-	    		<pathelement location="lib/deploy/golgotha_ipc-1.25.jar" />
+	    		<pathelement location="lib/deploy/golgotha_ipc-1.26.jar" />
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>
