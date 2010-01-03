@@ -1,40 +1,42 @@
-/*
- * Created on Feb 6, 2004
- */
+// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
 
 /**
+ * An abstract class to store common Message data.
  * @author Luke
- * @version 1.0
+ * @version 2.8
  * @since 1.0
  */
 
 public abstract class AbstractMessage implements Message {
 	
-	protected int msgType;
-	protected long timeStamp;
-	protected Pilot sender;
-	protected long id;
-	protected int protocolVersion = 0;
+	private int msgType;
+	private long timeStamp = System.currentTimeMillis();
+	private Pilot sender;
+	private long id;
+	private int _version = 1;
 
 	protected AbstractMessage(int type, Pilot msgFrom) {
 		super();
-		
-		// Init the bean
 		this.msgType = type;
-		this.timeStamp = System.currentTimeMillis();
 		this.sender = msgFrom;
 	}
 	
-	public void setProtocolVersion(int pVersion) {
-		if ((this.protocolVersion == 0) && (pVersion > this.protocolVersion))
-			this.protocolVersion = pVersion; 
+	/**
+	 * Allows a message to define the minimum protocol version it is supported by.
+	 * @param pVersion the protocol version
+	 */
+	protected void setProtocolVersion(int pVersion) {
+		_version = Math.max(_version, pVersion);
 	}
 	
-	public int getProtocolVersion() {
-		return this.protocolVersion;
+	/**
+	 * Returns the minimum protocol version that supports this message.
+	 */
+	public final int getProtocolVersion() {
+		return _version;
 	}
 	
 	public boolean isPublic() {

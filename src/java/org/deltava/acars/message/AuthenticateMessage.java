@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * An ACARS authentication message.
  * @author Luke
- * @version 1.0
+ * @version 2.8
  * @since 1.0
  */
 
@@ -14,11 +14,11 @@ public final class AuthenticateMessage extends AbstractMessage {
 
 	private String _userID;
 	private String _pwd;
-	private int _protocolVersion = 1;
 	private int _build;
 	private int _beta;
 	private String _version;
 	private boolean _isDispatch;
+	private boolean _isViewer;
 	private boolean _isHidden;
 	private boolean _isID;
 	
@@ -55,16 +55,16 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _pwd;
 	}
 	
-	public int getProtocolVersion() {
-		return _protocolVersion;
-	}
-	
 	public Date getClientUTC() {
 		return _clientUTC; 
 	}
 	
 	public boolean isDispatch() {
 		return _isDispatch;
+	}
+	
+	public boolean isViewer() {
+		return _isViewer;
 	}
 	
 	public boolean isHidden() {
@@ -77,11 +77,6 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public final boolean isAnonymous() {
 		return true;
-	}
-	
-	public void setProtocolVersion(int pv) {
-		if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
-			_protocolVersion = pv;
 	}
 	
 	public void setClientBuild(int buildNumber) {
@@ -100,6 +95,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		_isDispatch = isDispatch;
 	}
 	
+	public void setViewer(boolean isViewer) {
+		_isViewer = isViewer;
+	}
+	
 	public void setHidden(boolean isHidden) {
 		_isHidden = isHidden;
 	}
@@ -110,5 +109,9 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setDatabaseID(boolean isID) {
 		_isID = isID;
+	}
+	
+	public void setRequestedProtocolVersion(int pVersion) {
+		setProtocolVersion(pVersion);
 	}
 }

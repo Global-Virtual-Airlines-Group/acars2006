@@ -7,7 +7,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS data request/response message.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -52,7 +52,7 @@ public abstract class DataMessage extends AbstractMessage {
 	 * @param type the message type
 	 * @param msgFrom the originating user
 	 */
-	public DataMessage(int type, Pilot msgFrom) {
+	protected DataMessage(int type, Pilot msgFrom) {
 		super(type, msgFrom);
 	}
 	

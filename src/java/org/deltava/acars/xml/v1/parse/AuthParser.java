@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 import org.deltava.util.*;
@@ -15,11 +16,11 @@ import org.deltava.util.*;
 /**
  * A Parser for Authentication elements.
  * @author Luke
- * @version 2.5
+ * @version 2.8
  * @since 1.0
  */
 
-class AuthParser extends ElementParser<AuthenticateMessage> {
+class AuthParser extends XMLElementParser<AuthenticateMessage> {
 	
 	private static final Logger log = Logger.getLogger(AuthParser.class);
 
@@ -48,6 +49,7 @@ class AuthParser extends ElementParser<AuthenticateMessage> {
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setVersion(getChildText(e, "version", "v1.2"));
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
+		msg.setViewer(Boolean.valueOf(getChildText(e, "viewer", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
 		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
 		msg.setBeta(StringUtils.parse(getChildText(e, "beta", "0"), 0));

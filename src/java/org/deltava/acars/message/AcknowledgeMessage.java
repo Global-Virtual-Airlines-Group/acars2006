@@ -48,8 +48,8 @@ public class AcknowledgeMessage extends AbstractMessage {
 	 * Returns the names of all message attributes.
 	 * @return a Collection of attribute names
 	 */
-	public Collection<String> getEntryNames() {
-		return _msgs.keySet();
+	public Collection<Map.Entry<String, String>> getEntries() {
+		return _msgs.entrySet();
 	}
 	
 	/**

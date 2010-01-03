@@ -1,10 +1,10 @@
-// Copyright 2004, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 /**
  * An XML parsing exception.
  * @author Luke
- * @version 1.0
+ * @version 2.8
  * @since 1.0
  */
 
@@ -30,18 +30,19 @@ public class XMLException extends Exception {
 	}
 	
 	/**
-	 * Sets the offending XML snippet.
-	 * @param xml the XML snippet
-	 * @see XMLException#getXML()
+	 * Creates a new XML parsing exception.
+	 * @param msg the exception message
+	 * @param cause the root exception
+	 * @param xml the offending XML
 	 */
-	public void setXML(String xml) {
+	public XMLException(String msg, Throwable cause, String xml) {
+		super(msg, cause);
 		_xml = xml;
 	}
-
+	
 	/**
 	 * Returns the offending XML snippet.
 	 * @return the XML snippet
-	 * @see XMLException#setXML(String)
 	 */
 	public String getXML() {
 		return _xml;

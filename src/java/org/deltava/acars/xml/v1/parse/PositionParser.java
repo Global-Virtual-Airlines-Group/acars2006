@@ -11,16 +11,17 @@ import org.jdom.*;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A Parser for Position elements.
  * @author Luke
- * @version 2.5
+ * @version 2.8
  * @since 1.0
  */
 
-class PositionParser extends ElementParser<PositionMessage> {
+class PositionParser extends XMLElementParser<PositionMessage> {
 	
 	private static final Logger log = Logger.getLogger(PositionParser.class);
 	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");

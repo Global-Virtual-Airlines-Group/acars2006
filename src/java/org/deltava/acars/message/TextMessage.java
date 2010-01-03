@@ -1,14 +1,16 @@
+// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
 
-/**
+/** 
+ * An ACARS message for text messaging.
  * @author Luke
- * @version 1.0
+ * @version 2.8
  * @since 1.0
  */
 
-public class TextMessage extends AbstractMessage {
+public class TextMessage extends AbstractMessage implements RecipientMessage {
 
 	private String _text;
 	private String _recipient;
@@ -20,7 +22,6 @@ public class TextMessage extends AbstractMessage {
 		_text = (msgText.length() > MAX_MSG_SIZE) ? msgText.substring(0, MAX_MSG_SIZE) : msgText;
 	}
 	
-	// 
 	public String getRecipient() {
 		return _recipient;
 	}

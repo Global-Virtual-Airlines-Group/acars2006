@@ -1,21 +1,20 @@
 // Copyright 2004, 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v1.parse;
+package org.deltava.acars.xml;
 
 import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
 
-import org.deltava.acars.xml.XMLException;
 import org.deltava.acars.message.Message; 
 
 /**
  * A parser for XML command elements.
  * @author Luke
- * @version 2.5
+ * @version 2.8
  * @since 1.0
  */
 
-abstract class ElementParser<T extends Message> {
+public abstract class XMLElementParser<T extends Message> {
 
 	/**
 	 * Convert the XML element into a Message.

@@ -1,5 +1,5 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v1.format;
+// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
 
@@ -10,16 +10,18 @@ import org.deltava.acars.beans.MPUpdate;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 
+import org.deltava.acars.xml.XMLElementFormatter;
+
 import org.deltava.util.*;
 
 /**
  * An XML formatter for multi-player position update messages.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 2.2
  */
 
-public class MPUpdateFormatter extends ElementFormatter {
+public class MPUpdateFormatter extends XMLElementFormatter {
 
 	/**
 	 * Formats an MPUpdateMessage bean into an XML element.
@@ -33,8 +35,7 @@ public class MPUpdateFormatter extends ElementFormatter {
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, "positions");
-		for (Iterator<MPUpdate> i = mpmsg.getResponse().iterator(); i.hasNext(); ) {
+		for (Iterator<MPUpdate> i = mpmsg.getUpdates().iterator(); i.hasNext(); ) {
 			MPUpdate upd = i.next();
 			LocationMessage lmsg = upd.getLocation();
 			
@@ -60,7 +61,7 @@ public class MPUpdateFormatter extends ElementFormatter {
 			}
 			
 			// Add child element
-			e.addContent(le);
+			pe.addContent(le);
 		}
 		
 		return pe;

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 2.4
+ * @version 2.8
  * @since 1.0
  */
 
@@ -57,6 +57,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				ce.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 				ce.addContent(XMLUtils.createElement("isDispatch", String.valueOf(con.getIsDispatch())));
+				ce.addContent(XMLUtils.createElement("isViewer", String.valueOf(con.getIsViewer())));
 				ce.addContent(XMLUtils.createElement("isHidden", String.valueOf(con.getUserHidden())));
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 			}
