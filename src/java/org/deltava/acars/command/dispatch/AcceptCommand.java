@@ -10,7 +10,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 2.7
+ * @version 2.8
  * @since 2.0
  */
 
@@ -41,7 +41,7 @@ public class AcceptCommand extends DispatchCommand {
 		}
 		
 		// Check dispatch status
-		if (ac.getHasDispatch()) {
+		if (ac.getDispatcherID() != 0) {
 			log.info(ac.getUserID() + " already has dispatch service");
 			return;
 		} else if (!ac.getIsDispatch()) {
