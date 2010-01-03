@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -20,6 +20,7 @@ public abstract class DispatchCommand extends ACARSCommand {
 	 */
 	protected DispatchCommand(Class<?> logClass) {
 		super();
-		log = Logger.getLogger(logClass);
+		Package p = logClass.getPackage();
+		log = Logger.getLogger(p.getName() + ".Dispatch" + logClass.getName());
 	}
 }
