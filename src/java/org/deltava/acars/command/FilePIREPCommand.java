@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 2.7
+ * @version 2.8
  * @since 1.0
  */
 
@@ -265,39 +265,53 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setStatus(FlightReport.HOLD);
 			}
 
-			// Get the takeoff/touchdown points
+			// If we don't have takeoff/touchdown points from Build 100+, derive them
 			GetNavAirway navdao = new GetNavAirway(con);
-			List<RouteEntry> tdEntries = fddao.getTakeoffLanding(info.getFlightID(), false);
-			if (tdEntries.size() > 2) {
-				int ofs = 0;
-				RouteEntry entry = tdEntries.get(0);
-				GeoPosition adPos = new GeoPosition(info.getAirportD());
-				while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
-					ofs++;
-					entry = tdEntries.get(ofs);
-				}
+			if (afr.getTakeoffHeading() == -1) {
+				List<RouteEntry> tdEntries = fddao.getTakeoffLanding(info.getFlightID(), false);
+				if (tdEntries.size() > 2) {
+					int ofs = 0;
+					RouteEntry entry = tdEntries.get(0);
+					GeoPosition adPos = new GeoPosition(info.getAirportD());
+					while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
+						ofs++;
+						entry = tdEntries.get(ofs);
+					}
 
-				// Trim out spurious takeoff entries
-				if (ofs > 0)
-					tdEntries.subList(0, ofs - 1).clear();
-				if (tdEntries.size() > 2)
-					tdEntries.subList(1, tdEntries.size() - 1).clear();
+					// Trim out spurious takeoff entries
+					if (ofs > 0)
+						tdEntries.subList(0, ofs - 1).clear();
+					if (tdEntries.size() > 2)
+						tdEntries.subList(1, tdEntries.size() - 1).clear();
+				}
+				
+				// Save the entry points
+				if (tdEntries.size() > 0) {
+					afr.setTakeoffLocation(tdEntries.get(0));
+					afr.setTakeoffHeading(tdEntries.get(0).getHeading());
+					if (tdEntries.size() > 1) {
+						afr.setLandingLocation(tdEntries.get(1));
+						afr.setLandingHeading(tdEntries.get(1).getHeading());
+					}
+				}
 			}
 
-			// Get the runways used
+			// Load the departure runway
 			Runway rD = null;
-			Runway rA = null;
-			if (tdEntries.size() == 2) {
-				Runway r = navdao.getBestRunway(info.getAirportD().getICAO(), afr.getFSVersion(), tdEntries.get(0), tdEntries.get(0).getHeading());
+			if (afr.getTakeoffHeading() > -1) {
+				Runway r = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
 				if (r != null) {
-					int dist = GeoUtils.distanceFeet(r, tdEntries.get(0));
+					int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
 					rD = new RunwayDistance(r, dist);
 				}
+			}
 
-				// Load the arrival runway
-				r = navdao.getBestRunway(afr.getAirportA().getICAO(), afr.getFSVersion(), tdEntries.get(1), tdEntries.get(1).getHeading());
+			// Load the arrival runway
+			Runway rA = null;
+			if (afr.getLandingHeading() > -1) {
+				Runway r = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
 				if (r != null) {
-					int dist = GeoUtils.distanceFeet(r, tdEntries.get(1));
+					int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
 					rA = new RunwayDistance(r, dist);
 				}
 			}
