@@ -88,7 +88,7 @@ public class CommandContext extends ConnectionContext {
 		msg.setTime(_msgTime);
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
-			if (c.isAuthenticated() && (c.getID() != skipThisConID))
+			if (c.isAuthenticated() && (c.getID() != skipThisConID) && (c.getProtocolVersion() >= msg.getProtocolVersion()))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}
@@ -106,7 +106,7 @@ public class CommandContext extends ConnectionContext {
 		msg.setTime(_msgTime);
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
-			if (c.getIsDispatch() && (c.getID() != skipThisConID))
+			if (c.getIsDispatch() && (c.getID() != skipThisConID) && (c.getProtocolVersion() >= msg.getProtocolVersion()))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}

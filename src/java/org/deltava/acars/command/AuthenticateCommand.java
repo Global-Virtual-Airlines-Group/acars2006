@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -56,6 +56,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
 		if (msg.isDispatch())
 			minBuild = cInfo.getMinimumDispatchBuild();
+		else if (msg.isViewer())
+			minBuild = cInfo.getMinimumViewerBuild();
 		else
 			minBuild = cInfo.getMinimumBuild(msg.getVersion());
 
@@ -65,6 +67,9 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (minBuild == Integer.MAX_VALUE) {
 				errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
 				log.warn(errMsg.getEntry("error"));
+			} else if (minBuild == 0) {
+				minBuild = cInfo.getLatest();
+				errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild + " or newer");
 			} else
 				errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild + " or newer");
 
@@ -185,17 +190,21 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Log the user in
 		con.setUser(usr);
 		con.setUserLocation(ud);
-		con.setProtocolVersion(msg.getProtocolVersion());
 		con.setClientVersion(msg.getClientBuild());
 		con.setBeta(msg.getBeta());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff * 1000);
+		if (msg.getProtocolVersion() > con.getProtocolVersion()) {
+			log.info(usr.getName() + " requesting protocol v" + msg.getProtocolVersion());
+			con.setProtocolVersion(msg.getProtocolVersion());
+		}
 		
 		// If we're a dispatcher, set the default location and range
 		if (msg.isDispatch()) {
-			con.setIsDispatch(msg.isDispatch());
+			con.setIsDispatch(true);
 			con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
-		}
+		} else if (msg.isViewer())
+			con.setIsViewer(true);
 
 		// Save the connection data
 		try {
@@ -239,7 +248,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		} finally {
 			ctx.release();
 		}
-		
 
 		// Tell everybody else that someone has logged on
 		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, msg.getID());
@@ -256,7 +264,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
 		int latestBuild = cInfo.getLatest();
-		if (latestBuild > msg.getClientBuild())
+		if (!con.getIsDispatch() && !con.getIsViewer() && (latestBuild > msg.getClientBuild()))
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
 
 		// Set roles/ratings and if we are unrestricted
@@ -310,6 +318,6 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2750;
+		return 2500;
 	}
 }
