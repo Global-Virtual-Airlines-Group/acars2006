@@ -10,6 +10,7 @@ import org.deltava.beans.navdata.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
+import org.deltava.acars.xml.XMLElementParser;
 
 import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
@@ -17,11 +18,11 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 2.1
  */
 
-class DispatchInfoParser extends ElementParser<FlightDataMessage> {
+class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 
 	/**
 	 * Convert an XML dispatch request element into a FlightDataMessage.

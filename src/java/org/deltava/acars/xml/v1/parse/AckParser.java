@@ -6,16 +6,17 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.AcknowledgeMessage;
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A parser for Acknowledge elements.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 1.0
  */
 
-class AckParser extends ElementParser<AcknowledgeMessage> {
+class AckParser extends XMLElementParser<AcknowledgeMessage> {
 
 	/**
 	 * Convert an XML ack element into an AcknowledgeMessage.

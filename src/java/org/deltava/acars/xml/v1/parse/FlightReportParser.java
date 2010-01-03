@@ -10,7 +10,7 @@ import org.jdom.Document;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.schedule.*;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -18,16 +18,17 @@ import org.deltava.util.system.SystemData;
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.util.ACARSHelper;
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.7
+ * @version 2.8
  * @since 1.0
  */
 
-class FlightReportParser extends ElementParser<FlightReportMessage> {
+class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 	
 	private static final Logger log = Logger.getLogger(FlightReportParser.class);
 
@@ -98,6 +99,24 @@ class FlightReportParser extends ElementParser<FlightReportMessage> {
 			// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
 			afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
 			afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
+			
+			// Get the takeoff data
+			afr.setTakeoffHeading(StringUtils.parse(getChildText(e, "takeoffHeading", "-1"), -1));
+			if (afr.getTakeoffHeading() > -1) {
+				double lat = StringUtils.parse(getChildText(e, "takeoffLat", "0.0"), 0.0d);
+				double lng = StringUtils.parse(getChildText(e, "takeoffLng", "0.0"), 0.0d);
+				GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0));
+				afr.setTakeoffLocation(pos);
+			}
+			
+			// Get the landing data
+			afr.setLandingHeading(StringUtils.parse(getChildText(e, "landingHeading", "-1"), -1));
+			if (afr.getLandingHeading() > -1) {
+				double lat = StringUtils.parse(getChildText(e, "landingLat", "0.0"), 0.0d);
+				double lng = StringUtils.parse(getChildText(e, "landingLng", "0.0"), 0.0d);	
+				GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0));
+				afr.setLandingLocation(pos);
+			}
 
 			// Load the 0X/1X/2X/4X times
 			afr.setTime(0, StringUtils.parse(getChildText(e, "time0X", "0"), 0));

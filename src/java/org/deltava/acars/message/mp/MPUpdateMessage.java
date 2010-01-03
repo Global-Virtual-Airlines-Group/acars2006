@@ -1,5 +1,7 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.mp;
+
+import java.util.*;
 
 import org.deltava.acars.beans.MPUpdate;
 
@@ -8,23 +10,32 @@ import org.deltava.acars.message.*;
 /**
  * A Multi-Player message to handle batch updates of all aircraft positions.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 2.2
  */
 
-public class MPUpdateMessage extends DataResponseMessage<MPUpdate> {
+public class MPUpdateMessage extends AbstractMessage {
 	
+	private final Collection<MPUpdate> _upds = new ArrayList<MPUpdate>();
 	private boolean _showLivery;
 	private boolean _doClear;
 
 	/**
 	 * Initializes the Message.
 	 * @param doClear TRUE if the MP list should be cleared, otherwise FALSE
-	 * @param parentID the ID of the InitMessage that created this message, or zero
 	 */
-	public MPUpdateMessage(boolean doClear, long parentID) {
-		super(null, Message.MSG_MPUPDATE, parentID);
+	public MPUpdateMessage(boolean doClear) {
+		super(Message.MSG_MPUPDATE, null);
+		setProtocolVersion(2);
 		_doClear = doClear;
+	}
+	
+	/**
+	 * Returns the multi-player updates in this Message.
+	 * @return a Collection of MPUpdate beans
+	 */
+	public Collection<MPUpdate> getUpdates() {
+		return _upds;
 	}
 	
 	/**
@@ -41,6 +52,14 @@ public class MPUpdateMessage extends DataResponseMessage<MPUpdate> {
 	 */
 	public boolean hasLivery() {
 		return _showLivery;
+	}
+	
+	/**
+	 * Adds a multi-player update to the Message.
+	 * @param upd the MPUpdate bean
+	 */
+	public void add(MPUpdate upd) {
+		_upds.add(upd);
 	}
 	
 	/**

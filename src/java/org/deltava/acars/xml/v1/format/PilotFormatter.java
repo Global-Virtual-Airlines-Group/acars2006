@@ -40,7 +40,7 @@ class PilotFormatter extends ElementFormatter {
 			// Create the elemnet
 			Element ue = new Element("Pilot");
 			ue.setAttribute("id", p.getPilotCode());
-			ue.setAttribute("dbID", Integer.toHexString(p.getID()));
+			ue.setAttribute("dbID", p.getHexID());
 			ue.addContent(XMLUtils.createElement("firstname", p.getFirstName()));
 			ue.addContent(XMLUtils.createElement("lastname", p.getLastName()));
 			ue.addContent(XMLUtils.createElement("name", p.getName()));

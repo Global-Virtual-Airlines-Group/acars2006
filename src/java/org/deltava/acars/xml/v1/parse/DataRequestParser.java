@@ -9,16 +9,17 @@ import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.*;
 
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A parser for Data Request elements.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
-class DataRequestParser extends ElementParser<DataRequestMessage> {
+class DataRequestParser extends XMLElementParser<DataRequestMessage> {
 
 	/**
 	 * Convert an XML data request element into a DataRequestMessage.

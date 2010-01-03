@@ -1,18 +1,19 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.dispatch.CancelMessage;
+import org.deltava.acars.xml.XMLElementParser;
 
 /**
  * A parser for DispatchCancel elements.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 2.0
  */
 
-class DispatchCancelParser extends ElementParser<CancelMessage> {
+class DispatchCancelParser extends XMLElementParser<CancelMessage> {
 	
 	/**
 	 * Convert an XML dispatch cancel element into a DispatchCancelMessage.

@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -8,11 +8,11 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 1.0
  */
 
-public abstract class DispatchMessage extends AbstractMessage {
+public abstract class DispatchMessage extends AbstractMessage implements RecipientMessage {
 	
 	private String _recipient;
 	private int _reqType = DSP_UNKNOWN;
@@ -36,7 +36,7 @@ public abstract class DispatchMessage extends AbstractMessage {
 	 * @param dspType the dispatch message type
 	 * @param msgFrom the originating user
 	 */
-	public DispatchMessage(int dspType, Pilot msgFrom) {
+	protected DispatchMessage(int dspType, Pilot msgFrom) {
 		super(MSG_DISPATCH, msgFrom);
 		_reqType = dspType;
 	}

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom.Element;
@@ -6,16 +6,17 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.TextMessage;
+import org.deltava.acars.xml.XMLElementParser;
 import org.deltava.acars.xml.XMLException;
 
 /**
  * A Parser for Text Message elements.
  * @author Luke
- * @version 2.2
+ * @version 2.8
  * @since 1.0
  */
 
-class TextMessageParser extends ElementParser<TextMessage> {
+class TextMessageParser extends XMLElementParser<TextMessage> {
 
 	/**
 	 * Convert an XML chat element into a TextMessage.

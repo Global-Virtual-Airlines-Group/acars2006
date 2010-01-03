@@ -1,31 +1,26 @@
 // Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v1.parse;
+package org.deltava.acars.xml.v2.parse;
 
-import java.text.*;
-import java.util.Calendar;
+import java.util.Date;
 
 import org.jdom.Element;
 
-import org.apache.log4j.Logger;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.mp.MPMessage;
-import org.deltava.acars.xml.XMLException;
+import org.deltava.acars.xml.*;
 
 import static org.gvagroup.acars.ACARSFlags.*;
 
 /**
  * A parser for multi-player location elements.
  * @author Luke
- * @version 2.5
+ * @version 2.8
  * @since 2.2
  */
 
-class MPLocationParser extends ElementParser<MPMessage> {
+class MPLocationParser extends XMLElementParser<MPMessage> {
 	
-	private static final Logger log = Logger.getLogger(MPLocationParser.class);
-	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
-
 	/**
 	 * Convert an XML MP position element into an MPMessage.
 	 * @param e the XML element
@@ -37,24 +32,9 @@ class MPLocationParser extends ElementParser<MPMessage> {
 		// Create the bean
 		MPMessage msg = new MPMessage(user);
 		
-		// Parse the date
-		String de = getChildText(e, "date", null);
-		try {
-			if ((de != null) && (!de.contains("."))) {
-				int ms  = Calendar.getInstance().get(Calendar.MILLISECOND);
-				de = de + "." + String.valueOf(ms);
-			}
-			
-			if (de != null) {
-				de = de.replace('-', '/');
-				msg.setDate(_mdtf.parse(de));
-			}
-		} catch (Exception ex) {
-			log.warn("Unparseable date - " + de);
-		}
-		
 		// Get the basic information
 		try {
+			msg.setDate(new Date(Long.parseLong(getChildText(e, "dt", String.valueOf(System.currentTimeMillis())))));
 			msg.setLatitude(Double.parseDouble(e.getAttributeValue("lat", "0")));
 			msg.setLongitude(Double.parseDouble(e.getAttributeValue("lon", "0")));
 			msg.setHeading(Integer.parseInt(getChildText(e, "h", "0")));

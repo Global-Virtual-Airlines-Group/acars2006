@@ -6,15 +6,16 @@ import org.jdom.Element;
 import org.deltava.beans.Pilot;
 
 import org.deltava.acars.message.dispatch.CompleteMessage;
+import org.deltava.acars.xml.XMLElementParser;
 
 /**
  * A parser for DispatchCompletion messages. 
  * @author Luke
- * @version 2.7
+ * @version 2.8
  * @since 2.0
  */
 
-class DispatchCompletionParser extends ElementParser<CompleteMessage> {
+class DispatchCompletionParser extends XMLElementParser<CompleteMessage> {
 
 	/**
 	 * Convert an XML dispatch complete element into a DispatchCompleteMessage.
