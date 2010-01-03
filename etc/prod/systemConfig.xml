@@ -139,6 +139,7 @@
 		<!-- List of valid protocol revisions -->
 		<map name="protocols">
 			<v1>org.deltava.acars.xml.v1</v1>
+			<v2>org.deltava.acars.xml.v2</v2>
 		</map>
 
 		<port type="Integer">15527</port>
@@ -160,6 +161,7 @@
 
 			<latest type="Integer">96</latest>
 			<dispatch type="Integer">17</dispatch>
+			<viewer type="Integer">1</viewer>
 			<list name="noDispatch" attr="build" unique="true">
 				<build>95</build>
 			</list>

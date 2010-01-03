@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.*;
@@ -24,7 +24,7 @@ import org.gvagroup.common.SharedData;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -201,6 +201,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Set dispatch build
 		cInfo.setMinimumDispatchBuild(SystemData.getInt("acars.build.dispatch", 1));
+		cInfo.setMinimumViewerBuild(SystemData.getInt("acars.build.viewer", 1));
 		
 		// Set no dispatch builds
 		Collection<?> noDspBuilds = (Collection<?>) SystemData.getObject("acars.build.noDispatch");

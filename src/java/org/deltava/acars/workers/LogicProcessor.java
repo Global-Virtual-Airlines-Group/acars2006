@@ -10,6 +10,7 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.command.dispatch.*;
 import org.deltava.acars.command.mp.*;
+import org.deltava.acars.command.viewer.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
@@ -21,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -33,6 +34,7 @@ public class LogicProcessor extends Worker {
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
 	private final Map<Integer, DispatchCommand> _dspCommands = new HashMap<Integer, DispatchCommand>();
+	private final Map<Integer, ViewerCommand> _viewCommands = new HashMap<Integer, ViewerCommand>();
 	
 	/**
 	 * Initializes the Worker.
@@ -65,6 +67,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_PIREP), new FilePIREPCommand());
 		_commands.put(Integer.valueOf(Message.MSG_ERROR), new ErrorCommand());
 		_commands.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticCommand());
+		_commands.put(Integer.valueOf(Message.MSG_TOTD), new TakeoffCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPInfoCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
@@ -92,15 +95,21 @@ public class LogicProcessor extends Worker {
 		
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_CANCEL), new CancelCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ACCEPT), new AcceptCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_CANCEL), new org.deltava.acars.command.dispatch.CancelCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ACCEPT), new org.deltava.acars.command.dispatch.AcceptCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_INFO), new FlightDataCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new RouteRequestCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
 		
-		log.info("Loaded " + (_commands.size() + _dataCommands.size() + _dspCommands.size()) + " commands");
+		// Initialize viewer commands
+		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_ACCEPT), new org.deltava.acars.command.viewer.AcceptCommand());
+		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_REQ), new RequestCommand());
+		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_CANCEL), new org.deltava.acars.command.viewer.CancelCommand());
+		
+		int size = _commands.size() + _dataCommands.size() + _dspCommands.size() + _viewCommands.size();
+		log.info("Loaded " + size + " commands");
 	}
 	
 	private class CommandWorker extends PoolWorker {
@@ -239,7 +248,10 @@ public class LogicProcessor extends Worker {
 					log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
 				
 				ACARSCommand cmd = null;
-				if (msg.getType() == Message.MSG_DATAREQ) {
+				if (msg.getType() == Message.MSG_VIEWER) {
+					ViewerMessage vmsg = (ViewerMessage) msg;
+					cmd = _viewCommands.get(Integer.valueOf(vmsg.getRequestType()));
+				} else if (msg.getType() == Message.MSG_DATAREQ) {
 					DataRequestMessage reqmsg = (DataRequestMessage) msg;
 					cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
 					String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
@@ -267,10 +279,12 @@ public class LogicProcessor extends Worker {
 				
 				// Flush the logs
 				if (_dbLock.tryAcquire()) {
-					if (SetStatistics.getMaxAge() > 30000) 
-						flushLogs();
-				
-					_dbLock.release();
+					try {
+						if (SetStatistics.getMaxAge() > 30000) 
+							flushLogs();
+					} finally {
+						_dbLock.release();
+					}
 				}
 				
 				_status.complete();

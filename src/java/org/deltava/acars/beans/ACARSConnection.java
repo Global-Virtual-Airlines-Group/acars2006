@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 2.6
+ * @version 2.8
  * @since 1.0
  */
 
@@ -46,9 +46,12 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _protocolVersion = 1;
 	private int _clientVersion;
 	private int _beta;
+	
 	private long _dispatcherID;
+	private long _viewerID;
 	
 	private boolean _isDispatch;
+	private boolean _isViewer;
 	private GeoLocation _loc;
 	private int _range;
 
@@ -215,16 +218,20 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return _protocolVersion;
 	}
 
+	public boolean getIsViewer() {
+		return _isViewer;
+	}
+	
 	public boolean getIsDispatch() {
 		return _isDispatch;
 	}
 	
-	public boolean getHasDispatch() {
-		return (_dispatcherID > 0);
-	}
-	
 	public long getDispatcherID() {
 		return _dispatcherID;
+	}
+	
+	public long getViewerID() {
+		return _viewerID;
 	}
 	
 	public GeoLocation getLocation() {
@@ -288,8 +295,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	}
 	
 	public void setProtocolVersion(int pv) {
-		if ((pv > 0) && (pv <= Message.PROTOCOL_VERSION))
-			_protocolVersion = pv;
+		_protocolVersion = Math.max(_protocolVersion, pv);
 	}
 
 	public void setClientVersion(int ver) {
@@ -299,6 +305,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public void setBeta(int beta) {
 		_beta = Math.max(0, beta);
 	}
+	
+	public void setIsViewer(boolean isViewer) {
+		_isViewer = isViewer;
+	}
 
 	public void setIsDispatch(boolean isDispatch) {
 		_isDispatch = isDispatch;
@@ -307,6 +317,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	public void setDispatcherID(long conID) {
 		_dispatcherID = conID;
 	}
+	
+	public void setViewerID(long conID) {
+		_viewerID = conID;
+	}	
 	
 	public void setTimeOffset(long ofs) {
 		_timeOffset = ofs;
@@ -338,7 +352,12 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	}
 
 	public String getRowClassName() {
-		return _isDispatch ? "opt2" : null;
+		if (_isViewer)
+			return "opt3";
+		else if (_isDispatch)
+			return "opt2";
+		
+		return null;
 	}
 	
 	public int hashCode() {
