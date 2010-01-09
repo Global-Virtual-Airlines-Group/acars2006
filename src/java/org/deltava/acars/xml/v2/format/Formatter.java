@@ -2,6 +2,7 @@
 package org.deltava.acars.xml.v2.format;
 
 import org.deltava.acars.message.TakeoffMessage;
+import org.deltava.acars.message.data.DraftPIREPMessage;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.acars.message.viewer.*;
 
@@ -20,6 +21,7 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		// Core formatters
 		_eFormatters.put(TakeoffMessage.class, new TakeoffFormatter());
 		_eFormatters.put(MPUpdateMessage.class, new MPUpdateFormatter());
+		_eFormatters.put(DraftPIREPMessage.class, new DraftFlightFormatter());
 		
 		// Flight Viewer formatters
 		_eFormatters.put(AcceptMessage.class, new ViewAcceptFormatter());
