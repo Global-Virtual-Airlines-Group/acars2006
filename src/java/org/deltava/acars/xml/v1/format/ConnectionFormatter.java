@@ -34,6 +34,7 @@ class ConnectionFormatter extends ElementFormatter {
 		ConnectionMessage cmsg = (ConnectionMessage) msg;
 		Pilot owner = cmsg.getSender();
 		boolean isAdmin = (owner != null) && owner.isInRole("HR");
+		long now = System.currentTimeMillis();
 
 		// Create the parent elements
 		Element pe = initResponse(msg.getType());
@@ -60,6 +61,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("isViewer", String.valueOf(con.getIsViewer())));
 				ce.addContent(XMLUtils.createElement("isHidden", String.valueOf(con.getUserHidden())));
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
+				ce.addContent(XMLUtils.createElement("conTime", String.valueOf((now - con.getStartTime()) / 1000)));
 			}
 			
 			// Display flight-specific stuff
