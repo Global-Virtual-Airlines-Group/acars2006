@@ -73,23 +73,14 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
 		_jdbcPool.close();
-		
-		// Deregister JDBC divers
-		SharedData.purge(SystemData.get("airline.code"));
-		for (Enumeration<Driver> en = DriverManager.getDrivers(); en.hasMoreElements();) {
-			Driver driver = en.nextElement();
-			if (driver.getClass().getClassLoader() == getClass().getClassLoader()) {
-				try {
-					DriverManager.deregisterDriver(driver);
-					log.info("Deregistered JDBC driver " + driver.getClass().getName());
-				} catch (Exception ex) {
-					log.error("Error dregistering " + driver.getClass(), ex);
-				}
-			}
-		}
-		
+		JDBCUtils.cleanMySQLTimer();
+		JDBCUtils.deregisterDrivers();
+		java.beans.Introspector.flushCaches();
+
 		// Close the Log4J manager
+		SharedData.purge(SystemData.get("airline.code"));
 		log.error("Shut down " + SystemData.get("airline.code"));
+		ThreadUtils.sleep(200);
 		LogManager.shutdown();
 	}
 	
