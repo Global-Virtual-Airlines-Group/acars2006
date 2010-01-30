@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -15,16 +15,15 @@ import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.acars.message.InfoMessage;
 
-import org.deltava.util.IPCUtils;
+import org.deltava.util.*;
 
 import org.deltava.acars.util.RouteEntryHelper;
-
 import org.gvagroup.acars.ACARSAdminInfo;
 
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 1.0
  */
 
@@ -179,8 +178,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @return a Collection of CollectionStats beans
 	 */
 	public Collection<ConnectionStats> getStatistics() {
-		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>();
-		results.addAll(getAll());
+		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(getAll());
 		results.addAll(_disConStats);
 		_disConStats.clear();
 		return results;
@@ -292,6 +290,25 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 */
 	public int size() {
 		return getAll().size();
+	}
+	
+	/**
+	 * Returns all radar scopes that can see an aircraft at this position.
+	 * @param loc the aircraft location
+	 * @return a Collection of ACARSConnection beans
+	 */
+	public Collection<ACARSConnection> getRadar(GeoLocation loc) {
+		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
+		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
+			ACARSConnection c = i.next();
+			if (c.getScope() != null) {
+				int distance = GeoUtils.distance(c.getScope(), loc);
+				if (distance <= c.getScope().getRange())
+					results.add(c);
+			}
+		}
+		
+		return results;
 	}
 	
 	public boolean isDispatchOnline() {

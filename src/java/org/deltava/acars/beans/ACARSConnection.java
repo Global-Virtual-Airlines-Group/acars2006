@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -17,6 +17,7 @@ import org.deltava.beans.*;
 import org.deltava.beans.system.IPAddressInfo;
 
 import org.deltava.acars.message.*;
+import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 import org.deltava.acars.xml.ProtocolInfo;
 
 import org.deltava.util.system.SystemData;
@@ -24,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
@@ -52,8 +53,13 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	
 	private boolean _isDispatch;
 	private boolean _isViewer;
+	
+	// Dispatch service location/range
 	private GeoLocation _loc;
 	private int _range;
+	
+	// Radar scope range
+	private ScopeInfoMessage _scope;
 
 	// Input/output network buffers
 	private transient final ByteBuffer _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
@@ -182,6 +188,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return _pInfo;
 	}
 	
+	public ScopeInfoMessage getScope() {
+		return _scope;
+	}
+	
 	public boolean getUserBusy() {
 		return _isUserBusy;
 	}
@@ -292,6 +302,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 	public void setPosition(PositionMessage msg) {
 		_pInfo = msg;
+	}
+	
+	public void setScope(ScopeInfoMessage msg) {
+		_scope = msg;
 	}
 	
 	public void setProtocolVersion(int pv) {

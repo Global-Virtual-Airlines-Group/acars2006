@@ -1,12 +1,14 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.Collection;
 import java.util.concurrent.locks.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.message.mp.MPUpdateMessage;
 
 import org.deltava.dao.acars.SetPosition;
 
@@ -18,7 +20,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 2.6
+ * @version 3.0
  * @since 1.0
  */
 
@@ -84,20 +86,32 @@ public class PositionCommand extends ACARSCommand {
 					ac.setPosition(null);
 			} else if (!msg.isLogged())
 				ac.setPosition(msg);
-			else {
+			else
 				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
-				return;
-			}
 		}
 		
 		// Log message received
 		ctx.push(ackMsg, env.getConnectionID());
 		if (log.isDebugEnabled())
 			log.debug("Received position from " + ac.getUserID());
+		
+		// Send it to any dispatchers that are around
+		if (ac.getFlightInfo().getNetwork() == null) {
+			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getRadar(msg);
+			if (!scopes.isEmpty()) {
+				MPUpdateMessage updmsg = new MPUpdateMessage(false);
+				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
+				updmsg.add(upd);
+			
+				// Send the message
+				for (ACARSConnection rac : scopes)
+					ctx.push(updmsg, rac.getID());
+			}
+		}
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 35000) {
+			if (SetPosition.getMaxAge() > 32500) {
 				try {
 					SetPosition dao = new SetPosition(ctx.getConnection());
 					int entries = dao.flush();

@@ -1,15 +1,15 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.schedule.Airport;
 
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 1.0
  */
 
@@ -31,6 +31,7 @@ public class InfoMessage extends AbstractMessage {
 	private Airport _airportD;
 	private Airport _airportL;
 	private String _fpAlt;
+	private OnlineNetwork _network;
 	private String _comments;
 	private int _fsVersion;
 	
@@ -81,6 +82,10 @@ public class InfoMessage extends AbstractMessage {
 		return _comments;
 	}
 	
+	public OnlineNetwork getNetwork() {
+		return _network;
+	}
+	
 	public String getEquipmentType() {
 		return _eqType;
 	}
@@ -118,7 +123,6 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public String getRoute() {
-		
 		StringBuilder buf = new StringBuilder();
 		for (Iterator<String> i = _waypoints.iterator(); i.hasNext(); ) {
 			buf.append(i.next());
@@ -196,6 +200,10 @@ public class InfoMessage extends AbstractMessage {
 	
 	public void setComments(String newComments) {
 		_comments = newComments;
+	}
+	
+	public void setNetwork(OnlineNetwork network) {
+		_network = network;
 	}
 	
 	public void setEquipmentType(String newEQ) {

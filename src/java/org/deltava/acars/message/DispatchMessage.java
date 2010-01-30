@@ -28,8 +28,9 @@ public abstract class DispatchMessage extends AbstractMessage implements Recipie
 	public static final int DSP_COMPLETE = 7;
 	public static final int DSP_PROGRESS = 8;
 	public static final int DSP_RANGE = 9;
+	public static final int DSP_SCOPEINFO = 10;
 	public static final String[] REQ_TYPES = {"?", "svcrequest", "cancel", "accept", "flightinfo", "routerequest", "routes", 
-		"done", "progress", "svcrange"};
+		"done", "progress", "svcrange", "scopeinfo"};
 	
 	/**
 	 * Creates the message.
