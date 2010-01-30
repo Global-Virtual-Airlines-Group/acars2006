@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -11,12 +11,11 @@ import org.gvagroup.acars.ACARSFlags;
  * An abstract message class used to support messages that store basic aircraft information. This
  * type of message is used for standard position reporting and/or multiplayer data transfer. 
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 2.2
  */
 
-public abstract class LocationMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags,
-	Comparable<LocationMessage> {
+public abstract class LocationMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags, Comparable<LocationMessage> {
 	
 	private Date _dt;
 	
@@ -25,6 +24,7 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	private int altitude;
 	private int heading;
 	private int aspeed;
+	private int vspeed;
 	
 	private double pitch;
 	private double bank;
@@ -53,6 +53,10 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 
 	public int getAspeed() {
 		return aspeed;
+	}
+	
+	public int getVspeed() {
+		return vspeed;
 	}
 	
 	public int getHeading() {
@@ -154,6 +158,11 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 
 	public void setLights(int l) {
 		lights = l;
+	}
+	
+	public void setVspeed(int i) {
+		if ((i >= -7000) && (i <= 7000))
+			vspeed = i;
 	}
 	
 	public int compareTo(LocationMessage msg2) {

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
@@ -102,6 +102,7 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoCommand());
 		
 		// Initialize viewer commands
 		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_ACCEPT), new org.deltava.acars.command.viewer.AcceptCommand());

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 1.0
  */
 
@@ -20,7 +20,6 @@ public class PositionMessage extends LocationMessage {
 
 	private int r_altitude;
 	private int gspeed;
-	private int vspeed;
 	private double mach;
 	private int fuelRemaining;
 	private double n1;
@@ -29,6 +28,9 @@ public class PositionMessage extends LocationMessage {
 	private double _gForce;
 	private double _angleOfAttack;
 	private int _frameRate;
+	
+	private int _txCode;
+	private boolean _txActive;
 
 	// Wind information
 	private int _windHeading;
@@ -109,12 +111,16 @@ public class PositionMessage extends LocationMessage {
 		return _isLogged;
 	}
 
-	public int getVspeed() {
-		return vspeed;
-	}
-
 	public double getG() {
 		return _gForce;
+	}
+	
+	public boolean getTXActive() {
+		return _txActive;
+	}
+	
+	public int getTXCode() {
+		return _txCode;
 	}
 
 	public void setNoFlood(boolean noFlood) {
@@ -193,13 +199,16 @@ public class PositionMessage extends LocationMessage {
 		if ((i >= 0) && (i <= 360))
 			_windHeading = i;
 	}
+	
+	public void setTXActive(boolean isActive) {
+		_txActive = isActive;
+	}
+	
+	public void setTXCode(int txCode) {
+		_txCode = Math.max(0, Math.min(9900, txCode));
+	}
 
 	public void setWindSpeed(int spd) {
 		_windSpeed = Math.max(0, spd);
-	}
-
-	public void setVspeed(int i) {
-		if ((i >= -7000) && (i <= 7000))
-			vspeed = i;
 	}
 }

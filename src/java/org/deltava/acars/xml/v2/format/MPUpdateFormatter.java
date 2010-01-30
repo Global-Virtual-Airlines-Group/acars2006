@@ -1,4 +1,4 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for multi-player position update messages.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 2.2
  */
 
@@ -44,6 +44,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 			le.setAttribute("id", String.valueOf(upd.getID()));
 			le.setAttribute("lat", StringUtils.format(lmsg.getLatitude(), "##0.000000"));
 			le.setAttribute("lon", StringUtils.format(lmsg.getLongitude(), "##0.000000"));
+			le.setAttribute("v", String.valueOf(lmsg.getVspeed()));
 			le.setAttribute("f", String.valueOf(lmsg.getFlags()));
 			le.setAttribute("h", String.valueOf(lmsg.getHeading()));
 			le.setAttribute("s", String.valueOf(lmsg.getAspeed()));
@@ -52,6 +53,13 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 			le.setAttribute("b", String.valueOf(lmsg.getBank()));
 			le.setAttribute("fl", String.valueOf(lmsg.getFlaps()));
 			le.setAttribute("l", String.valueOf(lmsg.getLights()));
+			
+			// Add transponder data if we have it
+			if (lmsg instanceof PositionMessage) {
+				PositionMessage pmsg = (PositionMessage) lmsg;
+				le.setAttribute("tx", String.valueOf(pmsg.getTXActive()));
+				le.setAttribute("txCode", String.valueOf(pmsg.getTXCode()));
+			}
 			
 			// Add livery data
 			if (mpmsg.hasLivery()) {
