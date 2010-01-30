@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -72,12 +72,12 @@ public class FilePIREPCommand extends ACARSCommand {
 			return;
 		}
 
+		int flightID = info.getFlightID();
 		Connection con = null;
 		try {
 			con = ctx.getConnection();
 			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
 			GetACARSData fddao = new GetACARSData(con);
-			int flightID = info.getFlightID();
 
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
@@ -268,7 +268,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// If we don't have takeoff/touchdown points from Build 100+, derive them
 			GetNavAirway navdao = new GetNavAirway(con);
 			if (afr.getTakeoffHeading() == -1) {
-				List<RouteEntry> tdEntries = fddao.getTakeoffLanding(info.getFlightID(), false);
+				List<RouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
 				if (tdEntries.size() > 2) {
 					int ofs = 0;
 					RouteEntry entry = tdEntries.get(0);
@@ -319,31 +319,30 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Save comments
 			if (!comments.isEmpty())
 				afr.setComments(StringUtils.listConcat(comments, "\r\n"));
-
+			
 			// Set misc options
 			afr.setClientBuild(ac.getClientVersion());
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			afr.setFSVersion(info.getFSVersion());
 			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
-				afr.setDatabaseID(FlightReport.DBID_ACARS, info.getFlightID());
+				afr.setDatabaseID(FlightReport.DBID_ACARS, flightID);
 
 			// Start the transaction
 			ctx.startTX();
 
 			// Mark the PIREP as filed
 			SetInfo idao = new SetInfo(con);
-			idao.logPIREP(info.getFlightID());
+			idao.logPIREP(flightID);
 			info.setComplete(true);
-
-			// Update the checkride record (don't assume pilots check the box,
-			// because they don't)
+			
+			// Update the checkride record (don't assume pilots check the box, because they don't)
 			CheckRide cr = null;
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
 				cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
 				if (cr != null) {
-					ctx.setMessage("Saving check ride data for ACARS Flight " + info.getFlightID());
+					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(new Date());
 					cr.setStatus(Test.SUBMITTED);
@@ -357,28 +356,35 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Write the runway data
 			SetACARSData awdao = new SetACARSData(con);
-			awdao.writeRunways(info.getFlightID(), rD, rA);
+			awdao.writeRunways(flightID, rD, rA);
+			
+			// Check if we're a dispatch plan
+			if (msg.isDispatch() && !info.isDispatchPlan()) {
+				log.warn("Flight " + flightID + " was not set as Dispatch, but PIREP has Dispatch flag!");
+				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
+				awdao.writeDispatch(flightID, msg.getDispatcherID(), msg.getRouteID());
+			}
 
 			// Parse the route and check for actual SID/STAR
 			List<String> wps = StringUtils.split(info.getRoute(), " ");
 			wps.remove(info.getAirportD().getICAO());
 			wps.remove(info.getAirportA().getICAO());
 			if (wps.size() > 2) {
-				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + info.getFlightID());
+				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + flightID);
 
 				// Check actual SID/STAR
 				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.SID, wps.get(0), wps.get(1), rD);
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					log.warn("Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
-					awdao.clearSID(info.getFlightID());
-					awdao.writeSIDSTAR(info.getFlightID(), aSID);
+					awdao.clearSID(flightID);
+					awdao.writeSIDSTAR(flightID, aSID);
 				}
 
 				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					log.warn("Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
-					awdao.clearSTAR(info.getFlightID());
-					awdao.writeSIDSTAR(info.getFlightID(), aSTAR);
+					awdao.clearSTAR(flightID);
+					awdao.writeSIDSTAR(flightID, aSTAR);
 				}
 			}
 
