@@ -48,7 +48,6 @@ public class InfoMessage extends AbstractMessage {
 	private int _routeID;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
-	private final Collection<PositionMessage> _offlinePositions = new TreeSet<PositionMessage>();
 	
 	public InfoMessage(Pilot msgFrom) {
 		super(Message.MSG_INFO, msgFrom);
@@ -134,10 +133,6 @@ public class InfoMessage extends AbstractMessage {
 		return buf.toString();
 	}
 	
-	public synchronized Collection<PositionMessage> getPositions() {
-	   return _offlinePositions;
-	}
-	
 	public boolean isComplete() {
 		return _flightComplete;
 	}
@@ -168,10 +163,6 @@ public class InfoMessage extends AbstractMessage {
 	
 	public boolean matches(Airport org, Airport dst) {
 		return (_airportD.equals(org) && _airportA.equals(dst));
-	}
-	
-	public synchronized void addPosition(PositionMessage pmsg) {
-		_offlinePositions.add(pmsg);
 	}
 	
 	public void setAirportA(Airport aInfo) {
