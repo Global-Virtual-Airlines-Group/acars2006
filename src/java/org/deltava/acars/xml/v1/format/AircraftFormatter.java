@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 2.1
+ * @version 3.0
  * @since 1.0
  */
 
@@ -53,6 +53,10 @@ class AircraftFormatter extends ElementFormatter {
 				ae.addContent(XMLUtils.createElement("maxWeight", String.valueOf(a.getMaxWeight())));
 				ae.addContent(XMLUtils.createElement("maxTakeoffWeight", String.valueOf(a.getMaxTakeoffWeight())));
 				ae.addContent(XMLUtils.createElement("maxLandingWeight", String.valueOf(a.getMaxLandingWeight())));
+				
+				// Dump IATA codes
+				for (String iataCode : a.getIATA())
+					ae.addContent(XMLUtils.createElement("iata", iataCode, false));
 				
 				// Get tank names/percentages
 				Map<String, Collection<String>> tNames = a.getTankNames();
