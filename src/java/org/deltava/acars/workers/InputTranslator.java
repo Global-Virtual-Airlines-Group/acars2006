@@ -64,7 +64,7 @@ public final class InputTranslator extends Worker {
 			try {
 				TextEnvelope env = RAW_INPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
-				if (env != null) {
+				while (env != null) {
 					_status.setMessage("Translating Message from " + env.getOwnerID());
 					if (log.isDebugEnabled())
 						log.debug("Message received from " + env.getOwnerID());
@@ -81,6 +81,8 @@ public final class InputTranslator extends Worker {
 					} catch (Exception e) {
 						log.warn("Translation Error - " + e.getMessage(), e);
 					}
+					
+					env = RAW_INPUT.poll();
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
