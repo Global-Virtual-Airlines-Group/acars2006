@@ -75,6 +75,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
+			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")));
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
