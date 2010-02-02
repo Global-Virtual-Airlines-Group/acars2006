@@ -32,9 +32,10 @@ public class PositionMessage extends LocationMessage {
 	private int _txCode;
 	private boolean _txActive;
 
-	// Wind information
+	// Weather information
 	private int _windHeading;
 	private int _windSpeed;
+	private double _viz;
 
 	private int simRate = 1;
 
@@ -77,6 +78,10 @@ public class PositionMessage extends LocationMessage {
 
 	public int getWindHeading() {
 		return _windHeading;
+	}
+	
+	public double getVisibility() {
+		return _viz;
 	}
 
 	public double getMach() {
@@ -210,5 +215,9 @@ public class PositionMessage extends LocationMessage {
 
 	public void setWindSpeed(int spd) {
 		_windSpeed = Math.max(0, spd);
+	}
+	
+	public void setVisibility(double viz) {
+		_viz = Math.max(0, Math.min(9999, viz));
 	}
 }
