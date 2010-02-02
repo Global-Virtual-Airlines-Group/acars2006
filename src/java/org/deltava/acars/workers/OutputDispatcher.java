@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 1.0
  */
 
@@ -57,8 +57,7 @@ public final class OutputDispatcher extends Worker {
 		}
 
 		public void setTime(long time) {
-			if ((time < _time) && (time > 0))
-				_time = time;
+			_time = Math.max(0, Math.min(_time, time));
 		}
 	}
 
@@ -66,7 +65,7 @@ public final class OutputDispatcher extends Worker {
 	 * Initializes the Worker.
 	 */
 	public OutputDispatcher() {
-		super("Output Dispatcher", 50, OutputDispatcher.class);
+		super("Output Dispatcher", 60, OutputDispatcher.class);
 	}
 
 	/**
@@ -103,10 +102,10 @@ public final class OutputDispatcher extends Worker {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
 
+		final Map<Long, Pilot> users = new HashMap<Long, Pilot>();
+		final Map<Long, DatedDocument> docs = new HashMap<Long, DatedDocument>();
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle");
-			Map<Long, Pilot> users = new HashMap<Long, Pilot>();
-			Map<Long, DatedDocument> docs = new HashMap<Long, DatedDocument>();
 
 			try {
 				MessageEnvelope env = MSG_OUTPUT.poll(30, TimeUnit.SECONDS);
@@ -120,18 +119,18 @@ public final class OutputDispatcher extends Worker {
 						log.debug("Dispatching message to " + env.getOwnerID());
 
 					// Determine the protocol version for each message
-					ACARSConnection ac = _pool.get(Long.valueOf(env.getConnectionID()));
+					Long cid = new Long(env.getConnectionID());
+					ACARSConnection ac = _pool.get(cid);
 
 					// Get the XML document, if none exists create it
 					if (ac != null) {
-						Long id = new Long(env.getConnectionID());
-						DatedDocument doc = docs.get(id);
+						DatedDocument doc = docs.get(cid);
 						if (doc == null) {
 							Element e = new Element(ProtocolInfo.RSP_ELEMENT_NAME);
 							e.setAttribute("version", String.valueOf(ac.getProtocolVersion()));
 							doc = new DatedDocument(e);
-							docs.put(id, doc);
-							users.put(id, ac.getUser());
+							docs.put(cid, doc);
+							users.put(cid, ac.getUser());
 							doc.setCompact(false);
 						}
 
@@ -187,6 +186,9 @@ public final class OutputDispatcher extends Worker {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
+			} finally {
+				users.clear();
+				docs.clear();
 			}
 
 			// Log execution

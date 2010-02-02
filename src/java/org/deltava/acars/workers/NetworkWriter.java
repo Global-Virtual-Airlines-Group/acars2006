@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 1.0
  */
 
@@ -46,7 +46,7 @@ public class NetworkWriter extends Worker {
 	 * Initializes the worker task.
 	 */
 	public NetworkWriter() {
-		super("Network I/O Writer", 60, NetworkWriter.class);
+		super("Network I/O Writer", 70, NetworkWriter.class);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class NetworkWriter extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
-				TextEnvelope env = RAW_OUTPUT.take();
+				TextEnvelope env = RAW_OUTPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
 				_status.setMessage("Dispatching - " + _ioPool.getActiveCount() + " threads");
 				while (env != null) {
