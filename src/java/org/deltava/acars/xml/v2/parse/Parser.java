@@ -30,6 +30,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		// Core parsers
 		_eParsers.put(Integer.valueOf(Message.MSG_TOTD), new TakeoffParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPLocationParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_MPINIT), new MPInitParser());
 		
 		// Dispatch parsers
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoParser());
