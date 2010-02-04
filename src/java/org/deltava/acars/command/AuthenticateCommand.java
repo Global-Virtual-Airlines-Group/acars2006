@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
@@ -121,6 +121,13 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException();
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
+			
+			// Check if we're already logged in
+			ACARSConnection ac2 = ctx.getACARSConnection(usr.getPilotCode());
+			if (ac2 != null) {
+				log.warn(usr.getPilotCode() + " already logged in");
+				throw new SecurityException();
+			}
 
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
