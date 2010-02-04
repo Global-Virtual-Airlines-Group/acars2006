@@ -1,5 +1,5 @@
 // Copyright 2006, 2007, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v1.format;
+package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
 
