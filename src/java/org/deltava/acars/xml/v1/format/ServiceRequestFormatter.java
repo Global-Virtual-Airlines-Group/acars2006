@@ -10,7 +10,7 @@ import org.deltava.acars.beans.FuelTank;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RequestMessage;
 
-import org.deltava.util.XMLUtils;;
+import org.deltava.util.XMLUtils;
 
 /**
  * An XML formatter for Dispatch service request messages.
