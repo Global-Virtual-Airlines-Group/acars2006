@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
@@ -29,8 +29,9 @@ public abstract class DispatchMessage extends AbstractMessage implements Recipie
 	public static final int DSP_PROGRESS = 8;
 	public static final int DSP_RANGE = 9;
 	public static final int DSP_SCOPEINFO = 10;
+	public static final int DSP_ROUTEPLOT = 11;
 	public static final String[] REQ_TYPES = {"?", "svcrequest", "cancel", "accept", "flightinfo", "routerequest", "routes", 
-		"done", "progress", "svcrange", "scopeinfo"};
+		"done", "progress", "svcrange", "scopeinfo", "rtplot"};
 	
 	/**
 	 * Creates the message.
