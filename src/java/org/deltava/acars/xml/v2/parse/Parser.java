@@ -34,6 +34,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		
 		// Dispatch parsers
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoParser());
+		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_ROUTEPLOT), new RoutePlotParser());
 		
 		// Flight viewer parsers
 		_viewParsers.put(Integer.valueOf(ViewerMessage.VIEW_REQ), new ViewerRequestParser());
