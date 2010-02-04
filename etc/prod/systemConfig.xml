@@ -89,6 +89,7 @@
 	<!-- Multiplayer properties -->
 	<mp>
 		<max_range type="Integer">40</max_range>
+		<max_scope_range type="Integer">1500</max_scope_range>
 		<max_aircraft type="Integer">30</max_aircraft>
 	</mp>
 
