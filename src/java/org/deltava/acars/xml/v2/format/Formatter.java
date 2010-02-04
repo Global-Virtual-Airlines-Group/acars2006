@@ -1,15 +1,16 @@
-// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.deltava.acars.message.TakeoffMessage;
 import org.deltava.acars.message.data.DraftPIREPMessage;
+import org.deltava.acars.message.dispatch.RoutePlotMessage;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.acars.message.viewer.*;
 
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 2.8
  */
 
@@ -22,6 +23,9 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		_eFormatters.put(TakeoffMessage.class, new TakeoffFormatter());
 		_eFormatters.put(MPUpdateMessage.class, new MPUpdateFormatter());
 		_eFormatters.put(DraftPIREPMessage.class, new DraftFlightFormatter());
+		
+		// Dispatch formatters
+		_eFormatters.put(RoutePlotMessage.class, new RoutePlotFormatter());
 		
 		// Flight Viewer formatters
 		_eFormatters.put(AcceptMessage.class, new ViewAcceptFormatter());

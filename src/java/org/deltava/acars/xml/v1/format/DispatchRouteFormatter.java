@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -6,7 +6,6 @@ import java.util.*;
 import org.jdom.Element;
 
 import org.deltava.beans.acars.DispatchRoute;
-import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.Message;
@@ -17,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 2.6
+ * @version 3.0
  * @since 2.0
  */
 
@@ -28,6 +27,7 @@ public class DispatchRouteFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message
@@ -44,15 +44,7 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		// Add the routes
 		for (Iterator<? extends PopulatedRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
 			PopulatedRoute rp = i.next();
-			Element re = new Element("route");
-			re.setAttribute("id", String.valueOf(rp.getID()));
-			re.addContent(formatAirport(rp.getAirportD(), "airportD"));
-			re.addContent(formatAirport(rp.getAirportA(), "airportA"));
-			re.addContent(XMLUtils.createElement("sid", rp.getSID()));
-			re.addContent(XMLUtils.createElement("star", rp.getSTAR()));
-			re.addContent(XMLUtils.createElement("cruiseAlt", rp.getCruiseAltitude()));
-			re.addContent(XMLUtils.createElement("comments", rp.getComments(), true));
-			re.addContent(XMLUtils.createElement("route", rp.getRoute(), true));
+			Element re = formatRoute(rp); 
 			
 			// Add external properties
 			if (rp instanceof ExternalFlightRoute) {
@@ -69,26 +61,6 @@ public class DispatchRouteFormatter extends ElementFormatter {
 					re.addContent(formatAirport(dr.getAirportL(), "airportL"));
 			}
 			
-			// Add the waypoints
-			Element wpe = new Element("waypoints");
-			for (Iterator<NavigationDataBean> ni = rp.getWaypoints().iterator(); ni.hasNext(); ) {
-				NavigationDataBean nd = ni.next();
-				Element we = new Element("waypoint");
-				we.setAttribute("code", nd.getCode());
-				we.setAttribute("lat", StringUtils.format(nd.getLatitude(), "##0.00000"));
-				we.setAttribute("lon", StringUtils.format(nd.getLongitude(), "##0.00000"));
-				we.setAttribute("uniqueID", nd.toString());
-				if (nd.getRegion() != null)
-					we.setAttribute("region", nd.getRegion());
-				String airway = rp.getAirway(nd);
-				if (airway != null)
-					we.setAttribute("airway", airway);
-				
-				wpe.addContent(we);
-			}
-			
-			// Add the elements
-			re.addContent(wpe);
 			e.addContent(re);
 		}
 		
