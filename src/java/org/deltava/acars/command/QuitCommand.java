@@ -49,9 +49,10 @@ public class QuitCommand extends ACARSCommand {
 				
 				// If Teamspeak is enabled, mark us as disconnected
 				if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-					log.debug("Disabled " + env.getOwnerID() + " TS2 access");
 					SetTS2Data ts2wdao = new SetTS2Data(c);
 					ts2wdao.setActive(env.getOwnerID(), false);
+					if (log.isDebugEnabled())
+						log.debug("Disabled " + env.getOwnerID() + " TS2 access");
 				}
 			} catch (DAOException de) {
 				log.error(de.getMessage(), de);
