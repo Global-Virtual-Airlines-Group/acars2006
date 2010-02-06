@@ -95,6 +95,9 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _msgsOut;
 	private int _bufferReads;
 	private int _bufferWrites;
+	
+	// MP field
+	private final int _maxDistance = SystemData.getInt("mp.max_range", 40);
 
 	/**
 	 * Creates a new ACARS connection.
@@ -190,6 +193,19 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	
 	public ScopeInfoMessage getScope() {
 		return _scope;
+	}
+	
+	public GeoLocation getMPLocation() {
+		return (_scope != null) ? _scope : _pInfo;
+	}
+	
+	public int getMPRange() {
+		if (_scope != null) 
+			return _scope.getRange();
+		else if (getIsMP())
+			return _maxDistance;
+		else
+			return -1;
 	}
 	
 	public boolean getUserBusy() {

@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to download position data for all multi-player aircraft in range.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 2.2
  */
 
@@ -39,24 +39,19 @@ public class InitCommand extends ACARSCommand {
 		if (ac == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
 			return;
-		} else if (ac.getPosition() == null) {
-			log.warn("Missing Position for " + env.getOwnerID());
-			return;
-		} else if (ac.getIsDispatch()) {
-			log.warn("Dispatch Client sending MP Init Request!");
+		} else if (ac.getMPLocation() == null) {
+			log.warn("Missing MP Location for " + env.getOwnerID());
 			return;
 		}
 
 		// Get connections within a set distance
-		int maxDistance = SystemData.getInt("mp.max_range", 40);
-		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getPosition(), maxDistance);
-		if (ac.getIsMP())
-			cons.remove(ac);
+		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
+		cons.remove(ac);
 		
 		// If we have too many aircraft, filter by distance
-		int maxAircraft = SystemData.getInt("mp.max_aircraft", 30);
-		if (cons.size() > maxAircraft) {
-			Collections.sort(cons, new MPComparator(ac.getPosition()));
+		int maxAircraft = SystemData.getInt("mp.max_aircraft", 32);
+		if (!ac.getIsDispatch() && (cons.size() > maxAircraft)) {
+			Collections.sort(cons, new MPComparator(ac.getMPLocation()));
 			cons = cons.subList(0, maxAircraft);
 		}
 		
@@ -64,13 +59,15 @@ public class InitCommand extends ACARSCommand {
 		MPUpdateMessage mpmsg = new MPUpdateMessage(true);
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection c = i.next();
-			InfoMessage inf = c.getFlightInfo();
-			MPUpdate upd = new MPUpdate(c.getFlightID(), c.getPosition());
-			upd.setEquipmentType(inf.getEquipmentType());
-			upd.setLiveryCode(inf.getLivery());
-			Flight f = ACARSHelper.create(inf.getFlightCode());
-			upd.setAirlineCode(f.getAirline().getCode());
-			mpmsg.add(upd);
+			if (!c.getIsDispatch()) {
+				InfoMessage inf = c.getFlightInfo();
+				MPUpdate upd = new MPUpdate(c.getFlightID(), c.getPosition());
+				upd.setEquipmentType(inf.getEquipmentType());
+				upd.setLiveryCode(inf.getLivery());
+				Flight f = ACARSHelper.create(inf.getFlightCode());
+				upd.setAirlineCode(f.getAirline().getCode());
+				mpmsg.add(upd);
+			}
 		}
 		
 		// Return the message
