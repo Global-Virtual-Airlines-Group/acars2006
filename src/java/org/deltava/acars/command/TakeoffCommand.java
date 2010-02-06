@@ -47,7 +47,7 @@ public class TakeoffCommand extends ACARSCommand {
 		boolean isBounce = false;
 		try {
 			SetTakeoff todao = new SetTakeoff(ctx.getConnection());
-			isBounce = todao.logTakeoff(info.getFlightID(), msg.isPublic());
+			isBounce = todao.logTakeoff(info.getFlightID(), msg.isTakeoff());
 		} catch (DAOException de) {
 			log.error("Cannnot log takeoff/landing - " + de.getMessage(), de);
 		} finally {
