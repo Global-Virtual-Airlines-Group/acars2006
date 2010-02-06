@@ -16,6 +16,7 @@ import org.deltava.beans.schedule.GeoPosition;
 import org.deltava.acars.message.InfoMessage;
 
 import org.deltava.util.*;
+import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.util.RouteEntryHelper;
 import org.gvagroup.acars.ACARSAdminInfo;
@@ -205,7 +206,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 			sc.register(_cSelector, SelectionKey.OP_READ);
 			_cons.put(Long.valueOf(c.getID()), c);
 			_cons.put(sc, c);
-			_cons.putIfAbsent(c.getRemoteAddr(), c);
+			
+			// Save the remote address if we're not allowing duplicates
+			if (!SystemData.getBoolean("acars.pool.multiple"))
+				_cons.putIfAbsent(c.getRemoteAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
 		}
@@ -265,21 +269,21 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	}
 	
 	/**
-	 * Returns multi-player connections within a certain distance of a location
+	 * Returns multi-player (or radar scope) connections that can see a particular update.
 	 * @param loc the Location
-	 * @param distance the distance in miles
 	 * @return a List of ACARSConnection beans
 	 */
-	public List<ACARSConnection> getMP(GeoLocation loc, int distance) {
+	public List<ACARSConnection> getMP(GeoLocation loc) {
+		if (loc == null)
+			return Collections.emptyList();
+		
 		GeoPosition gp = new GeoPosition(loc);
 		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
 		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
-			if (c.getIsMP()) {
-				int d = gp.distanceTo(c.getPosition());
-				if ((d >= 0) && (d <= distance))
-					results.add(c);
-				}
+			int dst = gp.distanceTo(c.getMPLocation());
+			if ((dst >= 0) && (dst <= c.getMPRange()))
+				results.add(c);
 		}
 		
 		return results;
@@ -293,24 +297,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	}
 	
 	/**
-	 * Returns all radar scopes that can see an aircraft at this position.
-	 * @param loc the aircraft location
-	 * @return a Collection of ACARSConnection beans
+	 * Returns if a Dispatcher is online.
 	 */
-	public Collection<ACARSConnection> getRadar(GeoLocation loc) {
-		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
-		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getScope() != null) {
-				int distance = GeoUtils.distance(c.getScope(), loc);
-				if (distance <= c.getScope().getRange())
-					results.add(c);
-			}
-		}
-		
-		return results;
-	}
-	
 	public boolean isDispatchOnline() {
 		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();

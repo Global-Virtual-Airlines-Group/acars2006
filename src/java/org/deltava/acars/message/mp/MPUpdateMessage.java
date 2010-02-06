@@ -10,13 +10,13 @@ import org.deltava.acars.message.*;
 /**
  * A Multi-Player message to handle batch updates of all aircraft positions.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 2.2
  */
 
 public class MPUpdateMessage extends AbstractMessage {
 	
-	private final Collection<MPUpdate> _upds = new ArrayList<MPUpdate>();
+	private final Collection<MPUpdate> _upds = new LinkedHashSet<MPUpdate>();
 	private boolean _showLivery;
 	private boolean _doClear;
 
@@ -58,8 +58,8 @@ public class MPUpdateMessage extends AbstractMessage {
 	 * Adds a multi-player update to the Message.
 	 * @param upd the MPUpdate bean
 	 */
-	public void add(MPUpdate upd) {
-		_upds.add(upd);
+	public boolean add(MPUpdate upd) {
+		return _upds.add(upd);
 	}
 	
 	/**

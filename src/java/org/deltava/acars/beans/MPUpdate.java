@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.DatabaseBean;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.LocationMessage;
  * A bean to store multi-player position data, combining location and
  * aircraft model rendering data. 
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 2.2
  */
 
@@ -85,5 +85,21 @@ public class MPUpdate extends DatabaseBean {
 	 */
 	public void setEquipmentType(String eqType) {
 		_eqType = eqType;
+	}
+	
+	public String toString() {
+		StringBuilder buf = new StringBuilder("MP");
+		buf.append(getID());
+		buf.append('-');
+		buf.append(_loc.getDate().getTime());
+		return buf.toString();
+	}
+	
+	public int hashCode() {
+		return toString().hashCode();
+	}
+	
+	public boolean equals(Object o) {
+		return (o instanceof MPUpdate) ? (hashCode() == o.hashCode()) : false;
 	}
 }

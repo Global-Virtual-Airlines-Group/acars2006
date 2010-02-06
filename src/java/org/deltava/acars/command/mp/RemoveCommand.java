@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.*;
@@ -8,12 +8,11 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.mp.RemoveMessage;
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Server command to remove an aircraft from a multi-player session.
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 2.2
  */
 
@@ -40,8 +39,7 @@ public class RemoveCommand extends ACARSCommand {
 		}
 		
 		// Get connections within a set distance
-		int maxDistance = SystemData.getInt("mp.max_range", 40);
-		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getPosition(), maxDistance);
+		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 		cons.remove(ac);
 		
 		// Push the message out to them

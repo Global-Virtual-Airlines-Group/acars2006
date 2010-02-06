@@ -11,14 +11,13 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.*;
 
 import org.deltava.util.CalendarUtils;
-import org.deltava.util.system.SystemData;
 
 import static org.gvagroup.acars.ACARSFlags.*;
 
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 2.2
  */
 
@@ -85,8 +84,7 @@ public class MPInfoCommand extends ACARSCommand {
 			ctx.push(updmsg, ac.getViewerID());
 		else {
 			// Get the connections to notify
-			int maxDistance = SystemData.getInt("mp.max_range", 40);
-			List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getPosition(), maxDistance);
+			List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 			cons.remove(ac);
 		
 			// Send the message

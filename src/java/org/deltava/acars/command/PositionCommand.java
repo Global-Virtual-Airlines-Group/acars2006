@@ -6,6 +6,8 @@ import java.util.concurrent.locks.*;
 
 import org.apache.log4j.Logger;
 
+import static org.deltava.acars.workers.Worker.MP_UPDATE;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
@@ -96,16 +98,16 @@ public class PositionCommand extends ACARSCommand {
 			log.debug("Received position from " + ac.getUserID());
 		
 		// Send it to any dispatchers that are around
-		if (ac.getFlightInfo().getNetwork() == null) {
-			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getRadar(msg);
+		if ((ac.getFlightInfo().getNetwork() == null) && (!msg.getNoFlood())) {
+			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getMP(msg);
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
 				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
 				updmsg.add(upd);
 			
-				// Send the message
+				// Queue the message
 				for (ACARSConnection rac : scopes)
-					ctx.push(updmsg, rac.getID());
+					MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
 			}
 		}
 
