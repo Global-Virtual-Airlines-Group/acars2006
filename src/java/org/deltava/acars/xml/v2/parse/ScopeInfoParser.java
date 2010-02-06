@@ -21,9 +21,9 @@ import org.deltava.util.*;
 class ScopeInfoParser extends XMLElementParser<ScopeInfoMessage> {
 	
 	/**
-	 * Convert an XML takeoff element into a TakeoffMessage.
+	 * Convert an XML scope info element into a ScopeInfoMessage.
 	 * @param e the XML element
-	 * @return a TakeoffMessage
+	 * @return a ScopeInfoMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
 	public ScopeInfoMessage parse(Element e, Pilot usr) {
