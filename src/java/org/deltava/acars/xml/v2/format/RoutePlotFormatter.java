@@ -28,9 +28,11 @@ public class RoutePlotFormatter extends ElementFormatter {
 		
 		// Build the DispatchResponseElement
 		Element pe = initResponse(msg.getType());
+		Element e = initDataResponse(pe, rmsg.getRequestTypeName());
+		e.setAttribute("id", String.valueOf(rmsg.getID()));
 		if (rmsg.getResults() != null) {
 			Element re = formatRoute(rmsg.getResults());
-			pe.addContent(re);
+			e.addContent(re);
 		}
 		
 		return pe;
