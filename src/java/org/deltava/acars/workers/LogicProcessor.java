@@ -103,6 +103,7 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoCommand());
+		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEPLOT), new RoutePlotCommand());
 		
 		// Initialize viewer commands
 		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_ACCEPT), new org.deltava.acars.command.viewer.AcceptCommand());
