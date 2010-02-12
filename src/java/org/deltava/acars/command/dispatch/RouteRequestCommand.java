@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 2.0
  */
 
@@ -71,7 +71,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
 				
 				// Go to flightaware if nothing loaded
-				if (eroutes.isEmpty() && usr.isInRole("Route")) {
+				if (eroutes.isEmpty()) {
 					GetFARoutes fadao = new GetFARoutes();
 					fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
 					fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
