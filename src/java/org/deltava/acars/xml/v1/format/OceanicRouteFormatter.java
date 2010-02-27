@@ -1,4 +1,4 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.text.*;
@@ -16,7 +16,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An XML Formatter for Oceanic Route messages.
  * @author Luke
- * @version 2.6
+ * @version 3.0
  * @since 2.2
  */
 
@@ -31,13 +31,17 @@ public class OceanicRouteFormatter extends ElementFormatter {
 		
 		// Cast the message
 		OceanicTrackMessage omsg = (OceanicTrackMessage) msg;
-		Date dt = omsg.getResponse().get(0).getDate();
-		final NumberFormat nf = new DecimalFormat("##0.0000");
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "nat");
+		if (omsg.getResponse().isEmpty())
+			return pe;
+		
+		// Get the date
+		Date dt = omsg.getResponse().get(0).getDate();
 		e.setAttribute("date", StringUtils.format(dt, "MM/dd/yyyy"));
+		final NumberFormat nf = new DecimalFormat("##0.0000");
 		for (Iterator<OceanicTrack> i = omsg.getResponse().iterator(); i.hasNext(); ) {
 			OceanicTrack ow = i.next();
 			boolean isEast = (ow.getDirection() == OceanicTrackInfo.Direction.EAST);
