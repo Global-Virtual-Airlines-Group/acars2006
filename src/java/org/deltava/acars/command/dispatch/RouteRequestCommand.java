@@ -53,6 +53,12 @@ public class RouteRequestCommand extends DispatchCommand {
 		RouteRequestMessage msg = (RouteRequestMessage) env.getMessage();
 		boolean doExternal = msg.getExternalRoutes() && ac.getIsDispatch()
 			&& SystemData.getBoolean("schedule.flightaware.enabled");
+		
+		// Check if it's a US route
+		boolean isUS = msg.getAirportD().getICAO().startsWith("K") || msg.getAirportD().getICAO().startsWith("P");
+		isUS |= msg.getAirportA().getICAO().startsWith("K") || msg.getAirportA().getICAO().startsWith("P");
+		if (doExternal && !isUS)
+			log.warn(msg.getAirportD() + " - " + msg.getAirportA() + " is not a US route");
 
 		try {
 			RouteInfoMessage rmsg = new RouteInfoMessage(usr, msg.getID());
@@ -65,7 +71,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				rmsg.addPlan(rp);
 			
 			// If plans is empty and external routes are available, load them
-			if (plans.isEmpty() && doExternal) {
+			if (plans.isEmpty() && doExternal && isUS) {
 				Collection<FlightRoute> eroutes = new ArrayList<FlightRoute>();
 				GetCachedRoutes rcdao = new GetCachedRoutes(con);
 				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
