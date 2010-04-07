@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store dispatch information.
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 1.1
  */
 
@@ -184,7 +184,7 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	public void addFuel(FuelTank tank, int fuel) {
 		if (fuel > 0)
-			_fuelAmount.put(tank, new Integer(fuel));
+			_fuelAmount.put(tank, Integer.valueOf(fuel));
 	}
 	
 	public void setLeg(int leg) {

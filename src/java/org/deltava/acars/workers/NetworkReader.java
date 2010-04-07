@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 2.7
+ * @version 3.0
  * @since 1.0
  */
 
@@ -120,7 +120,7 @@ public final class NetworkReader extends Worker {
 							if (log.isDebugEnabled())
 								log.debug("QUIT Message from " + con.getUser().getName());
 								
-							conIDs.add(new Long(con.getID()));
+							conIDs.add(Long.valueOf(con.getID()));
 							QuitMessage qmsg = new QuitMessage(con.getUser());
 							qmsg.setFlightID(con.getFlightID());
 							qmsg.setHidden(con.getUserHidden());

@@ -33,7 +33,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 	 */
 	protected static final long MAX_EXEC = 60000;
  	
- 	protected static Logger log = null;
+ 	protected Logger log = null;
  	
  	// Worker tasks
  	protected final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
@@ -41,7 +41,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	
  	protected ACARSConnectionPool _conPool;
  	
- 	protected static void initLog(Class<?> loggerClass) {
+ 	protected void initLog(Class<?> loggerClass) {
  		PropertyConfigurator.configure("etc/log4j.properties");
         log = Logger.getLogger(loggerClass);
  	}

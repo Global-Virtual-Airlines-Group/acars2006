@@ -1,6 +1,7 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import org.deltava.beans.GeoLocation;
@@ -11,11 +12,11 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Comparator for ACARS Connections comparing their position to a common location.
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 2.2
  */
 
-public class MPComparator implements Comparator<ACARSConnection> {
+public class MPComparator implements Comparator<ACARSConnection>, Serializable {
 
 	private GeoPosition _pos;
 

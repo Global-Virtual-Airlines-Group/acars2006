@@ -4,10 +4,6 @@ package org.deltava.acars.xml.v1.parse;
 import java.text.*;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
-import org.jdom.Document;
-
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
@@ -24,14 +20,12 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
 class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 	
-	private static final Logger log = Logger.getLogger(FlightReportParser.class);
-
 	/**
 	 * Convert an XML flight report element into a FlightReportMessage.
 	 * @param e the XML element
@@ -45,100 +39,90 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 
 		// Build the PIREP
 		ACARSFlightReport afr = ACARSHelper.create(getChildText(e, "flightcode", "001"));
+		afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
+		afr.setAttribute(FlightReport.ATTR_ACARS, true);
+		afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
+		afr.setStatus(FlightReport.SUBMITTED);
+		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
+		afr.setDate(new Date());
+		afr.setSubmittedOn(afr.getDate());
+		afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
+		afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
+		afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
+		afr.setRemarks(e.getChildText("remarks"));
+		afr.setFDE(getChildText(e, "fde", null));
+		afr.setAircraftCode(getChildText(e, "code", null));
+			
+		// Check for dispatch data
+		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
+		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
+
+		// Check if it's a checkride
+		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
+
+		// Get the online network
+		String network = getChildText(e, "network", "Offline").toUpperCase();
+		if (OnlineNetwork.VATSIM.toString().equals(network))
+			afr.setAttribute(FlightReport.ATTR_VATSIM, true);
+		else if (OnlineNetwork.IVAO.toString().equals(network))
+			afr.setAttribute(FlightReport.ATTR_IVAO, true);
+
+		// Set the times
 		try {
-			afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
-			afr.setAttribute(FlightReport.ATTR_ACARS, true);
-			afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
-			afr.setStatus(FlightReport.SUBMITTED);
-			afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
-			afr.setDate(new Date());
-			afr.setSubmittedOn(afr.getDate());
-			afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
-			afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
-			afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
-			afr.setRemarks(e.getChildText("remarks"));
-			afr.setFDE(getChildText(e, "fde", null));
-			afr.setAircraftCode(getChildText(e, "code", null));
-			
-			// Check for dispatch data
-			msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
-			msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
-
-			// Check if it's a checkride
-			afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
-
-			// Get the online network
-			String network = getChildText(e, "network", "Offline").toUpperCase();
-			if (OnlineNetwork.VATSIM.toString().equals(network))
-				afr.setAttribute(FlightReport.ATTR_VATSIM, true);
-			else if (OnlineNetwork.IVAO.toString().equals(network))
-				afr.setAttribute(FlightReport.ATTR_IVAO, true);
-
-			// Set the times
-			try {
-				final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-				afr.setStartTime(dtf.parse(e.getChildTextTrim("startTime")));
-				afr.setTaxiTime(dtf.parse(e.getChildTextTrim("taxiOutTime")));
-				afr.setTakeoffTime(dtf.parse(e.getChildTextTrim("takeoffTime")));
-				afr.setLandingTime(dtf.parse(e.getChildTextTrim("landingTime")));
-				afr.setEndTime(dtf.parse(e.getChildTextTrim("gateTime")));
-			} catch (ParseException pex) {
-				throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
-			}
-
-			// Set the weights/speeds
-			afr.setTaxiFuel(StringUtils.parse(getChildText(e, "taxiFuel", "0"), 0));
-			afr.setTaxiWeight(StringUtils.parse(getChildText(e, "taxiWeight", "1"), 0));
-			afr.setTakeoffFuel(StringUtils.parse(getChildText(e, "takeoffFuel", "0"), 0));
-			afr.setTakeoffWeight(StringUtils.parse(getChildText(e, "takeoffWeight", "1"), 0));
-			afr.setTakeoffSpeed(StringUtils.parse(getChildText(e, "takeoffSpeed", "0"), 0));
-			afr.setLandingFuel(StringUtils.parse(getChildText(e, "landingFuel", "0"), 0));
-			afr.setLandingWeight(StringUtils.parse(getChildText(e, "landingWeight", "1"), 0));
-			afr.setLandingSpeed(StringUtils.parse(getChildText(e, "landingSpeed", "0"), 0));
-			afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
-			afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
-			afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
-			afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
-
-			// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
-			afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
-			afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
-			
-			// Get the takeoff data
-			afr.setTakeoffHeading(StringUtils.parse(getChildText(e, "takeoffHeading", "-1"), -1));
-			if (afr.getTakeoffHeading() > -1) {
-				double lat = StringUtils.parse(getChildText(e, "takeoffLat", "0.0"), 0.0d);
-				double lng = StringUtils.parse(getChildText(e, "takeoffLng", "0.0"), 0.0d);
-				GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0));
-				afr.setTakeoffLocation(pos);
-			}
-			
-			// Get the landing data
-			afr.setLandingHeading(StringUtils.parse(getChildText(e, "landingHeading", "-1"), -1));
-			if (afr.getLandingHeading() > -1) {
-				double lat = StringUtils.parse(getChildText(e, "landingLat", "0.0"), 0.0d);
-				double lng = StringUtils.parse(getChildText(e, "landingLng", "0.0"), 0.0d);	
-				GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0));
-				afr.setLandingLocation(pos);
-			}
-
-			// Load the 0X/1X/2X/4X times
-			afr.setTime(0, StringUtils.parse(getChildText(e, "time0X", "0"), 0));
-			afr.setTime(1, StringUtils.parse(getChildText(e, "time1X", "0"), 0));
-			afr.setTime(2, StringUtils.parse(getChildText(e, "time2X", "0"), 0));
-			afr.setTime(4, StringUtils.parse(getChildText(e, "time4X", "0"), 0));
-
-			// Save the PIREP
-			msg.setPIREP(afr);
-		} catch (Exception ex) {
-			if (user != null)
-				log.error("Error submitting PIREP from " + user.getPilotCode());
-			
-			Document doc = new Document();
-			doc.setRootElement((org.jdom.Element) e.clone());
-			log.error(XMLUtils.format(doc, "UTF-8"), ex);
-			throw new XMLException(ex.getMessage());
+			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+			afr.setStartTime(dtf.parse(e.getChildTextTrim("startTime")));
+			afr.setTaxiTime(dtf.parse(e.getChildTextTrim("taxiOutTime")));
+			afr.setTakeoffTime(dtf.parse(e.getChildTextTrim("takeoffTime")));
+			afr.setLandingTime(dtf.parse(e.getChildTextTrim("landingTime")));
+			afr.setEndTime(dtf.parse(e.getChildTextTrim("gateTime")));
+		} catch (ParseException pex) {
+			throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
 		}
+
+		// Set the weights/speeds
+		afr.setTaxiFuel(StringUtils.parse(getChildText(e, "taxiFuel", "0"), 0));
+		afr.setTaxiWeight(StringUtils.parse(getChildText(e, "taxiWeight", "1"), 0));
+		afr.setTakeoffFuel(StringUtils.parse(getChildText(e, "takeoffFuel", "0"), 0));
+		afr.setTakeoffWeight(StringUtils.parse(getChildText(e, "takeoffWeight", "1"), 0));
+		afr.setTakeoffSpeed(StringUtils.parse(getChildText(e, "takeoffSpeed", "0"), 0));
+		afr.setLandingFuel(StringUtils.parse(getChildText(e, "landingFuel", "0"), 0));
+		afr.setLandingWeight(StringUtils.parse(getChildText(e, "landingWeight", "1"), 0));
+		afr.setLandingSpeed(StringUtils.parse(getChildText(e, "landingSpeed", "0"), 0));
+		afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
+		afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
+		afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
+		afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
+
+		// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
+		afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
+		afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
+			
+		// Get the takeoff data
+		afr.setTakeoffHeading(StringUtils.parse(getChildText(e, "takeoffHeading", "-1"), -1));
+		if (afr.getTakeoffHeading() > -1) {
+			double lat = StringUtils.parse(getChildText(e, "takeoffLat", "0.0"), 0.0d);
+			double lng = StringUtils.parse(getChildText(e, "takeoffLng", "0.0"), 0.0d);
+			GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0));
+			afr.setTakeoffLocation(pos);
+		}
+			
+		// Get the landing data
+		afr.setLandingHeading(StringUtils.parse(getChildText(e, "landingHeading", "-1"), -1));
+		if (afr.getLandingHeading() > -1) {
+			double lat = StringUtils.parse(getChildText(e, "landingLat", "0.0"), 0.0d);
+			double lng = StringUtils.parse(getChildText(e, "landingLng", "0.0"), 0.0d);	
+			GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0));
+			afr.setLandingLocation(pos);
+		}
+
+		// Load the 0X/1X/2X/4X times
+		afr.setTime(0, StringUtils.parse(getChildText(e, "time0X", "0"), 0));
+		afr.setTime(1, StringUtils.parse(getChildText(e, "time1X", "0"), 0));
+		afr.setTime(2, StringUtils.parse(getChildText(e, "time2X", "0"), 0));
+		afr.setTime(4, StringUtils.parse(getChildText(e, "time4X", "0"), 0));
+
+		// Save the PIREP
+		msg.setPIREP(afr);
 
 		// Return the message
 		return msg;

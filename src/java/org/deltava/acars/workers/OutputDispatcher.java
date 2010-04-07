@@ -30,7 +30,7 @@ public final class OutputDispatcher extends Worker {
 	private final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
 	private final XMLOutputter _tinyOut = new XMLOutputter(Format.getCompactFormat().setEncoding("UTF-8"));
 
-	private class DatedDocument extends Document {
+	private static final class DatedDocument extends Document {
 
 		private boolean _isCompact;
 		private long _time = Long.MAX_VALUE;
@@ -119,7 +119,7 @@ public final class OutputDispatcher extends Worker {
 						log.debug("Dispatching message to " + env.getOwnerID());
 
 					// Determine the protocol version for each message
-					Long cid = new Long(env.getConnectionID());
+					Long cid = Long.valueOf(env.getConnectionID());
 					ACARSConnection ac = _pool.get(cid);
 
 					// Get the XML document, if none exists create it

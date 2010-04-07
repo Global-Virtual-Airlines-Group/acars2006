@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 2.3
+ * @version 3.0
  * @since 2.0
  */
 
@@ -145,7 +145,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public void addTank(FuelTank tank, int size) {
 		if (size > 0)
-			_tankSizes.put(tank, new Integer(size));
+			_tankSizes.put(tank, Integer.valueOf(size));
 	}
 	
 	/**

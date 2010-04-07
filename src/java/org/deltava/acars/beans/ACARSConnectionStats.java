@@ -1,10 +1,10 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 /**
  * A bean to store statistics about an ACARS connection. 
  * @author Luke
- * @version 2.1
+ * @version 3.0
  * @since 2.1
  */
 
@@ -84,6 +84,6 @@ public class ACARSConnectionStats implements ConnectionStats {
 	}
 
 	public int hashCode() {
-		return new Long(_id).hashCode();
+		return Long.valueOf(_id).hashCode();
 	}
 }

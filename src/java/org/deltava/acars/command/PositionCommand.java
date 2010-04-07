@@ -60,7 +60,7 @@ public class PositionCommand extends ACARSCommand {
 		PositionMessage oldPM = ac.getPosition();
 		if (info == null) {
 			log.warn("No Flight Information for " + ac.getUserID());
-			if (ackMsg != null)
+			if (ackMsg == null)
 				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 			ackMsg.setEntry("sendInfo", "true");

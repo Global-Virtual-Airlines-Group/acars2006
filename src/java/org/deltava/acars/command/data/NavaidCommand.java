@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -11,14 +11,14 @@ import org.deltava.acars.message.data.NavigationDataMessage;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
 
-import org.deltava.dao.GetNavData;
+import org.deltava.dao.*;
 
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 1.0
+ * @version 3.0
  * @since 1.0
  */
 
@@ -79,8 +79,8 @@ public class NavaidCommand extends DataCommand {
 			
 			// Push the response
 			ctx.push(rspMsg, env.getConnectionID());
-		} catch (Exception e) {
-			log.error("Error loading navaid " + msg.getFlag("id") + " - " + e.getMessage(), e);
+		} catch (DAOException de) {
+			log.error("Error loading navaid " + msg.getFlag("id") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
 			ctx.push(errorMsg, env.getConnectionID());
