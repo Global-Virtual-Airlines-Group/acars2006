@@ -391,7 +391,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	}
 	
 	public int hashCode() {
-		return new Long(_id).hashCode();
+		return Long.valueOf(_id).hashCode();
 	}
 	
 	public int compareTo(ACARSConnection c2) {
@@ -515,7 +515,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 					} else {
 						writeCount++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS)
-							new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
+							throw new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
 					}
 				}
 			}

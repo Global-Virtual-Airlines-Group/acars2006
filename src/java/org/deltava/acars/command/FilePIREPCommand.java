@@ -430,10 +430,10 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Log completion
 			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
-		} catch (Exception e) {
+		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error(ac.getUserID() + " - " + e.getMessage(), e);
-			ackMsg.setEntry("error", "PIREP Submission failed - " + e.getMessage());
+			log.error(ac.getUserID() + " - " + de.getMessage(), de);
+			ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
 		} finally {
 			ctx.release();
 			ctx.push(ackMsg, ac.getID(), true);

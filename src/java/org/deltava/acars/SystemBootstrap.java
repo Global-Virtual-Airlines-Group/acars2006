@@ -24,13 +24,13 @@ import org.gvagroup.common.SharedData;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 2.8
+ * @version 3.0
  * @since 1.0
  */
 
 public class SystemBootstrap implements ServletContextListener, Thread.UncaughtExceptionHandler {
 	
-	private static Logger log;
+	private Logger log;
 	
 	private ConnectionPool _jdbcPool;
 	
@@ -43,7 +43,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	public SystemBootstrap() {
 		super();
 		PropertyConfigurator.configure(getClass().getResource("/etc/log4j.properties"));
-		SystemBootstrap.log = Logger.getLogger(SystemBootstrap.class);
+		log = Logger.getLogger(SystemBootstrap.class);
 		log.info("Initialized log4j");
 	}
 	

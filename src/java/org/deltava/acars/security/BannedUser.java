@@ -101,15 +101,25 @@ public class BannedUser implements Comparable<BannedUser> {
 	 * Checks equality by comparing remote Addresses and database ID.
 	 */
 	public boolean equals(Object o) {
-		BannedUser usr2 = (BannedUser) o;
-		return (_remoteAddr.equals(usr2._remoteAddr) && (_usrData.getID() == usr2._usrData.getID()));
+		return (o instanceof BannedUser) && (compareTo((BannedUser) o) == 0);
+	}
+	
+	public String toString() {
+		return _usr.getHexID() + "$" + _remoteAddr;
+	}
+	
+	public int hashCode() {
+		return toString().hashCode();
 	}
 
 	/**
-	 * Compare two banned users by comparing the expiration date.
+	 * Compare two banned users by comparing the user ID and IP address.
 	 */
 	public int compareTo(BannedUser usr2) {
-		int tmpResult = _expiryTime.compareTo(usr2._expiryTime);
-		return (tmpResult == 0) ? _usrData.compareTo(usr2._usrData) : tmpResult; 
+		int tmpResult = _usrData.compareTo(usr2._usrData);
+		if (tmpResult == 0)
+			tmpResult = _remoteAddr.compareTo(usr2._remoteAddr);
+		
+		return tmpResult;
 	}
 }

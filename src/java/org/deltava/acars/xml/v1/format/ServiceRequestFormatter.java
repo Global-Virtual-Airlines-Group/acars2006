@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 2.2
+ * @version 3.0
  * @since 2.0
  */
 
@@ -54,12 +54,11 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		// Add tank capacity data
 		Element tse = new Element("tanks");
 		Map<FuelTank, Integer> tankSizes = reqmsg.getTankSizes();
-		for (Iterator<FuelTank> i = tankSizes.keySet().iterator(); i.hasNext(); ) {
-			FuelTank t = i.next();
-			int size= tankSizes.get(t).intValue();
+		for (Iterator<Map.Entry<FuelTank, Integer>> i = tankSizes.entrySet().iterator(); i.hasNext(); ) {
+			Map.Entry<FuelTank, Integer> fte = i.next();
 			Element te = new Element("tank");
-			te.setAttribute("name", t.getName());
-			te.setAttribute("size", String.valueOf(size));
+			te.setAttribute("name", fte.getKey().getName());
+			te.setAttribute("size", String.valueOf(fte.getValue()));
 			tse.addContent(te);
 		}
 		

@@ -3,6 +3,7 @@ package org.deltava.acars.beans;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.io.IOException;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -330,7 +331,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 							env.setVersion(con.getProtocolVersion());
 							results.add(env);
 						}
-					} catch (Exception e) {
+					} catch (IOException ie) {
 						con.close();
 						remove(con);
 						

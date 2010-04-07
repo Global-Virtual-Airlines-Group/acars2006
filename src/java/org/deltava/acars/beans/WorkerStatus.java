@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.ViewEntry;
@@ -6,7 +6,7 @@ import org.deltava.beans.ViewEntry;
 /**
  * A bean to return ACARS worker thread information.
  * @author Luke
- * @version 2.1
+ * @version 3.0
  * @since 1.0
  */
 
@@ -41,7 +41,7 @@ public class WorkerStatus implements Comparable<WorkerStatus>, ViewEntry {
 		_sortOrder = Math.max(0, sortOrder);
 	}
 
-	public String getMessage() {
+	public synchronized String getMessage() {
 		return _msg;
 	}
 	
@@ -107,6 +107,14 @@ public class WorkerStatus implements Comparable<WorkerStatus>, ViewEntry {
 	public int compareTo(WorkerStatus ws2) {
 		int tmpResult = Integer.valueOf(_sortOrder).compareTo(Integer.valueOf(ws2._sortOrder));
 		return (tmpResult == 0) ? _name.compareTo(ws2._name) : tmpResult; 
+	}
+	
+	public boolean equals(Object o) {
+		return (o instanceof WorkerStatus) && (compareTo((WorkerStatus) o) == 0);
+	}
+	
+	public int hashCode() {
+		return toString().hashCode();
 	}
 	
 	/**

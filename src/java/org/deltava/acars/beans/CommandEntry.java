@@ -1,4 +1,4 @@
-// Copyright 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * A bean to log ACARS command invocations.
  * @author Luke
- * @version 2.6
+ * @version 3.0
  * @since 1.1
  */
 
@@ -69,5 +69,17 @@ public class CommandEntry implements Comparable<CommandEntry> {
 	public int compareTo(CommandEntry e2) {
 		int tmpResult = _execDate.compareTo(e2._execDate);
 		return (tmpResult == 0) ? _name.compareTo(e2._name) : tmpResult;
+	}
+	
+	public boolean equals(Object o) {
+		return (o instanceof CommandEntry) && (compareTo((CommandEntry) o) == 0);
+	}
+	
+	public String toString() {
+		return _name + _execDate;
+	}
+	
+	public int hashCode() {
+		return toString().hashCode();
 	}
 }

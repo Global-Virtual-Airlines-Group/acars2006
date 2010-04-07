@@ -20,7 +20,7 @@ public class NetworkWriter extends Worker {
 
 	private QueueingThreadPool _ioPool;
 
-	private final class ConnectionWriter extends PoolWorker {
+	private static final class ConnectionWriter extends PoolWorker {
 
 		private ACARSConnection _con;
 		private TextEnvelope _env;

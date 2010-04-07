@@ -1,4 +1,4 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 2.6
+ * @version 3.0
  * @since 2.1
  */
 
@@ -68,7 +68,7 @@ public class BandwidthLogger extends Worker {
 				Collection<ConnectionStats> stats = _pool.getStatistics();
 				for (Iterator<ConnectionStats> i = stats.iterator(); i.hasNext(); ) {
 					ConnectionStats ac = i.next();
-					Long ID = new Long(ac.getID());
+					Long ID = Long.valueOf(ac.getID());
 					ConnectionStats lastBW = _lastBW.get(ID);
 					if (lastBW == null)
 						lastBW = new ACARSConnectionStats(ac.getID());

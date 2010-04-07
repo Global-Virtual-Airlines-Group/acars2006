@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server daemon that can run outside of a servlet container.
  * @author Luke
- * @version 1.0
+ * @version 3.0
  * @since 1.0
  */
 
@@ -28,13 +28,11 @@ public class StandaloneDaemon extends ServerDaemon {
 		System.out.println("ACARS " + VersionInfo.APPNAME);
 		System.out.println(VersionInfo.TXT_COPYRIGHT);
 		
-		// Initialize the logger
-		initLog(StandaloneDaemon.class);
-		
 		new StandaloneDaemon().run();
 	}
 
 	public void run() {
+		initLog(StandaloneDaemon.class);
 		SystemData.init();
 		initAuthenticator();
 		initConnectionPool();
@@ -55,9 +53,10 @@ public class StandaloneDaemon extends ServerDaemon {
 
 				// Check all of the threads
 				Map<Thread, Worker> threads = new HashMap<Thread,Worker >(_threads);
-				for (Iterator<Thread> i = threads.keySet().iterator(); i.hasNext();) {
-					Thread t = i.next();
-					Worker w = threads.get(t);
+				for (Iterator<Map.Entry<Thread, Worker>> i = threads.entrySet().iterator(); i.hasNext();) {
+					Map.Entry<Thread, Worker> wte = i.next();
+					Thread t = wte.getKey();
+					Worker w = wte.getValue();
 					List<WorkerStatus> wsl = w.getStatus();
 					WorkerStatus ws = wsl.get(0);
 
