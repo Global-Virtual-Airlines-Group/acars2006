@@ -1,4 +1,4 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.DataResponseMessage;
 /**
  * An ACARS data response message to store aircraft information.
  * @author Luke
- * @version 1.0
+ * @version 3.0
  * @since 1.0
  */
 
@@ -27,7 +27,7 @@ public class AircraftMessage extends DataResponseMessage<Aircraft> {
 	}
 	
 	/**
-	 * Returns wether the entire fuel profile should be sent to the user, or just the aircraft name.
+	 * Returns whether the entire fuel profile should be sent to the user, or just the aircraft name.
 	 * @return TRUE if the profile should be sent, otherwise FALSE
 	 */
 	public boolean getShowProfile() {
@@ -35,7 +35,7 @@ public class AircraftMessage extends DataResponseMessage<Aircraft> {
 	}
 	
 	/**
-	 * Updates wether the entire fuel profile should be sent to the user, or just the aircraft name.
+	 * Updates whether the entire fuel profile should be sent to the user, or just the aircraft name.
 	 * @param show TRUE if the profile should be sent, otherwise FALSE
 	 */
 	public void setShowProfile(boolean show) {
