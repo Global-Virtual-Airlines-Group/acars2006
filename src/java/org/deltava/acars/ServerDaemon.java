@@ -11,13 +11,13 @@ import org.deltava.acars.beans.ACARSConnectionPool;
 
 import org.deltava.acars.workers.*;
 
-import org.deltava.jdbc.*;
 import org.deltava.dao.*;
 
 import org.deltava.security.Authenticator;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
+import org.gvagroup.jdbc.*;
 
 /**
  * A class to support common ACARS Server daemon functions.
@@ -105,7 +105,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
             log.info("Loading Airports");
             GetAirport dao = new GetAirport(c);
             SystemData.add("airports", dao.getAll());
- 		} catch (DAOException de) {
+ 		} catch (Exception de) {
  			log.error("Error loading Airports - " + de.getMessage());
  		} finally {
  			pool.release(c);

@@ -10,13 +10,14 @@ import org.deltava.beans.acars.Bandwidth;
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetBandwidth;
 
-import org.deltava.jdbc.ConnectionPool;
 import org.deltava.util.system.SystemData;
+
+import org.gvagroup.jdbc.ConnectionPool;
 
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 2.1
  */
 

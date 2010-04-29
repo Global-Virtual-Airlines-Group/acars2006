@@ -8,7 +8,7 @@ import java.nio.channels.Selector;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
-import org.deltava.jdbc.ConnectionPool;
+import org.gvagroup.jdbc.ConnectionPool;
 
 import org.deltava.dao.SetACARSLog;
 
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
