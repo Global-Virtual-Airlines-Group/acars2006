@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -10,16 +10,16 @@ import org.deltava.beans.*;
 import org.deltava.acars.beans.*;
 
 import org.deltava.dao.*;
-import org.deltava.jdbc.*;
 
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
+import org.gvagroup.jdbc.*;
 
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 2.7
+ * @version 3.1
  * @since 1.0
  */
 
@@ -115,7 +115,7 @@ public class IPCDaemon implements Runnable {
 								log.warn("Unknown System Event ID - " + event.getCode());
 						}
 					}
-				} catch (DAOException de) {
+				} catch (Exception de) {
 					log.error(de.getMessage(), de);
 				} finally {
 					cPool.release(con);

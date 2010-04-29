@@ -9,7 +9,6 @@ import javax.servlet.*;
 import org.apache.log4j.*;
 
 import org.deltava.dao.*;
-import org.deltava.jdbc.*;
 import org.deltava.mail.MailerDaemon;
 
 import org.deltava.acars.ipc.IPCDaemon;
@@ -20,6 +19,7 @@ import org.deltava.util.system.SystemData;
 
 import org.gvagroup.acars.ACARSClientInfo;
 import org.gvagroup.common.SharedData;
+import org.gvagroup.jdbc.*;
 
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
@@ -63,7 +63,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 				c = _jdbcPool.getConnection();
 				SetTS2Data ts2wdao = new SetTS2Data(c);
 				ts2wdao.clearActiveFlags();
-			} catch (DAOException de) {
+			} catch (Exception de) {
 				log.error(de.getMessage(), de);
 			} finally {
 				_jdbcPool.release(c);
