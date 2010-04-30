@@ -62,7 +62,7 @@ public class NetworkWriter extends Worker {
 		_ioPool = new QueueingThreadPool(minThreads, maxThreads, 1500, NetworkWriter.class);
 		_ioPool.allowCoreThreadTimeOut(false);
 		_ioPool.prestartCoreThread();
-		_ioPool.setSortBase(60);
+		_ioPool.setSortBase(70);
 	}
 
 	/**
