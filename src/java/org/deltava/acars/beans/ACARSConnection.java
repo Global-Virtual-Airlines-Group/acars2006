@@ -308,10 +308,6 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return (_userInfo != null);
 	}
 
-	public boolean isConnected() {
-		return _channel.isConnected();
-	}
-
 	public void setFlightInfo(InfoMessage msg) {
 		_fInfo = msg;
 	}
@@ -472,6 +468,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 		return msgOut.toString();
 	}
 
+	/**
+	 * Queues a message to be written.
+	 * @param msg the message text
+	 */
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
 		if (_wLock.tryLock()) {
