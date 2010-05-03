@@ -8,12 +8,14 @@ import java.nio.channels.Selector;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
-import org.gvagroup.jdbc.ConnectionPool;
 
 import org.deltava.dao.SetACARSLog;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
+
+import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.jdbc.ConnectionPool;
 
 /**
  * An ACARS Server task to handle reading from network connections.
@@ -22,7 +24,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public final class NetworkReader extends Worker {
+public class NetworkReader extends Worker {
 	
 	private Selector _cSelector;
 

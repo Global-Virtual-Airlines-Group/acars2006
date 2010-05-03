@@ -16,10 +16,12 @@ import org.deltava.beans.Pilot;
 
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 

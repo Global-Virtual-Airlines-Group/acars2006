@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
  * continue to take work units even if the dynamic thread pool reaches its maximum size. 

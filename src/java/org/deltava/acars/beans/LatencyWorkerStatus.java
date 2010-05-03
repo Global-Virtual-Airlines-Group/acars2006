@@ -1,6 +1,8 @@
 // Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * A Worker status bean with a latency monitor.
  * @author Luke

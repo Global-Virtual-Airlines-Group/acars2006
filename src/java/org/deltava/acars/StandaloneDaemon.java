@@ -7,16 +7,17 @@ import org.apache.log4j.LogManager;
 
 import org.deltava.beans.system.VersionInfo;
 
-import org.deltava.acars.beans.WorkerStatus;
 import org.deltava.acars.workers.*;
 
 import org.deltava.util.ThreadUtils;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS Server daemon that can run outside of a servlet container.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
