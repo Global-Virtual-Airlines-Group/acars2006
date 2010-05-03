@@ -7,11 +7,11 @@
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
+		    	<fileset dir="lib">
+					<include name="**/*.jar"/>
+				</fileset>
 				<pathelement location="../DVA2006/lib/servlet-api-2.5.jar" />
-	    		<pathelement location="lib/jdom-1.1.1.jar" />
-	    		<pathelement location="../DVA2006/lib/deploy/edtftpj-2.0.1.jar" />
-	    		<pathelement location="lib/deploy/log4j-1.2.16.jar" />
-	    		<pathelement location="lib/deploy/golgotha_ipc-1.26.jar" />
+	    		<!-- <pathelement location="../DVA2006/lib/deploy/edtftpj-2.0.1.jar" /> -->
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>

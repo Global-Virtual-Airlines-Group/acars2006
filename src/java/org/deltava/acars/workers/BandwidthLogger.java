@@ -13,6 +13,7 @@ import org.deltava.dao.acars.SetBandwidth;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.jdbc.ConnectionPool;
+import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * An ACARS Worker to log bandwidth statistics. 

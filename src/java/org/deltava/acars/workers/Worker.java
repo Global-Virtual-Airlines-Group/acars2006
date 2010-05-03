@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke

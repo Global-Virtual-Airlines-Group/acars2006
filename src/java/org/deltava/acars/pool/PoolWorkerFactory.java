@@ -4,7 +4,7 @@ package org.deltava.acars.pool;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.deltava.acars.beans.WorkerStatus;
+import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * A factory to generate thread pool worker threads. This thread factory resuses thread IDs

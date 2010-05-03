@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -14,10 +14,12 @@ import org.deltava.beans.system.VersionInfo;
 import org.deltava.util.IDGenerator;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 2.7
+ * @version 3.1
  * @since 2.1
  */
 

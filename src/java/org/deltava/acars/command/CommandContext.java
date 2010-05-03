@@ -11,6 +11,7 @@ import org.deltava.acars.message.Message;
 import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.jdbc.*;
+import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * The ACARS command context object.

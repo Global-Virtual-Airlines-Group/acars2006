@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -10,10 +10,12 @@ import org.deltava.acars.xml.MessageParser;
 
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 2.6
+ * @version 3.1
  * @since 1.0
  */
 

@@ -7,10 +7,12 @@ import java.util.concurrent.TimeUnit;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.mp.*;
 
+import org.gvagroup.ipc.WorkerStatus;
+
 /**
  * An ACARS worker thread to aggregate multi-player update messages.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 3.0
  */
 
