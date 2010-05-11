@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 2.7
+ * @version 3.1
  * @since 1.0
  */
 
@@ -70,12 +70,19 @@ public class SetInfo extends DAO {
 			if (isNew)
 				msg.setFlightID(getNewID());
 			
+			// Write dispatcher ID
+			if (isNew && (msg.getDispatcherID() != 0)) {
+				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCHER (ID, DISPATCHER_ID) VALUES (?, ?)");
+				_ps.setInt(1, msg.getFlightID());
+				_ps.setInt(2, msg.getDispatcherID());
+				executeUpdate(0);
+			}
+			
 			// Save route usage if using auto-Dispatch
 			if (isNew && (msg.getRouteID() != 0)) {
-				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID, DISPATCHER_ID) VALUES (?, ?, ?)");
+				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID) VALUES (?, ?)");
 				_ps.setInt(1, msg.getFlightID());
 				_ps.setInt(2, msg.getRouteID());
-				_ps.setInt(3, msg.getDispatcherID());
 				executeUpdate(0);
 				
 				// Save route usage
