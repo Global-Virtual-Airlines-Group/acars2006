@@ -144,7 +144,7 @@
 		</map>
 
 		<port type="Integer">15527</port>
-		<sleep type="Integer">45000</sleep>
+		<sleep type="Integer">35000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
 		<position_interval type="Integer">30</position_interval>
