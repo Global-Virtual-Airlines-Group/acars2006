@@ -25,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -93,9 +93,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSMapEntry re = RouteEntryHelper.build(i.next());
-			if (re != null)
-				results.add(re);
+			ACARSConnection ac = i.next();
+			if (!ac.getIsDispatch() || !ac.getUserHidden()) {
+				ACARSMapEntry re = RouteEntryHelper.build(ac);
+				if (re != null)
+					results.add(re);
+			}
 		}
 		
 		return IPCUtils.serialize(results);
