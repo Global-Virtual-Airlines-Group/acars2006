@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -504,7 +504,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(225) > 0) {
+					if (_wSelector.select(250) > 0) {
 						_bytesOut += _channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
@@ -515,7 +515,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 					} else {
 						writeCount++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS)
-							throw new IOException("Write timeout for " + getUserID() + " - " + _channel.socket());
+							throw new IOException("Write timeout for " + getUserID() + " at " + _remoteAddr);
 					}
 				}
 			}
