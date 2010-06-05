@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -48,22 +48,23 @@ public class NavaidCommand extends DataCommand {
 
 			// Get the DAO and find the Navaid in the DAFIF database
 			GetNavData dao = new GetNavData(con);
-			NavigationDataBean nav = null;
 			if (isRunway) {
 				Airport ap = SystemData.getAirport(msg.getFlag("id").toUpperCase());
 
 				// Add a leading zero to the runway if required
 				if (ap != null) {
 					String runway = msg.getFlag("runway");
-					if (Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2)) {
+					if (Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2))
 						runway = "0" + runway;
-					} else if (runway.length() == 1) {
+					else if (runway.length() == 1)
 						runway = "0" + runway;
-					}
 
-					nav = dao.getRunway(ap.getICAO(), runway);
+					Runway nav = dao.getRunway(ap.getICAO(), runway);
 					if (nav != null) {
 						log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
+						
+						// Adjust for magnetic variation
+						nav.setHeading(nav.getHeading() + (int)ap.getMagVar());
 						rspMsg.add(nav);
 					}
 				}
@@ -71,7 +72,7 @@ public class NavaidCommand extends DataCommand {
 				NavigationDataMap ndMap = dao.get(msg.getFlag("id"));
 				if (!ndMap.isEmpty()) {
 					ACARSConnection ac = ctx.getACARSConnection();
-					nav = ndMap.get(msg.getFlag("id"), ac.getPosition());
+					NavigationDataBean nav = ndMap.get(msg.getFlag("id"), ac.getPosition());
 					log.info("Loaded Navigation data for " + nav.getCode());
 					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
 				}
