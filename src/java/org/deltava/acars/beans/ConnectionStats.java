@@ -1,10 +1,10 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 /**
  * An interface to describe object that can return ACARS connection statistics..
  * @author Luke
- * @version 2.1
+ * @version 3.1
  * @since 2.1
  */
 
@@ -39,4 +39,10 @@ public interface ConnectionStats extends java.io.Serializable {
 	 * @return the number of bytes
 	 */
 	public long getBytesOut();
+
+	/**
+	 * Returns the number of write errors on this connection.
+	 * @return the number of timed out writes
+	 */
+	public int getWriteErrors();
 }

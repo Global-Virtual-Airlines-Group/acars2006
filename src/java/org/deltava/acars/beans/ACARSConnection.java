@@ -95,6 +95,7 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	private int _msgsOut;
 	private int _bufferReads;
 	private int _bufferWrites;
+	private int _writeErrors;
 	
 	// MP field
 	private final int _maxDistance = SystemData.getInt("mp.max_range", 40);
@@ -238,6 +239,10 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 	
 	public int getBufferWrites() {
 		return _bufferWrites;
+	}
+	
+	public int getWriteErrors() {
+		return _writeErrors;
 	}
 
 	public int getProtocolVersion() {
@@ -513,9 +518,11 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 						close();
 						return;
 					} else {
-						writeCount++;
-						if (writeCount >= MAX_WRITE_ATTEMPTS)
+						_bufferWrites++;
+						if (writeCount >= MAX_WRITE_ATTEMPTS) {
+							_writeErrors++;
 							throw new IOException("Write timeout for " + getUserID() + " at " + _remoteAddr);
+						}
 					}
 				}
 			}
@@ -533,6 +540,5 @@ public class ACARSConnection implements Serializable, Comparable<ACARSConnection
 
 		// Update statistics
 		_lastActivityTime = System.currentTimeMillis();
-		_bufferWrites += writeCount;
 	}
 }

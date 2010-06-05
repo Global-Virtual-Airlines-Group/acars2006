@@ -4,18 +4,21 @@ package org.deltava.acars.beans;
 /**
  * A bean to store statistics about an ACARS connection. 
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 2.1
  */
 
 public class ACARSConnectionStats implements ConnectionStats {
 
 	private long _id;
+	
 	private int _msgsIn;
 	private int _msgsOut;
 	
 	private long _bytesIn;
 	private long _bytesOut;
+	
+	private int _writeErrors;
 	
 	/**
 	 * Initializes the bean.
@@ -37,6 +40,7 @@ public class ACARSConnectionStats implements ConnectionStats {
 		_msgsOut = con.getMsgsOut();
 		_bytesIn = con.getBytesIn();
 		_bytesOut = con.getBytesOut();
+		_writeErrors = con.getWriteErrors();
 	}
 	
 	/**
@@ -61,6 +65,10 @@ public class ACARSConnectionStats implements ConnectionStats {
 
 	public int getMsgsOut() {
 		return _msgsOut;
+	}
+	
+	public int getWriteErrors() {
+		return _writeErrors;
 	}
 	
 	/**

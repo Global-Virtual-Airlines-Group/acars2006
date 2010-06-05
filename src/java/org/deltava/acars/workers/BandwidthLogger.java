@@ -62,7 +62,7 @@ public class BandwidthLogger extends Worker {
 				_status.setMessage("Updating statistics");
 				
 				// Init the counters
-				int msgsIn = 0; int msgsOut = 0;
+				int msgsIn = 0; int msgsOut = 0; int errors = 0;
 				long bytesIn = 0; long bytesOut = 0;
 				
 				// Get the connection statistics
@@ -80,6 +80,7 @@ public class BandwidthLogger extends Worker {
 					msgsOut += (ac.getMsgsOut() - lastBW.getMsgsOut());
 					bytesIn += (ac.getBytesIn() - lastBW.getBytesIn());
 					bytesOut += (ac.getBytesOut() - lastBW.getBytesOut());
+					errors += (ac.getWriteErrors() - lastBW.getWriteErrors());
 					_lastBW.put(ID, new ACARSConnectionStats(ac));
 					IDs.remove(ID);
 				}
@@ -90,6 +91,7 @@ public class BandwidthLogger extends Worker {
 				// Init the bean to store period statistics
 				Bandwidth bw = new Bandwidth(new Date());
 				bw.setConnections(stats.size());
+				bw.setErrors(errors);
 				bw.setMessages(msgsIn, msgsOut);
 				bw.setBytes(bytesIn, bytesOut);
 				
