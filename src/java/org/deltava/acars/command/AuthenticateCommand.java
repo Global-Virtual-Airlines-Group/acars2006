@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -125,8 +125,21 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Check if we're already logged in
 			ACARSConnection ac2 = ctx.getACARSConnection(usr.getPilotCode());
 			if (ac2 != null) {
-				log.warn(usr.getPilotCode() + " already logged in");
-				throw new SecurityException();
+				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
+				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
+				boolean dspSame = (msg.isDispatch() == ac2.getIsDispatch());
+				if (ac2.getRemoteAddr().equals(remoteAddr) || dspSame) {
+					ac2.close();
+					ctx.getACARSConnectionPool().remove(ac2);
+					log.warn(code + " already logged in from " + remoteAddr + ", closing existing connection");
+					
+					// Mark the connection closed
+					SetACARSLog dao = new SetACARSLog(c);
+					dao.closeConnections(Collections.singleton(Long.valueOf(ac2.getID())));
+				} else {
+					log.warn(code + " already logged in from " + ac2.getRemoteAddr());
+					throw new SecurityException(usr.getPilotCode() + " already logged in");
+				}
 			}
 
 			// Validate the password
@@ -145,6 +158,8 @@ public class AuthenticateCommand extends ACARSCommand {
 				errMsg.setEntry("error", "ACARS Server access disabled");
 			else if (msg.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
+			else if (!StringUtils.isEmpty(se.getMessage()))
+				errMsg.setEntry("error", "Authentication Failed - " + se.getMessage());
 			else
 				errMsg.setEntry("error", "Authentication Failed");
 
