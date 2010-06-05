@@ -150,6 +150,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 				entry.setBytes(ac.getBytesIn(), ac.getBytesOut());
 				entry.setBufferReads(ac.getBufferReads());
 				entry.setBufferWrites(ac.getBufferWrites());
+				entry.setWriteErrors(ac.getWriteErrors());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
 				entry.setUserHidden(ac.getUserHidden());

@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write ACARS bandwidth statistics.
  * @author Luke
- * @version 2.1
+ * @version 3.1
  * @since 2.1
  */
 
@@ -31,10 +31,10 @@ public class SetBandwidth extends DAO {
 	 */
 	public void write(Bandwidth bw) throws DAOException {
 		try {
-			prepareStatement("INSERT INTO acars.BANDWIDTH (PERIOD, DURATION, CONS, BYTES_IN, "
-					+ "BYTES_OUT, MSGS_IN, MSGS_OUT) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE "
+			prepareStatement("INSERT INTO acars.BANDWIDTH (PERIOD, DURATION, CONS, BYTES_IN, BYTES_OUT, "
+					+ "MSGS_IN, MSGS_OUT, ERRORS) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE "
 					+ "CONS=GREATEST(CONS,?), BYTES_IN=BYTES_IN+?, BYTES_OUT=BYTES_OUT+?, "
-					+ "MSGS_IN=MSGS_IN+?, MSGS_OUT=MSGS_OUT+?");
+					+ "MSGS_IN=MSGS_IN+?, MSGS_OUT=MSGS_OUT+?, ERRORS=ERRORS+?");
 			_ps.setTimestamp(1, createTimestamp(bw.getDate()));
 			_ps.setInt(2, bw.getInterval());
 			_ps.setInt(3, bw.getConnections());
@@ -42,11 +42,13 @@ public class SetBandwidth extends DAO {
 			_ps.setLong(5, bw.getBytesOut());
 			_ps.setInt(6, bw.getMsgsIn());
 			_ps.setInt(7, bw.getMsgsOut());
-			_ps.setInt(8, bw.getConnections());
-			_ps.setLong(9, bw.getBytesIn());
-			_ps.setLong(10, bw.getBytesOut());
-			_ps.setInt(11, bw.getMsgsIn());
-			_ps.setInt(12, bw.getMsgsOut());
+			_ps.setInt(8, bw.getErrors());
+			_ps.setInt(9, bw.getConnections());
+			_ps.setLong(10, bw.getBytesIn());
+			_ps.setLong(11, bw.getBytesOut());
+			_ps.setInt(12, bw.getMsgsIn());
+			_ps.setInt(13, bw.getMsgsOut());
+			_ps.setInt(14, bw.getErrors());
 			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
@@ -65,11 +67,11 @@ public class SetBandwidth extends DAO {
 			
 			// Aggregate the data
 			prepareStatement("REPLACE INTO acars.BANDWIDTH (PERIOD, DURATION, CONS, BYTES_IN, "
-					+ "BYTES_OUT, MSGS_IN, MSGS_OUT, PEAK_CONS, PEAK_BYTES, PEAK_MSGS) SELECT "
-					+ "DATE_SUB(PERIOD, INTERVAL MINUTE(PERIOD) MINUTE) AS HR, ?, AVG(CONS), "
+					+ "BYTES_OUT, MSGS_IN, MSGS_OUT, PEAK_CONS, PEAK_BYTES, PEAK_MSGS, ERRORS) "
+					+ "SELECT DATE_SUB(PERIOD, INTERVAL MINUTE(PERIOD) MINUTE) AS HR, ?, AVG(CONS), "
 					+ "SUM(BYTES_IN), SUM(BYTES_OUT), SUM(MSGS_IN), SUM(MSGS_OUT), MAX(CONS), "
-					+ "MAX(BYTES_IN+BYTES_OUT), MAX(MSGS_IN+MSGS_OUT) FROM acars.BANDWIDTH "
-					+ "WHERE (DURATION=?) AND (PERIOD >= ?) AND "
+					+ "MAX(BYTES_IN+BYTES_OUT), MAX(MSGS_IN+MSGS_OUT), SUM(ERRORS) FROM "
+					+ "acars.BANDWIDTH WHERE (DURATION=?) AND (PERIOD >= ?) AND "
 					+ "(PERIOD < DATE_ADD(?, INTERVAL ? MINUTE)) GROUP BY HR");
 			_ps.setInt(1, interval);
 			_ps.setInt(2, 1);
