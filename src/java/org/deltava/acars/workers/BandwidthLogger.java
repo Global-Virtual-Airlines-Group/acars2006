@@ -31,7 +31,7 @@ public class BandwidthLogger extends Worker {
 	 * Initializes the Worker.
 	 */
 	public BandwidthLogger() {
-		super("Bandwidth Logger", 80, BandwidthLogger.class);
+		super("Bandwidth Logger", 90, BandwidthLogger.class);
 	}
 	
 	/**
