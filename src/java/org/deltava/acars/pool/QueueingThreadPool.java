@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
  * continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 2.6
+ * @version 3.1
  * @since 2.0
  */
 
@@ -44,7 +44,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 				boolean queueBackup = (size > 40);
 				if (!_queueBackup && queueBackup) {
 					_queueBackup = true;
-					log.error("Queue appears backed up, size =" + size);
+					log.error("Queue appears backed up, size = " + size);
 					for (Iterator<Map.Entry<Integer, LatencyWorkerStatus>> i = _status.entrySet().iterator(); i.hasNext(); ) {
 						Map.Entry<Integer, ? extends WorkerStatus> e = i.next();
 						log.error("Worker " + e.getKey() + " = " + e.getValue().getMessage());
@@ -67,7 +67,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 * @param logClass the Logging class name
 	 */
 	public QueueingThreadPool(int coreSize, int maxSize, long keepAliveTime, Class<?> logClass) {
-		super(coreSize, Math.max(coreSize, maxSize), keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(5));
+		super(coreSize, Math.max(coreSize, maxSize), keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(4, true));
 		log = Logger.getLogger(logClass);
 		_tFactory = new PoolWorkerFactory(logClass.getSimpleName());
 		setThreadFactory(_tFactory);
