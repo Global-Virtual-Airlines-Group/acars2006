@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <config env="prod" default="true">
 
 	<!-- Airline Information -->
@@ -160,7 +160,7 @@
 			</map>
 
 			<latest type="Integer">97</latest>
-			<dispatch type="Integer">21</dispatch>
+			<dispatch type="Integer">23</dispatch>
 			<viewer type="Integer">1</viewer>
 			<list name="noDispatch" attr="build" unique="true">
 				<build>96</build>
@@ -174,11 +174,11 @@
 			<threads>
 				<logic>
 					<min type="Integer">1</min>
-					<max type="Integer">4</max>
+					<max type="Integer">5</max>
 				</logic>
 				<write>
 					<min type="Integer">1</min>
-					<max type="Integer">10</max>
+					<max type="Integer">16</max>
 				</write>
 			</threads>
 		</pool>
