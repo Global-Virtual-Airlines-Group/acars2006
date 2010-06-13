@@ -25,8 +25,34 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	private int _sortOrderBase;
 	
 	protected final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
-	protected final BlockingQueue<PoolWorker> _queuedEntries = new LinkedBlockingQueue<PoolWorker>();
+	protected final BlockingQueue<PoolQueueEntry> _queuedEntries = new PriorityBlockingQueue<PoolQueueEntry>(32);
 
+	/**
+	 * A class to store pooled worker operations in FIFO order.
+	 */
+	class PoolQueueEntry implements Comparable<PoolQueueEntry> {
+		
+		private PoolWorker _worker;
+		private final Date _queuedOn = new Date();
+		
+		PoolQueueEntry(PoolWorker worker) {
+			super();
+			_worker = worker;
+		}
+		
+		public PoolWorker getWorker() {
+			return _worker;
+		}
+		
+		public Date getQueuedOn() {
+			return _queuedOn;
+		}
+		
+		public int compareTo(PoolQueueEntry pqe2) {
+			return _queuedOn.compareTo(pqe2._queuedOn);
+		}
+	}
+	
 	/**
 	 * This queues rejected tasks for later execution.
 	 */
@@ -37,11 +63,17 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
 			if ((r instanceof PoolWorker) && (!pool.isTerminating())) {
 				long now = System.currentTimeMillis();
-				_queuedEntries.add((PoolWorker) r);
+				_queuedEntries.add(new PoolQueueEntry((PoolWorker) r));
 
 				// Check if we log
 				int size = _queuedEntries.size();
 				boolean queueBackup = (size > 40);
+				if (queueBackup) {
+					PoolQueueEntry qe = _queuedEntries.peek();
+					long wait = now - qe.getQueuedOn().getTime();
+					queueBackup &= (wait > 1500);
+				}
+				
 				if (!_queueBackup && queueBackup) {
 					_queueBackup = true;
 					log.error("Queue appears backed up, size = " + size);
@@ -142,10 +174,10 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		
 		// See if there are additional tasks queued up
 		BlockingQueue<Runnable> workQueue = getQueue();
-		while (!_queuedEntries.isEmpty() && (workQueue.size() < 4)) {
-			PoolWorker pw = _queuedEntries.poll();
+		while (!_queuedEntries.isEmpty() && (workQueue.remainingCapacity() > 0)) {
+			PoolQueueEntry pw = _queuedEntries.poll();
 			if (pw != null)
-				execute(pw);
+				execute(pw.getWorker());
 		}
 	}
 	
