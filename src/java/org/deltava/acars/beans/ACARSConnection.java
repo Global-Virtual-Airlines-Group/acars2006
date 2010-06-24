@@ -29,7 +29,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Serializable, Comparable<ACARSConnection>, ViewEntry, ConnectionStats {
+public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, ConnectionStats {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
