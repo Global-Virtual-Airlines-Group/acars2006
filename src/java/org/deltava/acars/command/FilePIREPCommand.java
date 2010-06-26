@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 2.8
+ * @version 3.1
  * @since 1.0
  */
 
@@ -139,7 +139,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Create comments field
-			Collection<String> comments = new ArrayList<String>();
+			Collection<String> comments = new LinkedHashSet<String>();
 
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
 			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
