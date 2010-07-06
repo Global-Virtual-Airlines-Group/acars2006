@@ -20,7 +20,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -41,7 +41,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		ACARSFlightReport afr = ACARSHelper.create(getChildText(e, "flightcode", "001"));
 		afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
-		afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
+		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 		afr.setStatus(FlightReport.SUBMITTED);
 		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
 		afr.setDate(new Date());

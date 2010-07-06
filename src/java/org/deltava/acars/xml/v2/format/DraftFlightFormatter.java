@@ -45,7 +45,7 @@ class DraftFlightFormatter extends XMLElementFormatter {
 			fe.setAttribute("airline", fr.getAirline().getCode());
 			fe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
 			fe.setAttribute("leg", String.valueOf(fr.getLeg()));
-			fe.setAttribute("assign", String.valueOf(fr.getDatabaseID(FlightReport.DBID_ASSIGN) != 0));
+			fe.setAttribute("assign", String.valueOf(fr.getDatabaseID(DatabaseID.ASSIGN) != 0));
 			fe.addContent(XMLUtils.createElement("eqType", fr.getEquipmentType()));
 			fe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
