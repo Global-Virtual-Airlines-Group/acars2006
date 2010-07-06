@@ -24,7 +24,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 3.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -143,7 +143,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			// Load time zones
 			log.info("Loading Time Zones");
 			GetTimeZone dao = new GetTimeZone(c);
-			dao.initAll();
+			log.info("Loaded " + dao.initAll() + " Time Zones");
+			
+			// Load country codes
+			log.info("Loading Country codes");
+			GetCountry cdao = new GetCountry(c);
+			log.info("Loaded " + cdao.initAll() + " Country codes");
 
 			// Load Database information
 			log.info("Loading Cross-Application data");
