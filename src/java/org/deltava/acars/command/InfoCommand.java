@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.FlightInfo;
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.testing.*;
 
@@ -102,7 +102,7 @@ public class InfoCommand extends ACARSCommand {
 					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
 					for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !msg.isScheduleValidated(); ) {
 						FlightReport fr = i.next();
-						boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(FlightReport.DBID_ASSIGN) > 0);
+						boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
 						isOK &= msg.getAirportD().equals(fr.getAirportD());
 						isOK &= msg.getAirportA().equals(fr.getAirportA());
 						msg.setScheduleValidated(isOK);

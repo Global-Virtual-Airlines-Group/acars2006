@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.wx.METAR;
@@ -28,7 +28,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 2.7
+ * @version 3.1
  * @since 2.0
  */
 
@@ -80,7 +80,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				Collection<FlightReport> pireps = prdao.getDraftReports(ud.getID(), msg.getAirportD(), msg.getAirportA(), ud.getDB());
 				for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !routeValid; ) {
 					FlightReport fr = i.next();
-					boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(FlightReport.DBID_ASSIGN) > 0);
+					boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
 					isOK &= msg.getAirportD().equals(fr.getAirportD());
 					isOK &= msg.getAirportA().equals(fr.getAirportA());
 					if (routeValid) {

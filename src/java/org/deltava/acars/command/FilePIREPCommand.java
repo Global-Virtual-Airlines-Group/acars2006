@@ -116,7 +116,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 				
 				// Use the original flight ID
-				afr.setDatabaseID(FlightReport.DBID_ACARS, dupeID);
+				afr.setDatabaseID(DatabaseID.ACARS, dupeID);
 			} else {
 				List<FlightReport> dupes = prdao.checkDupes(usrLoc.getDB(), afr, usrLoc.getID());
 				dupes.addAll(prdao.checkDupes(usrLoc.getDB(), flightID));
@@ -147,8 +147,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (!dFlights.isEmpty()) {
 				FlightReport fr = dFlights.get(0);
 				afr.setID(fr.getID());
-				afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
-				afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
+				afr.setDatabaseID(DatabaseID.ASSIGN, fr.getDatabaseID(DatabaseID.ASSIGN));
+				afr.setDatabaseID(DatabaseID.EVENT, fr.getDatabaseID(DatabaseID.EVENT));
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
 				if (!StringUtils.isEmpty(fr.getComments()))
 					comments.add(fr.getComments());
@@ -156,9 +156,9 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check if it's an Online Event flight
 			OnlineNetwork network = afr.getNetwork();
-			if ((afr.getDatabaseID(FlightReport.DBID_EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
+			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
 				GetEvent evdao = new GetEvent(con);
-				afr.setDatabaseID(FlightReport.DBID_EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
+				afr.setDatabaseID(DatabaseID.EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
 			}
 
 			// Reload the User
@@ -167,7 +167,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			Pilot p = pdao.get(usrLoc);
 
 			// Add user data
-			afr.setDatabaseID(FlightReport.DBID_PILOT, p.getID());
+			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
 			afr.setRank(p.getRank());
 
 			// Convert the date into the user's local time zone
@@ -214,11 +214,12 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check for historic aircraft
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(afr.getEquipmentType());
-			afr.setAttribute(FlightReport.ATTR_HISTORIC, (a != null) && (a.getHistoric()));
 			if (a == null) {
 				log.warn("Invalid equipment type from " + p.getName() + " - " + afr.getEquipmentType());
 				afr.setEquipmentType(p.getEquipmentType());
 			} else {
+				afr.setAttribute(FlightReport.ATTR_HISTORIC, a.getHistoric());
+				
 				// Check for excessive distance
 				if (afr.getDistance() > a.getRange())
 					afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
@@ -243,7 +244,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
-			boolean isAssignment = (afr.getDatabaseID(FlightReport.DBID_ASSIGN) != 0);
+			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
 			int avgHours = sdao.getFlightTime(afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
 			if ((avgHours == 0) && (!isAcademy && !isAssignment)) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
@@ -325,8 +326,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			afr.setFSVersion(info.getFSVersion());
-			if (afr.getDatabaseID(FlightReport.DBID_ACARS) == 0)
-				afr.setDatabaseID(FlightReport.DBID_ACARS, flightID);
+			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
+				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 
 			// Start the transaction
 			ctx.startTX();

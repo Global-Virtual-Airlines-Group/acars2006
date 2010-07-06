@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -9,13 +9,13 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.DraftPIREPMessage;
 
 import org.deltava.beans.*;
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.beans.flight.*;
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 2.7
+ * @version 3.1
  * @since 1.0
  */
 
@@ -43,7 +43,7 @@ class DraftFlightFormatter extends ElementFormatter {
 			fe.setAttribute("airline", fr.getAirline().getCode());
 			fe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
 			fe.setAttribute("leg", String.valueOf(fr.getLeg()));
-			fe.setAttribute("assign", String.valueOf(fr.getDatabaseID(FlightReport.DBID_ASSIGN) != 0));
+			fe.setAttribute("assign", String.valueOf(fr.getDatabaseID(DatabaseID.ASSIGN) != 0));
 			fe.addContent(XMLUtils.createElement("eqType", fr.getEquipmentType()));
 			fe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));

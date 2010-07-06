@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 3.0
+ * @version 3.1
  * @since 1.0
  */
 
@@ -47,9 +47,9 @@ public class ACARSHelper {
 		afr.setAirportD(fr.getAirportD());
 		afr.setAirportA(fr.getAirportA());
 		afr.setAttributes(fr.getAttributes());
-		afr.setDatabaseID(FlightReport.DBID_PILOT, fr.getDatabaseID(FlightReport.DBID_PILOT));
-		afr.setDatabaseID(FlightReport.DBID_ASSIGN, fr.getDatabaseID(FlightReport.DBID_ASSIGN));
-		afr.setDatabaseID(FlightReport.DBID_EVENT, fr.getDatabaseID(FlightReport.DBID_EVENT));
+		afr.setDatabaseID(DatabaseID.PILOT, fr.getDatabaseID(DatabaseID.PILOT));
+		afr.setDatabaseID(DatabaseID.ASSIGN, fr.getDatabaseID(DatabaseID.ASSIGN));
+		afr.setDatabaseID(DatabaseID.EVENT, fr.getDatabaseID(DatabaseID.EVENT));
 
 		// Return the bean
 		return afr;
@@ -117,7 +117,7 @@ public class ACARSHelper {
 
 		// Build the PIREP
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
-		afr.setDatabaseID(FlightReport.DBID_ACARS, StringUtils.parse(p.getProperty("flight_id"), 0));
+		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(p.getProperty("flight_id"), 0));
 		afr.setStatus(FlightReport.SUBMITTED);
 		afr.setEquipmentType(p.getProperty("equipment"));
 		afr.setDate(new Date());
