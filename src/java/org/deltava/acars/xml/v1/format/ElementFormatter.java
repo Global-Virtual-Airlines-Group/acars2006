@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 3.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -31,6 +31,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("name", a.getName());
 			ae.setAttribute("icao", a.getICAO());
 			ae.setAttribute("iata", a.getIATA());
+			ae.setAttribute("country", a.getCountry().getCode());
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 			ae.setAttribute("adse", String.valueOf(a.getADSE()));
@@ -86,7 +87,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 				if (airway != null) we.setAttribute("airway", airway);
 				wpe.addContent(we);
 			}
-			
+
 			re.addContent(wpe);
 		}
 
