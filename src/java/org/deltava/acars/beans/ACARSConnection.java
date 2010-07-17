@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 3.1
+ * @version 3.2
  * @since 1.0
  */
 
@@ -512,6 +512,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 					if (_wSelector.select(250) > 0) {
 						_bytesOut += _channel.write(_oBuffer);
 						_wSelector.selectedKeys().clear();
+						_bufferWrites++;
 						if (writeCount > 4)
 							writeCount--;
 					} else if (!_channel.isConnected()) {
