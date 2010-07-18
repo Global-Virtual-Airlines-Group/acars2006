@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.1
+ * @version 3.2
  * @since 1.0
  */
 
@@ -296,7 +296,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
-		ackMsg.setEntry("airportCode", usr.getAirportCodeTypeName());
+		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType()));
 		
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
