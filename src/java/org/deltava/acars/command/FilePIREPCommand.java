@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.1
+ * @version 3.2
  * @since 1.0
  */
 
@@ -404,7 +404,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Send a notification message if a check ride
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
-				EquipmentType crEQ = eqdao.get(cr.getEquipmentType());
+				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
 					MessageContext mctxt = new MessageContext();
 					mctxt.addData("user", p);
