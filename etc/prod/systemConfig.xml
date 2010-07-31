@@ -160,7 +160,7 @@
 			</map>
 
 			<latest type="Integer">97</latest>
-			<dispatch type="Integer">23</dispatch>
+			<dispatch type="Integer">24</dispatch>
 			<viewer type="Integer">1</viewer>
 			<list name="noDispatch" attr="build" unique="true">
 				<build>96</build>
@@ -169,7 +169,7 @@
 
 		<pool>
 			<size type="Integer">192</size>
-			<multiple type="Boolean">false</multiple>
+			<multiple type="Boolean">true</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
 				<logic>
