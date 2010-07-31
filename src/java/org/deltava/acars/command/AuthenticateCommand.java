@@ -127,8 +127,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (ac2 != null) {
 				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
 				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
-				boolean dspSame = (msg.isDispatch() == ac2.getIsDispatch());
-				if (ac2.getRemoteAddr().equals(remoteAddr) || dspSame) {
+				boolean isDSP = (msg.isDispatch() || ac2.getIsDispatch());
+				if (ac2.getRemoteAddr().equals(remoteAddr) && !isDSP) {
 					ac2.close();
 					ctx.getACARSConnectionPool().remove(ac2);
 					log.warn(code + " already logged in from " + remoteAddr + ", closing existing connection");
@@ -136,7 +136,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					// Mark the connection closed
 					SetACARSLog dao = new SetACARSLog(c);
 					dao.closeConnections(Collections.singleton(Long.valueOf(ac2.getID())));
-				} else {
+				} else if (!isDSP) {
 					log.warn(code + " already logged in from " + ac2.getRemoteAddr());
 					throw new SecurityException(usr.getPilotCode() + " already logged in");
 				}
