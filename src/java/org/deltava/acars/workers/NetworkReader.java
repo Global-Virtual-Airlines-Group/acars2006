@@ -9,7 +9,7 @@ import java.nio.channels.Selector;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
 
-import org.deltava.dao.SetACARSLog;
+import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -20,7 +20,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 3.1
+ * @version 3.2
  * @since 1.0
  */
 
@@ -153,7 +153,7 @@ public class NetworkReader extends Worker {
 		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
 			con = cp.getConnection();
-			SetACARSLog dao = new SetACARSLog(con);
+			SetConnection dao = new SetConnection(con);
 			dao.closeConnections(ids);
 		} catch (Exception e) {
 			log.error("Error logging closed Connections - " + e.getMessage(), e);
