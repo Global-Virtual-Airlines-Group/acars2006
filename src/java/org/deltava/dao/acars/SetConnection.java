@@ -1,7 +1,10 @@
-// Copyright 2004, 2005, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 import org.deltava.dao.*;
 import org.deltava.acars.beans.ACARSConnection;
@@ -9,7 +12,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 2.7
+ * @version 3.2
  * @since 1.0
  */
 
@@ -44,6 +47,37 @@ public final class SetConnection extends DAO {
 			_ps.setInt(7, c.getBeta());
 			_ps.setBoolean(8, c.getIsDispatch());
 			executeUpdate(1);
+		} catch (SQLException se) {
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
+	 * Marks connections as completed.
+	 * @param id a Connection ID
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void closeConnection(long id) throws DAOException {
+		closeConnections(Collections.singleton(Long.valueOf(id)));
+	}
+	
+	/**
+	 * Marks connections as completed.
+	 * @param ids a Collection of connection IDs
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void closeConnections(Collection<Long> ids) throws DAOException {
+		try {
+			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=? WHERE (ID=CONV(?,10,16))");
+			_ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			for (Iterator<Long> i = ids.iterator(); i.hasNext(); ) {
+				long id = i.next().longValue();
+				_ps.setLong(1, id);
+				_ps.addBatch();
+			}
+			
+			_ps.executeBatch();
+			_ps.close();
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}

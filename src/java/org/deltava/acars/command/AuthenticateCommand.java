@@ -134,8 +134,8 @@ public class AuthenticateCommand extends ACARSCommand {
 					log.warn(code + " already logged in from " + remoteAddr + ", closing existing connection");
 					
 					// Mark the connection closed
-					SetACARSLog dao = new SetACARSLog(c);
-					dao.closeConnections(Collections.singleton(Long.valueOf(ac2.getID())));
+					SetConnection dao = new SetConnection(c);
+					dao.closeConnection(ac2.getID());
 				} else if (!isDSP) {
 					log.warn(code + " already logged in from " + ac2.getRemoteAddr());
 					throw new SecurityException(usr.getPilotCode() + " already logged in");
