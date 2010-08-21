@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Pilot data messages.
  * @author Luke
- * @version 2.2
+ * @version 3.2
  * @since 1.0
  */
 
@@ -50,6 +50,7 @@ class PilotFormatter extends ElementFormatter {
 			ue.addContent(XMLUtils.createElement("legs", String.valueOf(p.getLegs())));
 			ue.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(p.getCreatedOn(), "MMMM dd, yyyy")));
 			ue.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(p.getRoles(), ",")));
+			ue.addContent(XMLUtils.createElement("ratings", StringUtils.listConcat(p.getRatings(), ",")));
 			ue.addContent(XMLUtils.createElement("isDispatch", String.valueOf(pmsg.isDispatch())));
 			e.addContent(ue);
 		}
