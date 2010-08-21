@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 2.6
+ * @version 3.2
  * @since 1.0
  */
 
@@ -54,6 +54,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
 		sc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		sc.setCheckDispatchRoutes(true);
+		sc.setSortBy("RAND()");
 		sc.setDispatchOnly(Boolean.valueOf(msg.getFlag("dispatchOnly")).booleanValue());
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 150))
 			sc.setMaxResults(50);
@@ -66,7 +67,7 @@ public class ScheduleInfoCommand extends DataCommand {
 			// Get the schedule search DAO
 			GetSchedule sdao = new GetSchedule(con);
 			sdao.setQueryMax(sc.getMaxResults());
-			rspMsg.addAll(sdao.search(sc, "RAND()"));
+			rspMsg.addAll(sdao.search(sc));
 			ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
