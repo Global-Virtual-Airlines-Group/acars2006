@@ -69,10 +69,10 @@ public final class SetConnection extends DAO {
 	public void closeConnections(Collection<Long> ids) throws DAOException {
 		try {
 			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=? WHERE (ID=CONV(?,10,16))");
-			_ps.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			_ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			for (Iterator<Long> i = ids.iterator(); i.hasNext(); ) {
 				long id = i.next().longValue();
-				_ps.setLong(1, id);
+				_ps.setLong(2, id);
 				_ps.addBatch();
 			}
 			
