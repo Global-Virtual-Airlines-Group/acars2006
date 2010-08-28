@@ -9,11 +9,6 @@ import java.nio.channels.Selector;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
 
-import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.*;
-import org.deltava.beans.stats.*;
-
-import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.util.*;
@@ -141,10 +136,6 @@ public class NetworkReader extends Worker {
 							qmsg.setDispatch(con.getIsDispatch());
 							qmsg.setMP(con.getIsMP());
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
-							
-							// If it's a dispatch connection, check accomplishments
-							/* if (con.getIsDispatch())
-								checkAccomplishments(con.getUser()); */
 						}
 					}
 					
@@ -179,37 +170,4 @@ public class NetworkReader extends Worker {
 			_cPool.release(con);
 		}
 	}
-	
-	/**
-	 * Helper method to check whether Dispatcher accomplishments have been met. 
-	 */
-/*	private void checkAccomplishments(Pilot p) {
-		_status.setMessage("Checking Accomplishments for " + p.getName());
-		Connection con = null;
-		try {
-			AccomplishmentHistoryHelper helper = new AccomplishmentHistoryHelper(p);
-			con = _cPool.getConnection();
-
-			// Load Accomplishment profiles
-			GetAccomplishment accdao = new GetAccomplishment(con);
-			Collection<Accomplishment> accs = accdao.getAll();
-			
-			// Load dispatch connections
-			GetACARSLog aclogdao = new GetACARSLog(con);
-			Collection<ConnectionEntry> cons = aclogdao.getConnections(new LogSearchCriteria(p.getID(), true));
-			for (ConnectionEntry ce : cons)
-				helper.add(ce);
-			
-			// Loop through the Accomplishments
-			for (Accomplishment a : accs) {
-				Date dt = helper.achieved(a);
-				
-				
-			}
-		} catch (Exception e) {
-			log.error("Error checking Accomplishments for " + p.getName() + " - " + e.getMessage(), e);
-		} finally {
-			_cPool.release(con);
-		}
-	} */
 }
