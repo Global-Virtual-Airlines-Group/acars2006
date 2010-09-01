@@ -1,4 +1,4 @@
-// Copyright 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom.Element;
@@ -12,7 +12,7 @@ import org.deltava.util.StringUtils;
 /**
  * An XML Formatter for Controller data messages.
  * @author Luke
- * @version 2.4
+ * @version 3.2
  * @since 1.0
  */
 
@@ -36,7 +36,7 @@ class ControllerFormatter extends ElementFormatter {
 			ce.setAttribute("code", ctr.getCallsign());
 			ce.setAttribute("name", ctr.getName());
 			ce.setAttribute("rating", ctr.getRatingName());
-			ce.setAttribute("type", ctr.getFacilityType());
+			ce.setAttribute("type", ctr.getFacility().getName());
 			ce.setAttribute("freq", ctr.getFrequency());
 			ce.setAttribute("networkID", String.valueOf(ctr.getID()));
 			ce.setAttribute("lat", StringUtils.format(ctr.getLatitude(), "##0.0000"));
