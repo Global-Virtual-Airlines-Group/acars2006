@@ -35,7 +35,7 @@ class ControllerFormatter extends ElementFormatter {
 			Element ce = new Element("ctr");
 			ce.setAttribute("code", ctr.getCallsign());
 			ce.setAttribute("name", ctr.getName());
-			ce.setAttribute("rating", ctr.getRatingName());
+			ce.setAttribute("rating", ctr.getRating().getName());
 			ce.setAttribute("type", ctr.getFacility().getName());
 			ce.setAttribute("freq", ctr.getFrequency());
 			ce.setAttribute("networkID", String.valueOf(ctr.getID()));
