@@ -1,8 +1,8 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.sql.*;
 import java.util.*;
-import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
@@ -193,7 +193,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Calculate the difference in system times, assume 500ms latency -
 		// don't allow logins if over 4h off
-		DateTime now = new DateTime(new Date());
+		DateTime now = new DateTime(new java.util.Date());
 		long timeDiff = (msg.getClientUTC().getTime() - now.getUTC().getTime() + 500) / 1000;
 		if (Math.abs(timeDiff) > 14400) {
 			log.error("Cannot authenticate " + usr.getName() + " system clock " + timeDiff + " seconds off");
@@ -241,7 +241,18 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			// Get the DAO and write the connection
 			SetConnection cwdao = new SetConnection(c);
-			cwdao.add(con);
+			try {
+				cwdao.add(con);
+			} catch (DAOException de) {
+				Throwable ce = de.getCause();
+				if (ce instanceof SQLException) {
+					SQLException se = (SQLException) ce;
+					if ((se.getErrorCode() == 1062) || ("23000".equals(se.getSQLState()))) {
+						log.warn(de.getMessage());
+						cwdao.add(con);		
+					}
+				}
+			}
 			
 			// Log the login
 			SetPilotLogin pwdao = new SetPilotLogin(c);
