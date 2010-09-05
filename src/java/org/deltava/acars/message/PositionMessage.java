@@ -2,13 +2,14 @@
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
+import org.deltava.beans.servinfo.Controller;
 
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 3.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -31,6 +32,9 @@ public class PositionMessage extends LocationMessage {
 	
 	private int _txCode;
 	private boolean _txActive;
+	
+	private String _com1;
+	private Controller _atc;
 
 	// Weather information
 	private int _windHeading;
@@ -127,6 +131,14 @@ public class PositionMessage extends LocationMessage {
 	public int getTXCode() {
 		return _txCode;
 	}
+	
+	public String getCOM1() {
+		return _com1;
+	}
+	
+	public Controller getController() { 
+		return _atc;
+	}
 
 	public void setNoFlood(boolean noFlood) {
 		_noFlood = noFlood;
@@ -219,5 +231,13 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setVisibility(double viz) {
 		_viz = Math.max(0, Math.min(9999, viz));
+	}
+	
+	public void setCOM1(String com1) {
+		_com1 = com1;
+	}
+	
+	public void setController(Controller atc) {
+		_atc = atc; 
 	}
 }

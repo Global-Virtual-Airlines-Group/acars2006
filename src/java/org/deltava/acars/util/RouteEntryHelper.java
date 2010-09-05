@@ -13,7 +13,7 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 3.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -62,6 +62,8 @@ public class RouteEntryHelper {
 		result.setG(msg.getG());
 		result.setFuelRemaining(msg.getFuelRemaining());
 		result.setVisibility(msg.getVisibility());
+		result.setCOM1(msg.getCOM1());
+		result.setController(msg.getController());
 		return result;
 	}
 	

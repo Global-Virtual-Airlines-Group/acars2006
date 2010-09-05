@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 import org.jdom.*;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.servinfo.Controller;
+
+import org.deltava.util.StringUtils;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
@@ -16,7 +19,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Position elements.
  * @author Luke
- * @version 3.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -86,6 +89,21 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
+		}
+		
+		// Parse ATC info
+		try {
+			msg.setCOM1(getChildText(e, "com1", "122.8"));
+			String atcID = getChildText(e, "atc", null);
+			if (!StringUtils.isEmpty(atcID)) {
+				Element ce = e.getChild("atc");
+				Controller ctr = new Controller(StringUtils.parse(ce.getAttributeValue("id"), 0));
+				ctr.setCallsign(atcID);
+				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
+				msg.setController(ctr);
+			}
+		} catch (Exception ex) {
+			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);
 		}
 
 		// Return the bean
