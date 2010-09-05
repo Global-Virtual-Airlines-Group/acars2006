@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -16,7 +16,7 @@ import org.deltava.util.CalendarUtils;
  * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
  * since ACARS positions may be written several times a second by the server.
  * @author Luke
- * @version 1.0
+ * @version 3.2
  * @since 1.0
  */
 
@@ -99,6 +99,10 @@ public class SetPosition extends DAO implements FlushableDAO<PositionMessage> {
 			// Drain the queue
 			Collection<PositionCacheEntry> entries = new ArrayList<PositionCacheEntry>();
 			int results = _queue.drainTo(entries);
+			
+			startTransaction();
+
+			// Write core entries
 			for (Iterator<PositionCacheEntry> i = entries.iterator(); i.hasNext(); ) {
 				PositionCacheEntry entry = i.next();
 				PositionMessage msg = entry.getMessage();
@@ -136,13 +140,48 @@ public class SetPosition extends DAO implements FlushableDAO<PositionMessage> {
 				_ps.setDouble(26, msg.getG());
 				_ps.setInt(27, msg.getFrameRate());
 				_ps.addBatch();
+				
+				// Remove entries with no ATC ID
+				if (msg.getController() == null)
+					i.remove();
 			}
 
 			// Do the update
 			_ps.executeBatch();
 			_ps.close();
+			
+			// Write COM1/ATC records
+			prepareStatementWithoutLimits("REPLACE INTO acars.POSITION_ATC (FLIGHT_ID, REPORT_TIME, TIME_MS, COM1, CALLSIGN, NETWORK_ID, "
+				+ "LAT, LNG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+			for (Iterator<PositionCacheEntry> i = entries.iterator(); i.hasNext(); ) {
+				PositionCacheEntry entry = i.next();
+				PositionMessage msg = entry.getMessage();
+
+				// Build the timestamp
+				Calendar cld = CalendarUtils.getInstance(msg.getDate());
+				int ms = cld.get(Calendar.MILLISECOND);
+
+				// Set the prepared statement parameters
+				_ps.setInt(1, entry.getFlightID());
+				_ps.setTimestamp(2, new Timestamp(cld.getTimeInMillis() - ms));
+				_ps.setInt(3, ms);
+				_ps.setString(4, msg.getCOM1());
+				_ps.setString(5, msg.getController().getCallsign());
+				_ps.setInt(6, msg.getController().getID());
+				_ps.setDouble(7, msg.getController().getLatitude());
+				_ps.setDouble(8, msg.getController().getLongitude());
+				_ps.addBatch();
+			}
+			
+			// Do the update
+			_ps.executeBatch();
+			_ps.close();
+
+			// Commit and return
+			commitTransaction();
 			return results;
 		} catch (SQLException se) {
+			rollbackTransaction();
 			throw new DAOException(se);
 		}
 	}
