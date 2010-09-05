@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 3.1
+ * @version 3.2
  * @since 1.0
  */
 
@@ -108,7 +108,7 @@ public class SetInfo extends DAO {
 	public void close(int flightID, long cid, boolean force) throws DAOException {
 	   
 	   // Build the SQL statement
-	   StringBuilder sqlBuf = new StringBuilder("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=?)");
+	   StringBuilder sqlBuf = new StringBuilder("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=CONV(?,10,16))");
 	   if (!force)
 	      sqlBuf.append(" AND (END_TIME IS NULL)");
 	   
