@@ -137,7 +137,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					SetConnection dao = new SetConnection(c);
 					dao.closeConnection(ac2.getID());
 				} else if (!isDSP) {
-					log.warn(code + " already logged in from " + ac2.getRemoteAddr());
+					log.warn(code + " already logged in from " + ac2.getRemoteAddr() + " trying to log in from " + remoteAddr);
 					throw new SecurityException(usr.getPilotCode() + " already logged in");
 				}
 			}
