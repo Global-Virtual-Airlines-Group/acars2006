@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
@@ -302,7 +302,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());
-		ackMsg.setEntry("rank", usr.getRank());
+		ackMsg.setEntry("rank", usr.getRank().getName());
 		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));

@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Pilot data messages.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
@@ -45,7 +45,7 @@ class PilotFormatter extends ElementFormatter {
 			ue.addContent(XMLUtils.createElement("lastname", p.getLastName()));
 			ue.addContent(XMLUtils.createElement("name", p.getName()));
 			ue.addContent(XMLUtils.createElement("eqtype", p.getEquipmentType()));
-			ue.addContent(XMLUtils.createElement("rank", p.getRank()));
+			ue.addContent(XMLUtils.createElement("rank", p.getRank().getName()));
 			ue.addContent(XMLUtils.createElement("hours", String.valueOf(p.getHours())));
 			ue.addContent(XMLUtils.createElement("legs", String.valueOf(p.getLegs())));
 			ue.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(p.getCreatedOn(), "MMMM dd, yyyy")));

@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
@@ -52,7 +52,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
 				ce.addContent(XMLUtils.createElement("name", usr.getName()));
 				ce.addContent(XMLUtils.createElement("eqtype", usr.getEquipmentType()));
-				ce.addContent(XMLUtils.createElement("rank", usr.getRank()));
+				ce.addContent(XMLUtils.createElement("rank", usr.getRank().getName()));
 				ce.addContent(XMLUtils.createElement("hours", String.valueOf(usr.getHours())));
 				ce.addContent(XMLUtils.createElement("legs", String.valueOf(usr.getLegs())));
 				ce.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));

@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
@@ -418,7 +418,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					mctxt.addData("url", "http://www." + eq.getOwner().getDomain() + "/");
 
 					// Load the equipment type ACPs
-					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null, true, Ranks.RANK_ACP);
+					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null, true, Rank.ACP);
 
 					// Send the message to the CP
 					Mailer mailer = new Mailer(p);
