@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 2.7
+ * @version 3.3
  * @since 1.0
  */
 
@@ -184,7 +184,7 @@ public class DiagnosticCommand extends ACARSCommand {
 
 			// Send content warning e-mail
 			case DiagnosticMessage.CONTENT_WARN:
-				boolean isSC = Ranks.RANK_SC.equals(usr.getRank());
+				boolean isSC = (usr.getRank() == Rank.SC);
 				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !isSC) {
 					ctx.push(ackMsg, env.getConnectionID());
 					return;
