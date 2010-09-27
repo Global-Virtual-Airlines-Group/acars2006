@@ -9,7 +9,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
@@ -102,6 +102,10 @@ public class PositionMessage extends LocationMessage {
 
 	public int getPhase() {
 		return this.phase;
+	}
+	
+	public String getPhaseName() {
+		return FLIGHT_PHASES[phase];
 	}
 
 	public int getRadarAltitude() {
