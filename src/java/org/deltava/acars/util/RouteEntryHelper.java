@@ -13,18 +13,23 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 3.2
+ * @version 3.3
  * @since 1.0
  */
 
-public class RouteEntryHelper {
+public final class RouteEntryHelper {
 
+	// singleton
+	private RouteEntryHelper() {
+		super();
+	}
+	
 	/**
 	 * Builds a route Entry from the current connection data.
 	 * @param con the ACARS connection
 	 * @return a MapRouteEntry bean
 	 */
-	public static final ACARSMapEntry build(ACARSConnection con) {
+	public static ACARSMapEntry build(ACARSConnection con) {
 		if (con.getIsDispatch())
 			return buildDispatch(con);
 
@@ -42,6 +47,7 @@ public class RouteEntryHelper {
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
 		result.setID(imsg.getFlightID());
+		result.setPhaseName(msg.getPhaseName());
 		result.setFlightNumber(imsg.getFlightCode());
 		result.setAirSpeed(msg.getAspeed());
 		result.setGroundSpeed(msg.getGspeed());
@@ -72,7 +78,7 @@ public class RouteEntryHelper {
 	 * @param ac the ACARS connection
 	 * @return a DispatchMapEntry bean
 	 */
-	public static final ACARSMapEntry buildDispatch(ACARSConnection ac) {
+	public static ACARSMapEntry buildDispatch(ACARSConnection ac) {
 		
 		// Get data from the entry
 		Pilot usr = ac.getUser();
