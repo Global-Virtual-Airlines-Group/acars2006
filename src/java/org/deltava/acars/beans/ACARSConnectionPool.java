@@ -14,7 +14,7 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.GeoLocation;
 import org.deltava.beans.schedule.GeoPosition;
 
-import org.deltava.acars.message.InfoMessage;
+import org.deltava.acars.message.*;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -25,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.1
+ * @version 3.3
  * @since 1.0
  */
 
@@ -154,6 +154,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
 				entry.setUserHidden(ac.getUserHidden());
+				
+				// Get the flight phase
+				PositionMessage pm = ac.getPosition();
+				entry.setFlightPhase((pm == null) ? "N/A" : pm.getPhaseName());
 				
 				// Get the flight information
 				InfoMessage inf = ac.getFlightInfo();
