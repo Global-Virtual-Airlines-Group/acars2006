@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.jdom.Element;
 
+import org.deltava.beans.Flight;
 import org.deltava.beans.acars.DispatchRoute;
 import org.deltava.beans.schedule.*;
 
@@ -16,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 3.0
+ * @version 3.3
  * @since 2.0
  */
 
@@ -40,6 +41,14 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		e.setAttribute("id", String.valueOf(rmsg.getParentID()));
 		if (!StringUtils.isEmpty(rmsg.getMessage()))
 			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
+		
+		// Add flight information if found
+		if (rmsg.getScheduleInfo() != null) {
+			Flight f = rmsg.getScheduleInfo();
+			e.setAttribute("airline", f.getAirline().getCode());
+			e.setAttribute("flight", String.valueOf(f.getFlightNumber()));
+			e.setAttribute("leg", String.valueOf(f.getLeg()));
+		}
 		
 		// Add the routes
 		for (Iterator<? extends PopulatedRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {

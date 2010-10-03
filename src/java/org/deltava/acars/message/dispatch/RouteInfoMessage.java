@@ -1,9 +1,9 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.schedule.PopulatedRoute;
 
 import org.deltava.acars.message.DispatchMessage;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * A message to store route search results.
  * @author Luke
- * @version 2.6
+ * @version 3.3
  * @since 2.0
  */
 
@@ -19,7 +19,7 @@ public class RouteInfoMessage extends DispatchMessage {
 
 	private final Collection<PopulatedRoute> _plans = new ArrayList<PopulatedRoute>();
 	private long _parent;
-	private boolean _routeValid;
+	private Flight _schedInfo;
 	
 	private String _msg;
 	
@@ -57,13 +57,21 @@ public class RouteInfoMessage extends DispatchMessage {
 	public String getMessage() {
 		return _msg;
 	}
+	
+	/**
+	 * Returns information about this flight from the schedule.
+	 * @return a Flight bean
+	 */
+	public Flight getScheduleInfo() {
+		return _schedInfo;
+	}
 
 	/**
 	 * Returns if the route as valid.
 	 * @return isValid TRUE if the route is valid, otherwise FALSE
 	 */
 	public boolean isRouteValid() {
-		return _routeValid;
+		return (_schedInfo != null);
 	}
 	
 	/**
@@ -83,10 +91,10 @@ public class RouteInfoMessage extends DispatchMessage {
 	}
 	
 	/**
-	 * Marks the route as valid.
-	 * @param isValid TRUE if the route is valid, otherwise FALSE
+	 * Updates flight scheudle info, marking the route as valid.
+	 * @param f the schedule info
 	 */
-	public void setRouteValid(boolean isValid) {
-		_routeValid = isValid;
+	public void setScheduleInfo(Flight f) {
+		_schedInfo = f;
 	}
 }

@@ -28,7 +28,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 3.1
+ * @version 3.3
  * @since 2.0
  */
 
@@ -66,13 +66,15 @@ public class ServiceRequestCommand extends DispatchCommand {
 		}
 		
 		// Validate that the route is valid
+		Flight schedInfo = null;
 		Collection<PopulatedRoute> plans = new ArrayList<PopulatedRoute>();
 		try {
 			Connection con = ctx.getConnection();
 			
 			// Check the schedule
 			GetSchedule sdao = new GetSchedule(con);
-			boolean routeValid = (sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), ud.getDB()) > 0);
+			schedInfo = sdao.getFlightNumber(msg.getAirportD(), msg.getAirportA(), ud.getDB());
+			boolean routeValid = (schedInfo != null);
 			
 			// If we're not valid, check for a draft flight assignment
 			if (!routeValid) {
@@ -99,7 +101,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 					log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using Online Event");
 			}
 			
-			// Set the flag
+			// Set the route validated flag
 			msg.setRouteValid(routeValid);
 			
 			// Load existing plans
@@ -189,11 +191,18 @@ public class ServiceRequestCommand extends DispatchCommand {
 			return;
 		}
 
-		// Return back the routes
-		if (!plans.isEmpty()) {
+		// Return back the routes - only if valid
+		if (!plans.isEmpty() && msg.isRouteValid()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
 			for (PopulatedRoute rp : plans)
 				rmsg.addPlan(rp);
+			
+			// Add schedule info - if schedInfo is null but routeValid is true, create a dummy entry
+			rmsg.setScheduleInfo(schedInfo);
+			if (msg.isRouteValid() && !rmsg.isRouteValid()) {
+				Airline a = SystemData.getAirline(ud.getAirlineCode());
+				rmsg.setScheduleInfo(new ScheduleEntry(a, Math.min(1, c.getUser().getPilotNumber()), 1));
+			}
 			
 			// Build message
 			StringBuilder buf = new StringBuilder("No Dispatchers available");
