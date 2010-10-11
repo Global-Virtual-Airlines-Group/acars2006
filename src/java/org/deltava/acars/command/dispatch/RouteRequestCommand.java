@@ -8,6 +8,7 @@ import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.system.AirlineInformation;
 import org.deltava.beans.wx.METAR;
 
 import org.deltava.comparators.RunwayComparator;
@@ -27,7 +28,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 3.0
+ * @version 3.3
  * @since 2.0
  */
 
@@ -55,10 +56,7 @@ public class RouteRequestCommand extends DispatchCommand {
 			&& SystemData.getBoolean("schedule.flightaware.enabled");
 		
 		// Check if it's a US route
-		boolean isUS = msg.getAirportD().getICAO().startsWith("K") || msg.getAirportD().getICAO().startsWith("P");
-		isUS |= msg.getAirportA().getICAO().startsWith("K") || msg.getAirportA().getICAO().startsWith("P");
-		if (doExternal && !isUS)
-			log.warn(msg.getAirportD() + " - " + msg.getAirportA() + " is not a US route");
+		boolean isUS = (msg.getAirportD().getCountry() == Country.get("US")) || (msg.getAirportA().getCountry() == Country.get("US"));
 
 		try {
 			RouteInfoMessage rmsg = new RouteInfoMessage(usr, msg.getID());
@@ -71,13 +69,13 @@ public class RouteRequestCommand extends DispatchCommand {
 				rmsg.addPlan(rp);
 			
 			// If plans is empty and external routes are available, load them
-			if (plans.isEmpty() && doExternal && isUS) {
+			if (plans.isEmpty()) {
 				Collection<FlightRoute> eroutes = new ArrayList<FlightRoute>();
 				GetCachedRoutes rcdao = new GetCachedRoutes(con);
 				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
 				
 				// Go to flightaware if nothing loaded
-				if (eroutes.isEmpty()) {
+				if (eroutes.isEmpty() && isUS && doExternal) {
 					GetFARoutes fadao = new GetFARoutes();
 					fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
 					fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
@@ -86,6 +84,16 @@ public class RouteRequestCommand extends DispatchCommand {
 						eroutes.addAll(faroutes);
 						SetCachedRoutes rcwdao = new SetCachedRoutes(con);
 						rcwdao.write(faroutes);
+					}
+				}
+				
+				// If we still got nothing, load from existing PIREPs in our database
+				if (eroutes.isEmpty()) {
+					GetFlightReportRoutes frrdao = new GetFlightReportRoutes(con);
+					Collection<AirlineInformation> apps = SystemData.getApps();
+					for (Iterator<AirlineInformation> i = apps.iterator(); eroutes.isEmpty() && i.hasNext(); ) {
+						AirlineInformation ai = i.next();
+						eroutes.addAll(frrdao.getRoutes(msg.getAirportD(), msg.getAirportA(), ai.getDB()));
 					}
 				}
 				
@@ -185,6 +193,6 @@ public class RouteRequestCommand extends DispatchCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2500;
+		return 2750;
 	}
 }
