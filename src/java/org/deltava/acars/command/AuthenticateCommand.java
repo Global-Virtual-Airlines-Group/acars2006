@@ -248,6 +248,8 @@ public class AuthenticateCommand extends ACARSCommand {
 				if (ce instanceof SQLException) {
 					SQLException se = (SQLException) ce;
 					if ((se.getErrorCode() == 1062) || ("23000".equals(se.getSQLState()))) {
+						ctx.rollbackTX();
+						ctx.startTX();
 						log.warn(de.getMessage());
 						cwdao.add(con);		
 					}
