@@ -1,4 +1,4 @@
-// Copyright 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 2.8
+ * @version 3.4
  * @since 2.0
  */
 
@@ -41,18 +41,16 @@ public class AcceptCommand extends DispatchCommand {
 		}
 		
 		// Check dispatch status
-		if (ac.getDispatcherID() != 0) {
-			log.info(ac.getUserID() + " already has dispatch service");
-			return;
-		} else if (!ac.getIsDispatch()) {
+		if ((ac.getDispatcherID() == 0) && !ac.getIsDispatch()) {
 			ac.setDispatcherID(env.getConnectionID());
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
 			ackMsg.setEntry("dispatcher", env.getOwnerID());
 			ctx.push(ackMsg, ac.getID());
-		}
+		} else if (ac.getDispatcherID() != 0)
+			log.info(ac.getUserID() + " already has dispatch service");
 		
 		// Send a cancel message to all other dispatchers
-		CancelMessage cMsg = new CancelMessage(env.getOwner());
+		CancelMessage cMsg = new CancelMessage(ac.getUser());
 		ctx.pushDispatch(cMsg, env.getConnectionID());
 	}
 }
