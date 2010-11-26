@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 2.7
+ * @version 3.4
  * @since 2.6
  */
 
@@ -63,10 +63,10 @@ public class AirportInfoCommand extends DataCommand {
 			GetACARSRunways rwdao = new GetACARSRunways(c);
 			List<Runway> rwyD = rwdao.getPopularRunways(aD, aA, true);
 			List<Runway> rwyA = rwdao.getPopularRunways(aD, aA, false);
-			if (wxD != null)
-				Collections.sort(rwyD, new RunwayComparator(wxD.getWindDirection()));
-			if (wxA != null)
-				Collections.sort(rwyA, new RunwayComparator(wxA.getWindDirection()));
+			if ((wxD != null) && (wxD.getWindSpeed() > 0))
+				Collections.sort(rwyD, new RunwayComparator(wxD.getWindDirection()).reverse());
+			if ((wxA != null) && (wxA.getWindSpeed() > 0))
+				Collections.sort(rwyA, new RunwayComparator(wxA.getWindDirection()).reverse());
 			
 			// Build the departure airport response
 			AirportInfoMessage msgD = new AirportInfoMessage(env.getOwner(), msg.getID());
