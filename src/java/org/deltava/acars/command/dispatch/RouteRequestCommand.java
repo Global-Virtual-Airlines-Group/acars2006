@@ -6,12 +6,8 @@ import java.sql.Connection;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.AirlineInformation;
-import org.deltava.beans.wx.METAR;
-
-import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.AcknowledgeMessage;
@@ -20,15 +16,13 @@ import org.deltava.acars.message.dispatch.*;
 import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.wsdl.GetFARoutes;
 
-import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 2.0
  */
 
@@ -52,131 +46,53 @@ public class RouteRequestCommand extends DispatchCommand {
 		Pilot usr = env.getOwner();
 		ACARSConnection ac = ctx.getACARSConnection();
 		RouteRequestMessage msg = (RouteRequestMessage) env.getMessage();
-		boolean doExternal = msg.getExternalRoutes() && ac.getIsDispatch()
-			&& SystemData.getBoolean("schedule.flightaware.enabled");
+		boolean doExternal = msg.getExternalRoutes() && ac.getIsDispatch() && SystemData.getBoolean("schedule.flightaware.enabled");
 		
-		// Check if it's a US route
-		boolean isUS = (msg.getAirportD().getCountry() == Country.get("US")) || (msg.getAirportA().getCountry() == Country.get("US"));
-
 		try {
 			RouteInfoMessage rmsg = new RouteInfoMessage(usr, msg.getID());
 			Connection con = ctx.getConnection();
+			RouteLoadHelper helper = new RouteLoadHelper(con, msg.getAirportD(), msg.getAirportA());
 			
-			// Load the routes
-			GetACARSRoute rdao = new GetACARSRoute(con);
-			Collection<DispatchRoute> plans = rdao.getRoutes(msg.getAirportD(), msg.getAirportA(), true);
-			for (DispatchRoute rp : plans)
-				rmsg.addPlan(rp);
+			// Load dispatch routes
+			helper.loadDispatchRoutes();
 			
 			// If plans is empty and external routes are available, load them
-			if (plans.isEmpty()) {
-				Collection<FlightRoute> eroutes = new ArrayList<FlightRoute>();
-				GetCachedRoutes rcdao = new GetCachedRoutes(con);
-				eroutes.addAll(rcdao.getRoutes(msg.getAirportD(), msg.getAirportA()));
+			if (!helper.hasRoutes())
+				helper.loadCachedRoutes();
 				
-				// Go to flightaware if nothing loaded
-				if (eroutes.isEmpty() && isUS && doExternal) {
-					GetFARoutes fadao = new GetFARoutes();
-					fadao.setUser(SystemData.get("schedule.flightaware.download.user"));
-					fadao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
-					Collection<? extends FlightRoute> faroutes = fadao.getRouteData(msg.getAirportD(), msg.getAirportA());
-					if (!faroutes.isEmpty()) {
-						eroutes.addAll(faroutes);
-						SetCachedRoutes rcwdao = new SetCachedRoutes(con);
-						rcwdao.write(faroutes);
-					}
-				}
+			// Go to flightaware if nothing loaded
+			if (!helper.hasRoutes() && doExternal)
+				helper.loadFlightAwareRoutes(true);
 				
-				// If we still got nothing, load from existing PIREPs in our database
-				if (eroutes.isEmpty()) {
-					GetFlightReportRoutes frrdao = new GetFlightReportRoutes(con);
-					Collection<AirlineInformation> apps = SystemData.getApps();
-					for (Iterator<AirlineInformation> i = apps.iterator(); eroutes.isEmpty() && i.hasNext(); ) {
-						AirlineInformation ai = i.next();
-						eroutes.addAll(frrdao.getRoutes(msg.getAirportD(), msg.getAirportA(), ai.getDB()));
-					}
-				}
-				
-				// Get the departure and arrival weather
-				GetWeather wxdao = new GetWeather(con);
-				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
-				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
-				
-				// Get best runways
-				GetACARSRunways rwdao = new GetACARSRunways(con);
-				List<Runway> dRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
-				List<Runway> aRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
-				
-				// Sort runways based on wind heading
-				if (wxD != null) {
-					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
-					Collections.sort(dRwys, Collections.reverseOrder(rcmp));
-					dRwys.add(null);
-				}
-				if (wxA != null) {
-					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
-					Collections.sort(aRwys, Collections.reverseOrder(rcmp));
-					aRwys.add(null);
-				}
-				
-				// Load the waypoints for each route
-				GetNavRoute navdao = new GetNavRoute(con);
-				for (FlightRoute rp : eroutes) {
-					ExternalDispatchRoute dr = new ExternalDispatchRoute();
-					dr.setAirportD(msg.getAirportD());
-					dr.setAirportA(msg.getAirportA());
-					dr.setAirline(SystemData.getAirline(ac.getUserData().getAirlineCode()));
-					dr.setComments(rp.getComments());
-					dr.setCreatedOn(rp.getCreatedOn());
-					dr.setDispatchBuild(ac.getClientVersion());
-					dr.setCruiseAltitude(rp.getCruiseAltitude());
-					dr.setRoute(rp.getRoute());
-					if (rp instanceof ExternalFlightRoute)
-						dr.setSource(((ExternalFlightRoute) rp).getSource());
-					
-					// Load best SID
-					if (!StringUtils.isEmpty(rp.getSID()) && (rp.getSID().contains("."))) {
-						StringTokenizer tkns = new StringTokenizer(rp.getSID(), ".");
-						String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute sid = null;
-						for (Iterator<Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
-							Runway rwy = ri.next();
-							sid = navdao.getBestRoute(rp.getAirportD(), TerminalRoute.SID, name, wp, rwy);
-							if (sid != null) {
-								dr.setSID(sid.getCode());
-								for (NavigationDataBean nd : sid.getWaypoints())
-									dr.addWaypoint(nd, sid.getCode());
-							}
-						}
-					}
-					
-					// Load the route waypoints
-					List<NavigationDataBean> points = navdao.getRouteWaypoints(rp.getRoute(), msg.getAirportD());
-					for (NavigationDataBean nd : points)
-						dr.addWaypoint(nd, nd.getAirway());
-					
-					// Load best STAR
-					if (!StringUtils.isEmpty(rp.getSTAR()) && (rp.getSTAR().contains("."))) {
-						StringTokenizer tkns = new StringTokenizer(rp.getSTAR(), ".");
-						String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute star = null;
-						for (Iterator<Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
-							Runway rwy = ri.next();
-							star = navdao.getBestRoute(rp.getAirportA(), TerminalRoute.STAR, name, wp, rwy);
-							if (star != null) {
-								dr.setSTAR(star.getCode());
-								for (NavigationDataBean nd : star.getWaypoints())
-									dr.addWaypoint(nd, star.getCode());
-							}
-						}
-					}
-					
-					// Save the converted route
-					rmsg.addPlan(dr);
+			// If we still got nothing, load from existing PIREPs in our database
+			if (!helper.hasRoutes()) {
+				Collection<AirlineInformation> apps = SystemData.getApps();
+				for (Iterator<AirlineInformation> i = apps.iterator(); !helper.hasRoutes() && i.hasNext(); ) {
+					AirlineInformation ai = i.next();
+					helper.loadPIREPRoutes(ai.getDB());
 				}
 			}
+				
+			// Get the departure and arrival weather and calculate the best terminal routes
+			helper.loadWeather();
+			helper.calculateBestTerminalRoute();
+				
+			// Populate the routes and add to the message
+			helper.populateRoutes();
+			for (FlightRoute rt : helper.getRoutes()) {
+				if (rt instanceof DispatchRoute)
+					((DispatchRoute) rt).setAirline(SystemData.getAirline(ac.getUserData().getAirlineCode()));
+					
+				rmsg.addPlan((PopulatedRoute) rt);
+			}
+			
+			// Check if the route is valid
+			GetSchedule sdao = new GetSchedule(con);
+			rmsg.setScheduleInfo(sdao.getFlightNumber(msg.getAirportD(), msg.getAirportA(), ac.getUserData().getDB()));
 			
 			// Send the response
 			if (!ac.getIsDispatch())
-				rmsg.setMessage("Loaded " + plans.size() + " Dispatch routes from database");
+				rmsg.setMessage("Loaded " + rmsg.getPlans().size() + " Dispatch routes from database");
 			ctx.push(rmsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Cannot load route data - " + de.getMessage(), de);

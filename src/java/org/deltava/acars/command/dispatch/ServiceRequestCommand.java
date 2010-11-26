@@ -5,13 +5,8 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
-import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
-import org.deltava.beans.wx.METAR;
-
-import org.deltava.comparators.RunwayComparator;
 
 import org.deltava.dao.*;
 
@@ -28,7 +23,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 2.0
  */
 
@@ -105,52 +100,21 @@ public class ServiceRequestCommand extends DispatchCommand {
 			msg.setRouteValid(routeValid);
 			
 			// Load existing plans
-			GetACARSRoute rdao = new GetACARSRoute(con);
-			plans.addAll(rdao.getRoutes(msg.getAirportD(), msg.getAirportA(), true));
+			RouteLoadHelper helper = new RouteLoadHelper(con, msg.getAirportD(), msg.getAirportA());
+			helper.loadDispatchRoutes();
 			
-			// If we don't have any plans but have cached routes, use them
-			if (plans.isEmpty()) {
-				GetWeather wxdao = new GetWeather(con);
-				GetACARSRunways rwdao = new GetACARSRunways(con);
-				
-				// Get the departure runways based on weather
-				METAR wxD = wxdao.getMETAR(msg.getAirportD().getICAO());
-				List<Runway> rwyD = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
-				if (wxD != null) {
-					RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
-					Collections.sort(rwyD, rcmp);
-				}
-				
-				// Convert runways to strings
-				List<String> rD = new ArrayList<String>();
-				for (Runway r : rwyD)
-					rD.add("RW" + r.getName());
-				
-				// Get the arrival runways based on weather
-				METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
-				List<Runway> rwyA = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
-				if (wxA != null) {
-					RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
-					Collections.sort(rwyA, rcmp);
-				}
-				
-				// Convert runways to strings
-				List<String> rA = new ArrayList<String>();
-				for (Runway r : rwyA)
-					rA.add("RW" + r.getName());
-				
-				// Populate the routes
-				GetNavRoute navdao = new GetNavRoute(con);
-				GetCachedRoutes rcdao = new GetCachedRoutes(con);
-				Collection<? extends FlightRoute> faRoutes = rcdao.getRoutes(msg.getAirportD(), msg.getAirportA());
-				for (FlightRoute fr : faRoutes) {
-					PopulatedRoute pr = navdao.populate(fr, rD, rA);
-					ExternalDispatchRoute edr = new ExternalDispatchRoute(pr);
-					edr.setAirline(SystemData.getAirline(ud.getAirlineCode()));
-					edr.setAirportL(msg.getAirportL());
-					plans.add(edr);
-				}
-			}
+			// Load cached routes
+			if (!helper.hasRoutes())
+				helper.loadCachedRoutes();
+			
+			// If we still don't have any routes, load from PIREPs
+			if (!helper.hasRoutes())
+				helper.loadPIREPRoutes(c.getUserData().getDB());
+
+			// Populate the routes
+			helper.loadWeather();
+			helper.calculateBestTerminalRoute();
+			helper.populateRoutes();
 		} catch (DAOException de) {
 			log.error("Cannot validate/load route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

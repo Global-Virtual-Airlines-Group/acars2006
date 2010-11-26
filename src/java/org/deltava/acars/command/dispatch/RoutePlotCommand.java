@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 3.0
+ * @version 3.4
  * @since 3.0
  */
 
@@ -65,14 +65,12 @@ public class RoutePlotCommand extends DispatchCommand {
 			List<Runway> aRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
 			
 			// Sort runways based on wind heading
-			if (wxD != null) {
-				RunwayComparator rcmp = new RunwayComparator(wxD.getWindDirection());
-				Collections.sort(dRwys, Collections.reverseOrder(rcmp));
+			if ((wxD != null) && (wxD.getWindSpeed() > 0)) {
+				Collections.sort(dRwys, new RunwayComparator(wxD.getWindDirection()).reverse());
 				dRwys.add(null);
 			}
-			if (wxA != null) {
-				RunwayComparator rcmp = new RunwayComparator(wxA.getWindDirection());
-				Collections.sort(aRwys, Collections.reverseOrder(rcmp));
+			if ((wxA != null) && (wxA.getWindSpeed() > 0)) {
+				Collections.sort(aRwys, new RunwayComparator(wxA.getWindDirection()).reverse());
 				aRwys.add(null);
 			}
 			
@@ -89,7 +87,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			// Load best SID
 			if (!StringUtils.isEmpty(msg.getSID()) && (msg.getSID().contains("."))) {
 				StringTokenizer tkns = new StringTokenizer(msg.getSID(), ".");
-				String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute sid = null;
+				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute sid = null;
 				for (Iterator<Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
 					sid = navdao.getBestRoute(msg.getAirportD(), TerminalRoute.SID, name, wp, rwy);
@@ -110,7 +108,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			// Load best STAR
 			if (!StringUtils.isEmpty(msg.getSTAR()) && (msg.getSTAR().contains("."))) {
 				StringTokenizer tkns = new StringTokenizer(msg.getSTAR(), ".");
-				String name = tkns.nextToken(); String wp = tkns.nextToken(); TerminalRoute star = null;
+				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute star = null;
 				for (Iterator<Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
 					star = navdao.getBestRoute(msg.getAirportA(), TerminalRoute.STAR, name, wp, rwy);
