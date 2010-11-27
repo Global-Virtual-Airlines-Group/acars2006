@@ -115,6 +115,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 			helper.loadWeather();
 			helper.calculateBestTerminalRoute();
 			helper.populateRoutes();
+			for (FlightRoute fr : helper.getRoutes()) {
+				if (fr instanceof PopulatedRoute)
+					plans.add((PopulatedRoute) fr);
+			}
 		} catch (DAOException de) {
 			log.error("Cannot validate/load route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

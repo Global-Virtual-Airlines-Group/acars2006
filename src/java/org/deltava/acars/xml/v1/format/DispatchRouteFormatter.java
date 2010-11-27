@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 2.0
  */
 
@@ -42,9 +42,9 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		if (!StringUtils.isEmpty(rmsg.getMessage()))
 			e.addContent(XMLUtils.createElement("msg", rmsg.getMessage(), true));
 		
-		// Add flight information if found
-		if (rmsg.getScheduleInfo() != null) {
-			Flight f = rmsg.getScheduleInfo();
+		// Get flight data
+		Flight f = rmsg.getScheduleInfo();
+		if (f != null) {
 			e.setAttribute("airline", f.getAirline().getCode());
 			e.setAttribute("flight", String.valueOf(f.getFlightNumber()));
 			e.setAttribute("leg", String.valueOf(f.getLeg()));
@@ -53,7 +53,7 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		// Add the routes
 		for (Iterator<? extends PopulatedRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
 			PopulatedRoute rp = i.next();
-			Element re = formatRoute(rp); 
+			Element re = formatRoute(rp);
 			
 			// Add external properties
 			if (rp instanceof ExternalFlightRoute) {
@@ -68,7 +68,8 @@ public class DispatchRouteFormatter extends ElementFormatter {
 				re.addContent(XMLUtils.createElement("airline", dr.getAirline().getCode()));
 				if (dr.getAirportL() != null)
 					re.addContent(formatAirport(dr.getAirportL(), "airportL"));
-			}
+			} else if (f != null)
+				re.addContent(XMLUtils.createElement("airline", f.getAirline().getCode())); // Hack for Build 97
 			
 			e.addContent(re);
 		}
