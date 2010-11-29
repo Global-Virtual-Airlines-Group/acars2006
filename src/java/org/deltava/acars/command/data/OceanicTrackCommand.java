@@ -1,4 +1,4 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An ACARS data command to return available NAT and PACOT data.
  * @author Luke
- * @version 2.6
+ * @version 3.4
  * @since 2.2
  */
 
@@ -59,7 +59,7 @@ public class OceanicTrackCommand extends DataCommand {
 		Date dt = msg.hasFlag("date") ? StringUtils.parseDate(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
 			GetOceanicRoute dao = new GetOceanicRoute(ctx.getConnection());
-			rspMsg.addAll(dao.getOceanicTracks(rType, dt).values());
+			rspMsg.addAll(dao.getOceanicTracks(rType, dt).getTracks());
 		} catch (DAOException de) {
 			String trackType = OceanicTrackInfo.TYPES[rType.ordinal()];
 			log.error("Error loading " + trackType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
