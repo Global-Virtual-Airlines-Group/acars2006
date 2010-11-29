@@ -13,6 +13,7 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RouteInfoMessage;
 
 import org.deltava.util.*;
+import org.deltava.util.system.SystemData;
 
 /**
  * An XML formatter for dispatch route info messages.
@@ -65,7 +66,13 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			if (rp instanceof DispatchRoute) {
 				DispatchRoute dr = (DispatchRoute) rp;
 				re.setAttribute("useCount", String.valueOf(dr.getUseCount()));
-				re.addContent(XMLUtils.createElement("airline", dr.getAirline().getCode()));
+				Airline a = dr.getAirline();
+				if ((a == null) && (f != null))
+					a = f.getAirline();
+				if (a == null)
+					a = SystemData.getAirline(msg.getSender().getAirlineCode());
+				if (a != null)
+					re.addContent(XMLUtils.createElement("airline", a.getCode()));
 				if (dr.getAirportL() != null)
 					re.addContent(formatAirport(dr.getAirportL(), "airportL"));
 			} else if (f != null)
