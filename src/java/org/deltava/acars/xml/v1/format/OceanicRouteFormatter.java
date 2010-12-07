@@ -16,7 +16,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An XML Formatter for Oceanic Route messages.
  * @author Luke
- * @version 3.0
+ * @version 3.4
  * @since 2.2
  */
 
@@ -39,8 +39,7 @@ public class OceanicRouteFormatter extends ElementFormatter {
 			return pe;
 		
 		// Get the date
-		Date dt = omsg.getResponse().get(0).getDate();
-		e.setAttribute("date", StringUtils.format(dt, "MM/dd/yyyy"));
+		e.setAttribute("date", StringUtils.format(omsg.getDate(), "MM/dd/yyyy"));
 		final NumberFormat nf = new DecimalFormat("##0.0000");
 		for (Iterator<OceanicTrack> i = omsg.getResponse().iterator(); i.hasNext(); ) {
 			OceanicTrack ow = i.next();
