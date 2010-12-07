@@ -59,7 +59,9 @@ public class OceanicTrackCommand extends DataCommand {
 		Date dt = msg.hasFlag("date") ? StringUtils.parseDate(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
 			GetOceanicRoute dao = new GetOceanicRoute(ctx.getConnection());
-			rspMsg.addAll(dao.getOceanicTracks(rType, dt).getTracks());
+			DailyOceanicTracks tracks = dao.getOceanicTracks(rType, dt);
+			rspMsg.setDate(tracks.getDate());
+			rspMsg.addAll(tracks.getTracks());
 		} catch (DAOException de) {
 			String trackType = OceanicTrackInfo.TYPES[rType.ordinal()];
 			log.error("Error loading " + trackType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
