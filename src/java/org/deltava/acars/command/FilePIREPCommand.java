@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.fb.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
@@ -18,14 +19,18 @@ import org.deltava.acars.message.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
+import org.deltava.dao.http.SetFacebookData;
+
 import org.deltava.mail.*;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.common.*;
+
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 1.0
  */
 
@@ -403,19 +408,18 @@ public class FilePIREPCommand extends ACARSCommand {
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 
 			// Send a notification message if a check ride
+			GetMessageTemplate mtdao = new GetMessageTemplate(con);
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
 					MessageContext mctxt = new MessageContext();
 					mctxt.addData("user", p);
-					
-					// Load the template
-					GetMessageTemplate mtdao = new GetMessageTemplate(con);
-					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
 					mctxt.addData("pirep", afr);
-					
 					mctxt.addData("airline", eq.getOwner().getName());
 					mctxt.addData("url", "http://www." + eq.getOwner().getDomain() + "/");
+					
+					// Load the template
+					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
 
 					// Load the equipment type ACPs
 					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null, true, Rank.ACP);
@@ -427,6 +431,31 @@ public class FilePIREPCommand extends ACARSCommand {
 						mailer.setCC(acp);
 					mailer.send(Mailer.makeAddress(crEQ.getCPEmail(), crEQ.getCPName()));
 				}
+			}
+			
+			// Post Facebook notification
+			FacebookCredentials creds = (FacebookCredentials) SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
+			if ((creds != null) && ac.getUser().hasIM(IMAddress.FBTOKEN)) {
+				ctx.setMessage("Posting to Facebook");
+				
+				// Build the message
+				String baseURL = "http://www." + usrLoc.getDomain() + "/";
+				MessageContext mctxt = new MessageContext();
+				mctxt.addData("user", p);
+				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
+				mctxt.addData("url", baseURL);
+				mctxt.addData("pirep", afr);
+				
+				// Load the template and generate the body text
+				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "FBPIREP"));
+				NewsEntry nws = new NewsEntry(mctxt.getBody(), baseURL + "pirep.do?id=" + afr.getHexID());
+				nws.setLinkCaption(afr.getFlightCode());
+				
+				// Post to user's feed
+				SetFacebookData fbwdao = new SetFacebookData();
+				fbwdao.setWarnMode(true);
+				fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
+				fbwdao.write(nws);
 			}
 
 			// Log completion
@@ -446,6 +475,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2500;
+		return 2750;
 	}
 }
