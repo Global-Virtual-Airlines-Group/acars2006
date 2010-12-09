@@ -75,6 +75,14 @@
 		<pirep>
 			<maxHeld type="Integer">3</maxHeld>
 		</pirep>
+		
+		<!-- Facebook data URLs -->
+		<facebook>
+			<url>
+				<userInfo>https://graph.facebook.com/me</userInfo>
+				<feed>https://graph.facebook.com/me/feed</feed>
+			</url>
+		</facebook>
 	</users>
 
 	<!-- Multiplayer properties -->
