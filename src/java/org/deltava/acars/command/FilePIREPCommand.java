@@ -433,9 +433,12 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 			}
 			
+			// Send ACK
+			ctx.push(ackMsg, ac.getID(), true);
+			
 			// Post Facebook notification
 			FacebookCredentials creds = (FacebookCredentials) SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
-			if ((creds != null) && ac.getUser().hasIM(IMAddress.FBTOKEN)) {
+			if (creds != null) {
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
@@ -450,12 +453,19 @@ public class FilePIREPCommand extends ACARSCommand {
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "FBPIREP"));
 				NewsEntry nws = new NewsEntry(mctxt.getBody(), baseURL + "pirep.do?id=" + afr.getHexID());
 				nws.setLinkCaption(afr.getFlightCode());
+				ctx.release();
 				
 				// Post to user's feed
 				SetFacebookData fbwdao = new SetFacebookData();
 				fbwdao.setWarnMode(true);
-				fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
-				fbwdao.write(nws);
+				if (p.hasIM(IMAddress.FBTOKEN)) {
+					fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
+					fbwdao.write(nws);
+				} else {
+					fbwdao.setAppID(creds.getPageID());
+					fbwdao.setToken(creds.getPageToken());
+					fbwdao.writeApp(nws);
+				}
 			}
 
 			// Log completion
@@ -466,7 +476,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
 		} finally {
 			ctx.release();
-			ctx.push(ackMsg, ac.getID(), true);
 		}
 	}
 
