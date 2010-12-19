@@ -25,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 1.0
  */
 
@@ -203,7 +203,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 		// Check if we're already there, and just adding a USER ID
 		if (_cons.containsValue(c)) {
-			_cons.putIfAbsent(c.getUserID(), c);
+			if (!StringUtils.isEmpty(c.getUserID()))
+				_cons.putIfAbsent(c.getUserID(), c);
 			return;
 		} else if (size() >= _maxSize)
 			throw new ACARSException("Connection Pool full - " + size() + " connections");

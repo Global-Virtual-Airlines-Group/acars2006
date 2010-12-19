@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -11,12 +11,13 @@ import org.deltava.acars.message.Message;
 import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.jdbc.*;
+import org.deltava.util.StringUtils;
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 2.7
+ * @version 3.4
  * @since 1.0
  */
 
@@ -57,7 +58,7 @@ public class CommandContext extends ConnectionContext {
 	 * @see ACARSConnectionPool#get(String)
 	 */
 	public ACARSConnection getACARSConnection(String pilotID) {
-		return _pool.get(pilotID);
+		return StringUtils.isEmpty(pilotID) ? null : _pool.get(pilotID);
 	}
 	
 	/**
