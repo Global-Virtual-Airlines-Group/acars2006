@@ -20,7 +20,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 3.2
+ * @version 3.4
  * @since 1.0
  */
 
@@ -48,8 +48,7 @@ public class NetworkReader extends Worker {
 			_pool.setSelector(_cSelector);
 			_cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		} catch (IOException ie) {
-			log.error(ie.getMessage());
-			throw new IllegalStateException(ie.getMessage());
+			throw new IllegalStateException(ie);
 		}
 	}
 
@@ -114,6 +113,13 @@ public class NetworkReader extends Worker {
 			if (consWaiting > 0) {
 				_status.setMessage("Reading Inbound Messages");
 				Collection<TextEnvelope> msgs = _pool.read();
+				
+				// Do select time
+				long selectTime = System.currentTimeMillis();
+				if ((selectTime  - lastExecTime) > 1500)
+					log.warn("Excessive select time - " + (selectTime - lastExecTime) + "ms (" + _pool.size() + " connections)");
+				
+				// Write messages
 				if (!msgs.isEmpty())
 					RAW_INPUT.addAll(msgs);
 
@@ -141,13 +147,13 @@ public class NetworkReader extends Worker {
 					
 					// Save the end times
 					logCloseConnections(conIDs);
+					
+					// Check execution time
+					long execTime = System.currentTimeMillis() - selectTime;
+					if (execTime > 2500)
+						log.warn("Excessive disconnection logging time - " + execTime + "ms (" + _pool.size() + " connections)");
 				}
 			}
-			
-			// Check execution time
-			long execTime = System.currentTimeMillis() - lastExecTime;
-			if (execTime > 2500)
-				log.warn("Excessive read time - " + execTime + "ms (" + _pool.size() + " connections)");
 			
 			// Log executiuon
 			_status.complete();
