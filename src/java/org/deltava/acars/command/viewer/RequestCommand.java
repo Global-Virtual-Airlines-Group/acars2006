@@ -8,7 +8,7 @@ import org.deltava.acars.message.viewer.*;
 /**
  * An ACARS Server command to send Flight Viewer requests.
  * @author Luke
- * @version 2.8
+ * @version 3.4
  * @since 2.8
  */
 
@@ -32,7 +32,7 @@ public class RequestCommand extends ViewerCommand {
 		// Cast the message
 		RequestMessage reqmsg = (RequestMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
-		if (!ac.getUser().isInRole("Instructor") && !ac.getUser().isInRole("Examiner")) {
+		if (!ac.getUser().isInRole("Instructor")) {
 			log.warn(ac.getUserID() + " requesting Flight Viewer!");
 			return;
 		}
