@@ -69,7 +69,8 @@ public class RouteRequestCommand extends DispatchCommand {
 				Collection<AirlineInformation> apps = SystemData.getApps();
 				for (Iterator<AirlineInformation> i = apps.iterator(); !helper.hasRoutes() && i.hasNext(); ) {
 					AirlineInformation ai = i.next();
-					helper.loadPIREPRoutes(ai.getDB());
+					if (ai != null)
+						helper.loadPIREPRoutes(ai.getDB());
 				}
 			}
 				
