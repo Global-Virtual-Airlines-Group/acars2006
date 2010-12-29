@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.3
+ * @version 3.4
  * @since 1.0
  */
 
@@ -248,10 +248,13 @@ public class AuthenticateCommand extends ACARSCommand {
 				if (ce instanceof SQLException) {
 					SQLException se = (SQLException) ce;
 					if ((se.getErrorCode() == 1062) || ("23000".equals(se.getSQLState()))) {
-						ctx.rollbackTX();
-						ctx.startTX();
-						log.warn(de.getMessage());
-						cwdao.add(con);		
+						GetACARSData crdao = new GetACARSData(c);
+						if (crdao.getConnection(con.getID()) == null) {
+							ctx.rollbackTX();
+							ctx.startTX();
+							log.warn(de.getMessage() +", cannot find duplicate");
+							cwdao.add(con);
+						}
 					}
 				}
 			}
