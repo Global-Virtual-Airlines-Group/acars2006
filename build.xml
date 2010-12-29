@@ -71,7 +71,7 @@
 
 		<!-- Upload the config file to the app server -->
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc"
-			verbose="yes" trust="yes" password="${webapp.dev.pwd}">
+			port="${webapp.dev.port}" verbose="yes" trust="yes" password="${webapp.dev.pwd}">
 			<fileset dir="etc" includes="*.*">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
