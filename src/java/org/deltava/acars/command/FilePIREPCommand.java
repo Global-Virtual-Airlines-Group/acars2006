@@ -438,7 +438,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Post Facebook notification
 			FacebookCredentials creds = (FacebookCredentials) SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
-			if (creds != null) {
+			if ((creds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
@@ -458,14 +458,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				// Post to user's feed
 				SetFacebookData fbwdao = new SetFacebookData();
 				fbwdao.setWarnMode(true);
-				if (p.hasIM(IMAddress.FBTOKEN)) {
-					fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
-					fbwdao.write(nws);
-				} else {
-					fbwdao.setAppID(creds.getPageID());
-					fbwdao.setToken(creds.getPageToken());
-					fbwdao.writeApp(nws);
-				}
+				fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
 			}
 
 			// Log completion
