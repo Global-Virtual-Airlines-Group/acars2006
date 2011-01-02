@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -7,12 +7,14 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.academy.Course;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.fb.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -167,7 +169,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 
 			// Reload the User
-			GetPilot pdao = new GetPilot(con);
+			GetPilotDirectory pdao = new GetPilotDirectory(con);
 			GetPilot.invalidateID(usrLoc.getID());
 			Pilot p = pdao.get(usrLoc);
 
@@ -352,6 +354,8 @@ public class FilePIREPCommand extends ACARSCommand {
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(new Date());
 					cr.setStatus(Test.SUBMITTED);
+					if (cr.getAcademy() && !afr.hasAttribute(FlightReport.ATTR_ACADEMY))
+						afr.setAttribute(FlightReport.ATTR_ACADEMY, true);
 
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
@@ -403,19 +407,54 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Commit the transaction
 			ctx.commitTX();
 
-			// Save the PIREP ID in the ACK message
+			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
 			ackMsg.setEntry("domain", usrLoc.getDomain());
-
-			// Send a notification message if a check ride
+			ctx.push(ackMsg, ac.getID(), true);
+			
+			// Send a notification message if a check ride, either to the CP/ACP, or the Instructor(s)
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
-			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
+			if ((cr != null) && afr.hasAttribute(FlightReport.ATTR_ACADEMY)) {
+				ctx.setMessage("Sending Flight Academy check ride notification");
+				GetAcademyCourses cdao = new GetAcademyCourses(con);
+				Course c = cdao.get(cr.getCourseID());
+				if (c != null) {
+					MessageContext mctxt = new MessageContext();
+					mctxt.addData("user", p);
+					mctxt.addData("pirep", afr);
+					mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
+					mctxt.addData("url", "http://www." + usrLoc.getDomain() + "/");
+					
+					// Load the template
+					mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "CRSUBMIT"));
+					
+					// Get the Instructor(s)
+					GetUserData uddao = new GetUserData(con);
+					Collection<Pilot> insList = new TreeSet<Pilot>();
+					if (c.getInstructorID() != 0) {
+						Pilot ins = pdao.get(uddao.get(c.getInstructorID()));
+						if (ins != null)
+							insList.add(ins);
+					}
+					
+					if (insList.isEmpty()) {
+						for (AirlineInformation ai : uddao.getAirlines(false).values())
+							insList.addAll(pdao.getByRole("Instructor", ai.getDB()));
+					}
+					
+					// Send the message to the Instructors
+					Mailer mailer = new Mailer(p);
+					mailer.setContext(mctxt);
+					mailer.send(insList);
+				}
+			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
+				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
 					MessageContext mctxt = new MessageContext();
 					mctxt.addData("user", p);
 					mctxt.addData("pirep", afr);
-					mctxt.addData("airline", eq.getOwner().getName());
+					mctxt.addData("airline", crEQ.getOwner().getName());
 					mctxt.addData("url", "http://www." + eq.getOwner().getDomain() + "/");
 					
 					// Load the template
@@ -432,9 +471,6 @@ public class FilePIREPCommand extends ACARSCommand {
 					mailer.send(Mailer.makeAddress(crEQ.getCPEmail(), crEQ.getCPName()));
 				}
 			}
-			
-			// Send ACK
-			ctx.push(ackMsg, ac.getID(), true);
 			
 			// Post Facebook notification
 			FacebookCredentials creds = (FacebookCredentials) SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
@@ -459,6 +495,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				SetFacebookData fbwdao = new SetFacebookData();
 				fbwdao.setWarnMode(true);
 				fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
+				fbwdao.write(nws);
 			}
 
 			// Log completion
@@ -477,6 +514,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @return the maximum execution time in milliseconds
 	 */
 	public final int getMaxExecTime() {
-		return 2750;
+		return 2500;
 	}
 }
