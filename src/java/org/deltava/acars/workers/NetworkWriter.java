@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 3.1
+ * @version 3.6
  * @since 1.0
  */
 
@@ -110,7 +110,7 @@ public class NetworkWriter extends Worker {
 				_status.execute();
 				_status.setMessage("Dispatching - " + _ioPool.getActiveCount() + " threads");
 				while (env != null) {
-					ACARSConnection ac = _pool.get(Long.valueOf(env.getConnectionID()));
+					ACARSConnection ac = _pool.get(env.getConnectionID());
 					if (ac != null)
 						_ioPool.execute(new ConnectionWriter(ac, env));
 	

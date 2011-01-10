@@ -3,6 +3,7 @@ package org.deltava.acars.beans;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 import java.io.IOException;
 import java.nio.channels.*;
 
@@ -25,7 +26,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.5
+ * @version 3.6
  * @since 1.0
  */
 
@@ -38,14 +39,20 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 	// List of connections, disconnected connections and connection pool info
 	private int _maxSize;
-	private final ConcurrentMap<Object, ACARSConnection> _cons = new ConcurrentHashMap<Object, ACARSConnection>();
 	private transient final BlockingQueue<ACARSConnection> _disCon = new LinkedBlockingQueue<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
-	// Inactivity timeout
-	private long _inactivityTimeout = -1;
+	// Pools
+	private final Map<Long, ACARSConnection> _cons = new HashMap<Long, ACARSConnection>();
+	private final Map<Object, ACARSConnection> _conLookup = new HashMap<Object, ACARSConnection>();
 	
-	// Last inactivity check time
+	// Pool read/write locks
+	private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock(true);
+	private final Lock _r = _lock.readLock();
+	private final Lock _w = _lock.writeLock();
+	
+	// Inactivity timeout/last run time
+	private long _inactivityTimeout = -1;
 	private long _inactivityLastRun = 0;
 
 	// The selector to use for non-blocking I/O reads
@@ -53,11 +60,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 	/**
 	 * Creates a new ACARS Connection Pool.
-	 * @param mxSize the maximum size of the pool
+	 * @param maxSize the maximum size of the pool
 	 */
-	public ACARSConnectionPool(int mxSize) {
+	public ACARSConnectionPool(int maxSize) {
 		super();
-		_maxSize = (mxSize > 0) ? mxSize : -1;
+		_maxSize = (maxSize > 0) ? maxSize : -1;
 	}
 
 	/**
@@ -65,7 +72,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @return a Collection of ACARSConnection beans
 	 */
 	public Collection<ACARSConnection> getAll() {
-		return new LinkedHashSet<ACARSConnection>(_cons.values());
+		try {
+			_r.lock();
+			return new ArrayList<ACARSConnection>(_cons.values());
+		} finally {
+			_r.unlock();
+		}
 	}
 
 	/**
@@ -189,8 +201,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 */
 	public Collection<ConnectionStats> getStatistics() {
 		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(getAll());
-		results.addAll(_disConStats);
-		_disConStats.clear();
+		synchronized (_disConStats) {
+			results.addAll(_disConStats);
+			_disConStats.clear();
+		}
+		
 		return results;
 	}
 	
@@ -200,35 +215,44 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @throws ACARSException if the connection exists, the pool is full or a network error occurs
 	 */
 	public synchronized void add(ACARSConnection c) throws ACARSException {
-
 		// Check if we're already there, and just adding a USER ID
 		if (_cons.containsValue(c)) {
-			if (!StringUtils.isEmpty(c.getUserID()))
-				_cons.putIfAbsent(c.getUserID(), c);
+			if (!StringUtils.isEmpty(c.getUserID())) {
+				try {
+					_w.lock();
+					_conLookup.put(c.getUserID(), c);
+				} finally {
+					_w.unlock();
+				}
+			}
+			
 			return;
 		} else if (size() >= _maxSize)
 			throw new ACARSException("Connection Pool full - " + size() + " connections");
 
-		// Register the SocketChannel with the selector
+		// Register the SocketChannel with the selector, wake it up if it's sleeping
 		try {
+			_w.lock();
 			_cSelector.wakeup();
 			SocketChannel sc = c.getChannel();
 			sc.register(_cSelector, SelectionKey.OP_READ);
 			_cons.put(Long.valueOf(c.getID()), c);
-			_cons.put(sc, c);
+			_conLookup.put(sc, c);
 			
 			// Save the remote address if we're not allowing duplicates
 			if (!SystemData.getBoolean("acars.pool.multiple"))
-				_cons.putIfAbsent(c.getRemoteAddr(), c);
+				_conLookup.put(c.getRemoteAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
+		} finally {
+			_w.unlock();
 		}
 	}
 
 	public Collection<ACARSConnection> checkConnections() {
 
 		// Start with the list of dropped connections
-		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon.size() + 2);
+		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon.size() + 4);
 		_disCon.drainTo(disCons);
 
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
@@ -260,8 +284,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 				ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
 				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
 				ds.setBytes(con.getBytesIn(), con.getBytesOut());
-				_disConStats.add(ds);
 				disCons.add(con);
+				synchronized (_disConStats) {
+					_disConStats.add(ds);
+				}
 			}
 		}
 		
@@ -270,13 +296,31 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	}
 	
 	/**
-	 * Returns an ACARS Connection based on a key. The key may be a {@link SocketChannel}, an IP
-	 * address, a pilot ID or a Connection ID.
-	 * @param o the key
+	 * Returns an ACARS Connection based on a connection ID.
+	 * @param id the connection ID
 	 * @return an ACARSConnection, or null if not found
 	 */
-	public ACARSConnection get(Object o) {
-		return _cons.get(o);
+	public ACARSConnection get(long id) {
+		try {
+			_r.lock();
+			return _cons.get(Long.valueOf(id));
+		} finally {
+			_r.unlock();
+		}
+	}
+	
+	/**
+	 * Returns an ACARS Connection based on a pilot ID or IP address.
+	 * @param id the pilot ID or IP address
+	 * @return an ACARSConnection, or null if not found
+	 */
+	public ACARSConnection get(String id) {
+		try {
+			_r.lock();
+			return _conLookup.get(id);
+		} finally {
+			_r.unlock();
+		}
 	}
 	
 	/**
@@ -332,7 +376,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 
 			// If the selection key is ready for reading, get the Connection and read
 			if (sKey.isValid() && sKey.isReadable()) {
-				ACARSConnection con = _cons.get(sKey.channel());
+				ACARSConnection con = null;
+				try {
+					_r.lock();
+					con = _conLookup.get(sKey.channel());
+				} finally {
+					_r.unlock();
+				}
+
 				if (con != null) {
 					try {
 						String msg = con.read();
@@ -349,8 +400,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
 						ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
 						ds.setBytes(con.getBytesIn(), con.getBytesOut());
-						_disConStats.add(ds);
 						_disCon.add(con);
+						synchronized (_disConStats) {
+							_disConStats.add(ds);
+						}
 					}
 				}
 			}
@@ -359,19 +412,36 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 			i.remove();
 		}
 
-		// Return messages
 		return results;
 	}
 
+	/**
+	 * Removes a connection from the pool.
+	 * @param c the ACARSConnection
+	 */
 	public void remove(ACARSConnection c) {
-		while (_cons.containsValue(c))
+		try {
+			_w.lock();
 			_cons.values().remove(c);
+			while (_conLookup.containsValue(c))
+				_conLookup.values().remove(c);
+		} finally {
+			_w.unlock();
+		}
 	}
 
+	/**
+	 * Sets the selector to use for this pool.
+	 * @param cs the Selector
+	 */
 	public void setSelector(Selector cs) {
 		_cSelector = cs;
 	}
 
+	/**
+	 * Sets the inactivity timeout.
+	 * @param toSeconds the timeout in seconds
+	 */
 	public void setTimeout(int toSeconds) {
 		_inactivityTimeout = (toSeconds < 60) ? -1 : (toSeconds * 1000);
 	}

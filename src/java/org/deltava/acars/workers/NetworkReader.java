@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 3.4
+ * @version 3.6
  * @since 1.0
  */
 
@@ -89,25 +89,24 @@ public class NetworkReader extends Worker {
 		long lastExecTime = 0;
 
 		while (!Thread.currentThread().isInterrupted()) {
-			
-			// Check for some data using our timeout value
 			_status.setMessage("Waiting for Data");
 			_status.execute();
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 75)
-					Thread.sleep(75 - runInterval);
+				if (runInterval < 100)
+					Thread.sleep(100 - runInterval);
 				
-				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep"));
+				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep", 30000));
 			} catch (Exception e) {
 				log.warn("Error on select - " + e.getMessage());
 			}
 			
 			// Wait in case we just added a new connection
-			synchronized (_pool) {
+			// I think making read() use the read lock resolves this
+			//synchronized (_pool) {
 				lastExecTime = System.currentTimeMillis();
-			}
+			//}
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (consWaiting > 0) {
