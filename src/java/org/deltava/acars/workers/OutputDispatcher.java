@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 3.1
+ * @version 3.6
  * @since 1.0
  */
 
@@ -121,11 +121,11 @@ public final class OutputDispatcher extends Worker {
 						log.debug("Dispatching message to " + env.getOwnerID());
 
 					// Determine the protocol version for each message
-					Long cid = Long.valueOf(env.getConnectionID());
-					ACARSConnection ac = _pool.get(cid);
+					ACARSConnection ac = _pool.get(env.getConnectionID());
 
 					// Get the XML document, if none exists create it
 					if (ac != null) {
+						Long cid = Long.valueOf(env.getConnectionID());
 						DatedDocument doc = docs.get(cid);
 						if (doc == null) {
 							Element e = new Element(ProtocolInfo.RSP_ELEMENT_NAME);
