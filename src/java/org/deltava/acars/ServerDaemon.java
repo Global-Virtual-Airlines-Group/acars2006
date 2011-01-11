@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 3.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -71,7 +71,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
- 	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 1));
+ 	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
  	    jdbcPool.setProperties((Map<?, ?>) SystemData.getObject("jdbc.connectProperties"));
  	    jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
  	    jdbcPool.setProperty("url", SystemData.get("jdbc.url"));
