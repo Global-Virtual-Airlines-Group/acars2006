@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.*;
@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.4
+ * @version 3.6
  * @since 1.0
  */
 
@@ -122,26 +122,6 @@ public class AuthenticateCommand extends ACARSCommand {
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
 			
-			// Check if we're already logged in
-			ACARSConnection ac2 = ctx.getACARSConnection(usr.getPilotCode());
-			if (ac2 != null) {
-				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
-				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
-				boolean isDSP = (msg.isDispatch() || ac2.getIsDispatch());
-				if (ac2.getRemoteAddr().equals(remoteAddr) && !isDSP) {
-					ac2.close();
-					ctx.getACARSConnectionPool().remove(ac2);
-					log.warn(code + " already logged in from " + remoteAddr + ", closing existing connection");
-					
-					// Mark the connection closed
-					SetConnection dao = new SetConnection(c);
-					dao.closeConnection(ac2.getID());
-				} else if (!isDSP) {
-					log.warn(code + " already logged in from " + ac2.getRemoteAddr() + " trying to log in from " + remoteAddr);
-					throw new SecurityException(usr.getPilotCode() + " already logged in");
-				}
-			}
-
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			if (auth instanceof SQLAuthenticator) {
@@ -151,6 +131,24 @@ public class AuthenticateCommand extends ACARSCommand {
 				sqlAuth.clearConnection();
 			} else
 				auth.authenticate(usr, msg.getPassword());
+			
+			// Check if we're already logged in
+			ACARSConnection ac2 = ctx.getACARSConnection(usr.getPilotCode());
+			if (ac2 != null) {
+				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
+				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
+				boolean isDSP = (msg.isDispatch() || ac2.getIsDispatch());
+				if (!isDSP) {
+					log.warn(code + " already logged in from " + ac2.getRemoteAddr() + ", closing existing connection from " + remoteAddr);
+					ac2.close();
+					ctx.getACARSConnectionPool().remove(ac2);
+					
+					// Mark the connection closed
+					SetConnection dao = new SetConnection(c);
+					dao.closeConnection(ac2.getID());
+				} else
+					log.warn("Dispatcher " + code + " already logged in from " + ac2.getRemoteAddr() + ", logging in from " + remoteAddr);
+			}
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
