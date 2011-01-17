@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 3.2
+ * @version 3.6
  * @since 1.0
  */
 
@@ -34,11 +34,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
 	private transient static final int MAX_WRITE_ATTEMPTS = 32;
+	private transient static final String MAGIC_RESET_CODE = "</!ACARSReset>";
 
 	// Byte byffer decoder and character set
 	private transient final Charset cs = Charset.forName("UTF-8"); 
 	private transient final CharsetDecoder decoder = cs.newDecoder();
-
+	
 	private transient SocketChannel _channel;
 	private transient Selector _wSelector;
 
@@ -479,6 +480,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	 */
 	public void queue(String msg) {
 		_msgOutBuffer.add(msg);
+		
+		// Only allow one thread to write to the channel
 		if (_wLock.tryLock()) {
 			while (!_msgOutBuffer.isEmpty())
 				write(_msgOutBuffer.poll());
@@ -487,6 +490,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		}
 	}
 
+	/**
+	 * Writes a message to the socket.
+	 * @param msg the message text
+	 */
 	protected void write(String msg) {
 		if ((_oBuffer == null) || (msg == null))
 			return;
@@ -499,7 +506,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 			int ofs = 0;
 			while (ofs < msgBytes.length) {
 				_oBuffer.clear();
-
+				
 				// Keep writing to the buffer
 				while ((ofs < msgBytes.length) && (_oBuffer.remaining() > 0)) {
 					_oBuffer.put(msgBytes[ofs]);
@@ -522,6 +529,13 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 						_bufferWrites++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
 							_writeErrors++;
+							_oBuffer.clear();
+							_oBuffer.put(MAGIC_RESET_CODE.getBytes(cs));
+							if (_wSelector.select(300) > 0) {
+								_bytesOut += _channel.write(_oBuffer);		
+								_wSelector.selectedKeys().clear();
+							}
+							
 							throw new IOException("Write timeout for " + getUserID() + " at " + _remoteAddr);
 						}
 					}
