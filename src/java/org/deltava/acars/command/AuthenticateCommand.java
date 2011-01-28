@@ -121,6 +121,8 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException();
 			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
+			else if (ud == null)
+				throw new SecurityException("Cannot load user data - " + msg.getUserID());
 			
 			// Validate the password
 			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
