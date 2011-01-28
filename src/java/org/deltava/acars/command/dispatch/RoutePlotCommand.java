@@ -80,6 +80,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			rt.setAirportA(msg.getAirportA());
 			rt.setCreatedOn(new Date());
 			rt.setComments("User-Requested Route");
+			rt.setRoute(msg.getRoute());
 			
 			// Load the waypoints for the route
 			GetNavRoute navdao = new GetNavRoute(con);
