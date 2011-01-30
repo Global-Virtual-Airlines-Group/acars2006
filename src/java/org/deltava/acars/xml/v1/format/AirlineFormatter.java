@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.Iterator;
@@ -9,11 +9,12 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.AirlineMessage;
 
 import org.deltava.beans.schedule.Airline;
+import org.deltava.util.XMLUtils;
 
 /**
  * An XML Formatter for Airline data messages.
  * @author Luke
- * @version 1.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -39,6 +40,9 @@ class AirlineFormatter extends ElementFormatter {
 			Element ae = new Element("airline");
 			ae.setAttribute("code", al.getCode());
 			ae.setAttribute("name", al.getName());
+			for (String appCode : al.getApplications())
+				ae.addContent(XMLUtils.createElement("app", appCode));
+				
 			e.addContent(ae);
 		}
 		

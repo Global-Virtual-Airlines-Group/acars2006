@@ -1,12 +1,7 @@
-// Copyright 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.sql.Connection;
-
-import org.deltava.beans.UserData;
-
-import org.deltava.acars.beans.MessageEnvelope;
-
+import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.AircraftMessage;
@@ -16,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 1.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -41,12 +36,13 @@ public class EquipmentListCommand extends DataCommand {
 		AircraftMessage rspMsg = new AircraftMessage(env.getOwner(), msg.getID());
 		rspMsg.setShowProfile(Boolean.valueOf(msg.getFlag("showProfile")).booleanValue());
 		
-		// Get the user's airline
-		UserData ud = ctx.getACARSConnection().getUserData();
 		try {
-			Connection con = ctx.getConnection();
-			GetAircraft acdao = new GetAircraft(con);
-			rspMsg.addAll(acdao.getAircraftTypes(ud.getAirlineCode()));
+			ACARSConnection ac = ctx.getACARSConnection();
+			GetAircraft acdao = new GetAircraft(ctx.getConnection());
+			if (ac.getIsDispatch())
+				rspMsg.addAll(acdao.getAll());
+			else
+				rspMsg.addAll(acdao.getAircraftTypes(ac.getUserData().getAirlineCode()));
 		} catch (DAOException de) {
 			log.error("Error loading equipment types", de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -56,7 +52,6 @@ public class EquipmentListCommand extends DataCommand {
 			ctx.release();
 		}
 		
-		// Push the response
 		ctx.push(rspMsg, env.getConnectionID());
 	}
 }

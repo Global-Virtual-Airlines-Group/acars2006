@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -9,13 +9,14 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.AircraftMessage;
 
 import org.deltava.beans.schedule.Aircraft;
+import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 3.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -57,6 +58,10 @@ class AircraftFormatter extends ElementFormatter {
 				// Dump IATA codes
 				for (String iataCode : a.getIATA())
 					ae.addContent(XMLUtils.createElement("iata", iataCode, false));
+				
+				// Dump app names
+				for (AirlineInformation ai : a.getApps())
+					ae.addContent(XMLUtils.createElement("app", ai.getCode()));
 				
 				// Get tank names/percentages
 				Map<String, Collection<String>> tNames = a.getTankNames();
