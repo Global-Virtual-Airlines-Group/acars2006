@@ -108,7 +108,7 @@ public class NetworkWriter extends Worker {
 				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
 				TextEnvelope env = RAW_OUTPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
-				_status.setMessage("Dispatching - " + _ioPool.getActiveCount() + " threads");
+				_status.setMessage("Dispatching - " + _ioPool.getPoolSize() + " threads");
 				while (env != null) {
 					ACARSConnection ac = _pool.get(env.getConnectionID());
 					if (ac != null)
