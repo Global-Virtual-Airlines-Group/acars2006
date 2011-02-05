@@ -52,11 +52,11 @@ public class ServiceCompleteCommand extends DispatchCommand {
 			} else if (dc2 == null)
 				log.warn("Cannot send Accept to " + dispatcherID);
 			else
-				log.warn("Sending Accept to " + dc2.getUserID());
+				log.info("Sending Accept to " + dc2.getUserID());
 		} else if (dc == null)
 			log.warn("Unknown Dispatch connection - " + dspID);
 		else
-			log.warn("Sending Accept to " + dc.getUserID());
+			log.info("Sending Accept to " + dc.getUserID());
 
 		// Send to the dispatcher
 		ctx.push(msg, dspID);
