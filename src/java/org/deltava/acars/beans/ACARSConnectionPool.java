@@ -214,7 +214,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	 * @param c the connection to add
 	 * @throws ACARSException if the connection exists, the pool is full or a network error occurs
 	 */
-	public synchronized void add(ACARSConnection c) throws ACARSException {
+	public void add(ACARSConnection c) throws ACARSException {
 		// Check if we're already there, and just adding a USER ID
 		if (_cons.containsValue(c)) {
 			if (!StringUtils.isEmpty(c.getUserID())) {
