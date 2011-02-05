@@ -104,9 +104,7 @@ public class NetworkReader extends Worker {
 			
 			// Wait in case we just added a new connection
 			// I think making read() use the read lock resolves this
-			//synchronized (_pool) {
-				lastExecTime = System.currentTimeMillis();
-			//}
+			lastExecTime = System.currentTimeMillis();
 
 			// Check if there are any messages waiting, and push them onto the raw input stack.
 			if (consWaiting > 0) {
