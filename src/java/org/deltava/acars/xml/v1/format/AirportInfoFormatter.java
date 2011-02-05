@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom.Element;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * A formatter for AirportInfoMessages.
  * @author Luke
- * @version 2.7
+ * @version 3.6
  * @since 2.6
  */
 
@@ -32,7 +32,7 @@ public class AirportInfoFormatter extends ElementFormatter {
 
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, "airportInfo");
+		Element e = initDataResponse(pe, "airportinfo");
 		
 		// Save the airport data
 		Element ae = new Element("info");
