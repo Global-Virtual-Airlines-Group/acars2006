@@ -48,7 +48,7 @@
 		</map>
 		
 		<pool_size type="Integer">1</pool_size>
-		<pool_max_size type="Integer">5</pool_max_size>
+		<pool_max_size type="Integer">6</pool_max_size>
 		<max_reqs type="Integer">0</max_reqs>
 		<auto_commit type="Boolean">true</auto_commit>
 		<log_stack type="Boolean">true</log_stack>
@@ -164,12 +164,12 @@
 			</map>
 
 			<map name="beta">
-				<b98>4</b98>
+				<b99>1</b99>
 				<b100>6</b100>
 			</map>
 
 			<latest type="Integer">98</latest>
-			<dispatch type="Integer">26</dispatch>
+			<dispatch type="Integer">28</dispatch>
 			<viewer type="Integer">1</viewer>
 			<list name="noDispatch" attr="build" unique="true">
 				<build>96</build>
@@ -187,7 +187,7 @@
 				</logic>
 				<write>
 					<min type="Integer">1</min>
-					<max type="Integer">16</max>
+					<max type="Integer">12</max>
 				</write>
 			</threads>
 		</pool>
