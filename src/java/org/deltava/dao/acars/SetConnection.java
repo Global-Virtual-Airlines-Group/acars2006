@@ -1,10 +1,8 @@
-// Copyright 2004, 2005, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 import org.deltava.dao.*;
 import org.deltava.acars.beans.ACARSConnection;
@@ -12,7 +10,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 3.2
+ * @version 3.6
  * @since 1.0
  */
 
@@ -68,11 +66,10 @@ public final class SetConnection extends DAO {
 	 */
 	public void closeConnections(Collection<Long> ids) throws DAOException {
 		try {
-			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=? WHERE (ID=CONV(?,10,16))");
-			_ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ID=CONV(?,10,16))");
 			for (Iterator<Long> i = ids.iterator(); i.hasNext(); ) {
 				long id = i.next().longValue();
-				_ps.setLong(2, id);
+				_ps.setLong(1, id);
 				_ps.addBatch();
 			}
 			
