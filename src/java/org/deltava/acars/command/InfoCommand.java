@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -10,19 +10,20 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.FlightInfo;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
+
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 3.1
+ * @version 3.6
  * @since 1.0
  */
 
@@ -134,9 +135,29 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Log unknown SID/STAR
 			if ((sid == null) && (!StringUtils.isEmpty(msg.getSID())))
-				log.info("Unknown SID - " + msg.getSID());
+				log.warn("Unknown SID - " + msg.getSID());
 			if ((star == null) && (!StringUtils.isEmpty(msg.getSTAR())))
-				log.info("Unknown STAR - " + msg.getSTAR());
+				log.warn("Unknown STAR - " + msg.getSTAR());
+			
+			// Validate the dispatch route
+			if (msg.getRouteID() != 0) {
+				GetACARSRoute ardao = new GetACARSRoute(c);
+				DispatchRoute rt = ardao.getRoute(msg.getRouteID());
+				if (rt == null) {
+					log.warn("Invalid Dispatch Route ID - " + msg.getRouteID());
+					msg.setRouteID(0);
+				}
+			}
+			
+			// Validate the dispatcher
+			if (msg.getDispatcherID() != 0) {
+				GetUserData uddao = new GetUserData(c);
+				UserData ud = uddao.get(msg.getDispatcherID());
+				if (ud == null) {
+					log.warn("Invalid Dispatcher ID - " + msg.getDispatcherID());
+					msg.setDispatcherID(0);
+				}
+			}
 			
 			// Start a transaction
 			ctx.startTX();

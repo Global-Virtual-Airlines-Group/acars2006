@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 3.2
+ * @version 3.6
  * @since 1.0
  */
 
@@ -67,8 +67,9 @@ public class SetInfo extends DAO {
 			executeUpdate(1);
 			
 			// If we're writing a new entry, get the database ID
+			int newID = msg.getFlightID();
 			if (isNew)
-				msg.setFlightID(getNewID());
+				newID = getNewID();
 			
 			// Write dispatcher ID
 			if (isNew && (msg.getDispatcherID() != 0)) {
@@ -92,6 +93,7 @@ public class SetInfo extends DAO {
 			}
 				
 			commitTransaction();
+			msg.setFlightID(newID);
 		} catch (SQLException se) {
 			rollbackTransaction();
 			throw new DAOException(se);
