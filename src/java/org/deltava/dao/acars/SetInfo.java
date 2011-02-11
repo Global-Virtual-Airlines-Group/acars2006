@@ -74,7 +74,7 @@ public class SetInfo extends DAO {
 			// Write dispatcher ID
 			if (isNew && (msg.getDispatcherID() != 0)) {
 				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCHER (ID, DISPATCHER_ID) VALUES (?, ?)");
-				_ps.setInt(1, msg.getFlightID());
+				_ps.setInt(1, newID);
 				_ps.setInt(2, msg.getDispatcherID());
 				executeUpdate(0);
 			}
@@ -82,7 +82,7 @@ public class SetInfo extends DAO {
 			// Save route usage if using auto-Dispatch
 			if (isNew && (msg.getRouteID() != 0)) {
 				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID) VALUES (?, ?)");
-				_ps.setInt(1, msg.getFlightID());
+				_ps.setInt(1, newID);
 				_ps.setInt(2, msg.getRouteID());
 				executeUpdate(0);
 				
