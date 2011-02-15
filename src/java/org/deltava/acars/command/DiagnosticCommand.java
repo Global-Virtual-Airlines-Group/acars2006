@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 3.3
+ * @version 3.6
  * @since 1.0
  */
 
@@ -55,7 +55,13 @@ public class DiagnosticCommand extends ACARSCommand {
 				}
 
 				// Try and get the connection
-				Collection<ACARSConnection> cons = Collections.singleton(cPool.get(msg.getRequestData()));
+				Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>();
+				ACARSConnection acon = cPool.get(msg.getRequestData());
+				if (acon != null)
+					cons.add(acon);
+				else
+					log.warn("Cannot kick " + msg.getRequestData());
+				
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
 					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
