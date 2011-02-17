@@ -67,6 +67,7 @@ public class InfoCommand extends ACARSCommand {
 		}
 
 		// Write the info to the database
+		int oldID = msg.getFlightID();
 		try {
 			Connection c = ctx.getConnection();
 
@@ -181,6 +182,8 @@ public class InfoCommand extends ACARSCommand {
 			ctx.commitTX();
 		} catch (DAOException de) {
 			ctx.rollbackTX();
+			msg.setFlightID(oldID);
+			log.error("Pilot = " + con.getUserID() + ", RouteID = " + msg.getRouteID() + ", DispatcherID = " + msg.getDispatcherID());
 			log.error(de.getMessage(), de);
 		} finally {
 			ctx.release();
