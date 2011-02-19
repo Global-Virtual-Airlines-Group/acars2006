@@ -1,6 +1,7 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.io.*;
 import java.util.Collection;
 import java.util.concurrent.locks.*;
 
@@ -8,13 +9,18 @@ import org.apache.log4j.Logger;
 
 import static org.deltava.acars.workers.Worker.MP_UPDATE;
 
+import org.deltava.beans.OnlineNetwork;
+import org.deltava.beans.servinfo.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 
 import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.file.GetServInfo;
 
 import org.deltava.util.CalendarUtils;
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.acars.ACARSFlags;
@@ -22,7 +28,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 3.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -68,11 +74,28 @@ public class PositionCommand extends ACARSCommand {
 			return;
 		}
 		
-		// Adjust the message date
+		// Adjust the message date and calculate the age of the last message
 		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
-
-		// Calculate the age of the last message
 		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
+		
+		// If we're online, have a frequency and no controller, find one
+		OnlineNetwork network = info.getNetwork();
+		if (msg.isLogged() && (network != null) && (msg.getController() == null) && !StringUtils.isEmpty(msg.getCOM1())) {
+			File f = new File(SystemData.get("online." + network.toString().toLowerCase() + ".local.info"));
+			try {
+				if (f.exists()) {
+					GetServInfo sidao = new GetServInfo(new FileInputStream(f));
+					NetworkInfo netInfo = sidao.getInfo(info.getNetwork());
+					Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
+					if ((ctr != null) && (ctr.getFacility() != Facility.ATIS)) {
+						msg.setController(ctr);
+						log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign());
+					}
+				}
+			} catch (Exception e) {
+				log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
+			}
+		}
 
 		// Queue it up
 		if (msg.getNoFlood())
