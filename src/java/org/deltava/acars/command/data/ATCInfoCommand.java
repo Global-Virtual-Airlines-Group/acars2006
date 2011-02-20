@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.io.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 2.6
+ * @version 3.6
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ public class ATCInfoCommand extends DataCommand {
 			}
 		} catch (Exception e) {
 			log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
+			return;
 		}
 		
 		// Get the position
