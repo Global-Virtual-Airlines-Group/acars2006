@@ -19,8 +19,7 @@ import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.dao.acars.SetPosition;
 import org.deltava.dao.file.GetServInfo;
 
-import org.deltava.util.CalendarUtils;
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.acars.ACARSFlags;
@@ -87,9 +86,10 @@ public class PositionCommand extends ACARSCommand {
 					GetServInfo sidao = new GetServInfo(new FileInputStream(f));
 					NetworkInfo netInfo = sidao.getInfo(info.getNetwork());
 					Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
-					if ((ctr != null) && (ctr.getFacility() != Facility.ATIS)) {
+					if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
 						msg.setController(ctr);
-						log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign());
+						int distance = GeoUtils.distance(msg, ctr);
+						log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
 					}
 				}
 			} catch (Exception e) {
