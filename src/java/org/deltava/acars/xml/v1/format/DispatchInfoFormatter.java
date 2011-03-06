@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 2.2
+ * @version 3.6
  * @since 1.0
  */
 
@@ -65,7 +65,7 @@ class DispatchInfoFormatter extends ElementFormatter {
 		}
 		
 		// Add waypoints
-		Element re = new Element("route");
+		Element re = XMLUtils.createElement("route", dmsg.getRoute(), true);
 		e.addContent(re);
 		for (Iterator<NavigationDataBean> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
 			NavigationDataBean nd = i.next();
