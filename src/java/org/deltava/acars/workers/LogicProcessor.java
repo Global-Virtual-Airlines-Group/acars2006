@@ -3,7 +3,6 @@ package org.deltava.acars.workers;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -14,9 +13,6 @@ import org.deltava.acars.command.viewer.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
-import org.deltava.dao.acars.*;
-
-import org.gvagroup.jdbc.ConnectionPool;
 import org.gvagroup.ipc.WorkerStatus;
 
 import org.deltava.util.system.SystemData;
@@ -31,7 +27,6 @@ import org.deltava.util.system.SystemData;
 public class LogicProcessor extends Worker {
 	
 	private QueueingThreadPool _cmdPool;
-	private static final Semaphore _dbLock = new Semaphore(1, true);
 	
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
@@ -175,36 +170,11 @@ public class LogicProcessor extends Worker {
 			
 			// Calculate and log execution time
 			long execTime = System.currentTimeMillis() - startTime;
-			int userID = (_env.getOwner() == null) ? 0 : _env.getOwner().getID();
-			if (_cmd.isLogged())
-				SetStatistics.queue(new CommandEntry(_cmd.getClass(), userID, execTime));
 			if (execTime > _cmd.getMaxExecTime())
 				log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 		}
 	}
 
-	private void flushLogs() {
-		_status.setMessage("Flushing Command logs");
-		Connection con = null;
-		ConnectionPool cp = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		try {
-			con = cp.getConnection();
-			if (SetPosition.size() > 0) {
-				SetPosition dao = new SetPosition(con);
-				int entries = dao.flush();
-				log.info("Flushed " + entries + " cached Position entries");
-			}
-
-			// Flush statistics
-			SetStatistics dao = new SetStatistics(con);
-			dao.flush();
-		} catch (Exception e) {
-			log.error("Error flushing Position/Statistics caches - " + e.getMessage(), e);
-		} finally {
-			cp.release(con);
-		}
-	}
-	
 	/**
 	 * Returns the status of this Worker and the Connection writers.
 	 * @return a List of WorkerStatus beans, with this Worker's status first
@@ -230,7 +200,6 @@ public class LogicProcessor extends Worker {
 			log.error(e.getMessage(), e);
 		}
 		
-		flushLogs();
 		super.close();
 	}
 
@@ -281,16 +250,6 @@ public class LogicProcessor extends Worker {
 				// Send the envelope to the thread pool for processing
 				if (cmd != null)
 					_cmdPool.execute(new CommandWorker(env, cmd));
-				
-				// Flush the logs
-				if (_dbLock.tryAcquire()) {
-					try {
-						if (SetStatistics.getMaxAge() > 30000) 
-							flushLogs();
-					} finally {
-						_dbLock.release();
-					}
-				}
 				
 				_status.complete();
 			} catch (InterruptedException ie) {
