@@ -86,7 +86,7 @@ public class NetworkReader extends Worker {
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
-		long lastExecTime = 0;
+		long lastExecTime = 0; int sleepTime = SystemData.getInt("acars.sleep", 30000);
 
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Waiting for Data");
@@ -94,12 +94,15 @@ public class NetworkReader extends Worker {
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 100)
-					Thread.sleep(100 - runInterval);
+				if (runInterval < 75)
+					Thread.sleep(75 - runInterval);
 				
-				consWaiting = _cSelector.select(SystemData.getInt("acars.sleep", 30000));
+				consWaiting = _cSelector.select(sleepTime);
+			} catch (InterruptedException ie) {
+				log.warn("Interrupted");
+				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.warn("Error on select - " + e.getMessage());
+				log.warn("Error on select - " + e.getMessage(), e);
 			}
 			
 			// Wait in case we just added a new connection
