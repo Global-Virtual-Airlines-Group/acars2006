@@ -36,6 +36,8 @@ public class PositionCommand extends ACARSCommand {
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
 	private static final ReentrantReadWriteLock _flushLock = new ReentrantReadWriteLock(true);
 	private static final Lock w = _flushLock.writeLock();
+	
+	private final int MIN_INTERVAL = SystemData.getInt("acars.position_interval", 2000);
 
 	/**
 	 * Executes the command.
@@ -101,15 +103,17 @@ public class PositionCommand extends ACARSCommand {
 		if (msg.getNoFlood())
 			SetPosition.queue(msg, ac.getFlightID());
 		else {
+			boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED);
+			
 			// Check for position flood
-			if (pmAge >= SystemData.getInt("acars.position_interval")) {
-				if (!msg.isFlagSet(ACARSFlags.FLAG_PAUSED)) {
+			if (pmAge >= MIN_INTERVAL) {
+				if (!isPaused) {
 					ac.setPosition(msg);
 					if (msg.isLogged())
 						SetPosition.queue(msg, ac.getFlightID());
 				} else
 					ac.setPosition(null);
-			} else if (!msg.isLogged())
+			} else if (!msg.isLogged() && !isPaused)
 				ac.setPosition(msg);
 			else
 				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
@@ -121,7 +125,7 @@ public class PositionCommand extends ACARSCommand {
 			log.debug("Received position from " + ac.getUserID());
 		
 		// Send it to any dispatchers that are around
-		if ((ac.getFlightInfo().getNetwork() == null) && (!msg.getNoFlood())) {
+		if (!msg.getNoFlood()) {
 			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getMP(msg);
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
@@ -136,7 +140,7 @@ public class PositionCommand extends ACARSCommand {
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 32500) {
+			if (SetPosition.getMaxAge() > 22500) {
 				try {
 					SetPosition dao = new SetPosition(ctx.getConnection());
 					int entries = dao.flush();
