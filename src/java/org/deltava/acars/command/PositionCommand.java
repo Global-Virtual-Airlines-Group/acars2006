@@ -15,6 +15,7 @@ import org.deltava.beans.servinfo.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
+import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
 import org.deltava.dao.acars.SetPosition;
 import org.deltava.dao.file.GetServInfo;
@@ -89,9 +90,11 @@ public class PositionCommand extends ACARSCommand {
 					NetworkInfo netInfo = sidao.getInfo(info.getNetwork());
 					Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
 					if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
-						msg.setController(ctr);
 						int distance = GeoUtils.distance(msg, ctr);
-						log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						if (distance < (ctr.getFacility().getRange() * 2)) {
+							msg.setController(ctr);
+							log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -133,14 +136,17 @@ public class PositionCommand extends ACARSCommand {
 				updmsg.add(upd);
 			
 				// Queue the message
-				for (ACARSConnection rac : scopes)
-					MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
+				for (ACARSConnection rac : scopes) {
+					ScopeInfoMessage sc = rac.getScope();
+					if ((sc == null) || sc.getAllTraffic() || (sc.getNetwork() == network))
+						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
+				}
 			}
 		}
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 22500) {
+			if (SetPosition.getMaxAge() > 21500) {
 				try {
 					SetPosition dao = new SetPosition(ctx.getConnection());
 					int entries = dao.flush();

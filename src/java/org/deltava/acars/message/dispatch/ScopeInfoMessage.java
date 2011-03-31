@@ -1,4 +1,4 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.*;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch radar scope parameters.
  * @author Luke
- * @version 3.0
+ * @version 3.6
  * @since 3.0
  */
 
@@ -17,7 +17,10 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	
 	private GeoLocation _ctr = new GeoPosition(0, 0);
 	private int _range;
-
+	
+	private OnlineNetwork _network;
+	private boolean _allTraffic;
+	
 	/**
 	 * Initializes the Message. 
 	 * @param msgFrom
@@ -47,6 +50,22 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	public int getRange() {
 		return _range;
 	}
+	
+	/**
+	 * Returns the Online Network to monitor.
+	 * @return an OnlineNetwork, or null for Offline 
+	 */
+	public OnlineNetwork getNetwork() {
+		return _network;
+	}
+	
+	/**
+	 * returns whether to display all traffic.
+	 * @return TRUE for all traffic, otherwise FALSE
+	 */
+	public boolean getAllTraffic() {
+		return _allTraffic;
+	}
 
 	/**
 	 * Updates the radar scope center.
@@ -62,5 +81,21 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public void setRange(int range) {
 		_range = Math.max(0, range);
+	}
+	
+	/**
+	 * Sets the Online Network to monitor.
+	 * @param net an OnlineNetwork, or null for Offline 
+	 */
+	public void setNetwork(OnlineNetwork net) {
+		_network = net;
+	}
+	
+	/**
+	 * Sets whether to display all traffic.
+	 * @param doAll TRUE for all traffic, otherwise FALSE
+	 */
+	public void setAllTraffic(boolean doAll) {
+		_allTraffic = doAll;
 	}
 }
