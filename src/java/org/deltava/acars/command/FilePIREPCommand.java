@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.*;
 import org.deltava.beans.academy.Course;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.event.Event;
 import org.deltava.beans.fb.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
@@ -32,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.4
+ * @version 3.6
  * @since 1.0
  */
 
@@ -161,13 +162,6 @@ public class FilePIREPCommand extends ACARSCommand {
 					comments.add(fr.getComments());
 			}
 
-			// Check if it's an Online Event flight
-			OnlineNetwork network = afr.getNetwork();
-			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
-				GetEvent evdao = new GetEvent(con);
-				afr.setDatabaseID(DatabaseID.EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
-			}
-
 			// Reload the User
 			GetPilotDirectory pdao = new GetPilotDirectory(con);
 			GetPilot.invalidateID(usrLoc.getID());
@@ -183,10 +177,30 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setDate(dt.getDate());
 
 			// Check that the user has an online network ID
+			OnlineNetwork network = afr.getNetwork();
 			if ((network != null) && (!p.hasNetworkID(network))) {
 				log.info(p.getName() + " does not have a " + network.toString() + " ID");
 				comments.add("No " + network.toString() + " ID, resetting Online Network flag");
 				afr.setNetwork(null);
+				afr.setDatabaseID(DatabaseID.EVENT, 0);
+			}
+			
+			// Check if it's an Online Event flight
+			GetEvent evdao = new GetEvent(con);
+			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK)))
+				afr.setDatabaseID(DatabaseID.EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
+
+			// Check that it was submitted in time
+			if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
+				Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
+				if (e != null) {
+					long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 1000;
+					if (timeSinceEnd > 21600) {
+						log.warn("Flight logged over 6 hours after Event completion");
+						afr.setDatabaseID(DatabaseID.EVENT, 0);
+					}
+				} else
+					afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
 
 			// Check if this Flight Report counts for promotion
