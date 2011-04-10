@@ -40,7 +40,7 @@ public class NetworkWriter extends Worker {
 		public void run() {
 			_status.setMessage("Writing to " + _con.getUserID());
 			_con.queue(_env.getMessage());
-			_status.add(System.currentTimeMillis() - _env.getTime());
+			_status.add(System.nanoTime() - _env.getTime());
 		}
 	}
 

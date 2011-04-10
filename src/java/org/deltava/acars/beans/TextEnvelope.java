@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An envelope for XML text.
  * @author Luke
- * @version 2.7
+ * @version 3.6
  * @since 1.0
  */
 
@@ -21,7 +21,7 @@ public class TextEnvelope extends Envelope<String> {
 	 * @param conID the Connection ID
 	 */
 	public TextEnvelope(Pilot usrInfo, String msgText, long conID) {
-		super(msgText, usrInfo, System.currentTimeMillis(), conID);
+		super(msgText, usrInfo, System.nanoTime(), conID);
 	}
 	
 	/**
@@ -37,7 +37,7 @@ public class TextEnvelope extends Envelope<String> {
 	 * @param version the protocol version
 	 */
 	public void setVersion(int version) {
-		_version = (version < 1) ? 1 : version;
+		_version = Math.max(1, version);
 	}
 	
 	/**

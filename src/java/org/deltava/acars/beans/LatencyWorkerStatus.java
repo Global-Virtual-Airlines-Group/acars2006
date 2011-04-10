@@ -1,12 +1,16 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
+
+import static java.util.concurrent.TimeUnit.*;
+
+import org.deltava.util.StringUtils;
 
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * A Worker status bean with a latency monitor.
  * @author Luke
- * @version 2.1
+ * @version 3.6
  * @since 2.0
  */
 
@@ -32,18 +36,16 @@ public class LatencyWorkerStatus extends WorkerStatus {
 	public void add(long latency) {
 		_latency.add(latency);
 	}
-	/**
-	 * Returns the average latency for all operations.
-	 * @return the average latency in milliseconds
-	 */
-	public int getLatency() {
-		return _latency.getLatency();
-	}
 	
 	/**
 	 * Returns the message and average latency.
 	 */
 	public String getMessage() {
-		return super.getMessage() + " - average latency " + _latency.getLatency() + "ms";
+		long us = MICROSECONDS.convert(_latency.getLatency(), NANOSECONDS);
+		StringBuilder buf = new StringBuilder(super.getMessage());
+		buf.append(" - average latency ");
+		buf.append(StringUtils.format(us / 1000.0d, "0.00"));
+		buf.append("ms");
+		return buf.toString();
 	}
 }

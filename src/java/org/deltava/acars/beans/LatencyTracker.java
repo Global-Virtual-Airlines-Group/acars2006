@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * A bean to track message processing latency.
  * @author Luke
- * @version 1.0
+ * @version 3.6
  * @since 1.0
  */
 
@@ -28,7 +28,7 @@ public class LatencyTracker {
 	 * Adds an operation's latency.
 	 * @param latency the latency in milliseconds
 	 */
-	public void add(long latency) {
+	public synchronized void add(long latency) {
 		_entries.add(Long.valueOf(latency));
 		while (_entries.size() > _maxSize)
 			_entries.remove(0);
@@ -37,7 +37,7 @@ public class LatencyTracker {
 	/**
 	 * Clears the current list of latency times.
 	 */
-	public void clear() {
+	public synchronized void clear() {
 		_entries.clear();
 	}
 
@@ -45,7 +45,7 @@ public class LatencyTracker {
 	 * Returns the average latency for all operations.
 	 * @return the average latency in milliseconds
 	 */
-	public int getLatency() {
+	public synchronized long getLatency() {
 		if (_entries.isEmpty())
 			return 0;
 		
@@ -55,6 +55,6 @@ public class LatencyTracker {
 			total += _entries.get(x).longValue();
 		
 		// Divide by the entries
-		return (int) (total / _entries.size());
+		return (total / _entries.size());
 	}
 }
