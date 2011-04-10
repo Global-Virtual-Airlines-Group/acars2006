@@ -19,20 +19,21 @@ import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
+ * 
  * @author Luke
  * @version 3.6
  * @since 1.0
  */
 
 public class LogicProcessor extends Worker {
-	
+
 	private QueueingThreadPool _cmdPool;
-	
+
 	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
 	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
 	private final Map<Integer, DispatchCommand> _dspCommands = new HashMap<Integer, DispatchCommand>();
 	private final Map<Integer, ViewerCommand> _viewCommands = new HashMap<Integer, ViewerCommand>();
-	
+
 	/**
 	 * Initializes the Worker.
 	 */
@@ -47,7 +48,7 @@ public class LogicProcessor extends Worker {
 		super.open();
 		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.min", 1));
 		int maxThreads = Math.max(minThreads, SystemData.getInt("acars.pool.threads.logic.max", minThreads));
-		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 1750, LogicProcessor.class);
+		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 1250, LogicProcessor.class);
 		_cmdPool.allowCoreThreadTimeOut(false);
 		_cmdPool.prestartCoreThread();
 		_cmdPool.setSortBase(_status.getSortOrder());
@@ -90,7 +91,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_WX), new WeatherCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APINFO), new AirportInfoCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APPINFO), new AppInfoCommand());
-		
+
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_CANCEL), new org.deltava.acars.command.dispatch.CancelCommand());
@@ -102,37 +103,35 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoCommand());
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEPLOT), new RoutePlotCommand());
-		
+
 		// Initialize viewer commands
 		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_ACCEPT), new org.deltava.acars.command.viewer.AcceptCommand());
 		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_REQ), new RequestCommand());
 		_viewCommands.put(Integer.valueOf(ViewerMessage.VIEW_CANCEL), new org.deltava.acars.command.viewer.CancelCommand());
-		
+
 		int size = _commands.size() + _dataCommands.size() + _dspCommands.size() + _viewCommands.size();
 		log.info("Loaded " + size + " commands");
 	}
-	
+
 	private class CommandWorker extends PoolWorker {
-		
+
 		private MessageEnvelope _env;
 		private ACARSCommand _cmd;
-		
+
 		CommandWorker(MessageEnvelope env, ACARSCommand cmd) {
 			super();
 			_env = env;
 			_cmd = cmd;
 		}
-		
+
 		public String getName() {
 			return "CommandProcessor";
 		}
-		
+
 		public void run() {
-			if ((_env == null) || (_cmd == null))
-				return;
-			
+			if ((_env == null) || (_cmd == null)) return;
+
 			// Get the message and start time
-			long startTime = System.nanoTime();
 			Message msg = _env.getMessage();
 			if (msg.getType() == Message.MSG_DATAREQ) {
 				DataMessage dmsg = (DataMessage) msg;
@@ -144,7 +143,7 @@ public class LogicProcessor extends Worker {
 			boolean isAuthenticated = (_env.getOwner() != null);
 			if (isAuthenticated == msg.isAnonymous()) {
 				log.error(Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID());
-				
+
 				// Return an ACK requesting a login
 				if (!isAuthenticated) {
 					AcknowledgeMessage ackMsg = new AcknowledgeMessage(null, msg.getID());
@@ -154,11 +153,12 @@ public class LogicProcessor extends Worker {
 					env.setCritical(true);
 					MSG_OUTPUT.add(env);
 				}
-					
+
 				return;
 			}
-			
+
 			// If the message has high latency, warn
+			long startTime = System.nanoTime();
 			long msgLatency = startTime - _env.getTime();
 			_status.add(msgLatency);
 			msgLatency = TimeUnit.MILLISECONDS.convert(msgLatency, TimeUnit.NANOSECONDS);
@@ -168,16 +168,16 @@ public class LogicProcessor extends Worker {
 			// Initialize the command context and execute the command
 			CommandContext ctx = new CommandContext(_pool, _env, _status);
 			_cmd.execute(ctx, _env);
-			
+
 			// Calculate and log execution time
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
-			if (execTime > _cmd.getMaxExecTime())
-				log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
+			if (execTime > _cmd.getMaxExecTime()) log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 		}
 	}
 
 	/**
 	 * Returns the status of this Worker and the Connection writers.
+	 * 
 	 * @return a List of WorkerStatus beans, with this Worker's status first
 	 */
 	public final List<WorkerStatus> getStatus() {
@@ -185,12 +185,12 @@ public class LogicProcessor extends Worker {
 		results.addAll(_cmdPool.getWorkerStatus());
 		return results;
 	}
-	
+
 	/**
 	 * Shuts down the worker.
 	 */
 	public final void close() {
-		
+
 		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
@@ -200,7 +200,7 @@ public class LogicProcessor extends Worker {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
 		super.close();
 	}
 
@@ -213,49 +213,51 @@ public class LogicProcessor extends Worker {
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
-			_status.setMessage("Idle");
+			_status.setMessage("Idle - " + _cmdPool.getPoolSize() + " threads");
 			try {
 				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.MILLISECONDS);
-				if (env == null)
-					continue;
-				
+
 				// Log the received message and get the command to process it
-				_status.execute();
-				_status.setMessage("Processing Message");
-				Message msg = env.getMessage();
-				if (log.isDebugEnabled())
-					log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
-				
-				ACARSCommand cmd = null;
-				if (msg.getType() == Message.MSG_VIEWER) {
-					ViewerMessage vmsg = (ViewerMessage) msg;
-					cmd = _viewCommands.get(Integer.valueOf(vmsg.getRequestType()));
-				} else if (msg.getType() == Message.MSG_DATAREQ) {
-					DataRequestMessage reqmsg = (DataRequestMessage) msg;
-					cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
-					String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
-					if (cmd == null)
-						log.warn("No Data Command for " + reqType + " request");
-					else
-						log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
-				} else if (msg.getType() == Message.MSG_DISPATCH) {
-					DispatchMessage dspmsg = (DispatchMessage) msg;
-					cmd = _dspCommands.get(Integer.valueOf(dspmsg.getRequestType()));
-					String reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
-					if (cmd == null)
-						log.warn("No Dispatch Command for " + reqType + " request");
-					else
-						log.info("Dispatch Request (" + reqType + ") from " + env.getOwnerID());
-				} else {
-					cmd = _commands.get(Integer.valueOf(msg.getType()));
-					if (cmd == null)
-						log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+				while (env != null) {
+					_status.execute();
+					_status.setMessage("Processing Message");
+					Message msg = env.getMessage();
+					if (log.isDebugEnabled())
+						log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
+
+					ACARSCommand cmd = null;
+					if (msg.getType() == Message.MSG_VIEWER) {
+						ViewerMessage vmsg = (ViewerMessage) msg;
+						cmd = _viewCommands.get(Integer.valueOf(vmsg.getRequestType()));
+					} else if (msg.getType() == Message.MSG_DATAREQ) {
+						DataRequestMessage reqmsg = (DataRequestMessage) msg;
+						cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
+						String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
+						if (cmd == null)
+							log.warn("No Data Command for " + reqType + " request");
+						else
+							log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
+					} else if (msg.getType() == Message.MSG_DISPATCH) {
+						DispatchMessage dspmsg = (DispatchMessage) msg;
+						cmd = _dspCommands.get(Integer.valueOf(dspmsg.getRequestType()));
+						String reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
+						if (cmd == null)
+							log.warn("No Dispatch Command for " + reqType + " request");
+						else
+							log.info("Dispatch Request (" + reqType + ") from " + env.getOwnerID());
+					} else {
+						cmd = _commands.get(Integer.valueOf(msg.getType()));
+						if (cmd == null)
+							log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+					}
+
+					// Send the envelope to the thread pool for processing
+					if (cmd != null)
+						_cmdPool.execute(new CommandWorker(env, cmd));
+
+					env = MSG_INPUT.poll();
 				}
-				
-				// Send the envelope to the thread pool for processing
-				if (cmd != null)
-					_cmdPool.execute(new CommandWorker(env, cmd));
-				
+
 				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
