@@ -387,7 +387,15 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (msg.isDispatch() && !info.isDispatchPlan()) {
 				log.warn("Flight " + flightID + " was not set as Dispatch, but PIREP has Dispatch flag!");
 				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
-				awdao.writeDispatch(flightID, msg.getDispatcherID(), msg.getRouteID());
+				
+				// Validate the dispatch route ID
+				GetACARSRoute ardao = new GetACARSRoute(con);
+				DispatchRoute dr = ardao.getRoute(msg.getRouteID());
+				if (dr == null) {
+					log.warn("Invalid Dispatch Route - " + msg.getRouteID());
+					msg.setRouteID(0);
+				} else
+					awdao.writeDispatch(flightID, msg.getDispatcherID(), msg.getRouteID());
 			}
 
 			// Parse the route and check for actual SID/STAR
