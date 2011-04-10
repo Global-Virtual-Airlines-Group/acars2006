@@ -185,7 +185,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			_status.setMessage("Listening for new Connection");
 			_status.execute();
 			try {
-				_cSelector.select(SystemData.getInt("acars.sleep"));
+				_cSelector.select(SystemData.getInt("acars.sleep", 30000));
 			} catch (IOException ie) {
 				log.warn("Error on select - " + ie.getMessage());
 			}

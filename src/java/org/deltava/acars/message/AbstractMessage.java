@@ -1,4 +1,4 @@
-// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,22 +6,22 @@ import org.deltava.beans.Pilot;
 /**
  * An abstract class to store common Message data.
  * @author Luke
- * @version 2.8
+ * @version 3.6
  * @since 1.0
  */
 
 public abstract class AbstractMessage implements Message {
 	
-	private int msgType;
-	private long timeStamp = System.currentTimeMillis();
-	private Pilot sender;
-	private long id;
+	private int _msgType;
+	private long _timeStamp = System.nanoTime();
+	private Pilot _sender;
+	private long _id;
 	private int _version = 1;
 
 	protected AbstractMessage(int type, Pilot msgFrom) {
 		super();
-		this.msgType = type;
-		this.sender = msgFrom;
+		_msgType = type;
+		_sender = msgFrom;
 	}
 	
 	/**
@@ -39,56 +39,52 @@ public abstract class AbstractMessage implements Message {
 		return _version;
 	}
 	
+	/**
+	 * Returns whether the message is public.
+	 */
 	public boolean isPublic() {
 		return false;
 	}
 	
+	/**
+	 * Returns whether the message can be sent by an unauthenticated user.
+	 */
 	public boolean isAnonymous() {
 		return false;
 	}
 	
 	public final void setID(long newID) {
-		if (id == 0)
-			id = newID;
+		if (_id == 0)
+			_id = newID;
 	}
 	
-	public final void setID(String newID) {
-		if (id == 0) {
-			try {
-				id = Long.parseLong(newID, 16);
-			} catch (Exception e) {
-				// empty
-			}
-		}
-	}
-
 	public final void setSender(Pilot msgFrom) {
 		if (msgFrom != null)
-			this.sender = msgFrom;
+			_sender = msgFrom;
 	}
 	
 	public final long getID() {
-		return this.id;
+		return _id;
 	}
 
 	public final Pilot getSender() {
-		return this.sender;
+		return _sender;
 	}
 	
 	public final String getSenderID() {
-		return (this.sender == null) ? SYSTEM_NAME : this.sender.getPilotCode(); 
+		return (_sender == null) ? SYSTEM_NAME : _sender.getPilotCode(); 
 	}
 
 	public final int getType() {
-		return this.msgType;
+		return _msgType;
 	}
 	
 	public final void setTime(long ts) {
-		if (ts <= this.timeStamp)
-			this.timeStamp = ts;
+		if (ts > 0)
+			_timeStamp = Math.min(ts, _timeStamp);
 	}
 
 	public final long getTime() {
-		return this.timeStamp;
+		return _timeStamp;
 	}
 }

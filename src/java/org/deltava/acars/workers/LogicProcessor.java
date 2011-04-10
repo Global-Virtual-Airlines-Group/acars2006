@@ -132,7 +132,7 @@ public class LogicProcessor extends Worker {
 				return;
 			
 			// Get the message and start time
-			long startTime = System.currentTimeMillis();
+			long startTime = System.nanoTime();
 			Message msg = _env.getMessage();
 			if (msg.getType() == Message.MSG_DATAREQ) {
 				DataMessage dmsg = (DataMessage) msg;
@@ -161,6 +161,7 @@ public class LogicProcessor extends Worker {
 			// If the message has high latency, warn
 			long msgLatency = startTime - _env.getTime();
 			_status.add(msgLatency);
+			msgLatency = TimeUnit.MILLISECONDS.convert(msgLatency, TimeUnit.NANOSECONDS);
 			if (msgLatency > 500)
 				log.warn(Message.MSG_TYPES[msg.getType()] + " from " + _env.getOwnerID() + " has " + msgLatency + "ms latency");
 
@@ -169,7 +170,7 @@ public class LogicProcessor extends Worker {
 			_cmd.execute(ctx, _env);
 			
 			// Calculate and log execution time
-			long execTime = System.currentTimeMillis() - startTime;
+			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 			if (execTime > _cmd.getMaxExecTime())
 				log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 		}
@@ -212,11 +213,15 @@ public class LogicProcessor extends Worker {
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {
+			_status.setMessage("Idle");
 			try {
-				MessageEnvelope env = MSG_INPUT.take();
-				_status.execute();
+				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.MILLISECONDS);
+				if (env == null)
+					continue;
 				
 				// Log the received message and get the command to process it
+				_status.execute();
+				_status.setMessage("Processing Message");
 				Message msg = env.getMessage();
 				if (log.isDebugEnabled())
 					log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
@@ -256,8 +261,6 @@ public class LogicProcessor extends Worker {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error("Error Processing Message - " + e.getMessage(), e);
-			} finally {
-				_status.setMessage("Idle");	
 			}
 		}
 	}
