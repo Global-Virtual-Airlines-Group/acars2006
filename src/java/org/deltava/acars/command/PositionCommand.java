@@ -3,6 +3,7 @@ package org.deltava.acars.command;
 
 import java.io.*;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
 
 import org.apache.log4j.Logger;
@@ -78,7 +79,7 @@ public class PositionCommand extends ACARSCommand {
 		
 		// Adjust the message date and calculate the age of the last message
 		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
-		long pmAge = System.currentTimeMillis() - ((oldPM == null) ? 0 : oldPM.getTime());
+		long pmAge = (oldPM == null) ? Long.MAX_VALUE : TimeUnit.MILLISECONDS.convert(System.nanoTime() - oldPM.getTime(), TimeUnit.NANOSECONDS);
 		
 		// If we're online, have a frequency and no controller, find one
 		OnlineNetwork network = info.getNetwork();
