@@ -73,6 +73,7 @@ public class ATCInfoCommand extends DataCommand {
 
 		// Filter the controllers based on range from position
 		ControllerMessage rspMsg = new ControllerMessage(env.getOwner(), msg.getID());
+		rspMsg.setNetwork(network);
 		if (info != null)
 			rspMsg.addAll(info.getControllers(loc));
 		
