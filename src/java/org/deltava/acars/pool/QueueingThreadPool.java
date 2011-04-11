@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
  * continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 3.1
+ * @version 3.6
  * @since 2.0
  */
 
@@ -150,6 +150,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		if (pt.isNew()) {
 			log.info("Spawning thread " + pt.getName());
 			pt.setDeathHandler(this);
+			ws.clear();
 		}
 		
 		// Inject the worker status
