@@ -38,6 +38,13 @@ public class LatencyWorkerStatus extends WorkerStatus {
 	}
 	
 	/**
+	 * Clears the latency statistics.
+	 */
+	public void clear() {
+		_latency.clear();
+	}
+	
+	/**
 	 * Returns the message and average latency.
 	 */
 	public String getMessage() {
