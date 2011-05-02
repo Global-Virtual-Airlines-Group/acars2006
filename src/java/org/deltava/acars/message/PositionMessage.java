@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -9,14 +9,14 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 3.3
+ * @version 3.7
  * @since 1.0
  */
 
 public class PositionMessage extends LocationMessage {
 
 	// Flight phase constants
-    public static final String[] FLIGHT_PHASES = {"N/A", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne",
+    public static final String[] FLIGHT_PHASES = {"Unknown", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne",
     	"Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
 
 	private int r_altitude;
