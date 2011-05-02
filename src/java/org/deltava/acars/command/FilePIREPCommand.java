@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.6
+ * @version 3.7
  * @since 1.0
  */
 
@@ -527,6 +527,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ctx.rollbackTX();
 			log.error(ac.getUserID() + " - " + de.getMessage(), de);
 			ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
+			ctx.push(ackMsg, ac.getID(), true);
 		} finally {
 			ctx.release();
 		}
