@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available Airport data.
  * @author Luke
- * @version 3.3
+ * @version 3.7
  * @since 1.0
  */
 
@@ -52,6 +52,7 @@ public class AirportListCommand extends DataCommand {
 		try {
 			GetAirport dao = new GetAirport(ctx.getConnection());
 			dao.setAppCode(appCode);
+			airports.addAll(dao.getEventAirports());
 			airports.addAll(dao.getAll().values());
 		} catch (DAOException de) {
 			log.error("Cannot load airports - " + de.getMessage(), de);
