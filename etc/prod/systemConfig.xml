@@ -151,6 +151,12 @@
 			<v2>org.deltava.acars.xml.v2</v2>
 		</map>
 
+		<!-- List of valid max acceleration rates -->
+		<map name="maxAccel">
+			<dva>4</dva>
+			<afv>2</afv>
+		</map>
+		
 		<port type="Integer">15527</port>
 		<sleep type="Integer">35000</sleep>
 		<timeout type="Integer">120</timeout>

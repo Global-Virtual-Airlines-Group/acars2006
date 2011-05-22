@@ -144,6 +144,12 @@
 			<v2>org.deltava.acars.xml.v2</v2>
 		</map>
 
+		<!-- List of valid max acceleration rates -->
+		<map name="maxAccel">
+			<afv>2</afv>
+			<dva>4</dva>
+		</map>
+
 		<port type="Integer">15527</port>
 		<sleep type="Integer">45000</sleep>
 		<timeout type="Integer">240</timeout>
@@ -152,12 +158,12 @@
 		<build>
 			<map name="minimum">
 				<v1_4>77</v1_4>
-				<v2_2>97</v2_2>
+				<v2_2>98</v2_2>
 				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
-				<b99>1</b99>
+				<b99>7</b99>
 				<b100>6</b100>
 			</map>
 
@@ -165,7 +171,7 @@
 			<dispatch type="Integer">30</dispatch>
 			<viewer type="Integer">1</viewer>
 			<list name="noDispatch" attr="build" unique="true">
-				<build>96</build>
+				<build>97</build>
 			</list>
 		</build>
 

@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.6
+ * @version 3.7
  * @since 1.0
  */
 
@@ -304,7 +304,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		int latestBuild = cInfo.getLatest();
 		if (!con.getIsDispatch() && !con.getIsViewer() && (latestBuild > msg.getClientBuild()))
 			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
-
+		
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());
 		ackMsg.setEntry("rank", usr.getRank().getName());
@@ -319,6 +319,13 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
+		
+		// Get max time acceleration rate
+		Map<?, ?> maxAccels = (Map<?, ?>) SystemData.getObject("acars.maxAccel");
+		if (maxAccels != null) {
+			String maxAccel = (String) maxAccels.get(ud.getAirlineCode().toLowerCase());
+			ackMsg.setEntry("maxAccel", StringUtils.isEmpty(maxAccel) ? "4" : maxAccel);
+		}
 
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID(), true);
