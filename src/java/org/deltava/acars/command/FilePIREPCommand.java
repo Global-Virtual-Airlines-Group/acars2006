@@ -255,7 +255,9 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
-			afr.setAttribute(FlightReport.ATTR_REFUELWARN, fddao.checkRefuel(flightID, false));
+			FuelUse use = fddao.checkRefuel(flightID, false);
+			afr.setTotalFuel(use.getTotalFuel());
+			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
 
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
