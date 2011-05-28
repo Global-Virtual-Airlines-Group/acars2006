@@ -215,7 +215,7 @@ public class LogicProcessor extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle - " + _cmdPool.getPoolSize() + " threads");
 			try {
-				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.MILLISECONDS);
+				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.SECONDS);
 
 				// Log the received message and get the command to process it
 				while (env != null) {
