@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -6,13 +6,12 @@ import java.util.*;
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.*; 
 
-import org.deltava.acars.beans.FuelTank;
 import org.deltava.acars.message.DispatchMessage;
 
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 3.0
+ * @version 4.0
  * @since 2.0
  */
 
