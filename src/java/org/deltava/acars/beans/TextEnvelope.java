@@ -6,16 +6,16 @@ import org.deltava.beans.Pilot;
 /**
  * An envelope for XML text.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
-public class TextEnvelope extends Envelope<String> {
+public class TextEnvelope extends Envelope<String> implements OutputEnvelope {
 	
 	private int _version;
 
 	/**
-	 * Initializes the Envelope
+	 * Initializes the Envelope.
 	 * @param usrInfo the author's Pilot object
 	 * @param msgText the XML text
 	 * @param conID the Connection ID
