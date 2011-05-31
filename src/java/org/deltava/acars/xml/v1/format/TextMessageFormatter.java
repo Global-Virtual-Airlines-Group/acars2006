@@ -10,7 +10,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Text messages.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -33,7 +33,7 @@ class TextMessageFormatter extends ElementFormatter {
 			e.addContent(XMLUtils.createElement("fromName", msg.getSender().getName()));
 		
 		e.addContent(XMLUtils.createElement("text", tmsg.getText()));
-		if (!msg.isPublic())
+		if (!tmsg.isPublic())
 			e.addContent(XMLUtils.createElement("to", tmsg.getRecipient()));
 
 		return e;

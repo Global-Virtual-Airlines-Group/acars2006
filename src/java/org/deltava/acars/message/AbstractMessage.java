@@ -40,13 +40,6 @@ public abstract class AbstractMessage implements Message {
 	}
 	
 	/**
-	 * Returns whether the message is public.
-	 */
-	public boolean isPublic() {
-		return false;
-	}
-	
-	/**
 	 * Returns whether the message can be sent by an unauthenticated user.
 	 */
 	public boolean isAnonymous() {
