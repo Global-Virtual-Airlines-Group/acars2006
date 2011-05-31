@@ -3,6 +3,7 @@ package org.deltava.acars.xml.v2.format;
 
 import org.deltava.acars.message.TakeoffMessage;
 import org.deltava.acars.message.data.AppInfoMessage;
+import org.deltava.acars.message.data.ChannelListMessage;
 import org.deltava.acars.message.data.DraftPIREPMessage;
 import org.deltava.acars.message.dispatch.RoutePlotMessage;
 import org.deltava.acars.message.mp.MPUpdateMessage;
@@ -11,7 +12,7 @@ import org.deltava.acars.message.viewer.*;
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 2.8
  */
 
@@ -28,6 +29,7 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		
 		// Data formatters
 		_eFormatters.put(AppInfoMessage.class, new AppInfoFormatter());
+		_eFormatters.put(ChannelListMessage.class, new ChannelListFormatter());
 		
 		// Dispatch formatters
 		_eFormatters.put(RoutePlotMessage.class, new RoutePlotFormatter());

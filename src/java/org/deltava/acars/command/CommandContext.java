@@ -17,7 +17,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -109,6 +109,24 @@ public class CommandContext extends ConnectionContext {
 		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
 			if (c.getIsDispatch() && (c.getID() != skipThisConID) && (c.getProtocolVersion() >= msg.getProtocolVersion()))
+				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
+		}
+	}
+	
+	/**
+	 * Sends a message to all connected users with voice.
+	 * @param msg the Message to send
+	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
+	 */
+	public void pushVoice(Message msg, long skipThisConID) {
+		if (msg == null)
+			return;
+		
+		// Set the original timestamp and message time
+		msg.setTime(_msgTime);
+		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext(); ) {
+			ACARSConnection c = i.next();
+			if (c.isVoiceEnabled() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}
