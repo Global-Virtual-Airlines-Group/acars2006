@@ -6,8 +6,8 @@ import java.util.*;
 import org.jdom.Element;
 
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.FuelTank;
 
-import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 

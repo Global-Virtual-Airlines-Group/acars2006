@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.*;
@@ -7,8 +7,8 @@ import org.jdom.*;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.FuelTank;
 
-import org.deltava.acars.beans.*;
 import org.deltava.acars.message.dispatch.FlightDataMessage;
 import org.deltava.acars.xml.XMLElementParser;
 
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 2.8
+ * @version 4.0
  * @since 2.1
  */
 

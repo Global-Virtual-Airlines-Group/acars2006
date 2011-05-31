@@ -1,11 +1,11 @@
-// Copyright 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
 import org.jdom.Element;
 
-import org.deltava.acars.beans.FuelTank;
+import org.deltava.beans.schedule.FuelTank;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RequestMessage;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 3.0
+ * @version 4.0
  * @since 2.0
  */
 
