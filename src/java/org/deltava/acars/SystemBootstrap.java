@@ -11,7 +11,9 @@ import org.apache.log4j.*;
 import org.deltava.dao.*;
 import org.deltava.mail.MailerDaemon;
 
+import org.deltava.acars.beans.VoiceChannels;
 import org.deltava.acars.ipc.IPCDaemon;
+import org.deltava.beans.mvs.Channel;
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.*;
@@ -24,7 +26,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -164,6 +166,16 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			log.info("Loading Airports");
 			GetAirport apdao = new GetAirport(c);
 			SystemData.add("airports", apdao.getAll());
+			
+			// Load MVS voice channels if enabled
+			if (SystemData.getBoolean("acars.voice.enabled")) {
+				GetMVSChannel chdao = new GetMVSChannel(c);
+				Collection<Channel> channels = chdao.getAll();
+				for (Channel ch : channels)
+					VoiceChannels.add(ch);
+				
+				log.info("Loaded " + channels.size() + " permanent Voice channels");	
+			}
 			
 			// Load TS2 server info if enabled
 			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {

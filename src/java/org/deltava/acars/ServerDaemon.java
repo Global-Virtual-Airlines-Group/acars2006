@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -134,6 +134,8 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
+		if (SystemData.getBoolean("acars.voice.enabled"))
+			tasks.add(new VoiceReader());
 
 		// Try to init all of the worker threads
 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
