@@ -207,7 +207,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 		
 		// Start the ACARS/Mailer/IPC daemons
-		Runnable tcDaemon = new TomcatDaemon();
+		TomcatDaemon tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);
 		spawnDaemon(new MailerDaemon());
 		spawnDaemon(new IPCDaemon());
