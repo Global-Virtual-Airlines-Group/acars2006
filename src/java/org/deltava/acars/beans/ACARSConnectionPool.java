@@ -1,10 +1,10 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
-import java.io.IOException;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -26,11 +26,11 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.6
+ * @version 3.7
  * @since 1.0
  */
 
-public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
+public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Serializable {
 
 	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
@@ -47,16 +47,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry> {
 	private final Map<Object, ACARSConnection> _conLookup = new HashMap<Object, ACARSConnection>();
 	
 	// Pool read/write locks
-	private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock(true);
-	private final Lock _r = _lock.readLock();
-	private final Lock _w = _lock.writeLock();
+	private transient final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock(true);
+	private transient final Lock _r = _lock.readLock();
+	private transient final Lock _w = _lock.writeLock();
 	
 	// Inactivity timeout/last run time
 	private long _inactivityTimeout = -1;
 	private long _inactivityLastRun = 0;
 
 	// The selector to use for non-blocking I/O reads
-	private Selector _cSelector;
+	private transient Selector _cSelector;
 
 	/**
 	 * Creates a new ACARS Connection Pool.
