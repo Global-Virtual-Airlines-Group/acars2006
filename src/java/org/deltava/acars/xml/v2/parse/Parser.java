@@ -31,6 +31,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		_eParsers.put(Integer.valueOf(Message.MSG_TOTD), new TakeoffParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPLocationParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_MPINIT), new MPInitParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_VOICETOGGLE), new VoiceToggleParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_MUTE), new MuteParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelParser());
 		

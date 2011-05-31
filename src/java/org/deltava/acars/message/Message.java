@@ -40,7 +40,7 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_MPREMOVE = 19;
 	public static final int MSG_SWCHAN = 20;
 	public static final int MSG_MUTE = 21;
-	public static final int MSG_NEWCHAN = 22;
+	public static final int MSG_VOICETOGGLE = 22;
 	public static final int MSG_VOICE = 23;
 
 	/**
@@ -48,7 +48,7 @@ public interface Message extends java.io.Serializable {
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxnewchan", "vox"};
+	      "voxtoggle", "vox"};
 	
 	/**
 	 * XML message type descriptions.
@@ -56,7 +56,7 @@ public interface Message extends java.io.Serializable {
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
 			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
-			"Switch Channel", "Mute", "New Channel", "Voice"};
+			"Switch Channel", "Mute", "Voice Toggle", "Voice"};
 
 	/**
 	 * Returns the message type.
@@ -102,5 +102,10 @@ public interface Message extends java.io.Serializable {
 	 * @return the sending Pilot, or null if unauthenticated
 	 */
 	public Pilot getSender();
+	
+	/**
+	 * Returns the message sender's Pilot ID.
+	 * @return the Pilot ID, or null if unathenticated
+	 */
 	public String getSenderID();
 }

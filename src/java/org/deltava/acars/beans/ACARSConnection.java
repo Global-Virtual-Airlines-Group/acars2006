@@ -91,6 +91,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
 	private long _lastActivityTime;
+	private long _lastUDPSend;
 	private long _timeOffset;
 
 	// The write locks
@@ -147,15 +148,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	}
 
 	/**
-	 * Closes the connection.
+	 * Closes the UDP pseudo-connection and disables voice.
 	 */
-	public void close() {
-
-		// Clean out control buffers
-		if (_wLock.tryLock()) {
-			_msgOutBuffer.clear();
-			_wLock.unlock();
-		}
+	public void disconnectVoice() {
+		_isMuted = false;
 		
 		// Clean out voice buffer
 		if (_vwLock.tryLock()) {
@@ -172,7 +168,22 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 				// empty
 			}
 		}
+		
+		_vChannel = null;
+	}
+	
+	/**
+	 * Closes the connection.
+	 */
+	public void close() {
+		disconnectVoice();
 
+		// Clean out control buffers
+		if (_wLock.tryLock()) {
+			_msgOutBuffer.clear();
+			_wLock.unlock();
+		}
+		
 		// Shut down control
 		try {
 			_wSelector.close();
@@ -253,6 +264,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 
 	public long getLastActivity() {
 		return _lastActivityTime;
+	}
+	
+	public long getLastUDPActivity() {
+		return _lastUDPSend;
 	}
 
 	public int getMsgsIn() {
@@ -673,9 +688,11 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 					}
 				}
 			}
-
 		} catch (IOException ie) {
 			log.warn("Error writing to voice channel for " + getUserID() + " - " + ie.getMessage());
 		}
+		
+		// Update statistics
+		_lastUDPSend = System.currentTimeMillis();
 	}
 }
