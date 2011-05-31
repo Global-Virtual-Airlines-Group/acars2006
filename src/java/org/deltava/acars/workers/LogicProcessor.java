@@ -68,6 +68,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPInfoCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
+		_commands.put(Integer.valueOf(Message.MSG_VOICETOGGLE), new VoiceToggleCommand());
 		_commands.put(Integer.valueOf(Message.MSG_VOICE), new VoiceMixCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MUTE), new MuteCommand());
 		_commands.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelCommand());

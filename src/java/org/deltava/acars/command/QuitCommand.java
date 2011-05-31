@@ -67,6 +67,8 @@ public class QuitCommand extends ACARSCommand {
 		   MSG_INPUT.add(new MessageEnvelope(mrmsg, env.getConnectionID()));
 	   }
 	   
+	   // TODO: If using voice, remove from the voice channel
+	   
 		// Create a deletepilots message
 		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());
 		drmsg.add(env.getOwner());

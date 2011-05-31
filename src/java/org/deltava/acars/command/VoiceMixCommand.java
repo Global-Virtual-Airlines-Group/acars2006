@@ -39,7 +39,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		try {
 			Packet.parse(vmsg);
 			if (vmsg.getLocation() == null)
-				vmsg.setLocation(ac.getLocation());
+				vmsg.setLocation(ac.getMPLocation());
 		} catch (IOException ie) {
 			log.error(ie.getMessage(), ie);
 			return;
