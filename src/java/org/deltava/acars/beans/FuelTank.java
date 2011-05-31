@@ -8,6 +8,8 @@ package org.deltava.acars.beans;
  * @since 2.0
  */
 
+@Deprecated
+// FIXME: Merge with Aircraft$Tank
 public enum FuelTank {
 
 	CENTER(0, "Center"), CENTER_2(7, "Center 2"), CENTER_3(8, "Center 3"),
