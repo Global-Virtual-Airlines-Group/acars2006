@@ -19,7 +19,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 3.1
+ * @version 3.7
  * @since 2.1
  */
 
@@ -110,7 +110,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	}
 	
 	/**
-	 * Initializes the Worker.
+	 * Creates the Worker.
 	 */
 	public ConnectionHandler() {
 		super("Connection Handler", 10, ConnectionHandler.class);
@@ -146,7 +146,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			_channel.register(_cSelector, SelectionKey.OP_ACCEPT);
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
-			throw new IllegalStateException(ie.getMessage());
+			throw new IllegalStateException(ie);
 		}
 	}
 	
