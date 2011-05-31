@@ -69,6 +69,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPInfoCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
+		_commands.put(Integer.valueOf(Message.MSG_VOICE), new VoiceMixCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());
@@ -91,6 +92,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_WX), new WeatherCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APINFO), new AirportInfoCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APPINFO), new AppInfoCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_CHLIST), new VoiceChannelListCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());

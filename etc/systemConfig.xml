@@ -155,6 +155,12 @@
 		<timeout type="Integer">240</timeout>
 		<ban_length type="Integer">15</ban_length>
 		<position_interval type="Integer">125</position_interval>
+		<voice>
+			<enabled type="Boolean">true</enabled>
+			<port type="Integer">15527</port>		
+		
+		</voice>
+		
 		<build>
 			<map name="minimum">
 				<v1_4>77</v1_4>
