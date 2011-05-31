@@ -216,10 +216,10 @@ public class LogicProcessor extends Worker {
 			_status.setMessage("Idle - " + _cmdPool.getPoolSize() + " threads");
 			try {
 				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.SECONDS);
+				_status.execute();
 
 				// Log the received message and get the command to process it
 				while (env != null) {
-					_status.execute();
 					_status.setMessage("Processing Message");
 					Message msg = env.getMessage();
 					if (log.isDebugEnabled())
