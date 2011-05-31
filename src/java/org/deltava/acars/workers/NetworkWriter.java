@@ -22,12 +22,12 @@ public class NetworkWriter extends Worker {
 
 	private QueueingThreadPool _ioPool;
 
-	private static final class ConnectionWriter extends PoolWorker {
+	private final class ConnectionWriter extends PoolWorker {
 
 		private ACARSConnection _con;
-		private TextEnvelope _env;
+		private OutputEnvelope _env;
 
-		ConnectionWriter(ACARSConnection ac, TextEnvelope env) {
+		ConnectionWriter(ACARSConnection ac, OutputEnvelope env) {
 			super();
 			_con = ac;
 			_env = env;
@@ -39,7 +39,13 @@ public class NetworkWriter extends Worker {
 		
 		public void run() {
 			_status.setMessage("Writing to " + _con.getUserID());
-			_con.queue(_env.getMessage());
+			if (_env instanceof TextEnvelope)
+				_con.queue((String) _env.getMessage());
+			else if (_env instanceof BinaryEnvelope)
+				_con.queue((byte[]) _env.getMessage());
+			else
+				log.warn("Unknown envelope type - " + _env.getClass().getSimpleName());
+			
 			_status.add(System.nanoTime() - _env.getTime());
 		}
 	}
@@ -106,7 +112,7 @@ public class NetworkWriter extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
-				TextEnvelope env = RAW_OUTPUT.poll(30, TimeUnit.SECONDS);
+				OutputEnvelope env = RAW_OUTPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
 				_status.setMessage("Dispatching - " + _ioPool.getPoolSize() + " threads");
 				while (env != null) {

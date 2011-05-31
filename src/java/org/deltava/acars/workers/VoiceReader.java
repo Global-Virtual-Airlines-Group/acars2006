@@ -8,6 +8,7 @@ import java.nio.channels.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
+import org.deltava.beans.mvs.PopulatedChannel;
 
 import org.deltava.util.system.SystemData;
 
@@ -77,38 +78,56 @@ public class VoiceReader extends Worker {
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
+		long lastExecTime = 0;
 
 		final ByteBuffer buf = ByteBuffer.allocate(32768);
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Listening for Voice packet");
 			_status.execute();
-			
+			int consWaiting = 0;
 			try {
-				_rSelector.select(SystemData.getInt("acars.sleep", 30000));
+				long runInterval = System.currentTimeMillis() - lastExecTime;
+				if (runInterval < 50)
+					Thread.sleep(50 - runInterval);
+				
+				consWaiting = _rSelector.select(SystemData.getInt("acars.sleep", 30000));
+			} catch (InterruptedException ie) {
+				log.warn("Interrupted");
+				Thread.currentThread().interrupt();
 			} catch (IOException ie) {
 				log.warn("Error on select - " + ie.getMessage());
 			}
 			
+			lastExecTime = System.currentTimeMillis();
+			
 			// See if we have some data
-			SelectionKey ssKey = _channel.keyFor(_rSelector);
-			if ((ssKey != null) && ssKey.isValid() && ssKey.isReadable()) {
+			if (consWaiting > 0) {
+				_status.setMessage("Reading Inbound Voice Data");
 				try {
 					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(buf);
-					buf.flip();
-					
-					// Find the connection in the pool
-					ACARSConnection ac = _pool.get(srcAddr.getAddress().getHostAddress());
-					if (ac == null)
-						throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress());
+					while (srcAddr != null) {
+						ACARSConnection ac = _pool.get(srcAddr.getAddress().getHostAddress());
+						if (ac == null)
+							throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress() + " - not connected");
+						else if (!ac.isVoiceEnabled())
+							throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress() + " - not enabled");
 						
-					// Create the message
-					VoiceMessage msg = new VoiceMessage(ac.getUser());
-					byte[] pktData = new byte[buf.limit()];
-					buf.get(pktData);
-					msg.setData(pktData);
+						// Get the channel
+						PopulatedChannel pc = VoiceChannels.get(ac.getID());
+						if (pc == null)
+							throw new IllegalArgumentException(ac.getUserID() + " not in any channel");
+						
+						// Create the message
+						VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());
+						byte[] pktData = new byte[buf.flip().limit()];
+						buf.get(pktData);
+						msg.setData(pktData);
 					
-					// Create the envelope and push it onto the queue
-					MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+						// Create the envelope and push it onto the queue
+						MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+						buf.clear();
+						srcAddr = (InetSocketAddress) _channel.receive(buf);
+					}
 				} catch (IllegalArgumentException iae) {
 					log.warn("Unexpected voice packet from " + iae.getMessage());
 					buf.clear();
@@ -116,6 +135,12 @@ public class VoiceReader extends Worker {
 					log.error("Error reading voice packet - " + ie.getMessage(), ie);
 				}
 			}
+			
+			// Check execution time
+			_rSelector.selectedKeys().clear();
+			long execTime = System.currentTimeMillis() - lastExecTime;
+			if (execTime > 2500)
+				log.warn("Excessive read time - " + execTime + "ms (" + consWaiting + " connections)");
 
 			// Log executiuon
 			_status.complete();

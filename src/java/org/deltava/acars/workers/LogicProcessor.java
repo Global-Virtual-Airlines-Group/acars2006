@@ -19,9 +19,8 @@ import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
- * 
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -70,6 +69,8 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
 		_commands.put(Integer.valueOf(Message.MSG_VOICE), new VoiceMixCommand());
+		_commands.put(Integer.valueOf(Message.MSG_MUTE), new MuteCommand());
+		_commands.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());

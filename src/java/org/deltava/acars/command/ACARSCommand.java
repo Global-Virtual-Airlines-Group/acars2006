@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -6,7 +6,7 @@ import org.deltava.acars.beans.MessageEnvelope;
 /**
  * An ACARS server command object.
  * @author Luke
- * @version 2.2
+ * @version 4.0
  * @since 1.0
  */
 
@@ -26,12 +26,4 @@ public abstract class ACARSCommand  {
 	 * @param env the Envelope to process
 	 */
 	public abstract void execute(CommandContext ctx, MessageEnvelope env);
-	
-	/**
-	 * Returns whether this command should be logged.
-	 * @return TRUE if command statistics should be logged, otherwise FALSE
-	 */
-	public boolean isLogged() {
-		return true;
-	}
 }

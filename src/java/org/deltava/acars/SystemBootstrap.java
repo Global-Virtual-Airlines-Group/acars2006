@@ -11,7 +11,8 @@ import org.apache.log4j.*;
 import org.deltava.dao.*;
 import org.deltava.mail.MailerDaemon;
 
-import org.deltava.acars.beans.VoiceChannels;
+import org.deltava.acars.beans.*;
+
 import org.deltava.acars.ipc.IPCDaemon;
 import org.deltava.beans.mvs.Channel;
 import org.deltava.security.Authenticator;
@@ -172,9 +173,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 				GetMVSChannel chdao = new GetMVSChannel(c);
 				Collection<Channel> channels = chdao.getAll();
 				for (Channel ch : channels)
-					VoiceChannels.add(ch);
+					VoiceChannels.add(null, ch);
 				
-				log.info("Loaded " + channels.size() + " permanent Voice channels");	
+				log.info("Loaded " + channels.size() + " persistent Voice channels");	
 			}
 			
 			// Load TS2 server info if enabled
