@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.*;
 import org.deltava.beans.academy.Course;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.econ.*;
 import org.deltava.beans.event.Event;
 import org.deltava.beans.fb.*;
 import org.deltava.beans.flight.*;
@@ -251,6 +252,18 @@ public class FilePIREPCommand extends ACARSCommand {
 					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
 				else if ((a.getMaxLandingWeight() != 0) && (afr.getLandingWeight() > a.getMaxLandingWeight()))
 					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+			}
+			
+			// Calculate flight load factor if not set client-side
+			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
+			if (econ != null) {
+				ctx.setMessage("Calculating flight load factor");	
+				LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
+				double loadFactor = lf.generate(afr.getSubmittedOn());
+				if ((a != null) && (a.getSeats() > 0) && (afr.getPassengers() == 0)) {
+					afr.setPassengers((int) Math.round(a.getSeats() * loadFactor));
+					afr.setLoadFactor(loadFactor);
+				}
 			}
 
 			// Check for in-flight refueling
@@ -498,8 +511,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Post Facebook notification
-			FacebookCredentials creds = (FacebookCredentials) SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
-			if ((creds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
+			Object rawCreds = SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
+			if ((rawCreds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
