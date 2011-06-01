@@ -24,7 +24,7 @@ class MuteParser extends XMLElementParser<MuteMessage> {
 	@Override
 	public MuteMessage parse(org.jdom.Element e, Pilot user) {
 		
-		MuteMessage msg = new MuteMessage(user, getChildText(e, "recipient", null));
+		MuteMessage msg = new MuteMessage(user, getChildText(e, "user", null));
 		return msg;
 	}
 }
