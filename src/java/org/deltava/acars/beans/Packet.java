@@ -96,7 +96,7 @@ public class Packet {
 		// Load data
 		msg.setCompression(VoiceCompression.values()[in.readInt()]);
 		msg.setID(in.readLong());
-		msg.setRate(SampleRate.get(in.readInt()));
+		msg.setRate(SampleRate.getRate(in.readInt()));
 		
 		// Load Location
 		double lat = in.readDouble();

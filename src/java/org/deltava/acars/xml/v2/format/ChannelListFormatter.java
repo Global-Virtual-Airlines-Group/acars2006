@@ -49,7 +49,10 @@ class ChannelListFormatter extends XMLElementFormatter {
 			ce.setAttribute("lat", StringUtils.format(c.getCenter().getLatitude(), "#0.0000"));
 			ce.setAttribute("lng", StringUtils.format(c.getCenter().getLongitude(), "##0.0000"));
 			ce.setAttribute("range", String.valueOf(c.getRange()));
+			ce.setAttribute("users", String.valueOf(c.getMaxUsers()));
 			ce.addContent(XMLUtils.createElement("name", c.getName(), true));
+			ce.addContent(XMLUtils.createElement("freq", c.getFrequency()));
+			ce.addContent(XMLUtils.createElement("desc", c.getDescription(), true));
 			
 			// Format users
 			for (Pilot p : pc.getUsers()) {
