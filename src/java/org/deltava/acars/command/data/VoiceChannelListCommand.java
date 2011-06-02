@@ -38,14 +38,22 @@ public class VoiceChannelListCommand extends DataCommand {
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		
+		// Check if we're in a channel
+		VoiceChannels vc = VoiceChannels.getInstance();
+		PopulatedChannel pvc = vc.get(env.getConnectionID());
+		
 		// Get the connections
 		ChannelListMessage rspmsg = new ChannelListMessage(env.getOwner(), msg.getID());
-		for (PopulatedChannel pc : VoiceChannels.getChannels()) {
+		for (PopulatedChannel pc : vc.getChannels()) {
 			Channel c = pc.getChannel();
 			
 			// Check if we can view the channel
-			if (RoleUtils.hasAccess(ctx.getUser().getRoles(), c.getViewRoles()))
+			if (RoleUtils.hasAccess(ctx.getUser().getRoles(), c.getViewRoles())) {
+				if ((pvc == null) && c.getIsDefault())
+					pc.add(env.getConnectionID(), ctx.getUser());
+					
 				rspmsg.add(pc);
+			}
 		}
 		
 		ctx.push(rspmsg, env.getConnectionID());

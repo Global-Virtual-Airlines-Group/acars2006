@@ -39,9 +39,10 @@ public class SwitchChannelCommand extends ACARSCommand {
 		}
 		
 		// Try to join the channel
+		VoiceChannels vc = VoiceChannels.getInstance();
 		ACARSConnection ac = ctx.getACARSConnection();
 		try {
-			PopulatedChannel pc = VoiceChannels.add(ac, chName);
+			PopulatedChannel pc = vc.add(ac, chName);
 			
 			// If we didn't add the channel, create a new one
 			if (pc == null) {
@@ -51,8 +52,8 @@ public class SwitchChannelCommand extends ACARSCommand {
 				c.setSampleRate(SampleRate.SR11K);
 				c.addTalkRoles(ac.getUser().getRoles());
 				c.addViewRoles(ac.getUser().getRoles());
-				c.setIsDefault(VoiceChannels.size() == 0);
-				pc = VoiceChannels.add(ac, c);
+				c.setIsDefault(vc.size() == 0);
+				pc = vc.add(ac, c);
 			}
 			
 			// Return the channel info, to all voice users
