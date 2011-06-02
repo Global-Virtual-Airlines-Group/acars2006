@@ -393,8 +393,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					} catch (IOException ie) {
 						con.close();
 						remove(con);
-						if (con.isVoiceEnabled())
-							VoiceChannels.getInstance().remove(con);
 						
 						// Add statistics
 						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
@@ -425,6 +423,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			_cons.values().remove(c);
 			while (_conLookup.containsValue(c))
 				_conLookup.values().remove(c);
+			
+			if (c.isVoiceEnabled())
+				VoiceChannels.getInstance().remove(c);
 		} finally {
 			_w.unlock();
 		}
