@@ -5,6 +5,9 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.message.data.ChannelListMessage;
+
+import org.deltava.beans.mvs.PopulatedChannel;
 
 /**
  * An ACARS command to toggle voice support. 
@@ -30,10 +33,8 @@ public class VoiceToggleCommand extends ACARSCommand {
 		
 		// Check voice status
 		ACARSConnection ac = ctx.getACARSConnection();
-		if (vtmsg.getVoiceEnabled() == ac.isVoiceEnabled()) {
+		if (vtmsg.getVoiceEnabled() == ac.isVoiceEnabled())
 			log.warn(ac.getUserID() + " requesting status quo - voice " + (ac.isVoiceEnabled() ? "ON" : "OFF"));
-			return;
-		}
 		
 		// Check access
 		if (ac.getUser().getNoVoice()) {
@@ -49,6 +50,18 @@ public class VoiceToggleCommand extends ACARSCommand {
 		} else {
 			log.info(ac.getUserID() + " disabling Voice");
 			ac.disconnectVoice();
+			
+			// Get channel that user was in
+			PopulatedChannel pc = VoiceChannels.getInstance().get(ac.getID());
+			if (pc != null) {
+				pc.remove(ac.getID());
+				
+				// Send channel update message removing the user
+				ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
+				clmsg.setClearList(false);
+				clmsg.add(pc);
+				ctx.pushVoice(clmsg, ac.getID());
+			}
 		}
 		
 		// Send an ACK message

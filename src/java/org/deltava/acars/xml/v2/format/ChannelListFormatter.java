@@ -38,31 +38,33 @@ class ChannelListFormatter extends XMLElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "channels");
+		e.setAttribute("clear", String.valueOf(cmsg.getClearList()));
 		for (Iterator<PopulatedChannel> i = cmsg.getResponse().iterator(); i.hasNext(); ) {
 			PopulatedChannel pc = i.next();
 			Channel c = pc.getChannel();
 			
 			// Build the channel element
 			Element ce = new Element("channel");
-			ce.setAttribute("id", c.getHexID());
+			ce.setAttribute("id", String.valueOf(c.getID()));
 			ce.setAttribute("rate", String.valueOf(c.getSampleRate().getRate()));
-			ce.setAttribute("lat", StringUtils.format(c.getCenter().getLatitude(), "#0.0000"));
-			ce.setAttribute("lng", StringUtils.format(c.getCenter().getLongitude(), "##0.0000"));
 			ce.setAttribute("range", String.valueOf(c.getRange()));
 			ce.setAttribute("users", String.valueOf(c.getMaxUsers()));
+			ce.setAttribute("default", String.valueOf(c.getIsDefault()));
 			ce.addContent(XMLUtils.createElement("name", c.getName(), true));
 			ce.addContent(XMLUtils.createElement("freq", c.getFrequency()));
 			ce.addContent(XMLUtils.createElement("desc", c.getDescription(), true));
-			
+			if (c.getCenter() != null) {
+				ce.addContent(XMLUtils.createElement("lat", StringUtils.format(c.getCenter().getLatitude(), "#0.0000")));
+				ce.addContent(XMLUtils.createElement("lng", StringUtils.format(c.getCenter().getLongitude(), "##0.0000")));
+			}
+				
 			// Format users
 			for (Pilot p : pc.getUsers()) {
 				Element ue = new Element("user");
 				ue.setAttribute("id", p.getPilotCode());
-				ue.setAttribute("dbID", p.getHexID());
+				ue.setAttribute("dbID", p.getHexID().substring(2));
 				ue.setAttribute("owner", String.valueOf(c.getIsTemporary() && (c.getOwner().getID() == p.getID())));
-				ue.addContent(XMLUtils.createElement("firstname", p.getFirstName()));
-				ue.addContent(XMLUtils.createElement("lastname", p.getLastName()));
-				ue.addContent(XMLUtils.createElement("name", p.getName()));
+				ue.addContent(XMLUtils.createElement("name", p.getName(), true));
 				ue.addContent(XMLUtils.createElement("eqtype", p.getEquipmentType()));
 				ue.addContent(XMLUtils.createElement("rank", p.getRank().getName()));
 				ce.addContent(ue);

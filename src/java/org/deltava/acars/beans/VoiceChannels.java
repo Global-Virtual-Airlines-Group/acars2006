@@ -7,6 +7,8 @@ import java.util.concurrent.locks.*;
 import org.deltava.beans.mvs.*;
 import org.deltava.util.*;
 
+import org.gvagroup.ipc.IPCInfo;
+
 /**
  * A bean to store voice channel information.
  * @author Luke
@@ -14,17 +16,32 @@ import org.deltava.util.*;
  * @since 4.0
  */
 
-public class VoiceChannels {
+public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedChannel> {
 	
-	private static final Map<String, PopulatedChannel> _channels = new TreeMap<String, PopulatedChannel>();
+	private final Map<String, PopulatedChannel> _channels = new TreeMap<String, PopulatedChannel>();
 	
-	private static final ReentrantReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
-	private static final Lock _rLock = _rwLock.readLock();
-	private static final ReentrantReadWriteLock.WriteLock _wLock = _rwLock.writeLock();
+	private final ReentrantReadWriteLock _rwLock = new ReentrantReadWriteLock(true);
+	private final Lock _rLock = _rwLock.readLock();
+	private final ReentrantReadWriteLock.WriteLock _wLock = _rwLock.writeLock();
+	
+	private static final VoiceChannels _instance = new VoiceChannels();
+	
+	private final Channel LOBBY = new Channel("Lobby") {{
+		setDescription("The MVS Lobby");
+		setIsDefault(true);
+		setSampleRate(SampleRate.SR11K);
+		addViewRole("*");
+		addTalkRole("*");
+	}};
 
 	// singleton
 	private VoiceChannels() {
 		super();
+		_channels.put("lobby", new PopulatedChannel(LOBBY));
+	}
+	
+	public static VoiceChannels getInstance() {
+		return _instance;
 	}
 	
 	/**
@@ -33,7 +50,7 @@ public class VoiceChannels {
 	 * @return a Channel, or null if not found
 	 * @throws NullPointerException if name is null 
 	 */
-	public static PopulatedChannel get(String name) {
+	public PopulatedChannel get(String name) {
 		try {
 			_rLock.lock();
 			return _channels.get(name.toLowerCase());
@@ -48,7 +65,7 @@ public class VoiceChannels {
 	 * @return the PopulatedChannel which the user was added to
 	 * @throws IllegalStateException if the channel name is not unique
 	 */
-	public static PopulatedChannel add(ACARSConnection ac, Channel c) {
+	public PopulatedChannel add(ACARSConnection ac, Channel c) {
 		try {
 			_wLock.lock();
 			String name = c.getName().toLowerCase();
@@ -74,7 +91,7 @@ public class VoiceChannels {
 	 * @param conID the connection ID
 	 * @return a Channel, or null if not found
 	 */
-	public static PopulatedChannel get(long conID) {
+	public PopulatedChannel get(long conID) {
 		try {
 			_rLock.lock();
 			for (PopulatedChannel pc : _channels.values()) {
@@ -96,7 +113,7 @@ public class VoiceChannels {
 	 * @throws NullPointerException if ac or c are null
 	 * @throws SecurityException if the user cannot view the channel
 	 */
-	public static PopulatedChannel add(ACARSConnection ac, String c) {
+	public PopulatedChannel add(ACARSConnection ac, String c) {
 		try {
 			_wLock.lock();
 			remove(ac);
@@ -119,7 +136,7 @@ public class VoiceChannels {
 	 * @param p the Pilot to remove
 	 * @return if the user was removed from any channels
 	 */
-	public static boolean remove(ACARSConnection ac) {
+	public boolean remove(ACARSConnection ac) {
 		boolean isLocked = _wLock.isHeldByCurrentThread();
 		try {
 			if (!isLocked)
@@ -140,7 +157,7 @@ public class VoiceChannels {
 	 * Returns all active voice channels.
 	 * @return a List of PopulatedChannel beans
 	 */
-	public static Collection<PopulatedChannel> getChannels() {
+	public Collection<PopulatedChannel> getChannels() {
 		try {
 			_rLock.lock();
 			return new ArrayList<PopulatedChannel>(_channels.values());
@@ -152,7 +169,7 @@ public class VoiceChannels {
 	/**
 	 * Removes empty transient voice channels.
 	 */
-	public static void removeEmpty() {
+	public void removeEmpty() {
 		try {
 			_wLock.lock();
 			for (Iterator<Map.Entry<String, PopulatedChannel>> i = _channels.entrySet().iterator(); i.hasNext(); ) {
@@ -170,12 +187,16 @@ public class VoiceChannels {
 	 * Returns the number of voice channels.
 	 * @return the number of channels
 	 */
-	public static int size() {
+	public int size() {
 		try {
 			_rLock.lock();
 			return _channels.size();
 		} finally {
 			_rLock.unlock();
 		}
+	}
+
+	public Collection<byte[]> getSerializedInfo() {
+		return IPCUtils.serialize(getChannels());
 	}
 }

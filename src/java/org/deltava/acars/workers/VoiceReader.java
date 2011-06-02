@@ -80,6 +80,7 @@ public class VoiceReader extends Worker {
 		_status.setStatus(WorkerStatus.STATUS_START);
 		long lastExecTime = 0;
 
+		VoiceChannels vc = VoiceChannels.getInstance();
 		final ByteBuffer buf = ByteBuffer.allocate(32768);
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Listening for Voice packet");
@@ -113,7 +114,7 @@ public class VoiceReader extends Worker {
 							throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress() + " - not enabled");
 						
 						// Get the channel
-						PopulatedChannel pc = VoiceChannels.get(ac.getID());
+						PopulatedChannel pc = vc.get(ac.getID());
 						if (pc == null)
 							throw new IllegalArgumentException(ac.getUserID() + " not in any channel");
 						

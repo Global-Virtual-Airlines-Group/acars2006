@@ -22,6 +22,8 @@ import org.deltava.beans.schedule.GeoPosition;
 public class VoiceMixCommand extends ACARSCommand {
 	
 	private static final Logger log = Logger.getLogger(VoiceMixCommand.class);
+	
+	private final VoiceChannels vc = VoiceChannels.getInstance();
 
 	/**
 	 * Executes the command.
@@ -46,7 +48,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		}
 		
 		// Get the channel
-		PopulatedChannel pc = VoiceChannels.get(ac.getID());
+		PopulatedChannel pc = vc.get(ac.getID());
 		if (pc == null) {
 			log.warn(ac.getUserID() + " no longer in any Voice Channel");
 			return;

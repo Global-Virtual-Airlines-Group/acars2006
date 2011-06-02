@@ -172,10 +172,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			if (SystemData.getBoolean("acars.voice.enabled")) {
 				GetMVSChannel chdao = new GetMVSChannel(c);
 				Collection<Channel> channels = chdao.getAll();
+				VoiceChannels vc = VoiceChannels.getInstance();
 				for (Channel ch : channels)
-					VoiceChannels.add(null, ch);
+					vc.add(null, ch);
 				
-				log.info("Loaded " + channels.size() + " persistent Voice channels");	
+				log.info("Loaded " + channels.size() + " persistent Voice channels");
+				SharedData.addData(SharedData.MVS_POOL, vc);
 			}
 			
 			// Load TS2 server info if enabled

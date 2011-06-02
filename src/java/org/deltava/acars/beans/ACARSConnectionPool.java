@@ -18,7 +18,6 @@ import org.deltava.beans.schedule.GeoPosition;
 import org.deltava.acars.message.*;
 
 import org.deltava.util.*;
-import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.util.RouteEntryHelper;
 import org.gvagroup.acars.ACARSAdminInfo;
@@ -26,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 3.7
+ * @version 4.0
  * @since 1.0
  */
 
@@ -238,10 +237,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			sc.register(_cSelector, SelectionKey.OP_READ);
 			_cons.put(Long.valueOf(c.getID()), c);
 			_conLookup.put(sc, c);
-			
-			// Save the remote address if we're not allowing duplicates
-			if (!SystemData.getBoolean("acars.pool.multiple"))
-				_conLookup.put(c.getRemoteAddr(), c);
+			_conLookup.put(c.getRemoteAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
 		} finally {
@@ -398,7 +394,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 						con.close();
 						remove(con);
 						if (con.isVoiceEnabled())
-							VoiceChannels.remove(con);
+							VoiceChannels.getInstance().remove(con);
 						
 						// Add statistics
 						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
