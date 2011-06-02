@@ -39,7 +39,8 @@ public class VoiceToggleCommand extends ACARSCommand {
 		// Check access
 		if (ac.getUser().getNoVoice()) {
 			log.warn(ac.getUserID() + " voice access DISABLED");
-			// TODO: Send an error message here
+			ErrorMessage errMsg = new ErrorMessage(ac.getUser(), "Voice Access Disabled", vtmsg.getID());
+			ctx.push(errMsg, env.getConnectionID());
 			return;
 		}
 		
