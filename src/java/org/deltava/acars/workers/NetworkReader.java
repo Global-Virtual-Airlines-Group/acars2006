@@ -141,6 +141,7 @@ public class NetworkReader extends Worker {
 							qmsg.setHidden(con.getUserHidden());
 							qmsg.setDispatch(con.getIsDispatch());
 							qmsg.setMP(con.getIsMP());
+							qmsg.setVoice(con.isVoiceEnabled());
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}
