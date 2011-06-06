@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2011 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.acars.message.data.PilotMessage;
+import org.deltava.acars.message.data.*;
 import org.deltava.acars.message.dispatch.CancelMessage;
 import org.deltava.acars.message.mp.RemoveMessage;
 
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 2.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -67,7 +67,12 @@ public class QuitCommand extends ACARSCommand {
 		   MSG_INPUT.add(new MessageEnvelope(mrmsg, env.getConnectionID()));
 	   }
 	   
-	   // TODO: If using voice, remove from the voice channel
+	   // If a voice connection, refresh the channel list
+	   if (msg.isVoice()) {
+		   ChannelListMessage clmsg = new ChannelListMessage(env.getOwner(), msg.getID());
+		   clmsg.addAll(VoiceChannels.getInstance().getChannels());
+		   ctx.pushVoice(clmsg, env.getConnectionID());
+	   }
 	   
 		// Create a deletepilots message
 		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());

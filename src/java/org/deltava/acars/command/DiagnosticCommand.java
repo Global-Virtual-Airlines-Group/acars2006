@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -71,6 +71,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					qmsg.setFlightID(ac.getFlightID());
 					qmsg.setDispatch(ac.getIsDispatch());
 					qmsg.setHidden(ac.getUserHidden());
+					qmsg.setVoice(ac.isVoiceEnabled());
 					qmsg.setMP(ac.getIsMP());
 					MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
 
