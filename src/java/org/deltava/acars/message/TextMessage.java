@@ -1,4 +1,4 @@
-// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,14 +6,13 @@ import org.deltava.beans.Pilot;
 /** 
  * An ACARS message for text messaging.
  * @author Luke
- * @version 2.8
+ * @version 4.0
  * @since 1.0
  */
 
-public class TextMessage extends AbstractMessage implements RecipientMessage {
+public class TextMessage extends RecipientMessage {
 
 	private String _text;
-	private String _recipient;
 
 	public final static int MAX_MSG_SIZE = 1024;
 
@@ -22,20 +21,12 @@ public class TextMessage extends AbstractMessage implements RecipientMessage {
 		_text = (msgText.length() > MAX_MSG_SIZE) ? msgText.substring(0, MAX_MSG_SIZE) : msgText;
 	}
 	
-	public String getRecipient() {
-		return _recipient;
-	}
-	
 	public String getText() {
 		return _text; 
 	}
 	
 	public final boolean isPublic() {
-		return (_recipient == null);
-	}
-	
-	public void setRecipient(String msgTo) {
-		_recipient = msgTo;
+		return (getRecipient() == null);
 	}
 	
 	public void setText(String txt) {

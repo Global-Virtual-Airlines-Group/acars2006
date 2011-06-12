@@ -189,10 +189,10 @@ public class DiagnosticCommand extends ACARSCommand {
 
 				break;
 
-			// Send content warning e-mail
+			// FIXME: Refector this into warn command!
 			case DiagnosticMessage.CONTENT_WARN:
-				boolean isSC = (usr.getRank() == Rank.SC);
-				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !isSC) {
+				boolean isSC = (usr.getRank() == Rank.SC) || (usr.getRank().isCP());
+				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !usr.isInRole("Instructor") && !isSC) {
 					ctx.push(ackMsg, env.getConnectionID());
 					return;
 				}

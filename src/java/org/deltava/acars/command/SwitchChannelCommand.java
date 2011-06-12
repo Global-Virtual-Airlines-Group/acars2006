@@ -1,6 +1,8 @@
 // Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.*;
+
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
@@ -9,7 +11,8 @@ import org.deltava.acars.message.data.ChannelListMessage;
 
 import org.deltava.beans.mvs.*;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
+import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to handle switchng voice channels.
@@ -21,7 +24,25 @@ import org.deltava.util.StringUtils;
 public class SwitchChannelCommand extends ACARSCommand {
 	
 	private static final Logger log = Logger.getLogger(SwitchChannelCommand.class);
-
+	private final Collection<String> _ncRoles = new HashSet<String>() {{
+		add("Admin");
+	}};
+	
+	private final VoiceChannels _vc = VoiceChannels.getInstance();
+	
+	/**
+	 * Creates the Command.
+	 */
+	@SuppressWarnings("unchecked")
+	public SwitchChannelCommand() {
+		super();
+		if (SystemData.getBoolean("acars.voice.enabled")) {
+			Collection<String> ncRoles = (Collection<String>) SystemData.getObject("acars.voice.newChannelRoles");
+			if (ncRoles == null)
+				_ncRoles.addAll(ncRoles);
+		}
+	}
+	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
@@ -39,29 +60,38 @@ public class SwitchChannelCommand extends ACARSCommand {
 		}
 		
 		// Try to join the channel
-		VoiceChannels vc = VoiceChannels.getInstance();
 		ACARSConnection ac = ctx.getACARSConnection();
 		try {
-			PopulatedChannel pc = vc.add(ac, chName);
+			PopulatedChannel oldChannel = _vc.get(ac.getID());
+			PopulatedChannel pc = _vc.add(ac, chName);
 			
 			// If we didn't add the channel, create a new one
 			if (pc == null) {
+				if (!RoleUtils.hasAccess(ac.getUser().getRoles(), _ncRoles))
+					throw new SecurityException("Cannot create temporary channel");
+
 				Channel c = new Channel(chName);
+				c.setDescription(StringUtils.isEmpty(msg.getDescription()) ? "Temporary Voice Channel" : msg.getDescription());
 				c.setOwner(ac.getUser());
 				c.setCenter(ac.getLocation());
 				c.setSampleRate(SampleRate.SR11K);
+				c.setFrequency(msg.getFrequency());
 				c.addTalkRoles(ac.getUser().getRoles());
 				c.addViewRoles(ac.getUser().getRoles());
-				c.setIsDefault(vc.size() == 0);
-				pc = vc.add(ac, c);
-			}
+				pc = _vc.add(ac, c);
+				log.info(ac.getUserID() + " created temporary channel " + chName);
+			} else
+				log.info(ac.getUserID() + " swithcing to " + pc.getChannel().getName());
 			
 			// Return the channel info, to all voice users
 			ChannelListMessage cl = new ChannelListMessage(ac.getUser(), msg.getID());
 			cl.setClearList(false);
+			if (oldChannel != null)
+				cl.add(oldChannel);
 			cl.add(pc);
 			ctx.pushVoice(cl, -1);
 		} catch (SecurityException se) {
+			log.warn("Cannot join/create channel " + chName + " - " + se.getMessage());
 			ctx.push(new ErrorMessage(ac.getUser(), se.getMessage(), msg.getID()), ac.getID());
 		}
 	}

@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,13 +7,12 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS message to store Flight Viewer information.
  * @author Luke
- * @version 2.8
+ * @version 4.0
  * @since 2.8
  */
 
-public abstract class ViewerMessage extends AbstractMessage implements RecipientMessage {
+public abstract class ViewerMessage extends RecipientMessage {
 	
-	private String _recipient;
 	private int _reqType = VIEW_UNKNOWN;
 	
 	// Message type constants
@@ -53,14 +52,6 @@ public abstract class ViewerMessage extends AbstractMessage implements Recipient
 	}
 	
 	/**
-	 * Returns the recipient pilot code.
-	 * @return the pilot code
-	 */
-	public String getRecipient() {
-		return _recipient;
-	}
-
-	/**
 	 * Sets the request/response type.
 	 * @param newRT the request type
 	 * @see ViewerMessage#setRequestType(int)
@@ -76,13 +67,5 @@ public abstract class ViewerMessage extends AbstractMessage implements Recipient
 	 */
 	public void setRequestType(int rType) {
 		_reqType = rType;
-	}
-	
-	/**
-	 * Updates the recipient of this message.
-	 * @param msgTo the recipient pilot code
-	 */
-	public void setRecipient(String msgTo) {
-		_recipient = msgTo;
 	}
 }

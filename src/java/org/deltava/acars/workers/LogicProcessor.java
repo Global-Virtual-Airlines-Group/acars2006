@@ -72,6 +72,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_VOICE), new VoiceMixCommand());
 		_commands.put(Integer.valueOf(Message.MSG_MUTE), new MuteCommand());
 		_commands.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelCommand());
+		_commands.put(Integer.valueOf(Message.MSG_WARN), new WarnCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());

@@ -13,6 +13,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
 import org.deltava.acars.message.dispatch.CancelMessage;
 import org.deltava.acars.message.mp.RemoveMessage;
+import org.deltava.beans.mvs.PopulatedChannel;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -67,10 +68,23 @@ public class QuitCommand extends ACARSCommand {
 		   MSG_INPUT.add(new MessageEnvelope(mrmsg, env.getConnectionID()));
 	   }
 	   
-	   // If a voice connection, refresh the channel list
+	   // If a voice connection, remove user and refresh the channel list
 	   if (msg.isVoice()) {
+		   VoiceChannels vc = VoiceChannels.getInstance();
+		   Collection<PopulatedChannel> emptyChannels = vc.findEmpty();
+		   for (PopulatedChannel pc : emptyChannels) {
+			   for (Long ID : pc.getConnectionIDs()) {
+				   ACARSConnection avc = ctx.getACARSConnectionPool().get(ID.longValue());
+				   vc.add(avc, VoiceChannels.DEFAULT_NAME);
+			   }
+		   }
+		   
+		   // Remove empty channels now that we have switched users to lobby
+		   vc.findEmpty();
+		   
+		   // Refresh channel list
 		   ChannelListMessage clmsg = new ChannelListMessage(env.getOwner(), msg.getID());
-		   clmsg.addAll(VoiceChannels.getInstance().getChannels());
+		   clmsg.addAll(vc.getChannels());
 		   ctx.pushVoice(clmsg, env.getConnectionID());
 	   }
 	   

@@ -94,8 +94,8 @@ public class NetworkReader extends Worker {
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 75)
-					Thread.sleep(75 - runInterval);
+				if (runInterval < 50)
+					Thread.sleep(50 - runInterval);
 				
 				consWaiting = _cSelector.select(sleepTime);
 			} catch (InterruptedException ie) {
@@ -141,7 +141,7 @@ public class NetworkReader extends Worker {
 							qmsg.setHidden(con.getUserHidden());
 							qmsg.setDispatch(con.getIsDispatch());
 							qmsg.setMP(con.getIsMP());
-							qmsg.setVoice(con.isVoiceEnabled());
+							qmsg.setVoice(con.isVoiceEnabled() || con.getMuted());
 							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
 						}
 					}

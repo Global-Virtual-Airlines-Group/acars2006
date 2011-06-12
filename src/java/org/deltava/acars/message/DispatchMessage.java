@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,15 +6,14 @@ import org.deltava.beans.Pilot;
 import org.deltava.util.StringUtils;
 
 /**
- * An ACARS message to store dispatch information.
+ * An ACARS message to store Dispatch information.
  * @author Luke
- * @version 3.0
+ * @version 4.0
  * @since 1.0
  */
 
-public abstract class DispatchMessage extends AbstractMessage implements RecipientMessage {
+public abstract class DispatchMessage extends RecipientMessage {
 	
-	private String _recipient;
 	private int _reqType = DSP_UNKNOWN;
 	
 	// Request type constants
@@ -62,14 +61,6 @@ public abstract class DispatchMessage extends AbstractMessage implements Recipie
 	}
 	
 	/**
-	 * Returns the recipient pilot code.
-	 * @return the pilot code
-	 */
-	public String getRecipient() {
-		return _recipient;
-	}
-
-	/**
 	 * Sets the request/response type.
 	 * @param newRT the request type
 	 * @see DispatchMessage#setRequestType(int)
@@ -85,14 +76,5 @@ public abstract class DispatchMessage extends AbstractMessage implements Recipie
 	 */
 	public void setRequestType(int rType) {
 		_reqType = rType;
-	}
-	
-	/**
-	 * Updates the recipient of this message.
-	 * @param msgTo the recipient pilot code
-	 * @see DispatchMessage#getRecipient()
-	 */
-	public void setRecipient(String msgTo) {
-		_recipient = msgTo;
 	}
 }

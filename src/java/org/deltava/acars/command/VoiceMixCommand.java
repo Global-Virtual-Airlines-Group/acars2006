@@ -43,8 +43,18 @@ public class VoiceMixCommand extends ACARSCommand {
 			if (vmsg.getLocation() == null)
 				vmsg.setLocation(ac.getMPLocation());
 		} catch (IOException ie) {
-			log.error(ie.getMessage(), ie);
-			return;
+			log.warn(ie.getMessage());
+			//return;
+		}
+		
+		// Make sure this is greater than the max seq for the connection
+		synchronized (ac) {
+			if (ac.getVoiceSequence() >= vmsg.getID()) {
+				log.warn("Out of sequence voice packet from " + ac.getUserID() + ", " + ac.getVoiceSequence() + " >= " + vmsg.getID());
+				return;
+			}
+				
+			ac.setVoiceSequence(vmsg.getID());
 		}
 		
 		// Get the channel
@@ -56,7 +66,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
-		GeoPosition ctr = new GeoPosition(pc.getChannel().getCenter());
+		GeoPosition ctr = (maxRange > 0) ? new GeoPosition(pc.getChannel().getCenter()) : null;
 		if (maxRange > 0) {
 			int myDistance = ctr.distanceTo(vmsg.getLocation());
 			if (myDistance > maxRange) {
@@ -80,7 +90,7 @@ public class VoiceMixCommand extends ACARSCommand {
 				int rcvDistance = ctr.distanceTo(avc.getLocation());
 				if (rcvDistance <= maxRange) {
 					BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
-					Worker.RAW_OUTPUT.add(oenv);	
+					Worker.RAW_OUTPUT.add(oenv);
 				}
 			} else {
 				BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());

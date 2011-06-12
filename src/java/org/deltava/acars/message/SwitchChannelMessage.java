@@ -12,7 +12,9 @@ import org.deltava.beans.Pilot;
 
 public class SwitchChannelMessage extends AbstractMessage {
 
-	public String _name;
+	private String _name;
+	private String _desc;
+	private String _freq;
 	
 	/**
 	 * Creates the message.
@@ -30,5 +32,37 @@ public class SwitchChannelMessage extends AbstractMessage {
 	 */
 	public String getChannel() {
 		return _name;
+	}
+	
+	/**
+	 * Returns the channel description.
+	 * @return the description
+	 */
+	public String getDescription() {
+		return _desc;
+	}
+	
+	/**
+	 * Returns the channel frequency.
+	 * @return the frequency
+	 */
+	public String getFrequency() {
+		return _freq;
+	}
+	
+	/**
+	 * Sets the channel description if creating a new channel.
+	 * @param desc the description
+	 */
+	public void setDescription(String desc) {
+		_desc = desc;
+	}
+
+	/**
+	 * Sets the channel frequency if creating a new channel.
+	 * @param desc the frequency
+	 */
+	public void setFrequency(String freq) {
+		_freq = freq;
 	}
 }

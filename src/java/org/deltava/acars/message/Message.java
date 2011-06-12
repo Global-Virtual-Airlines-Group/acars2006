@@ -42,13 +42,15 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_MUTE = 21;
 	public static final int MSG_VOICETOGGLE = 22;
 	public static final int MSG_VOICE = 23;
+	public static final int MSG_WARN = 24;
+	public static final int MSG_WARNRESET = 25;
 
 	/**
 	 * XML message codes.
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxtoggle", "vox"};
+	      "voxtoggle", "vox", "warn", "warnreset"};
 	
 	/**
 	 * XML message type descriptions.
@@ -56,7 +58,7 @@ public interface Message extends java.io.Serializable {
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
 			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
-			"Switch Channel", "Mute", "Voice Toggle", "Voice"};
+			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset"};
 
 	/**
 	 * Returns the message type.

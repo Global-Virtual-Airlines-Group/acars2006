@@ -5,8 +5,7 @@ import java.util.Iterator;
 
 import org.jdom.Element;
 
-import org.deltava.acars.beans.ACARSConnection;
-
+import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ConnectionMessage;
 
@@ -17,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -89,11 +88,12 @@ class ConnectionFormatter extends ElementFormatter {
 			ce.addContent(XMLUtils.createElement("beta", String.valueOf(con.getBeta())));
 			ce.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
 			ce.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
-			ce.addContent(XMLUtils.createElement("input", String.valueOf(con.getBytesIn())));
-			ce.addContent(XMLUtils.createElement("output", String.valueOf(con.getBytesOut())));
-			ce.addContent(XMLUtils.createElement("msginput", String.valueOf(con.getMsgsIn())));
-			ce.addContent(XMLUtils.createElement("msgoutput", String.valueOf(con.getMsgsOut())));
 			if (isAdmin) {
+				ConnectionStats cs = con.getStatistics();
+				ce.addContent(XMLUtils.createElement("input", String.valueOf(cs.getBytesIn())));
+				ce.addContent(XMLUtils.createElement("output", String.valueOf(cs.getBytesOut())));
+				ce.addContent(XMLUtils.createElement("msginput", String.valueOf(cs.getMsgsIn())));
+				ce.addContent(XMLUtils.createElement("msgoutput", String.valueOf(cs.getMsgsOut())));
 				ce.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
 				ce.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
 			}

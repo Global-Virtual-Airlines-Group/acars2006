@@ -25,13 +25,15 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	private final ReentrantReadWriteLock.WriteLock _wLock = _rwLock.writeLock();
 	
 	private static final VoiceChannels _instance = new VoiceChannels();
+	public static final String DEFAULT_NAME = "Lobby";
 	
-	private final Channel LOBBY = new Channel("Lobby") {{
+	private final Channel LOBBY = new Channel(DEFAULT_NAME) {{
 		setDescription("The MVS Lobby");
 		setIsDefault(true);
 		setSampleRate(SampleRate.SR11K);
 		addViewRole("*");
 		addTalkRole("*");
+		addAdminRole("HR");
 	}};
 
 	// singleton
@@ -62,10 +64,13 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	/**
 	 * Adds a voice channel to the list.
 	 * @param c the Channel
-	 * @return the PopulatedChannel which the user was added to
+	 * @return the PopulatedChannel which the user was added to, or null
 	 * @throws IllegalStateException if the channel name is not unique
 	 */
 	public PopulatedChannel add(ACARSConnection ac, Channel c) {
+		if (ac == null)
+			return null;
+		
 		try {
 			_wLock.lock();
 			String name = c.getName().toLowerCase();
@@ -75,11 +80,8 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 			// Add the user to the channel if present
 			PopulatedChannel pc = new PopulatedChannel(c);
 			_channels.put(name, pc);
-			if (ac != null) {
-				remove(ac);
-				pc.add(ac.getID(), ac.getUser());
-			}
-				
+			remove(ac.getID());
+			pc.add(ac.getID(), ac.getUser());
 			return pc;
 		} finally {
 			_wLock.unlock();
@@ -111,18 +113,18 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	 * @param c the Channel to add to
 	 * @return the PopulatedChannel which the user was added to
 	 * @throws NullPointerException if ac or c are null
-	 * @throws SecurityException if the user cannot view the channel
+	 * @throws SecurityException if the user cannot view the channel, or cannot create a new one 
 	 */
 	public PopulatedChannel add(ACARSConnection ac, String c) {
 		try {
 			_wLock.lock();
-			remove(ac);
 			PopulatedChannel pc = _channels.get(c.toLowerCase());
 			if (pc != null) {
 				if (!RoleUtils.hasAccess(ac.getUser().getRoles(), pc.getChannel().getViewRoles()))
 					throw new SecurityException("Cannot view Channel");
 			
 				pc.add(ac.getID(), ac.getUser());
+				remove(ac.getID());
 			}
 		
 			return pc;
@@ -133,10 +135,10 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	
 	/**
 	 * Removes a user from all voice channels.
-	 * @param p the Pilot to remove
+	 * @param id the Connection ID
 	 * @return if the user was removed from any channels
 	 */
-	public boolean remove(ACARSConnection ac) {
+	public boolean remove(long id) {
 		boolean isLocked = _wLock.isHeldByCurrentThread();
 		try {
 			if (!isLocked)
@@ -144,7 +146,7 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 			
 			boolean wasRemoved = false;
 			for (PopulatedChannel pc : _channels.values())
-				wasRemoved |= pc.remove(ac.getID());
+				wasRemoved |= pc.remove(id);
 		
 			return wasRemoved;
 		} finally {
@@ -167,17 +169,27 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	}
 	
 	/**
-	 * Removes empty transient voice channels.
+	 * Finds empty transient voice channels. If a channel is completely empty
+	 * it is removed. If its owner is no longer present but users are, it is returned
+	 * for the caller to do somethig intelligent.
+	 * @return a Collection of PopulatedChannel beans
 	 */
-	public void removeEmpty() {
+	public Collection<PopulatedChannel> findEmpty() {
 		try {
 			_wLock.lock();
+			Collection<PopulatedChannel> results = new ArrayList<PopulatedChannel>();
 			for (Iterator<Map.Entry<String, PopulatedChannel>> i = _channels.entrySet().iterator(); i.hasNext(); ) {
 				Map.Entry<String, PopulatedChannel> me = i.next();
 				PopulatedChannel pc = me.getValue(); Channel ch = pc.getChannel();
-				if (ch.getIsTemporary() && !pc.contains(ch.getOwner()))
-					i.remove();
+				if (ch.getIsTemporary() && !pc.contains(ch.getOwner())) {
+					if (pc.size() == 0)
+						i.remove();
+					else
+						results.add(pc);
+				}
 			}
+			
+			return results;
 		} finally {
 			_wLock.unlock();
 		}
