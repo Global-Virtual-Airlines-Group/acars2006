@@ -1,0 +1,34 @@
+// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.xml.v2.parse;
+
+import org.jdom.Element;
+
+import org.deltava.beans.Pilot;
+
+import org.deltava.acars.message.WarnMessage;
+
+import org.deltava.acars.xml.*;
+
+/**
+ * A Parser for Warning elements.
+ * @author Luke
+ * @version 4.0
+ * @since 4.0
+ */
+
+class WarnParser extends XMLElementParser<WarnMessage> {
+
+	/**
+	 * Convert an XML warn element into a WarnMessage.
+	 * @param e the XML element
+	 * @return a WarnMessage
+	 * @throws XMLException if a parse error occurs 
+	 */
+	public WarnMessage parse(Element e, Pilot user) throws XMLException {
+
+		// Create the bean and set the receipients
+		WarnMessage msg = new WarnMessage(user, false);
+		msg.setRecipient(getChildText(e, "to", null));
+		return msg;
+	}
+}

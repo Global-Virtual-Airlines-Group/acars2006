@@ -9,7 +9,7 @@ import org.deltava.acars.xml.*;
 
 /**
  * A message parser for voice channel switch messages.
- * @author luke
+ * @author Luke
  * @version 4.0
  * @since 4.0
  */
@@ -26,6 +26,8 @@ public class SwitchChannelParser extends XMLElementParser<SwitchChannelMessage> 
 	public SwitchChannelMessage parse(org.jdom.Element e, Pilot user) {
 		
 		SwitchChannelMessage msg = new SwitchChannelMessage(user, getChildText(e, "channel", null));
+		msg.setDescription(getChildText(e, "desc", null));
+		msg.setFrequency(getChildText(e, "freq", null));
 		return msg;
 	}
 }

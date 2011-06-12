@@ -29,7 +29,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, ConnectionStats {
+public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
@@ -44,9 +44,11 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private transient SocketChannel _channel;
 	private transient Selector _wSelector;
 	
-	// Voice/UDP connection
+	// Voice/UDP data connection
 	private transient DatagramChannel _vChannel;
 	private transient Selector _vwSelector;
+	private long _maxVoiceSeq;
+	private int _warnings;
 
 	private InetAddress _remoteAddr;
 	private String _remoteHost;
@@ -79,6 +81,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 
 	// Connection information
 	private long _id;
+	private InternalConnectionStats _stats;
 	private Pilot _userInfo;
 	private UserData _userData;
 	private IPAddressInfo _addrInfo;
@@ -99,13 +102,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private transient final Lock _vwLock = new ReentrantLock();
 
 	// Statistics
-	private long _bytesIn;
-	private long _bytesOut;
-	private int _msgsIn;
-	private int _msgsOut;
 	private int _bufferReads;
 	private int _bufferWrites;
-	private int _writeErrors;
 	
 	// MP field
 	private final int _maxDistance = SystemData.getInt("mp.max_range", 40);
@@ -118,6 +116,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	public ACARSConnection(long cid, SocketChannel sc) {
 		super();
 		_id = cid;
+		_stats = new InternalConnectionStats(_id);
 
 		// Get IP Address information
 		_remoteAddr = sc.socket().getInetAddress();
@@ -151,7 +150,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	 * Closes the UDP pseudo-connection and disables voice.
 	 */
 	public void disconnectVoice() {
-		_isMuted = false;
 		
 		// Clean out voice buffer
 		if (_vwLock.tryLock()) {
@@ -196,13 +194,9 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	public boolean equals(Object o2) {
 		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
 	}
-
-	public long getBytesIn() {
-		return _bytesIn;
-	}
-
-	public long getBytesOut() {
-		return _bytesOut;
+	
+	public ConnectionStats getStatistics() {
+		return _stats;
 	}
 
 	SocketChannel getChannel() {
@@ -258,6 +252,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _isMuted;
 	}
 	
+	public int getWarnings() {
+		return _warnings;
+	}
+	
 	public boolean getIsMP() {
 		return (_fInfo != null) && (_fInfo.getLivery() != null);
 	}
@@ -270,14 +268,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _lastUDPSend;
 	}
 
-	public int getMsgsIn() {
-		return _msgsIn;
-	}
-
-	public int getMsgsOut() {
-		return _msgsOut;
-	}
-
 	public int getBufferReads() {
 		return _bufferReads;
 	}
@@ -286,10 +276,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _bufferWrites;
 	}
 	
-	public int getWriteErrors() {
-		return _writeErrors;
-	}
-
 	public int getProtocolVersion() {
 		return _protocolVersion;
 	}
@@ -328,6 +314,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 
 	public long getStartTime() {
 		return _startTime;
+	}
+	
+	public long getVoiceSequence() {
+		return _maxVoiceSeq;
 	}
 
 	public String getRemoteAddr() {
@@ -406,6 +396,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_viewerID = conID;
 	}	
 	
+	public void setWarnings(int warns) {
+		_warnings = Math.max(0, warns);
+	}
+	
 	public void setTimeOffset(long ofs) {
 		_timeOffset = ofs;
 	}
@@ -433,6 +427,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	public void setDispatchRange(GeoLocation loc, int range) {
 		_loc = loc;
 		_range = Math.max(0, range);
+	}
+	
+	public void setVoiceSequence(long seq) {
+		_maxVoiceSeq = Math.max(seq, _maxVoiceSeq);
 	}
 
 	public String getRowClassName() {
@@ -477,7 +475,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 			throw new ProtocolException("Connection Closed");
 
 		// Set the limit on the buffer and return to the start, update counters
-		_bytesIn += _iBuffer.flip().limit();
+		_stats.addBytesIn(_iBuffer.flip().limit());
 		_lastActivityTime = System.currentTimeMillis();
 
 		// Reset the decoder and decode into a char buffer - strip out ping nulls
@@ -519,7 +517,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_msgBuffer.delete(0, ePos);
 
 		// Return the buffer
-		_msgsIn++;
+		_stats.addMessageIn();
 		return msgOut.toString();
 	}
 
@@ -582,7 +580,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
 					if (_wSelector.select(250) > 0) {
-						_bytesOut += _channel.write(_oBuffer);
+						_stats.addBytesOut(_channel.write(_oBuffer));
 						_wSelector.selectedKeys().clear();
 						_bufferWrites++;
 						if (writeCount > 4)
@@ -593,11 +591,11 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 					} else {
 						_bufferWrites++;
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
-							_writeErrors++;
+							_stats.addWriteError();
 							_oBuffer.clear();
 							_oBuffer.put(MAGIC_RESET_CODE.getBytes(cs));
 							if (_wSelector.select(300) > 0) {
-								_bytesOut += _channel.write(_oBuffer);		
+								_stats.addBytesOut(_channel.write(_oBuffer));		
 								_wSelector.selectedKeys().clear();
 							}
 							
@@ -607,7 +605,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 				}
 			}
 
-			_msgsOut++;
+			_stats.addMessageOut();
 		} catch (ClosedSelectorException cse) {
 			log.info("Cannot write to " + _remoteAddr.getHostAddress() + " - selector closed");
 		} catch (AsynchronousCloseException ace) {
@@ -633,7 +631,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 			_vwSelector = Selector.open();
 			_vChannel = DatagramChannel.open();
 			_vChannel.configureBlocking(false);
-			_vBuffer = ByteBuffer.allocate(32768);
+			if (_vBuffer == null)
+				_vBuffer = ByteBuffer.allocateDirect(32768);
 			
 			// Bind to the port/address
 			DatagramSocket socket = _vChannel.socket();
@@ -643,6 +642,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 
 			// Register the selector
 			_vChannel.register(_vwSelector, SelectionKey.OP_WRITE);
+			_isMuted = false;
 		} catch (IOException ie) {
 			log.error("Error connecting Voice datagram socket - " + ie.getMessage());
 		}
@@ -669,7 +669,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 				_vBuffer.flip();
 				while (_vBuffer.hasRemaining()) {
 					if (_vwSelector.select(250) > 0) {
-						_vChannel.write(_vBuffer);
+						_stats.addVoiceBytesOut(_vChannel.write(_vBuffer));
 						_vwSelector.selectedKeys().clear();
 						if (writeCount > 4)
 							writeCount--;
@@ -677,9 +677,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 						return;
 					} else {
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
+							_stats.addVoiceWriteError();
 							_vBuffer.clear();
-							if (_wSelector.select(300) > 0) {
-								_vChannel.write(_vBuffer);		
+							if (_vwSelector.select(300) > 0) {
+								_stats.addVoiceBytesOut(_vChannel.write(_vBuffer));		
 								_vwSelector.selectedKeys().clear();
 							}
 							
@@ -694,5 +695,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		
 		// Update statistics
 		_lastUDPSend = System.currentTimeMillis();
+		_stats.addPacketOut();
 	}
 }

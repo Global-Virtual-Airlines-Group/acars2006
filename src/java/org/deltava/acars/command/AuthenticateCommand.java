@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 3.7
+ * @version 4.0
  * @since 1.0
  */
 
@@ -235,6 +235,16 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Get the IP Address info
 			GetIPLocation ipdao = new GetIPLocation(c);
 			con.setAddressInfo(ipdao.get(con.getRemoteAddr()));
+			
+			// Load MVS warnings and disable voice if necessary
+			if (SystemData.getBoolean("acars.voice.enabled")) {
+				GetWarnings wdao = new GetWarnings(c);
+				con.setWarnings(wdao.getCount(usr.getID()));
+				if (con.getWarnings() >= SystemData.getInt("acars.voice.maxWarnings", 3)) {
+					log.warn(usr.getName() + " has " + con.getWarnings() + " warnings, voice disabled");
+					usr.setNoVoice(false);
+				}
+			}
 
 			// Start a transaction
 			ctx.startTX();
@@ -325,6 +335,14 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (maxAccels != null) {
 			String maxAccel = (String) maxAccels.get(ud.getAirlineCode().toLowerCase());
 			ackMsg.setEntry("maxAccel", StringUtils.isEmpty(maxAccel) ? "4" : maxAccel);
+		}
+		
+		// Check if we can add voice channels
+		if (SystemData.getBoolean("acars.voice.enabled")) {
+			@SuppressWarnings("unchecked")
+			Collection<String> newChannelRoles = (Collection<String>) SystemData.getObject("acars.voice.newChannelRoles");
+			if (newChannelRoles != null)
+				ackMsg.setEntry("tempChannel", String.valueOf(RoleUtils.hasAccess(usr.getRoles(), newChannelRoles)));
 		}
 
 		// Send the ack message

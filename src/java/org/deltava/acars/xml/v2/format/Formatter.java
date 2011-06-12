@@ -18,6 +18,13 @@ import org.deltava.acars.message.viewer.*;
 
 public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 
+	/**
+	 * Initializes the Message Formatter.
+	 */
+	public Formatter() {
+		super(2);
+	}
+
 	@Override
 	protected void init() {
 		super.init();
@@ -38,12 +45,5 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		_eFormatters.put(AcceptMessage.class, new ViewAcceptFormatter());
 		_eFormatters.put(CancelMessage.class, new ViewCancelFormatter());
 		_eFormatters.put(RequestMessage.class, new ViewRequestFormatter());
-	}
-
-	/**
-	 * Initializes the Message Formatter.
-	 */
-	public Formatter() {
-		super(1);
 	}
 }

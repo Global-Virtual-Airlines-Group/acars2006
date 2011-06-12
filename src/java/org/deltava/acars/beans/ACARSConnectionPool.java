@@ -152,19 +152,21 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
+				ConnectionStats stats = ac.getStatistics();
 				entry.setClientBuild(ac.getClientVersion());
 				entry.setBeta(ac.getBeta());
 				entry.setRemoteAddr(ac.getRemoteAddr());
 				entry.setRemoteHost(ac.getRemoteHost());
 				entry.setAddressInfo(ac.getAddressInfo());
-				entry.setMessages(ac.getMsgsIn(), ac.getMsgsOut());
-				entry.setBytes(ac.getBytesIn(), ac.getBytesOut());
+				entry.setMessages(stats.getMsgsIn(), stats.getMsgsOut());
+				entry.setBytes(stats.getBytesIn(), stats.getBytesOut());
 				entry.setBufferReads(ac.getBufferReads());
 				entry.setBufferWrites(ac.getBufferWrites());
-				entry.setWriteErrors(ac.getWriteErrors());
+				entry.setWriteErrors(stats.getWriteErrors());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
 				entry.setUserHidden(ac.getUserHidden());
+				entry.setVoice(ac.isVoiceEnabled());
 				
 				// Get the flight phase
 				PositionMessage pm = ac.getPosition();
@@ -199,7 +201,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * @return a Collection of CollectionStats beans
 	 */
 	public Collection<ConnectionStats> getStatistics() {
-		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(getAll());
+		Collection<ACARSConnection> cons = getAll();
+		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(cons.size() + 8);
+		for (ACARSConnection ac : cons)
+			results.add(ac.getStatistics());
+		
 		synchronized (_disConStats) {
 			results.addAll(_disConStats);
 			_disConStats.clear();
@@ -277,12 +283,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				remove(con);
 				
 				// Add statistics
-				ACARSConnectionStats ds = new ACARSConnectionStats(con.getID());
-				ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
-				ds.setBytes(con.getBytesIn(), con.getBytesOut());
 				disCons.add(con);
 				synchronized (_disConStats) {
-					_disConStats.add(ds);
+					_disConStats.add(new ACARSConnectionStats(con.getStatistics()));
 				}
 			}
 			
@@ -391,16 +394,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 							results.add(env);
 						}
 					} catch (IOException ie) {
+						con.setMuted(con.isVoiceEnabled());
 						con.close();
 						remove(con);
 						
 						// Add statistics
-						ACARSConnectionStats ds = new ACARSConnectionStats(con.getID()); 
-						ds.setMessages(con.getMsgsIn(), con.getMsgsOut());
-						ds.setBytes(con.getBytesIn(), con.getBytesOut());
 						_disCon.add(con);
 						synchronized (_disConStats) {
-							_disConStats.add(ds);
+							_disConStats.add(new ACARSConnectionStats(con.getStatistics()));
 						}
 					}
 				}
@@ -425,7 +426,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				_conLookup.values().remove(c);
 			
 			if (c.isVoiceEnabled())
-				VoiceChannels.getInstance().remove(c);
+				VoiceChannels.getInstance().remove(c.getID());
 		} finally {
 			_w.unlock();
 		}

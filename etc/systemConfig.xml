@@ -158,7 +158,19 @@
 		<voice>
 			<enabled type="Boolean">true</enabled>
 			<port type="Integer">15527</port>		
-		
+
+			<!-- Roles able to create temporary channels -->
+			<list name="newChannelRoles" attr="role" unique="true">
+				<role>AcademyAdmin</role>
+				<role>AcademyAudit</role>
+				<role>Dispatch</role>
+				<role>Developer</role>
+				<role>HR</role>
+				<role>Examiner</role>
+				<role>Instructor</role>
+				<role>Operations</role>
+				<role>PIREP</role>
+			</list>
 		</voice>
 		
 		<build>
