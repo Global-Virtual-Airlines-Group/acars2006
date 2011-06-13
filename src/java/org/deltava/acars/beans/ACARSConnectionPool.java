@@ -97,6 +97,24 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	}
 	
 	/**
+	 * Returns warning levels for connections.
+	 * @return a Map of warning levels, keyed by Connection ID.
+	 */
+	public Map<Long, Integer> getWarnings() {
+		Collection<ACARSConnection> cons = getAll();
+		Map<Long, Integer> results = new HashMap<Long, Integer>();
+		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
+			ACARSConnection con = i.next();
+			synchronized (con) {
+				if (con.getWarnings() > 0)
+					results.put(Long.valueOf(con.getID()), Integer.valueOf(con.getWarnings()));
+			}
+		}
+		
+		return results;
+	}
+	
+	/**
 	 * Returns network data in a serialized form for transfer between virtual machines or class loaders.
 	 * @return a Collection of byte arrays
 	 */

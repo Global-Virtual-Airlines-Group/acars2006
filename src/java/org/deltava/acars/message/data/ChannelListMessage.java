@@ -1,6 +1,8 @@
 // Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
+import java.util.*;
+
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.Pilot;
@@ -17,6 +19,8 @@ public class ChannelListMessage extends DataResponseMessage<PopulatedChannel> {
 	
 	private boolean _clearList = true;
 
+	private final Map<Long, Integer> _warnings = new HashMap<Long, Integer>();
+	
 	/**
 	 * Creates the message.
 	 * @param msgFrom the originating user
@@ -35,10 +39,28 @@ public class ChannelListMessage extends DataResponseMessage<PopulatedChannel> {
 	}
 	
 	/**
+	 * Returns the warning level for a particular connection.
+	 * @param conID the Connection ID
+	 * @return the warning level
+	 */
+	public int getWarning(Long conID) {
+		Integer w = _warnings.get(conID);
+		return (w == null) ? 0 : w.intValue();
+	}
+	
+	/**
 	 * Sets whether the client should clear its channel list upon receipt.
 	 * @param doClear TRUE if a complete list, otherwise FALSE
 	 */
 	public void setClearList(boolean doClear) {
 		_clearList = doClear;
+	}
+
+	/**
+	 * Sets the warning levels.
+	 * @param warnLevels a Map of warning counts, keyed by Connection ID
+	 */
+	public void setWarnings(Map<Long, Integer> warnLevels) {
+		_warnings.putAll(warnLevels);
 	}
 }
