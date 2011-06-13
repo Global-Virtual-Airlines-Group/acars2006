@@ -84,6 +84,7 @@ public class QuitCommand extends ACARSCommand {
 		   
 		   // Refresh channel list
 		   ChannelListMessage clmsg = new ChannelListMessage(env.getOwner(), msg.getID());
+		   clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
 		   clmsg.addAll(vc.getChannels());
 		   ctx.pushVoice(clmsg, env.getConnectionID());
 	   }

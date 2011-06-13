@@ -73,7 +73,6 @@ public class SwitchChannelCommand extends ACARSCommand {
 				Channel c = new Channel(chName);
 				c.setDescription(StringUtils.isEmpty(msg.getDescription()) ? "Temporary Voice Channel" : msg.getDescription());
 				c.setOwner(ac.getUser());
-				c.setCenter(ac.getLocation());
 				c.setSampleRate(SampleRate.SR11K);
 				c.setFrequency(msg.getFrequency());
 				c.addTalkRoles(ac.getUser().getRoles());
@@ -84,12 +83,14 @@ public class SwitchChannelCommand extends ACARSCommand {
 				log.info(ac.getUserID() + " swithcing to " + pc.getChannel().getName());
 			
 			// Return the channel info, to all voice users
-			ChannelListMessage cl = new ChannelListMessage(ac.getUser(), msg.getID());
-			cl.setClearList(false);
+			ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), msg.getID());
+			clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
+			clmsg.setClearList(false);
+			clmsg.add(pc);
 			if (oldChannel != null)
-				cl.add(oldChannel);
-			cl.add(pc);
-			ctx.pushVoice(cl, -1);
+				clmsg.add(oldChannel);
+			
+			ctx.pushVoice(clmsg, -1);
 		} catch (SecurityException se) {
 			log.warn("Cannot join/create channel " + chName + " - " + se.getMessage());
 			ctx.push(new ErrorMessage(ac.getUser(), se.getMessage(), msg.getID()), ac.getID());

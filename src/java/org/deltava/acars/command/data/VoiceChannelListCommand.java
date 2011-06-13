@@ -44,6 +44,7 @@ public class VoiceChannelListCommand extends DataCommand {
 		
 		// Get the connections
 		ChannelListMessage rspmsg = new ChannelListMessage(env.getOwner(), msg.getID());
+		rspmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
 		for (PopulatedChannel pc : vc.getChannels()) {
 			Channel c = pc.getChannel();
 			

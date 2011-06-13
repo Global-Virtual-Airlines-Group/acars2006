@@ -59,6 +59,7 @@ public class VoiceToggleCommand extends ACARSCommand {
 				
 				// Send channel update message removing the user
 				ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
+				clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
 				clmsg.setClearList(false);
 				clmsg.add(pc);
 				ctx.pushVoice(clmsg, ac.getID());

@@ -54,21 +54,21 @@ class ChannelListFormatter extends XMLElementFormatter {
 			ce.addContent(XMLUtils.createElement("desc", c.getDescription(), true));
 			if (!StringUtils.isEmpty(c.getFrequency()))
 				ce.addContent(XMLUtils.createElement("freq", c.getFrequency()));
-			if (c.getCenter() != null) {
-				ce.addContent(XMLUtils.createElement("lat", StringUtils.format(c.getCenter().getLatitude(), "#0.0000")));
-				ce.addContent(XMLUtils.createElement("lng", StringUtils.format(c.getCenter().getLongitude(), "##0.0000")));
-			}
 			
 			// Display channel roles
 			ce.addContent(formatRoles(c.getTalkRoles(), "talk"));
 			ce.addContent(formatRoles(c.getAdminRoles(), "admin"));
 				
 			// Format users
-			for (Pilot p : pc.getUsers()) {
+			for (Map.Entry<Long, Pilot> me : pc.getEntries()) {
+				Pilot p = me.getValue();
+				int warnLevel = cmsg.getWarning(me.getKey());
+				
 				Element ue = new Element("user");
 				ue.setAttribute("id", p.getPilotCode());
 				ue.setAttribute("dbID", p.getHexID().substring(2));
 				ue.setAttribute("owner", String.valueOf(c.getIsTemporary() && (c.getOwner().getID() == p.getID())));
+				ue.setAttribute("warn", String.valueOf(warnLevel));
 				ue.addContent(XMLUtils.createElement("name", p.getName(), true));
 				ue.addContent(XMLUtils.createElement("eqtype", p.getEquipmentType()));
 				ue.addContent(XMLUtils.createElement("rank", p.getRank().getName()));
