@@ -66,17 +66,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
-		GeoPosition ctr = (maxRange > 0) ? new GeoPosition(pc.getChannel().getCenter()) : null;
-		if (maxRange > 0) {
-			int myDistance = ctr.distanceTo(vmsg.getLocation());
-			if (myDistance > maxRange) {
-				log.info(ac.getUserID() + " out of range of " + pc.getChannel().getName());
-				return;
-			} else if (myDistance == -1) {
-				log.info(ac.getUserID() + " no location for " + pc.getChannel().getName());
-				return;
-			}
-		}
+		GeoPosition ctr = (vmsg.getLocation() == null) ? null : new GeoPosition(vmsg.getLocation());
 		
 		// Loop through the connection IDs, sending if in range of center
 		ACARSConnectionPool pool = ctx.getACARSConnectionPool();
@@ -86,7 +76,7 @@ public class VoiceMixCommand extends ACARSCommand {
 				continue;
 			
 			// Check for range limitations
-			if (maxRange > 0) {
+			if ((maxRange > 0) && (ctr != null)) {
 				int rcvDistance = ctr.distanceTo(avc.getLocation());
 				if (rcvDistance <= maxRange) {
 					BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
