@@ -9,8 +9,10 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
 import org.deltava.acars.workers.Worker;
 
-import org.deltava.beans.mvs.PopulatedChannel;
+import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
+
+import org.deltava.util.RoleUtils;
 
 /**
  * An ACARS command to mix voice messages.
@@ -44,7 +46,7 @@ public class VoiceMixCommand extends ACARSCommand {
 				vmsg.setLocation(ac.getMPLocation());
 		} catch (IOException ie) {
 			log.warn(ie.getMessage());
-			//return;
+			return;
 		}
 		
 		// Make sure this is greater than the max seq for the connection
@@ -64,6 +66,13 @@ public class VoiceMixCommand extends ACARSCommand {
 			return;
 		}
 		
+		// Check talk access
+		Channel ch = pc.getChannel();
+		if (!RoleUtils.hasAccess(ac.getUser().getRoles(), ch.getTalkRoles())) {
+			log.warn(ac.getUserID() + " attempting to talk in " + ch.getName());
+			return;
+		}
+		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
 		GeoPosition ctr = (vmsg.getLocation() == null) ? null : new GeoPosition(vmsg.getLocation());
@@ -72,20 +81,21 @@ public class VoiceMixCommand extends ACARSCommand {
 		ACARSConnectionPool pool = ctx.getACARSConnectionPool();
 		for (Long ID : pc.getConnectionIDs()) {
 			ACARSConnection avc = pool.get(ID.longValue());
-			if ((avc == null) || !avc.isVoiceEnabled())
+			if ((avc == null) || !avc.isVoiceEnabled() || avc.getMuted())
 				continue;
 			
 			// Check for range limitations
-			if ((maxRange > 0) && (ctr != null)) {
+			boolean doSend = (maxRange == 0) || (ctr == null);
+			if (!doSend) {
 				int rcvDistance = ctr.distanceTo(avc.getLocation());
-				if (rcvDistance <= maxRange) {
-					BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
-					Worker.RAW_OUTPUT.add(oenv);
+				if (rcvDistance > maxRange) {
+					log.info(avc.getUserID() + " out of range: " + rcvDistance + " > " + maxRange);
+					continue;
 				}
-			} else {
-				BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
-				Worker.RAW_OUTPUT.add(oenv);
 			}
+				
+			BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
+			Worker.RAW_OUTPUT.add(oenv);
 		}
 	}
 }
