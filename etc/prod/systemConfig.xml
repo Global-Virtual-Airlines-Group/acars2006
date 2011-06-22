@@ -162,6 +162,25 @@
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
 		<position_interval type="Integer">30</position_interval>
+
+		<voice>
+			<enabled type="Boolean">true</enabled>
+			<port type="Integer">15527</port>		
+
+			<!-- Roles able to create temporary channels -->
+			<list name="newChannelRoles" attr="role" unique="true">
+				<role>AcademyAdmin</role>
+				<role>AcademyAudit</role>
+				<role>Dispatch</role>
+				<role>Developer</role>
+				<role>HR</role>
+				<role>Examiner</role>
+				<role>Instructor</role>
+				<role>Operations</role>
+				<role>PIREP</role>
+			</list>
+		</voice>
+		
 		<build>
 			<map name="minimum">
 				<v1_4>77</v1_4>
