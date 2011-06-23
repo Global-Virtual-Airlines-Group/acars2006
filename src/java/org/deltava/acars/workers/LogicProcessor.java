@@ -96,6 +96,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APINFO), new AirportInfoCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APPINFO), new AppInfoCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_CHLIST), new VoiceChannelListCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LOAD), new LoadFactorCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
