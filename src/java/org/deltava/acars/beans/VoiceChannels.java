@@ -30,9 +30,11 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	private final Channel LOBBY = new Channel(DEFAULT_NAME) {{
 		setDescription("The MVS Lobby");
 		setIsDefault(true);
-		setSampleRate(SampleRate.SR6K);
+		setSampleRate(SampleRate.SR5K);
 		addViewRole("*");
-		addTalkRole("*");
+		addTalkRole("PIREP");
+		addTalkRole("Instructor");
+		addTalkRole("Dispatch");
 		addAdminRole("HR");
 	}};
 
