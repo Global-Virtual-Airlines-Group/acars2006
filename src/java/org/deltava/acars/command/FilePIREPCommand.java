@@ -257,13 +257,15 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				ctx.setMessage("Calculating flight load factor");	
-				LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-				double loadFactor = lf.generate(afr.getSubmittedOn());
-				if ((a != null) && (a.getSeats() > 0) && (afr.getPassengers() == 0)) {
-					afr.setPassengers((int) Math.round(a.getSeats() * loadFactor));
+				if (afr.getLoadFactor() == 0) {
+					ctx.setMessage("Calculating flight load factor");
+					LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
+					double loadFactor = lf.generate(afr.getSubmittedOn());
 					afr.setLoadFactor(loadFactor);
 				}
+				
+				if ((a != null) && (a.getSeats() > 0) && (afr.getPassengers() == 0))
+					afr.setPassengers((int) Math.round(a.getSeats() * afr.getLoadFactor()));
 			}
 
 			// Check for in-flight refueling
