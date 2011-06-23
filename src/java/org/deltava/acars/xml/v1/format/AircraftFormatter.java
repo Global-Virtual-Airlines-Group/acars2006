@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -43,6 +43,7 @@ class AircraftFormatter extends ElementFormatter {
 			if (amsg.getShowProfile()) {
 				ae.setAttribute("name", a.getName());
 				ae.setAttribute("engines", String.valueOf(a.getEngines()));
+				ae.setAttribute("seats", String.valueOf(a.getSeats()));
 				ae.setAttribute("historic", String.valueOf(a.getHistoric()));
 				ae.addContent(XMLUtils.createElement("fullName", a.getFullName()));
 				ae.addContent(XMLUtils.createElement("engineType", a.getEngineType()));
