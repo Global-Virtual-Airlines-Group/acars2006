@@ -31,11 +31,12 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 		setDescription("The MVS Lobby");
 		setIsDefault(true);
 		setSampleRate(SampleRate.SR5K);
-		addViewRole("*");
-		addTalkRole("PIREP");
-		addTalkRole("Instructor");
-		addTalkRole("Dispatch");
-		addAdminRole("HR");
+		addRole(Access.VIEW, "*");
+		addRole(Access.TALK, "PIREP");
+		addRole(Access.TALK, "Instructor");
+		addRole(Access.TALK, "Dispatch");
+		addRole(Access.TALK_IF_PRESENT, "HR");
+		addRole(Access.ADMIN, "HR");
 	}};
 
 	// singleton

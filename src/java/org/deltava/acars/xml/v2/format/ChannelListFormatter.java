@@ -12,6 +12,7 @@ import org.deltava.acars.xml.XMLElementFormatter;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.mvs.*;
+import org.deltava.beans.mvs.Channel.Access;
 
 import org.deltava.util.*;
 
@@ -50,15 +51,16 @@ class ChannelListFormatter extends XMLElementFormatter {
 			ce.setAttribute("range", String.valueOf(c.getRange()));
 			ce.setAttribute("users", String.valueOf(c.getMaxUsers()));
 			ce.setAttribute("default", String.valueOf(c.getIsDefault()));
+			ce.setAttribute("dynTalk", String.valueOf(RoleUtils.hasAccess(pc.getRolesPresent(), c.getRoles(Access.TALK_IF_PRESENT))));
 			ce.addContent(XMLUtils.createElement("name", c.getName(), true));
 			ce.addContent(XMLUtils.createElement("desc", c.getDescription(), true));
 			if (!StringUtils.isEmpty(c.getFrequency()))
 				ce.addContent(XMLUtils.createElement("freq", c.getFrequency()));
 			
 			// Display channel roles
-			ce.addContent(formatRoles(c.getTalkRoles(), "talk"));
-			ce.addContent(formatRoles(c.getAdminRoles(), "admin"));
-				
+			ce.addContent(formatRoles(c.getRoles(Access.TALK), "talk"));
+			ce.addContent(formatRoles(c.getRoles(Access.ADMIN), "admin"));
+			
 			// Format users
 			for (Map.Entry<Long, Pilot> me : pc.getEntries()) {
 				Pilot p = me.getValue();
