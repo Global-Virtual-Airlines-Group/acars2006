@@ -68,7 +68,9 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Check talk access
 		Channel ch = pc.getChannel();
-		if (!RoleUtils.hasAccess(ac.getUser().getRoles(), ch.getTalkRoles())) {
+		boolean canTalk = RoleUtils.hasAccess(ac.getUser().getRoles(), ch.getTalkRoles());
+		canTalk |= RoleUtils.hasAccess(pc.getRolesPresent(), ch.getDynTalkRoles());
+		if (!canTalk) {
 			log.warn(ac.getUserID() + " attempting to talk in " + ch.getName());
 			return;
 		}
