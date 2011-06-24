@@ -75,8 +75,8 @@ public class SwitchChannelCommand extends ACARSCommand {
 				c.setOwner(ac.getUser());
 				c.setSampleRate(SampleRate.SR11K);
 				c.setFrequency(msg.getFrequency());
-				c.addTalkRoles(ac.getUser().getRoles());
-				c.addViewRoles(ac.getUser().getRoles());
+				c.addRoles(Channel.Access.TALK, ac.getUser().getRoles());
+				c.addRoles(Channel.Access.VIEW, ac.getUser().getRoles());
 				pc = _vc.add(ac, c);
 				log.info(ac.getUserID() + " created temporary channel " + chName);
 			} else
