@@ -80,7 +80,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 					boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
 					isOK &= msg.getAirportD().equals(fr.getAirportD());
 					isOK &= msg.getAirportA().equals(fr.getAirportA());
-					if (routeValid) {
+					if (isOK) {
 						log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using draft PIREP");
 						routeValid = true;
 					}
