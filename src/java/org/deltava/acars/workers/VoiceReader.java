@@ -40,17 +40,17 @@ public class VoiceReader extends Worker {
 		super.open();
 		
 		try {
-			_rSelector = Selector.open();
 			_channel = DatagramChannel.open();
 			_channel.configureBlocking(false);
 			
 			// Bind to the port
 			DatagramSocket socket = _channel.socket();
-			SocketAddress sAddr = new InetSocketAddress(SystemData.getInt("acars.voice.port"));
 			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv") * 2);
-			socket.bind(sAddr);
+			socket.setReuseAddress(true);
+			socket.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
 			
 			// Add the server socket channel to the selector
+			_rSelector = Selector.open();
 			_channel.register(_rSelector, SelectionKey.OP_READ);
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
@@ -88,8 +88,8 @@ public class VoiceReader extends Worker {
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 50)
-					Thread.sleep(50 - runInterval);
+				if (runInterval < 25)
+					Thread.sleep(25 - runInterval);
 				
 				consWaiting = _rSelector.select(SystemData.getInt("acars.sleep", 30000));
 			} catch (InterruptedException ie) {
@@ -107,30 +107,42 @@ public class VoiceReader extends Worker {
 				try {
 					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(buf);
 					while (srcAddr != null) {
+						log.info("Received voice packet from " + srcAddr.toString().substring(1));
 						ACARSConnection ac = _pool.get(srcAddr.getAddress().getHostAddress());
 						if (ac == null)
-							throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress() + " - not connected");
-						else if (!ac.isVoiceEnabled())
-							throw new IllegalArgumentException(srcAddr.getAddress().getHostAddress() + " - not enabled");
+							throw new IllegalArgumentException(srcAddr + " - not connected");
+						else if (!ac.isVoiceCapable())
+							throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
+
+						// Register the source address
+						ac.enableVoice(_channel, srcAddr);
 						
-						// Get the channel
-						PopulatedChannel pc = vc.get(ac.getID());
-						if (pc == null)
-							throw new IllegalArgumentException(ac.getUserID() + " not in any channel");
-						
-						// Create the message
-						VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());
+						// Get the data
 						byte[] pktData = new byte[buf.flip().limit()];
 						buf.get(pktData);
-						msg.setData(pktData);
-					
-						// Create the envelope and push it onto the queue
-						MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+						
+						// If it's a ping (ie. a 16-byte datagram), send it right back, otherwise push onto the queue
+						if (pktData.length == 16) {
+							log.info("Received MVS Ping from " + ac.getUserID());
+							BinaryEnvelope oenv = new BinaryEnvelope(ac.getUser(), pktData, ac.getID());
+							RAW_OUTPUT.add(oenv);
+						} else {
+							// Get the channel
+							PopulatedChannel pc = vc.get(ac.getID());
+							if (pc == null)
+								throw new IllegalArgumentException(ac.getUserID() + " not in any channel");
+							
+							// Create the message
+							VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());
+							msg.setData(pktData);
+							MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+						}
+						
 						buf.clear();
 						srcAddr = (InetSocketAddress) _channel.receive(buf);
 					}
 				} catch (IllegalArgumentException iae) {
-					log.warn("Unexpected voice packet from " + iae.getMessage());
+					log.error("Unexpected voice packet from " + iae.getMessage(), iae);
 					buf.clear();
 				} catch (IOException ie) {
 					log.error("Error reading voice packet - " + ie.getMessage(), ie);
@@ -140,7 +152,7 @@ public class VoiceReader extends Worker {
 			// Check execution time
 			_rSelector.selectedKeys().clear();
 			long execTime = System.currentTimeMillis() - lastExecTime;
-			if (execTime > 2500)
+			if (execTime > 1250)
 				log.warn("Excessive read time - " + execTime + "ms (" + consWaiting + " connections)");
 
 			// Log executiuon

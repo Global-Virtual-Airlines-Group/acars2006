@@ -12,7 +12,7 @@ import org.deltava.beans.schedule.GeoPosition;
 import org.deltava.util.StringUtils;
 
 /**
- * A utility class to convert MVS packets to and from DataEnvelopes. 
+ * A utility class to parse MVS packets. 
  * @author Luke
  * @version 4.0
  * @since 1.0
@@ -105,6 +105,7 @@ public class Packet {
 		
 		// Load data
 		msg.setCompression(VoiceCompression.values()[in.readInt32()]);
+		//in.readInt64(); // connection ID - ignored, generally
 		msg.setID(in.readInt64());
 		msg.setRate(SampleRate.getRate(in.readInt32()));
 		

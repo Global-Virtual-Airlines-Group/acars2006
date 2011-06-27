@@ -306,8 +306,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					_disConStats.add(new ACARSConnectionStats(con.getStatistics()));
 				}
 			}
-			
-			// TODO: If we're using voice consider a ping here to prevent timeouts
 		}
 		
 		// Return the list of dropped connections
