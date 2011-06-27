@@ -45,7 +45,8 @@ public class VoiceReader extends Worker {
 			
 			// Bind to the port
 			DatagramSocket socket = _channel.socket();
-			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv") * 2);
+			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
+			socket.setSendBufferSize(SystemData.getInt("acars.buffer.send") * 4);
 			socket.setReuseAddress(true);
 			socket.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
 			
