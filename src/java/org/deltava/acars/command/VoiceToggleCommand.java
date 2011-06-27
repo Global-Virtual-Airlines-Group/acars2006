@@ -46,11 +46,11 @@ public class VoiceToggleCommand extends ACARSCommand {
 		
 		// Turn on/off voice
 		if (vtmsg.getVoiceEnabled()) {
+			ac.setVoiceCapable(true);
 			log.info(ac.getUserID() + " enabling Voice");
-			ac.connectVoice();
 		} else {
 			log.info(ac.getUserID() + " disabling Voice");
-			ac.disconnectVoice();
+			ac.disableVoice();
 			
 			// Get channel that user was in
 			PopulatedChannel pc = VoiceChannels.getInstance().get(ac.getID());

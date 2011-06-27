@@ -47,7 +47,9 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	// Voice/UDP data connection
 	private transient DatagramChannel _vChannel;
 	private transient Selector _vwSelector;
+	private SocketAddress _vAddr;
 	private long _maxVoiceSeq;
+	private boolean _voiceCapable;
 	private int _warnings;
 
 	private InetAddress _remoteAddr;
@@ -145,11 +147,46 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			_channel = sc;
 		}
 	}
+	
+	
+	/**
+	 * Connects the UDP socket for voice communications.
+	 * @param dc the Channel to write on
+	 * @param srcAddr the source SocketAddress
+	 */
+	public void enableVoice(DatagramChannel dc, SocketAddress srcAddr) {
+		if (isVoiceEnabled()) {
+			boolean isNew = !srcAddr.toString().equals(_vAddr.toString());
+			if (isNew) {
+				_vAddr = srcAddr;
+				log.warn("Switched voice source address for " + getUserID() + " to " + _vAddr.toString().substring(1));
+			}
+				
+			return;
+		}
+		
+		try {
+			_vAddr = srcAddr;
+			_vwSelector = Selector.open();
+			_vChannel = dc;
+			_vChannel.configureBlocking(false);
+			if (_vBuffer == null)
+				_vBuffer = ByteBuffer.allocateDirect(32768);
+			
+			// Register the selector
+			_vChannel.register(_vwSelector, SelectionKey.OP_WRITE);
+			_isMuted = false;
+			log.info("Enabled voice access for "+ getUserID() + " from " + _vAddr.toString().substring(1) + " to " 
+					+ _vChannel.socket().getLocalAddress().toString().substring(1));
+		} catch (IOException ie) {
+			log.error("Error creating Voice socket for " + getUserID() + " - " + ie.getMessage(), ie);
+		}
+	}
 
 	/**
 	 * Closes the UDP pseudo-connection and disables voice.
 	 */
-	public void disconnectVoice() {
+	public void disableVoice() {
 		
 		// Clean out voice buffer
 		if (_vwLock.tryLock()) {
@@ -161,12 +198,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		if (isVoiceEnabled()) {
 			try {
 				_vwSelector.close();
-				_vChannel.close();
 			} catch (Exception e) {
 				// empty
 			}
 		}
 		
+		_vAddr = null;
 		_vChannel = null;
 	}
 	
@@ -174,7 +211,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	 * Closes the connection.
 	 */
 	public void close() {
-		disconnectVoice();
+		disableVoice();
 
 		// Clean out control buffers
 		if (_wLock.tryLock()) {
@@ -348,8 +385,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return (_userInfo != null);
 	}
 	
+	public boolean isVoiceCapable() {
+		return _voiceCapable;
+	}
+	
 	public boolean isVoiceEnabled() {
-		return (_vChannel != null) && _vChannel.isConnected();
+		return (_vChannel != null);
 	}
 
 	public void setFlightInfo(InfoMessage msg) {
@@ -427,6 +468,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	public void setDispatchRange(GeoLocation loc, int range) {
 		_loc = loc;
 		_range = Math.max(0, range);
+	}
+	
+	public void setVoiceCapable(boolean voiceOK) {
+		_voiceCapable = voiceOK;
 	}
 	
 	public void setVoiceSequence(long seq) {
@@ -620,34 +665,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		_lastActivityTime = System.currentTimeMillis();
 	}
 	
-	/**
-	 * Connects the UDP socket for voice communications.
-	 */
-	public void connectVoice() {
-		if (isVoiceEnabled())
-			return;
-		
-		try {
-			_vwSelector = Selector.open();
-			_vChannel = DatagramChannel.open();
-			_vChannel.configureBlocking(false);
-			if (_vBuffer == null)
-				_vBuffer = ByteBuffer.allocateDirect(32768);
-			
-			// Bind to the port/address
-			DatagramSocket socket = _vChannel.socket();
-			SocketAddress sAddr = new InetSocketAddress(_remoteAddr, SystemData.getInt("acars.voice.port"));
-			socket.setSendBufferSize(SystemData.getInt("acars.buffer.send") * 2);
-			_vChannel.connect(sAddr);
-
-			// Register the selector
-			_vChannel.register(_vwSelector, SelectionKey.OP_WRITE);
-			_isMuted = false;
-		} catch (IOException ie) {
-			log.error("Error connecting Voice datagram socket - " + ie.getMessage());
-		}
-	}
-	
 	private void writeData(byte[] data) {
 		if ((_vBuffer == null) || (data == null))
 			return;
@@ -669,7 +686,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 				_vBuffer.flip();
 				while (_vBuffer.hasRemaining()) {
 					if (_vwSelector.select(250) > 0) {
-						_stats.addVoiceBytesOut(_vChannel.write(_vBuffer));
+						_stats.addVoiceBytesOut(_vChannel.send(_vBuffer, _vAddr));
 						_vwSelector.selectedKeys().clear();
 						if (writeCount > 4)
 							writeCount--;
@@ -679,8 +696,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
 							_stats.addVoiceWriteError();
 							_vBuffer.clear();
-							if (_vwSelector.select(300) > 0) {
-								_stats.addVoiceBytesOut(_vChannel.write(_vBuffer));		
+							if (_vwSelector.select(250) > 0) {
+								_stats.addVoiceBytesOut(_vChannel.send(_vBuffer, _vAddr));		
 								_vwSelector.selectedKeys().clear();
 							}
 							
