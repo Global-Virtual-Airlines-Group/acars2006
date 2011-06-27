@@ -6,6 +6,7 @@ import java.util.zip.CRC32;
 
 import org.deltava.acars.message.VoiceMessage;
 
+import org.deltava.beans.GeoLocation;
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
 
@@ -21,7 +22,7 @@ import org.deltava.util.StringUtils;
 public class Packet {
 	
 	private static final String HDR = "MVX";
-	private static final int PROTOCOL_VERSION = 1;
+	public static final int PROTOCOL_VERSION = 1;
 	
 	static class PacketInputStream extends DataInputStream {
 		
@@ -61,11 +62,42 @@ public class Packet {
 	                ((long)(readBuffer[3] & 255) << 24) +
 	                ((readBuffer[2] & 255) << 16) +
 	                ((readBuffer[1] & 255) <<  8) +
-	                ((readBuffer[0] & 255) <<  0));
+	                (readBuffer[0] & 255));
 		}
 		
 		public final double readDouble64() throws IOException {
 			return Double.longBitsToDouble(readInt64());
+		}
+	}
+	
+	static class PacketOutputStream extends DataOutputStream {
+		
+		PacketOutputStream(OutputStream os) {
+			super(os);
+		}
+		
+		public final void write(String s) throws IOException {
+			write(s.getBytes("UTF-8"));
+			write(0);
+		}
+		
+		public final void writeInt32(int i) throws IOException {
+			write (i & 0xFF);
+			write((i >> 8) & 0xFF);
+			write((i >> 16) & 0xFF);
+			write((i >> 24) & 0xFF);
+		}
+		
+		public final void writeInt64(long l) throws IOException {
+			byte[] buffer = new byte[8];
+			for (int x = 0; x < 8; x++)
+				buffer[x] = (byte)((l >> (x * 8)) & 0xFF);
+			
+			write(buffer, 0, 8);
+		}
+		
+		public final void writeDouble64(double d) throws IOException {
+			writeInt64(Double.doubleToLongBits(d));
 		}
 	}
 	
@@ -75,10 +107,9 @@ public class Packet {
 	}
 
 	/**
-	 * Creates a DataEnvelope from an MVS voice packet.
-	 * @param user the User
-	 * @param pktData the packet data
-	 * @return a DataEnvelope
+	 * Populates a VoiceMessage from an MVS voice packet. The packet is contained within
+	 * the message's data.
+	 * @param msg the VoiceMessage
 	 * @throws IOException if an error occurs
 	 */
 	public static void parse(VoiceMessage msg) throws IOException {
@@ -129,5 +160,39 @@ public class Packet {
 		if (crc.getValue()!= msg.getCRC32())
 			throw new IOException("Invalid CRC-32! Expected " + Long.toHexString(msg.getCRC32()) + ", received "
 					+ Long.toHexString(crc.getValue()));
+	}
+
+	/**
+	 * Recreates a packet from a VoiceMessage.
+	 * @param vmsg the VoiceMessage
+	 * @return the packet data
+	 * @throws IOException if an I/O error occurs
+	 */
+	public static byte[] rewrite(VoiceMessage vmsg) throws IOException {
+		
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+		PacketOutputStream out = new PacketOutputStream(bos);
+		out.write(HDR + String.valueOf(PROTOCOL_VERSION));
+		out.write(vmsg.getSenderID());
+		out.write(vmsg.getChannel());
+		out.writeInt32(vmsg.getCompression().ordinal());
+		//out.writeInt64(vmsg.getConnectionID());
+		out.writeInt64(vmsg.getID());
+		out.writeInt32(vmsg.getRate().getRate());
+		
+		// Write location
+		GeoLocation loc = (vmsg.getLocation() == null) ? new GeoPosition(0, 0) : vmsg.getLocation();
+		out.writeDouble64(loc.getLatitude());
+		out.writeDouble64(loc.getLongitude());
+		
+		// Write the data and the CRC
+		out.writeInt64(vmsg.getCRC32());
+		byte[] data = vmsg.getData();
+		out.writeInt32(data.length);
+		out.write(data);
+		
+		// Return the packet
+		out.flush();
+		return bos.toByteArray();
 	}
 }
