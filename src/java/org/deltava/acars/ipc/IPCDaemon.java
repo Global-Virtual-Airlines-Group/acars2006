@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -7,10 +7,12 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.mvs.*;
 import org.deltava.acars.beans.*;
 
 import org.deltava.dao.*;
 
+import org.deltava.util.CollectionUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
@@ -19,7 +21,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 3.1
+ * @version 4.0
  * @since 1.0
  */
 
@@ -66,19 +68,53 @@ public class IPCDaemon implements Runnable {
 						}
 						
 						switch (event.getCode()) {
-							case SystemEvent.AIRLINE_RELOAD:
+							case AIRLINE_RELOAD:
 								log.warn("ACARS Reloading Airlines");
 								GetAirline aldao = new GetAirline(con);
 								SystemData.add("airlines", aldao.getAll());
 								break;
 								
-							case SystemEvent.AIRPORT_RELOAD:
+							case AIRPORT_RELOAD:
 								log.warn("ACARS Reloading Airports");
 								GetAirport apdao = new GetAirport(con);
 								SystemData.add("airports", apdao.getAll());
 								break;
 								
-							case UserEvent.USER_SUSPEND:
+							case MVS_RELOAD:
+								log.warn("Reloading persistent Voice channels");
+								GetMVSChannel chdao = new GetMVSChannel(con);
+								Map<String, Channel> channels = CollectionUtils.createMap(chdao.getAll(), "name");
+								VoiceChannels vc = VoiceChannels.getInstance();
+								
+								// Update existing channels
+								for (Map.Entry<String, Channel> me : channels.entrySet()) {
+									PopulatedChannel pc = vc.get(me.getKey());
+									if (pc == null) {
+										log.warn("Added new MVS channel " + me.getKey());
+										vc.add(null, me.getValue());
+									} else if (pc.size() == 0) {
+										vc.remove(me.getKey());
+										vc.add(null, me.getValue());
+										log.warn("Updated MVS channel " + me.getKey());
+									} else
+										log.warn("MVS channel " + me.getKey() + " not empty!");
+								}
+								
+								// Delete old channels
+								for (PopulatedChannel pc : vc.getChannels()) {
+									Channel c = pc.getChannel();
+									if (c.getIsTemporary())
+										continue;
+									
+									if (!channels.containsKey(c.getName())) {
+										log.warn("Removing MVS channel " + c.getName());
+										vc.remove(c.getName());
+									}
+								}
+								
+								break;
+								
+							case USER_SUSPEND:
 								log.warn(usr.getName() + " Suspended - Validating all Credentials");
 								
 								// Validate all of the connections
@@ -90,6 +126,7 @@ public class IPCDaemon implements Runnable {
 										Pilot p = pdao.get(ac.getUserData());
 										if (p.getStatus() != Pilot.ACTIVE) {
 											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatusName());
+											ac.close();
 											acPool.remove(ac);
 										}
 									}
@@ -97,7 +134,7 @@ public class IPCDaemon implements Runnable {
 								
 								break;
 								
-							case UserEvent.USER_INVALIDATE:
+							case USER_INVALIDATE:
 								log.warn("Invalidated User " + usr.getName());
 								
 								// Reload the user
