@@ -7,10 +7,6 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.DataRequestMessage;
 import org.deltava.acars.message.data.ChannelListMessage;
 
-import org.deltava.beans.mvs.*;
-
-import org.deltava.util.RoleUtils;
-
 /**
  * An ACARS command to list voice channels.
  * @author Luke
@@ -38,25 +34,10 @@ public class VoiceChannelListCommand extends DataCommand {
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		
-		// Check if we're in a channel
-		VoiceChannels vc = VoiceChannels.getInstance();
-		PopulatedChannel pvc = vc.get(env.getConnectionID());
-		
 		// Get the connections
 		ChannelListMessage rspmsg = new ChannelListMessage(env.getOwner(), msg.getID());
 		rspmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
-		for (PopulatedChannel pc : vc.getChannels()) {
-			Channel c = pc.getChannel();
-			
-			// Check if we can view the channel
-			if (RoleUtils.hasAccess(ctx.getUser().getRoles(), c.getViewRoles())) {
-				if ((pvc == null) && c.getIsDefault())
-					pc.add(env.getConnectionID(), ctx.getUser());
-					
-				rspmsg.add(pc);
-			}
-		}
-		
+		rspmsg.addAll(VoiceChannels.getInstance().getChannels());
 		ctx.push(rspmsg, env.getConnectionID());
 	}
 }

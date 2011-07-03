@@ -6,8 +6,7 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ChannelListMessage;
-
-import org.deltava.beans.mvs.PopulatedChannel;
+import org.deltava.beans.mvs.Channel;
 
 /**
  * An ACARS command to toggle voice support. 
@@ -45,25 +44,23 @@ public class VoiceToggleCommand extends ACARSCommand {
 		}
 		
 		// Turn on/off voice
+		VoiceChannels vc = VoiceChannels.getInstance();
 		if (vtmsg.getVoiceEnabled()) {
 			ac.setVoiceCapable(true);
+			vc.add(ac, Channel.DEFAULT_NAME);
 			log.info(ac.getUserID() + " enabling Voice");
 		} else {
 			log.info(ac.getUserID() + " disabling Voice");
 			ac.disableVoice();
 			
 			// Get channel that user was in
-			PopulatedChannel pc = VoiceChannels.getInstance().get(ac.getID());
-			if (pc != null) {
-				pc.remove(ac.getID());
+			vc.remove(ac.getID());
 				
-				// Send channel update message removing the user
-				ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
-				clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
-				clmsg.setClearList(false);
-				clmsg.add(pc);
-				ctx.pushVoice(clmsg, ac.getID());
-			}
+			// Send channel update message removing the user
+			ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
+			clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
+			clmsg.addAll(vc.getChannels());
+			ctx.pushVoice(clmsg, ac.getID());
 		}
 		
 		// Send an ACK message

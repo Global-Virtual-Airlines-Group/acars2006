@@ -25,9 +25,8 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	private final ReentrantReadWriteLock.WriteLock _wLock = _rwLock.writeLock();
 	
 	private static final VoiceChannels _instance = new VoiceChannels();
-	public static final String DEFAULT_NAME = "Lobby";
 	
-	private final Channel LOBBY = new Channel(DEFAULT_NAME) {{
+	private final Channel LOBBY = new Channel(Channel.DEFAULT_NAME) {{
 		setDescription("The MVS Lobby");
 		setIsDefault(true);
 		setSampleRate(SampleRate.SR5K);
@@ -36,6 +35,7 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 		addRole(Access.TALK, "Instructor");
 		addRole(Access.TALK, "Dispatch");
 		addRole(Access.TALK_IF_PRESENT, "HR");
+		addRole(Access.TALK_IF_PRESENT, "Dispatch");
 		addRole(Access.ADMIN, "HR");
 	}};
 
@@ -71,9 +71,6 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	 * @throws IllegalStateException if the channel name is not unique
 	 */
 	public PopulatedChannel add(ACARSConnection ac, Channel c) {
-		if (ac == null)
-			return null;
-		
 		try {
 			_wLock.lock();
 			String name = c.getName().toLowerCase();
@@ -83,8 +80,11 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 			// Add the user to the channel if present
 			PopulatedChannel pc = new PopulatedChannel(c);
 			_channels.put(name, pc);
-			remove(ac.getID());
-			pc.add(ac.getID(), ac.getUser());
+			if (ac != null) {
+				remove(ac.getID());
+				pc.add(ac.getID(), ac.getUser());
+			}
+			
 			return pc;
 		} finally {
 			_wLock.unlock();
@@ -126,8 +126,8 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 				if (!RoleUtils.hasAccess(ac.getUser().getRoles(), pc.getChannel().getViewRoles()))
 					throw new SecurityException("Cannot view Channel");
 			
-				pc.add(ac.getID(), ac.getUser());
 				remove(ac.getID());
+				pc.add(ac.getID(), ac.getUser());
 			}
 		
 			return pc;
@@ -155,6 +155,28 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 		} finally {
 			if (!isLocked) 
 				_wLock.unlock();
+		}
+	}
+	
+	/**
+	 * Removes a voice channel.
+	 * @param name the channel name
+	 * @return TRUE if removed, otherwise FALSE
+	 */
+	public boolean remove(String name) {
+		try {
+			_wLock.lock();
+			PopulatedChannel pc = _channels.get(name);
+			if (pc == null)
+				return false;
+			
+			// Remove only if empty
+			if (pc.size() == 0)
+				return (_channels.remove(name) != null);
+		
+			return false;
+		} finally {
+			_wLock.unlock();
 		}
 	}
 	

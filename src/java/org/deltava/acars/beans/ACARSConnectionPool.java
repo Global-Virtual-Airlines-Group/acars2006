@@ -297,6 +297,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			// Have we exceeded the timeout interval
 			if (idleTime > timeout) {
 				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
+				con.setMuted(con.isVoiceEnabled());
 				con.close();
 				remove(con);
 				
@@ -436,13 +437,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	public void remove(ACARSConnection c) {
 		try {
+			VoiceChannels.getInstance().remove(c.getID());
 			_w.lock();
 			_cons.values().remove(c);
 			while (_conLookup.containsValue(c))
 				_conLookup.values().remove(c);
-			
-			if (c.isVoiceEnabled())
-				VoiceChannels.getInstance().remove(c.getID());
 		} finally {
 			_w.unlock();
 		}
