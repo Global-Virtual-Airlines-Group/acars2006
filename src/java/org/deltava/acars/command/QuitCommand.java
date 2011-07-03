@@ -8,12 +8,12 @@ import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.beans.mvs.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
 import org.deltava.acars.message.dispatch.CancelMessage;
 import org.deltava.acars.message.mp.RemoveMessage;
-import org.deltava.beans.mvs.PopulatedChannel;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
@@ -75,7 +75,7 @@ public class QuitCommand extends ACARSCommand {
 		   for (PopulatedChannel pc : emptyChannels) {
 			   for (Long ID : pc.getConnectionIDs()) {
 				   ACARSConnection avc = ctx.getACARSConnectionPool().get(ID.longValue());
-				   vc.add(avc, VoiceChannels.DEFAULT_NAME);
+				   vc.add(avc, Channel.DEFAULT_NAME);
 			   }
 		   }
 		   
