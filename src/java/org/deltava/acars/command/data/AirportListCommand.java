@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available Airport data.
  * @author Luke
- * @version 3.7
+ * @version 4.0
  * @since 1.0
  */
 
@@ -52,8 +52,8 @@ public class AirportListCommand extends DataCommand {
 		try {
 			GetAirport dao = new GetAirport(ctx.getConnection());
 			dao.setAppCode(appCode);
-			airports.addAll(dao.getEventAirports());
 			airports.addAll(dao.getAll().values());
+			airports.addAll(dao.getEventAirports());
 		} catch (DAOException de) {
 			log.error("Cannot load airports - " + de.getMessage(), de);
 			Map<?, Airport> allAirports = (Map<?, Airport>) SystemData.getObject("airports");
