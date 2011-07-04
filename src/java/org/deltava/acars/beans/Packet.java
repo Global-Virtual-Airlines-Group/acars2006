@@ -35,7 +35,7 @@ public class Packet {
 			int b = read();
 			while (b > 0) {
 				os.write(b);
-				b = read();
+				b = in.read();
 			}
 			
 			return new String(os.toByteArray(), "UTF-8");
@@ -136,7 +136,7 @@ public class Packet {
 		
 		// Load data
 		msg.setCompression(VoiceCompression.values()[in.readInt32()]);
-		//in.readInt64(); // connection ID - ignored, generally
+		msg.setConnectionID(in.readInt64()); // ignored, generally
 		msg.setID(in.readInt64());
 		msg.setRate(SampleRate.getRate(in.readInt32()));
 		
@@ -147,17 +147,20 @@ public class Packet {
 			msg.setLocation(new GeoPosition(lat, lng));
 			
 		// Load the data
-		msg.setCRC32(in.readInt64() & 0xFFFFFFFFL);
+		msg.setCRC32(in.readInt64());
 		int dataLength = in.readInt32();
 		byte[] data = new byte[dataLength];
 		int actualLength = in.read(data);
         if (actualLength != dataLength)
             throw new IOException("Expected " + dataLength + " payload, received " + actualLength);
         
+        // Set the header size
+        msg.setHeaderSize(msg.getData().length - dataLength);
+        
 		// Get the CRC-32
 		CRC32 crc = new CRC32();
 		crc.update(data);
-		if (crc.getValue()!= msg.getCRC32())
+		if (crc.getValue() != msg.getCRC32())
 			throw new IOException("Invalid CRC-32! Expected " + Long.toHexString(msg.getCRC32()) + ", received "
 					+ Long.toHexString(crc.getValue()));
 	}
@@ -170,13 +173,19 @@ public class Packet {
 	 */
 	public static byte[] rewrite(VoiceMessage vmsg) throws IOException {
 		
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+		// If we don't have a header size, abort
+		int hdrSize = vmsg.getHeaderSize();
+		if (hdrSize < 1)
+			throw new IllegalStateException("MVS Header size unknown");
+		
+		// Write the packet
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(2048);
 		PacketOutputStream out = new PacketOutputStream(bos);
 		out.write(HDR + String.valueOf(PROTOCOL_VERSION));
 		out.write(vmsg.getSenderID());
 		out.write(vmsg.getChannel());
 		out.writeInt32(vmsg.getCompression().ordinal());
-		//out.writeInt64(vmsg.getConnectionID());
+		out.writeInt64(vmsg.getConnectionID());
 		out.writeInt64(vmsg.getID());
 		out.writeInt32(vmsg.getRate().getRate());
 		
@@ -185,11 +194,14 @@ public class Packet {
 		out.writeDouble64(loc.getLatitude());
 		out.writeDouble64(loc.getLongitude());
 		
-		// Write the data and the CRC
+		// Write the CRC
 		out.writeInt64(vmsg.getCRC32());
+		
+		// Write the data, but remember that vmsg.getData() is the entire packet, so strip off the header
 		byte[] data = vmsg.getData();
-		out.writeInt32(data.length);
-		out.write(data);
+		int dataLength = data.length - hdrSize;
+		out.writeInt32(dataLength);
+		out.write(data, hdrSize, dataLength);
 		
 		// Return the packet
 		out.flush();

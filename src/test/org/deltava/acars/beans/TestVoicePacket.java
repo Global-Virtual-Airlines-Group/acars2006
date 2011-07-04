@@ -59,7 +59,7 @@ public class TestVoicePacket extends TestCase {
 		// Calculate CRC32
 		CRC32 crc = new CRC32();
 		crc.update(data);
-		vmsg.setCRC32(crc.getValue() & 0xFFFFFFFFL);
+		vmsg.setCRC32(crc.getValue());
 		
 		// Now read the packet back
 		VoiceMessage vmsg2 = new VoiceMessage(vmsg.getSender(), vmsg.getChannel());
@@ -69,5 +69,14 @@ public class TestVoicePacket extends TestCase {
 		// Compare
 		assertEquals(vmsg.getCompression(), vmsg2.getCompression());
 		assertEquals(vmsg.getRate(), vmsg2.getRate());
+		assertEquals(vmsg.getID(), vmsg2.getID());
+		assertEquals(vmsg.getConnectionID(), vmsg2.getConnectionID());
+		
+		// Now read the packet back
+		vmsg.setConnectionID(1234);
+		VoiceMessage vmsg3 = new VoiceMessage(vmsg.getSender(), vmsg.getChannel());
+		vmsg3.setData(Packet.rewrite(vmsg));
+		Packet.parse(vmsg3);
+		assertEquals(vmsg.getConnectionID(), vmsg3.getConnectionID());
 	}
 }

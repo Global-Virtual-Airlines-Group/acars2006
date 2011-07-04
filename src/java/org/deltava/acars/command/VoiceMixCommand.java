@@ -75,6 +75,13 @@ public class VoiceMixCommand extends ACARSCommand {
 			return;
 		}
 		
+		// Add the connection ID to the packet
+		try {
+			vmsg.setData(Packet.rewrite(vmsg));
+		} catch (IOException ie) {
+			log.error("Error adding connection ID to packet - " + ie.getMessage(), ie);
+		}
+		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
 		GeoPosition ctr = (vmsg.getLocation() == null) ? null : new GeoPosition(vmsg.getLocation());
@@ -95,7 +102,7 @@ public class VoiceMixCommand extends ACARSCommand {
 					continue;
 				}
 			}
-				
+			
 			BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
 			Worker.RAW_OUTPUT.add(oenv);
 		}
