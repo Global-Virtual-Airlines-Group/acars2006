@@ -19,6 +19,9 @@ public class VoiceMessage extends AbstractMessage {
 	private long _crc32;
 	private GeoLocation _loc;
 	
+	public int _hdrSize;
+	
+	private long _conID;
 	private byte[] _data;
 
 	/**
@@ -72,6 +75,22 @@ public class VoiceMessage extends AbstractMessage {
 	}
 	
 	/**
+	 * Returns the sender's connection ID.
+	 * @return the ID
+	 */
+	public long getConnectionID() {
+		return _conID;
+	}
+	
+	/**
+	 * Returns the packet header size.
+	 * @return the header size in bytes
+	 */
+	public int getHeaderSize() {
+		return _hdrSize;
+	}
+	
+	/**
 	 * Returns the CRC-32 checksum of the payload. For compressed packets, this is
 	 * the checksum of the <i>compressed</i> payload.
 	 * @return the CRC-32
@@ -101,7 +120,7 @@ public class VoiceMessage extends AbstractMessage {
 	 * @param crc32 the CRC-32
 	 */
 	public void setCRC32(long crc32) {
-		_crc32 = crc32;
+		_crc32 = (crc32 & 0xFFFFFFFFL);
 	}
 	
 	/**
@@ -118,5 +137,21 @@ public class VoiceMessage extends AbstractMessage {
 	 */
 	public void setData(byte[] data) {
 		_data = data;
+	}
+
+	/**
+	 * Updates the connection ID.
+	 * @param id the connection ID
+	 */
+	public void setConnectionID(long id) {
+		_conID = id;
+	}
+	
+	/**
+	 * Sets the packet header size.
+	 * @param size the size in bytes
+	 */
+	public void setHeaderSize(int size) {
+		_hdrSize = size;
 	}
 }

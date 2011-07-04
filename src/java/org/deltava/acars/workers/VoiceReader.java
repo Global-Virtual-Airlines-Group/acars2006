@@ -108,10 +108,11 @@ public class VoiceReader extends Worker {
 				try {
 					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(buf);
 					while (srcAddr != null) {
+						String addr = srcAddr.getAddress().getHostAddress();
 						log.info("Received voice packet from " + srcAddr.toString().substring(1));
-						ACARSConnection ac = _pool.get(srcAddr.getAddress().getHostAddress());
+						ACARSConnection ac = _pool.get(addr);
 						if (ac == null)
-							throw new IllegalArgumentException(srcAddr + " - not connected");
+							throw new IllegalArgumentException(addr + " - not connected");
 						else if (!ac.isVoiceCapable())
 							throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
 
@@ -135,6 +136,7 @@ public class VoiceReader extends Worker {
 							
 							// Create the message
 							VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());
+							msg.setConnectionID(ac.getID());
 							msg.setData(pktData);
 							MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
 						}
@@ -143,10 +145,11 @@ public class VoiceReader extends Worker {
 						srcAddr = (InetSocketAddress) _channel.receive(buf);
 					}
 				} catch (IllegalArgumentException iae) {
-					log.error("Unexpected voice packet from " + iae.getMessage(), iae);
+					log.error("Unexpected voice packet from " + iae.getMessage());
 					buf.clear();
 				} catch (IOException ie) {
 					log.error("Error reading voice packet - " + ie.getMessage(), ie);
+					buf.clear();
 				}
 			}
 			
