@@ -102,6 +102,7 @@ public class WarnCommand extends ACARSCommand {
 		PopulatedChannel pc = _vc.get(avc.getID());
 		ChannelListMessage clmsg = new ChannelListMessage(env.getOwner(), msg.getID());
 		clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
+		clmsg.setClearList(false);
 		clmsg.add(pc);
 		ctx.pushVoice(clmsg, -1);
 	}
