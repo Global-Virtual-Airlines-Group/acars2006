@@ -29,7 +29,7 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	private final Channel LOBBY = new Channel(Channel.DEFAULT_NAME) {{
 		setDescription("The MVS Lobby");
 		setIsDefault(true);
-		setSampleRate(SampleRate.SR5K);
+		setSampleRate(SampleRate.SR6K);
 		addRole(Access.VIEW, "*");
 		addRole(Access.TALK, "PIREP");
 		addRole(Access.TALK, "Instructor");
@@ -166,13 +166,13 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 	public boolean remove(String name) {
 		try {
 			_wLock.lock();
-			PopulatedChannel pc = _channels.get(name);
+			PopulatedChannel pc = _channels.get(name.toLowerCase());
 			if (pc == null)
 				return false;
 			
 			// Remove only if empty
 			if (pc.size() == 0)
-				return (_channels.remove(name) != null);
+				return (_channels.remove(name.toLowerCase()) != null);
 		
 			return false;
 		} finally {
