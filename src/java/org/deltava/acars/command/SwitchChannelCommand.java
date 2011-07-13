@@ -73,7 +73,7 @@ public class SwitchChannelCommand extends ACARSCommand {
 				Channel c = new Channel(chName);
 				c.setDescription(StringUtils.isEmpty(msg.getDescription()) ? "Temporary Voice Channel" : msg.getDescription());
 				c.setOwner(ac.getUser());
-				c.setSampleRate(SampleRate.SR11K);
+				c.setSampleRate(SampleRate.SR8K);
 				c.setFrequency(msg.getFrequency());
 				c.addRoles(Channel.Access.TALK, ac.getUser().getRoles());
 				c.addRoles(Channel.Access.VIEW, ac.getUser().getRoles());
