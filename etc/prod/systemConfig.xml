@@ -184,13 +184,13 @@
 		<build>
 			<map name="minimum">
 				<v1_4>77</v1_4>
-				<v2_2>97</v2_2>
+				<v2_2>98</v2_2>
 				<v3_0>100</v3_0>
 			</map>
 
 			<map name="beta">
 				<b99>4</b99>
-				<b100>7</b100>
+				<b100>9</b100>
 			</map>
 
 			<latest type="Integer">98</latest>
