@@ -135,7 +135,8 @@ public class Packet {
 			throw new IOException("Invalid Channel - expected " + msg.getChannel() + " was " + channel);
 		
 		// Load data
-		msg.setCompression(VoiceCompression.values()[in.readInt32()]);
+		int flags = in.readInt32();
+		msg.setCompression(VoiceCompression.values()[flags & 0xf]);
 		msg.setConnectionID(in.readInt64()); // ignored, generally
 		msg.setID(in.readInt64());
 		msg.setRate(SampleRate.getRate(in.readInt32()));
@@ -178,13 +179,16 @@ public class Packet {
 		if (hdrSize < 1)
 			throw new IllegalStateException("MVS Header size unknown");
 		
+		// Create flags
+		int flags = vmsg.getCompression().ordinal();
+		
 		// Write the packet
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(2048);
 		PacketOutputStream out = new PacketOutputStream(bos);
 		out.write(HDR + String.valueOf(PROTOCOL_VERSION));
 		out.write(vmsg.getSenderID());
 		out.write(vmsg.getChannel());
-		out.writeInt32(vmsg.getCompression().ordinal());
+		out.writeInt32(flags);
 		out.writeInt64(vmsg.getConnectionID());
 		out.writeInt64(vmsg.getID());
 		out.writeInt32(vmsg.getRate().getRate());

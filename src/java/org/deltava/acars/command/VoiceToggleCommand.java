@@ -3,10 +3,10 @@ package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.beans.mvs.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ChannelListMessage;
-import org.deltava.beans.mvs.Channel;
 
 /**
  * An ACARS command to toggle voice support. 
@@ -32,7 +32,7 @@ public class VoiceToggleCommand extends ACARSCommand {
 		
 		// Check voice status
 		ACARSConnection ac = ctx.getACARSConnection();
-		if (vtmsg.getVoiceEnabled() == ac.isVoiceEnabled())
+		if ((vtmsg.getVoiceEnabled() == ac.isVoiceEnabled()) && (vtmsg.getVoiceEcho() == ac.isVoiceEcho()))
 			log.warn(ac.getUserID() + " requesting status quo - voice " + (ac.isVoiceEnabled() ? "ON" : "OFF"));
 		
 		// Check access
@@ -44,27 +44,32 @@ public class VoiceToggleCommand extends ACARSCommand {
 		}
 		
 		// Turn on/off voice
+		ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
+		clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
 		VoiceChannels vc = VoiceChannels.getInstance();
 		if (vtmsg.getVoiceEnabled()) {
+			log.info(ac.getUserID() + " enabling Voice - echo = " + vtmsg.getVoiceEcho());
 			ac.setVoiceCapable(true);
-			vc.add(ac, Channel.DEFAULT_NAME);
-			log.info(ac.getUserID() + " enabling Voice");
+			ac.setVoiceEcho(vtmsg.getVoiceEcho());
+			PopulatedChannel pc = vc.get(ac.getID());
+			if (pc == null)
+				pc = vc.add(ac, Channel.DEFAULT_NAME);
+			
+			// Send channel update message
+			clmsg.setClearList(false);
+			clmsg.add(pc);
 		} else {
 			log.info(ac.getUserID() + " disabling Voice");
 			ac.disableVoice();
 			
-			// Get channel that user was in
+			// Remove from all channels and send update
 			vc.remove(ac.getID());
-				
-			// Send channel update message removing the user
-			ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), vtmsg.getID());
-			clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
 			clmsg.addAll(vc.getChannels());
-			ctx.pushVoice(clmsg, ac.getID());
 		}
 		
 		// Send an ACK message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), vtmsg.getID());
 		ctx.push(ackMsg, env.getConnectionID());
+		ctx.pushVoice(clmsg, ac.getID());
 	}
 }
