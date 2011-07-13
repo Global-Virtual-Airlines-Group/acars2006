@@ -25,7 +25,7 @@ public class VoiceToggleParser extends XMLElementParser<VoiceToggleMessage> {
 	public VoiceToggleMessage parse(org.jdom.Element e, Pilot user) {
 
 		boolean isEnabled = Boolean.valueOf(getChildText(e, "enabled", "false")).booleanValue();
-		VoiceToggleMessage msg = new VoiceToggleMessage(user, isEnabled);
-		return msg;
+		boolean isEcho = Boolean.valueOf(getChildText(e, "echo", "false")).booleanValue();
+		return new VoiceToggleMessage(user, isEnabled, isEcho);
 	}
 }

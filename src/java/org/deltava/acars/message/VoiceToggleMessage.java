@@ -13,15 +13,18 @@ import org.deltava.beans.Pilot;
 public class VoiceToggleMessage extends AbstractMessage {
 	
 	private boolean _enabled;
+	private boolean _echo;
 
 	/**
 	 * Creates the message.
 	 * @param msgFrom the originating Pilot
 	 * @param isEnabled TRUE if voice enabled, FALSE to disconnect
+	 * @param isEcho TRUE if voice echo, otherwise FALSE
 	 */
-	public VoiceToggleMessage(Pilot msgFrom, boolean isEnabled) {
+	public VoiceToggleMessage(Pilot msgFrom, boolean isEnabled, boolean isEcho) {
 		super(Message.MSG_VOICETOGGLE, msgFrom);
 		_enabled = isEnabled;
+		_echo = isEcho;
 	}
 
 	/**
@@ -30,5 +33,13 @@ public class VoiceToggleMessage extends AbstractMessage {
 	 */
 	public boolean getVoiceEnabled() {
 		return _enabled;
+	}
+	
+	/**
+	 * Returns whether the User is requesting voice ecjp.
+	 * @return TRUE if voice echo, otherwise FALSE
+	 */
+	public boolean getVoiceEcho() {
+		return _echo;
 	}
 }

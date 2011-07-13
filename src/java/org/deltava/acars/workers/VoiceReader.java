@@ -26,6 +26,8 @@ public class VoiceReader extends Worker {
 	private Selector _rSelector;
 	private DatagramChannel _channel;
 	
+	private final ByteBuffer _buf = ByteBuffer.allocateDirect(32768);
+	
 	/**
 	 * Creates the Worker.
 	 */
@@ -80,9 +82,7 @@ public class VoiceReader extends Worker {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
 		long lastExecTime = 0;
-
 		VoiceChannels vc = VoiceChannels.getInstance();
-		final ByteBuffer buf = ByteBuffer.allocate(32768);
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Listening for Voice packet");
 			_status.execute();
@@ -106,7 +106,7 @@ public class VoiceReader extends Worker {
 			if (consWaiting > 0) {
 				_status.setMessage("Reading Inbound Voice Data");
 				try {
-					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(buf);
+					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(_buf);
 					while (srcAddr != null) {
 						String addr = srcAddr.getAddress().getHostAddress();
 						log.info("Received voice packet from " + srcAddr.toString().substring(1));
@@ -120,8 +120,8 @@ public class VoiceReader extends Worker {
 						ac.enableVoice(_channel, srcAddr);
 						
 						// Get the data
-						byte[] pktData = new byte[buf.flip().limit()];
-						buf.get(pktData);
+						byte[] pktData = new byte[_buf.flip().limit()];
+						_buf.get(pktData);
 						
 						// If it's a ping (ie. a 16-byte datagram), send it right back, otherwise push onto the queue
 						if (pktData.length == 16) {
@@ -141,15 +141,15 @@ public class VoiceReader extends Worker {
 							MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
 						}
 						
-						buf.clear();
-						srcAddr = (InetSocketAddress) _channel.receive(buf);
+						_buf.clear();
+						srcAddr = (InetSocketAddress) _channel.receive(_buf);
 					}
 				} catch (IllegalArgumentException iae) {
 					log.error("Unexpected voice packet from " + iae.getMessage());
-					buf.clear();
+					_buf.clear();
 				} catch (IOException ie) {
 					log.error("Error reading voice packet - " + ie.getMessage(), ie);
-					buf.clear();
+					_buf.clear();
 				}
 			}
 			

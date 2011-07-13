@@ -50,6 +50,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	private SocketAddress _vAddr;
 	private long _maxVoiceSeq;
 	private boolean _voiceCapable;
+	private boolean _voiceEcho;
 	private int _warnings;
 
 	private InetAddress _remoteAddr;
@@ -96,7 +97,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
 	private long _lastActivityTime;
-	private long _lastUDPSend;
 	private long _timeOffset;
 
 	// The write locks
@@ -171,7 +171,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			_vChannel = dc;
 			_vChannel.configureBlocking(false);
 			if (_vBuffer == null)
-				_vBuffer = ByteBuffer.allocateDirect(32768);
+				_vBuffer = ByteBuffer.allocate(32768);
 			
 			// Register the selector
 			_vChannel.register(_vwSelector, SelectionKey.OP_WRITE);
@@ -301,10 +301,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _lastActivityTime;
 	}
 	
-	public long getLastUDPActivity() {
-		return _lastUDPSend;
-	}
-
 	public int getBufferReads() {
 		return _bufferReads;
 	}
@@ -392,6 +388,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	public boolean isVoiceEnabled() {
 		return (_vChannel != null);
 	}
+	
+	public boolean isVoiceEcho() {
+		return _voiceEcho;
+	}
 
 	public void setFlightInfo(InfoMessage msg) {
 		_fInfo = msg;
@@ -472,6 +472,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	
 	public void setVoiceCapable(boolean voiceOK) {
 		_voiceCapable = voiceOK;
+	}
+	
+	public void setVoiceEcho(boolean voiceEcho) {
+		_voiceEcho = voiceEcho;
 	}
 	
 	public void setVoiceSequence(long seq) {
@@ -711,7 +715,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		}
 		
 		// Update statistics
-		_lastUDPSend = System.currentTimeMillis();
 		_stats.addPacketOut();
 	}
 }

@@ -47,7 +47,7 @@ public class TestVoicePacket extends TestCase {
 		p.setPilotCode("DVA043");
 		VoiceMessage vmsg = new VoiceMessage(p, "Lobby");
 		vmsg.setCompression(VoiceCompression.NONE);
-		vmsg.setRate(SampleRate.SR11K);
+		vmsg.setRate(SampleRate.SR6K);
 		vmsg.setID(1);
 		vmsg.setLocation(new GeoPosition(33, -85.3));
 		

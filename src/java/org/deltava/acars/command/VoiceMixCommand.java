@@ -51,12 +51,10 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Make sure this is greater than the max seq for the connection
 		synchronized (ac) {
-			if (ac.getVoiceSequence() >= vmsg.getID()) {
+			if (ac.getVoiceSequence() >= (vmsg.getID() + 2))
 				log.warn("Out of sequence voice packet from " + ac.getUserID() + ", " + ac.getVoiceSequence() + " >= " + vmsg.getID());
-				return;
-			}
-				
-			ac.setVoiceSequence(vmsg.getID());
+			else
+				ac.setVoiceSequence(vmsg.getID());
 		}
 		
 		// Get the channel
@@ -92,13 +90,17 @@ public class VoiceMixCommand extends ACARSCommand {
 			ACARSConnection avc = pool.get(ID.longValue());
 			if ((avc == null) || !avc.isVoiceEnabled() || avc.getMuted())
 				continue;
+			else if ((avc.getID() == ac.getID()) && !ac.isVoiceEcho())
+				continue;
 			
 			// Check for range limitations
 			boolean doSend = (maxRange == 0) || (ctr == null);
 			if (!doSend) {
 				int rcvDistance = ctr.distanceTo(avc.getLocation());
 				if (rcvDistance > maxRange) {
-					log.info(avc.getUserID() + " out of range: " + rcvDistance + " > " + maxRange);
+					if (log.isDebugEnabled())
+						log.debug(avc.getUserID() + " out of range: " + rcvDistance + " > " + maxRange);
+					
 					continue;
 				}
 			}
