@@ -9,7 +9,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ChannelListMessage;
 
 /**
- * An ACARS command to toggle voice support. 
+ * An ACARS command to toggle voice support.
  * @author Luke
  * @version 4.0
  * @since 4.0
@@ -69,6 +69,7 @@ public class VoiceToggleCommand extends ACARSCommand {
 		
 		// Send an ACK message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), vtmsg.getID());
+		ackMsg.setEntry("echo", String.valueOf(ac.isVoiceEcho()));
 		ctx.push(ackMsg, env.getConnectionID());
 		ctx.pushVoice(clmsg, ac.getID());
 	}
