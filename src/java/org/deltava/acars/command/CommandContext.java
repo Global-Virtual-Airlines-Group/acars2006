@@ -52,13 +52,23 @@ public class CommandContext extends ConnectionContext {
 	}
 
 	/**
-	 * Returns all ACARS Connections matching a particular Pilot ID.
+	 * Returns an ACARS Connection for a particular Pilot ID.
 	 * @param pilotID the pilot ID
-	 * @return a Collection of ACARSConnection beans
+	 * @return an ACARSConnection bean, or null if not found
 	 * @see ACARSConnectionPool#get(String)
 	 */
 	public ACARSConnection getACARSConnection(String pilotID) {
 		return StringUtils.isEmpty(pilotID) ? null : _pool.get(pilotID);
+	}
+	
+	/**
+	 * Returns a particular ACARS Connection.
+	 * @param cid the connection ID
+	 * @return an ACARSConnection bean, or null if not found
+	 * @see ACARSConnectionPool#get(long)
+	 */
+	public ACARSConnection getACARSConnection(long cid) {
+		return _pool.get(cid);
 	}
 	
 	/**
