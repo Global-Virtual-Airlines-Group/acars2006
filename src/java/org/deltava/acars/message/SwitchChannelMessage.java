@@ -10,7 +10,7 @@ import org.deltava.beans.Pilot;
  * @since 4.0
  */
 
-public class SwitchChannelMessage extends AbstractMessage {
+public class SwitchChannelMessage extends RecipientMessage {
 
 	private String _name;
 	private String _desc;
