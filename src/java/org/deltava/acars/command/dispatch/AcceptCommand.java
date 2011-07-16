@@ -1,16 +1,18 @@
-// Copyright 2007, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 
 import org.deltava.acars.message.AcknowledgeMessage;
+import org.deltava.acars.message.data.ChannelListMessage;
 import org.deltava.acars.message.dispatch.*;
+import org.deltava.beans.mvs.PopulatedChannel;
 
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 3.4
+ * @version 4.0
  * @since 2.0
  */
 
@@ -42,7 +44,32 @@ public class AcceptCommand extends DispatchCommand {
 		
 		// Check dispatch status
 		if ((ac.getDispatcherID() == 0) && !ac.getIsDispatch()) {
-			ac.setDispatcherID(env.getConnectionID());
+			ACARSConnection dac = ctx.getACARSConnection(env.getConnectionID());
+			ac.setDispatcherID(dac.getID());
+			 
+			// If the dispatcher and the pilot each have voice, switch the pilot into the dispatcher's voice room
+			if (dac.isVoiceEnabled() && ac.isVoiceEcho()) {
+				VoiceChannels vc = VoiceChannels.getInstance();
+				PopulatedChannel oldCh = vc.get(ac.getID());
+				PopulatedChannel dspCh = vc.get(dac.getID());
+				
+				// Switch channnels if necessary
+				try {
+					PopulatedChannel pc = (!oldCh.equals(dspCh)) ? vc.add(ac, dspCh.getChannel().getName()) : null;
+					if (pc != null) {
+						ChannelListMessage clmsg = new ChannelListMessage(ac.getUser(), msg.getID());
+						clmsg.setWarnings(ctx.getACARSConnectionPool().getWarnings());
+						clmsg.setClearList(false);
+						clmsg.add(pc);
+						clmsg.add(oldCh);
+						ctx.pushVoice(clmsg, -1);
+					}
+				} catch (SecurityException se) {
+					log.warn(ac.getUser().getName() + " cannot join Voice Channel " + dspCh.getChannel().getName());
+				}
+			}
+			
+			// Send the ACK
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
 			ackMsg.setEntry("dispatcher", env.getOwnerID());
 			ctx.push(ackMsg, ac.getID());
@@ -51,6 +78,6 @@ public class AcceptCommand extends DispatchCommand {
 		
 		// Send a cancel message to all other dispatchers
 		CancelMessage cMsg = new CancelMessage(ac.getUser());
-		ctx.pushDispatch(cMsg, env.getConnectionID());
+		ctx.pushDispatch(cMsg, ac.getDispatcherID());
 	}
 }
