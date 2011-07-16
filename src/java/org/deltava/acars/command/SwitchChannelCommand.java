@@ -59,14 +59,25 @@ public class SwitchChannelCommand extends ACARSCommand {
 			return;
 		}
 		
-		// Try to join the channel
+		// Add support for moving others
 		ACARSConnection ac = ctx.getACARSConnection();
+		if (!StringUtils.isEmpty(msg.getRecipient()) && env.getOwner().isInRole("HR")) {
+			ac = ctx.getACARSConnection(msg.getRecipient());
+			if (ac == null) {
+				log.warn(msg.getRecipient() + " not logged in!");
+				return;
+			}
+			
+			log.info(env.getOwner().getName() + " moving " + ac.getUserID() + " to " + chName);
+		}
+		
+		// Try to join the channel
 		try {
 			PopulatedChannel oldChannel = _vc.get(ac.getID());
 			PopulatedChannel pc = _vc.add(ac, chName);
 			
 			// If we didn't add the channel, create a new one
-			if (pc == null) {
+			if ((pc == null) && (!StringUtils.isEmpty(msg.getRecipient()))) {
 				if (!RoleUtils.hasAccess(ac.getUser().getRoles(), _ncRoles))
 					throw new SecurityException("Cannot create temporary channel");
 
@@ -79,7 +90,7 @@ public class SwitchChannelCommand extends ACARSCommand {
 				c.addRoles(Channel.Access.VIEW, ac.getUser().getRoles());
 				pc = _vc.add(ac, c);
 				log.info(ac.getUserID() + " created temporary channel " + chName);
-			} else
+			} else if (pc != null)
 				log.info(ac.getUserID() + " swithcing to " + pc.getChannel().getName());
 			
 			// Return the channel info, to all voice users

@@ -17,7 +17,7 @@ import org.deltava.acars.xml.*;
 public class SwitchChannelParser extends XMLElementParser<SwitchChannelMessage> {
 	
 	/**
-	 * Convert an XML swchannel element into a MuteMessage.
+	 * Convert an XML swchannel element into a SwitchChannelMessage.
 	 * @param e the XML element
 	 * @return a SwitchChannelMessage
 	 * @throws XMLException if a parse error occurs 
@@ -28,6 +28,7 @@ public class SwitchChannelParser extends XMLElementParser<SwitchChannelMessage> 
 		SwitchChannelMessage msg = new SwitchChannelMessage(user, getChildText(e, "channel", null));
 		msg.setDescription(getChildText(e, "desc", null));
 		msg.setFrequency(getChildText(e, "freq", null));
+		msg.setRecipient(getChildText(e, "recipient", null));
 		return msg;
 	}
 }
