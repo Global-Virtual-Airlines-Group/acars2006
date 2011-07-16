@@ -74,7 +74,7 @@ public class QuitCommand extends ACARSCommand {
 		   Collection<PopulatedChannel> emptyChannels = vc.findEmpty();
 		   for (PopulatedChannel pc : emptyChannels) {
 			   for (Long ID : pc.getConnectionIDs()) {
-				   ACARSConnection avc = ctx.getACARSConnectionPool().get(ID.longValue());
+				   ACARSConnection avc = ctx.getACARSConnection(ID.longValue());
 				   vc.add(avc, Channel.DEFAULT_NAME);
 			   }
 		   }
