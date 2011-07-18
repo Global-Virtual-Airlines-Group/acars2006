@@ -227,6 +227,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
 		} else if (msg.isViewer())
 			con.setIsViewer(true);
+		else if (msg.isATC())
+			con.setIsATC(true);
 
 		// Save the connection data
 		try {
@@ -368,12 +370,14 @@ public class AuthenticateCommand extends ACARSCommand {
 			sysMsg.addMessage("You are in STEALTH mode and do not appear in the connections list.");
 		if (con.getIsDispatch())
 			sysMsg.addMessage("You are currently operating as a Dispatcher.");
+		else if (con.getIsATC())
+			sysMsg.addMessage("You are currently operating as an Air Traffic Controller.");
 
 		// Send the message
 		ctx.push(sysMsg, env.getConnectionID());
 
 		// Log new connection
-		log.info("New Connection from " + usr.getName() + " (" + (con.getIsDispatch() ? "Dispatch " : "") + "Build " + con.getClientVersion() + ")");
+		log.info("New Connection from " + usr.getName() + " (" + con.getVersion() + ")");
 	}
 
 	/**

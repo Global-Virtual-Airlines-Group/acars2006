@@ -64,6 +64,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	
 	private boolean _isDispatch;
 	private boolean _isViewer;
+	private boolean _isATC;
 	
 	// Dispatch service location/range
 	private GeoLocation _loc;
@@ -317,6 +318,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _isViewer;
 	}
 	
+	public boolean getIsATC() {
+		return _isATC;
+	}
+	
 	public boolean getIsDispatch() {
 		return _isDispatch;
 	}
@@ -343,6 +348,23 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	
 	public int getBeta() {
 		return _beta;
+	}
+	
+	public String getVersion() {
+		StringBuilder buf = new StringBuilder();
+		if (_isDispatch)
+			buf.append("Dispatch ");
+		else if (_isATC)
+			buf.append("ATC ");
+		
+		buf.append("Build ");
+		buf.append(_clientVersion);
+		if (_beta > 0) {
+			buf.append(" Beta ");
+			buf.append(_beta);
+		}
+
+		return buf.toString();
 	}
 
 	public long getStartTime() {
@@ -419,6 +441,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	
 	public void setIsViewer(boolean isViewer) {
 		_isViewer = isViewer;
+	}
+	
+	public void setIsATC(boolean isATC) {
+		_isATC = isATC;
 	}
 
 	public void setIsDispatch(boolean isDispatch) {

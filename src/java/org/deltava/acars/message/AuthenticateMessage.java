@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * An ACARS authentication message.
  * @author Luke
- * @version 2.8
+ * @version 4.0
  * @since 1.0
  */
 
@@ -20,6 +20,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private boolean _isDispatch;
 	private boolean _isViewer;
 	private boolean _isHidden;
+	private boolean _isATC;
 	private boolean _isID;
 	
 	private Date _clientUTC;
@@ -63,6 +64,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _isDispatch;
 	}
 	
+	public boolean isATC() {
+		return _isATC;
+	}
+	
 	public boolean isViewer() {
 		return _isViewer;
 	}
@@ -97,6 +102,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setViewer(boolean isViewer) {
 		_isViewer = isViewer;
+	}
+	
+	public void setATC(boolean isATC) {
+		_isATC = isATC;
 	}
 	
 	public void setHidden(boolean isHidden) {

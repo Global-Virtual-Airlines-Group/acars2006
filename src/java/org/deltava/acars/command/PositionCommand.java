@@ -29,15 +29,14 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
 public class PositionCommand extends ACARSCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
-	private static final ReentrantReadWriteLock _flushLock = new ReentrantReadWriteLock(true);
-	private static final Lock w = _flushLock.writeLock();
+	private static final Lock w = new ReentrantLock();
 	
 	private final int MIN_INTERVAL = SystemData.getInt("acars.position_interval", 2000);
 
@@ -141,13 +140,15 @@ public class PositionCommand extends ACARSCommand {
 					ScopeInfoMessage sc = rac.getScope();
 					if ((sc == null) || sc.getAllTraffic() || (sc.getNetwork() == network))
 						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
+					else if ((network == null) && (sc.getNetwork() == OnlineNetwork.ACARS))
+						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
 				}
 			}
 		}
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 21500) {
+			if (SetPosition.getMaxAge() > 20500) {
 				try {
 					SetPosition dao = new SetPosition(ctx.getConnection());
 					int entries = dao.flush();
@@ -160,8 +161,7 @@ public class PositionCommand extends ACARSCommand {
 			}
 			
 			// Release the lock
-			while (_flushLock.isWriteLockedByCurrentThread())
-				w.unlock();
+			w.unlock();
 		}
 	}
 }
