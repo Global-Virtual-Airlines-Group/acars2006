@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Parser for radar scope information messages. 
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 3.0
  */
 
@@ -35,6 +35,8 @@ class ScopeInfoParser extends XMLElementParser<ScopeInfoMessage> {
 		ScopeInfoMessage msg = new ScopeInfoMessage(usr);
 		msg.setCenter(loc);
 		msg.setRange(StringUtils.parse(getChildText(e, "range", "0"), 0));
+		msg.setFrequency(getChildText(e, "freq", null));
+		msg.setCallsign(getChildText(e, "callsign", null));
 		String network = getChildText(e, "network", "");
 		try {
 			if ("ALL".equals(network))

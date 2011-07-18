@@ -21,6 +21,9 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	private OnlineNetwork _network;
 	private boolean _allTraffic;
 	
+	private String _callSign;
+	private String _freq;
+	
 	/**
 	 * Initializes the Message. 
 	 * @param msgFrom
@@ -60,11 +63,27 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	}
 	
 	/**
-	 * returns whether to display all traffic.
+	 * Returns whether to display all traffic.
 	 * @return TRUE for all traffic, otherwise FALSE
 	 */
 	public boolean getAllTraffic() {
 		return _allTraffic;
+	}
+	
+	/**
+	 * Returns the callsign if operating as an ATC client.
+	 * @return the callsign
+	 */
+	public String getCallsign() {
+		return _callSign;
+	}
+	
+	/**
+	 * Returns the frequency if operating as an ATC client.
+	 * @return the frequency
+	 */
+	public String getFrequency() {
+		return _freq;
 	}
 
 	/**
@@ -97,5 +116,21 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public void setAllTraffic(boolean doAll) {
 		_allTraffic = doAll;
+	}
+	
+	/**
+	 * Updates the position callsign if operating as an ATC client.
+	 * @param cs the callsign
+	 */
+	public void setCallsign(String cs) {
+		_callSign = (cs == null) ? null : cs.toUpperCase();
+	}
+	
+	/**
+	 * Updates the frequency if operating as an ATC client.
+	 * @param freq the frequency
+	 */
+	public void setFrequency(String freq) {
+		_freq = freq;
 	}
 }
