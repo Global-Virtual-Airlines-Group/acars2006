@@ -1,6 +1,8 @@
 // Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import org.deltava.beans.acars.ConnectionStats;
+
 /**
  * An updateable class to track ACARS connection statistics. 
  * @author Luke
@@ -14,7 +16,7 @@ public class InternalConnectionStats extends ConnectionStats {
 	 * Initializes the class.
 	 * @param id the connection ID
 	 */
-	InternalConnectionStats(long id) {
+	InternalConnectionStats(String id) {
 		super(id);
 	}
 
@@ -26,12 +28,12 @@ public class InternalConnectionStats extends ConnectionStats {
 		_msgsOut++;
 	}
 	
-	void addPacketIn() {
-		_pktsIn++;
+	void addBufferRead() {
+		_bufferReads++;
 	}
 	
-	void addPacketOut() {
-		_pktsOut++;
+	void addBufferWrite() {
+		_bufferWrites++;
 	}
 	
 	void addBytesIn(int bytes) {
@@ -42,19 +44,7 @@ public class InternalConnectionStats extends ConnectionStats {
 		_bytesOut += bytes;
 	}
 	
-	void addVoiceBytesIn(int bytes) {
-		_voiceBytesIn += bytes;
-	}
-	
-	void addVoiceBytesOut(int bytes) {
-		_voiceBytesOut += bytes;
-	}
-	
 	void addWriteError() {
 		_writeErrors++;
-	}
-	
-	void addVoiceWriteError() {
-		_voiceWriteErrors++;
 	}
 }

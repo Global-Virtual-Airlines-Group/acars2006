@@ -10,6 +10,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ConnectionMessage;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.ConnectionStats;
 
 import org.deltava.util.*;
 
@@ -43,6 +44,7 @@ class ConnectionFormatter extends ElementFormatter {
 			
 			// Create the element
 			Element ce = new Element("Pilot");
+			ce.setAttribute("isVoice", String.valueOf(con.isVoiceEnabled()));
 			if (con.isAuthenticated()) {
 				Pilot usr = con.getUser();
 				ce.setAttribute("id", usr.getPilotCode());
@@ -89,7 +91,7 @@ class ConnectionFormatter extends ElementFormatter {
 			ce.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
 			ce.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));
 			if (isAdmin) {
-				ConnectionStats cs = con.getStatistics();
+				ConnectionStats cs = con.getTCPStatistics();
 				ce.addContent(XMLUtils.createElement("input", String.valueOf(cs.getBytesIn())));
 				ce.addContent(XMLUtils.createElement("output", String.valueOf(cs.getBytesOut())));
 				ce.addContent(XMLUtils.createElement("msginput", String.valueOf(cs.getMsgsIn())));

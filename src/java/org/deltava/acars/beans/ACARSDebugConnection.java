@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 /**
  * An ACARS Connection that dumps messages to a text file.
  * @author Luke
- * @version 1.0
+ * @version 4.0
  * @since 1.0
  */
 
@@ -39,6 +39,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 	/**
 	 * Closes the connection.
 	 */
+	@Override
 	public void close() {
 		super.close();
 
@@ -53,7 +54,8 @@ public class ACARSDebugConnection extends ACARSConnection {
 	 * Reads a message from the connection.
 	 * @return the XML message
 	 */
-	String read() throws SocketException, ProtocolException {
+	@Override
+	String read() throws IOException {
 		String msg = super.read();
 
 		// Dump the message
@@ -68,7 +70,8 @@ public class ACARSDebugConnection extends ACARSConnection {
 	 * Writes a message to the connection.
 	 * @param msg the message string
 	 */
-	protected final void write(String msg) {
+	@Override
+	public final void write(String msg) {
 		_debugWriter.println("-- out " + new Date());
 		_debugWriter.println(msg);
 		_debugWriter.println();

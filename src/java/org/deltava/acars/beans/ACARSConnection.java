@@ -3,22 +3,17 @@ package org.deltava.acars.beans;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.*;
 
-import java.nio.*;
-import java.nio.charset.*;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.ConnectionStats;
 import org.deltava.beans.system.IPAddressInfo;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
-import org.deltava.acars.xml.ProtocolInfo;
 
 import org.deltava.util.system.SystemData;
 
@@ -33,28 +28,16 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
-	private transient static final int MAX_WRITE_ATTEMPTS = 32;
-	private transient static final String MAGIC_RESET_CODE = "</!ACARSReset>";
-
-	// Byte byffer decoder and character set
-	private transient final Charset cs = Charset.forName("UTF-8"); 
-	private transient final CharsetDecoder decoder = cs.newDecoder();
+	// Channels
+	private TCPChannel _tcp;
+	private UDPChannel _udp;
 	
-	// XML/TCP control connection
-	private transient SocketChannel _channel;
-	private transient Selector _wSelector;
-	
-	// Voice/UDP data connection
-	private transient DatagramChannel _vChannel;
-	private transient Selector _vwSelector;
-	private SocketAddress _vAddr;
+	// Voice settings
 	private long _maxVoiceSeq;
 	private boolean _voiceCapable;
 	private boolean _voiceEcho;
 	private int _warnings;
 
-	private InetAddress _remoteAddr;
-	private String _remoteHost;
 	private int _protocolVersion = 1;
 	private int _clientVersion;
 	private int _beta;
@@ -73,41 +56,22 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	// Radar scope range
 	private ScopeInfoMessage _scope;
 
-	// Input/output network buffers
-	private transient final ByteBuffer _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
-	private transient final ByteBuffer _oBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
-	private transient ByteBuffer _vBuffer;
-
-	// The the actual buffers for messages
-	private transient final StringBuilder _msgBuffer = new StringBuilder();
-	protected transient final Queue<String> _msgOutBuffer = new ConcurrentLinkedQueue<String>();
-	private transient final Queue<byte[]> _vOutBuffer = new ConcurrentLinkedQueue<byte[]>();
-
 	// Connection information
 	private long _id;
-	private InternalConnectionStats _stats;
 	private Pilot _userInfo;
 	private UserData _userData;
 	private IPAddressInfo _addrInfo;
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
+	private int _updateInterval = 5000;
 	private boolean _isUserBusy;
 	private boolean _isUserHidden;
 	private boolean _isMuted;
 
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
-	private long _lastActivityTime;
 	private long _timeOffset;
 
-	// The write locks
-	private transient final Lock _wLock = new ReentrantLock();
-	private transient final Lock _vwLock = new ReentrantLock();
-
-	// Statistics
-	private int _bufferReads;
-	private int _bufferWrites;
-	
 	// MP field
 	private final int _maxDistance = SystemData.getInt("mp.max_range", 40);
 
@@ -119,33 +83,24 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	public ACARSConnection(long cid, SocketChannel sc) {
 		super();
 		_id = cid;
-		_stats = new InternalConnectionStats(_id);
-
-		// Get IP Address information
-		_remoteAddr = sc.socket().getInetAddress();
 
 		// Get a write selector
 		try {
-			_wSelector = Selector.open();
 			long startTime = System.currentTimeMillis();
-			sc.configureBlocking(false);
-			sc.register(_wSelector, SelectionKey.OP_WRITE);
-			_lastActivityTime = System.currentTimeMillis();
+			_tcp = new TCPChannel(cid, sc);
 			
 			// Check execution time
-			long execTime = _lastActivityTime - startTime;
+			long execTime = _tcp.getLastActivityTime() - startTime;
 			if (execTime > 1250)
 				log.warn("Excessive connect time - " + execTime + "ms");
 		} catch (IOException ie) {
 			// Log our error and shut the connection
-			log.error("Cannot set non-blocking I/O from " + _remoteAddr.getHostAddress());
+			log.error("Cannot set non-blocking I/O from " + sc.socket().getRemoteSocketAddress());
 			try {
 				sc.close();
 			} catch (Exception e) {
 				// empty
 			}
-		} finally {
-			_channel = sc;
 		}
 	}
 	
@@ -155,30 +110,20 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	 * @param dc the Channel to write on
 	 * @param srcAddr the source SocketAddress
 	 */
-	public void enableVoice(DatagramChannel dc, SocketAddress srcAddr) {
+	public void enableVoice(DatagramChannel dc, InetSocketAddress srcAddr) {
 		if (isVoiceEnabled()) {
-			boolean isNew = !srcAddr.toString().equals(_vAddr.toString());
+			boolean isNew = !srcAddr.toString().equals(_udp.getAddress());
 			if (isNew) {
-				_vAddr = srcAddr;
-				log.warn("Switched voice source address for " + getUserID() + " to " + _vAddr.toString().substring(1));
+				_udp.setRemoteAddress(srcAddr);
+				log.warn("Switched voice source address for " + getUserID() + " to " + _udp.getAddress().substring(1));
 			}
 				
 			return;
 		}
 		
 		try {
-			_vAddr = srcAddr;
-			_vwSelector = Selector.open();
-			_vChannel = dc;
-			_vChannel.configureBlocking(false);
-			if (_vBuffer == null)
-				_vBuffer = ByteBuffer.allocate(32768);
-			
-			// Register the selector
-			_vChannel.register(_vwSelector, SelectionKey.OP_WRITE);
+			_udp = new UDPChannel(_id, dc, srcAddr);
 			_isMuted = false;
-			log.info("Enabled voice access for "+ getUserID() + " from " + _vAddr.toString().substring(1) + " to " 
-					+ _vChannel.socket().getLocalAddress().toString().substring(1));
 		} catch (IOException ie) {
 			log.error("Error creating Voice socket for " + getUserID() + " - " + ie.getMessage(), ie);
 		}
@@ -188,24 +133,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	 * Closes the UDP pseudo-connection and disables voice.
 	 */
 	public void disableVoice() {
+		if (_udp != null)
+			_udp.close();
 		
-		// Clean out voice buffer
-		if (_vwLock.tryLock()) {
-			_vOutBuffer.clear();
-			_vwLock.unlock();
-		}
-		
-		// Shut down voice
-		if (isVoiceEnabled()) {
-			try {
-				_vwSelector.close();
-			} catch (Exception e) {
-				// empty
-			}
-		}
-		
-		_vAddr = null;
-		_vChannel = null;
+		_udp = null;
 	}
 	
 	/**
@@ -213,32 +144,23 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	 */
 	public void close() {
 		disableVoice();
-
-		// Clean out control buffers
-		if (_wLock.tryLock()) {
-			_msgOutBuffer.clear();
-			_wLock.unlock();
-		}
-		
-		// Shut down control
-		try {
-			_wSelector.close();
-			_channel.close();
-		} catch (Exception e) {
-			// empty
-		}
+		_tcp.close();
 	}
 
 	public boolean equals(Object o2) {
 		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
 	}
 	
-	public ConnectionStats getStatistics() {
-		return _stats;
+	public ConnectionStats getTCPStatistics() {
+		return _tcp.getStatistics();
+	}
+	
+	public ConnectionStats getUDPStatistics() {
+		return (_udp == null) ? null : _udp.getStatistics();
 	}
 
-	SocketChannel getChannel() {
-		return _channel;
+	SelectableChannel getChannel() {
+		return _tcp.getChannel();
 	}
 
 	public int getFlightID() {
@@ -299,15 +221,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	}
 
 	public long getLastActivity() {
-		return _lastActivityTime;
-	}
-	
-	public int getBufferReads() {
-		return _bufferReads;
-	}
-	
-	public int getBufferWrites() {
-		return _bufferWrites;
+		return _tcp.getLastActivityTime();
 	}
 	
 	public int getProtocolVersion() {
@@ -374,13 +288,17 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	public long getVoiceSequence() {
 		return _maxVoiceSeq;
 	}
+	
+	public int getUpdateInterval() {
+		return _updateInterval;
+	}
 
 	public String getRemoteAddr() {
-		return _remoteAddr.getHostAddress();
+		return _tcp.getRemoteAddress();
 	}
 
 	public String getRemoteHost() {
-		return (_remoteHost == null) ? _remoteAddr.getHostName() : _remoteHost;
+		return _tcp.getRemoteHost();
 	}
 	
 	public long getTimeOffset() {
@@ -408,7 +326,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	}
 	
 	public boolean isVoiceEnabled() {
-		return (_vChannel != null);
+		return (_udp != null);
 	}
 	
 	public boolean isVoiceEcho() {
@@ -491,6 +409,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		_addrInfo = addrInfo;
 	}
 	
+	public void setUpdateInterval(int interval) {
+		_updateInterval = Math.min(60000, Math.max(250, interval));
+	}
+	
 	public void setDispatchRange(GeoLocation loc, int range) {
 		_loc = loc;
 		_range = Math.max(0, range);
@@ -531,216 +453,28 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return Integer.valueOf(_userInfo.getPilotNumber()).compareTo(Integer.valueOf(usr.getPilotNumber()));
 	}
 
-	/* Here are the basic I/O methods, read and write */
-	String read() throws SocketException, ProtocolException {
-
-		// Clear the buffer
-		_iBuffer.clear();
-
-		// Try and read from the channel until end of stream
-		try {
-			_channel.read(_iBuffer);
-			_bufferReads++;
-		} catch (IOException ie) {
-			throw new SocketException("Error reading channel - " + ie.getMessage());
-		}
-
-		// if we got nothing, return null
-		if (_iBuffer.position() == 0)
-			throw new ProtocolException("Connection Closed");
-
-		// Set the limit on the buffer and return to the start, update counters
-		_stats.addBytesIn(_iBuffer.flip().limit());
-		_lastActivityTime = System.currentTimeMillis();
-
-		// Reset the decoder and decode into a char buffer - strip out ping nulls
-		try {
-			CharBuffer cBuffer = decoder.decode(_iBuffer);
-			for (int x = cBuffer.position(); x < cBuffer.limit(); x++) {
-				char c = cBuffer.charAt(x);
-				if (c > 1)
-					_msgBuffer.append(c);
-			}
-		} catch (CharacterCodingException cce) {
-			// empty
-		}
-
-		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
-		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
-		if (sPos == -1) {
-			if ((_msgBuffer.length() > 54) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
-				log.warn("Malformed message from " + getRemoteHost() + " - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
-				_msgBuffer.setLength(0);
-			}
-
-			// Return nothing
-			return null;
-		}
-
-		// Get the end of the message - if there's an end element build a message and return it
-		int ePos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
-		if (ePos == -1)
-			return null;
-
-		ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
-
-		// Get the XML message out of the buffer
-		StringBuilder msgOut = new StringBuilder(ProtocolInfo.XML_HEADER);
-		msgOut.append(_msgBuffer.substring(sPos, ePos));
-
-		// Clear the message out of the buffer
-		_msgBuffer.delete(0, ePos);
-
-		// Return the buffer
-		_stats.addMessageIn();
-		return msgOut.toString();
+	/**
+	 * Reads a control message from the connection.
+	 * @return a message
+	 * @throws IOException if an I/O error occurs
+	 */
+	String read() throws IOException {
+		return _tcp.read();
 	}
-
+	
 	/**
 	 * Queues a control message to be written.
 	 * @param msg the message text
 	 */
-	public void queue(String msg) {
-		_msgOutBuffer.add(msg);
-		
-		// Only allow one thread to write to the channel
-		if (_wLock.tryLock()) {
-			while (!_msgOutBuffer.isEmpty())
-				write(_msgOutBuffer.poll());
-
-			_wLock.unlock();
-		}
+	public void write(String msg) {
+		_tcp.queue(msg);
 	}
 	
 	/**
 	 * Queues a data packet to be written.
 	 * @param data the voice packet
 	 */
-	public void queue(byte[] data) {
-		_vOutBuffer.add(data);
-		
-		// Only allow one thread to write to the channel
-		if (_vwLock.tryLock()) {
-			while (!_vOutBuffer.isEmpty())
-				writeData(_vOutBuffer.poll());
-			
-			_vwLock.unlock();
-		}
-	}
-
-	/**
-	 * Writes a message to the socket.
-	 * @param msg the message text
-	 */
-	protected void write(String msg) {
-		if ((_oBuffer == null) || (msg == null))
-			return;
-
-		int writeCount = 1;
-		try {
-			byte[] msgBytes = msg.getBytes(cs);
-
-			// Keep writing until the message is done
-			int ofs = 0;
-			while (ofs < msgBytes.length) {
-				_oBuffer.clear();
-				
-				// Keep writing to the buffer
-				while ((ofs < msgBytes.length) && (_oBuffer.remaining() > 0)) {
-					_oBuffer.put(msgBytes[ofs]);
-					ofs++;
-				}
-
-				// Flip the buffer and write if we can
-				_oBuffer.flip();
-				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(250) > 0) {
-						_stats.addBytesOut(_channel.write(_oBuffer));
-						_wSelector.selectedKeys().clear();
-						_bufferWrites++;
-						if (writeCount > 4)
-							writeCount--;
-					} else if (!_channel.isConnected()) {
-						close();
-						return;
-					} else {
-						_bufferWrites++;
-						if (writeCount >= MAX_WRITE_ATTEMPTS) {
-							_stats.addWriteError();
-							_oBuffer.clear();
-							_oBuffer.put(MAGIC_RESET_CODE.getBytes(cs));
-							if (_wSelector.select(300) > 0) {
-								_stats.addBytesOut(_channel.write(_oBuffer));		
-								_wSelector.selectedKeys().clear();
-							}
-							
-							throw new IOException("Write timeout for " + getUserID() + " at " + _remoteAddr);
-						}
-					}
-				}
-			}
-
-			_stats.addMessageOut();
-		} catch (ClosedSelectorException cse) {
-			log.info("Cannot write to " + _remoteAddr.getHostAddress() + " - selector closed");
-		} catch (AsynchronousCloseException ace) {
-			log.warn("Connection for " + getUserID() + " closed during write");
-		} catch (IOException ie) {
-			log.warn("Error writing to channel for " + getUserID() + " - " + ie.getMessage());
-		} catch (Exception e) {
-			log.error("Error writing to socket " + _remoteAddr.getHostAddress() + " - " + e.getMessage(), e);
-		}
-
-		// Update statistics
-		_lastActivityTime = System.currentTimeMillis();
-	}
-	
-	private void writeData(byte[] data) {
-		if ((_vBuffer == null) || (data == null))
-			return;
-		
-		int writeCount = 1;
-		try {
-			// Keep writing until the packet is done
-			int ofs = 0;
-			while (ofs < data.length) {
-				_vBuffer.clear();
-				
-				// Keep writing to the buffer
-				while ((ofs < data.length) && (_vBuffer.remaining() > 0)) {
-					_vBuffer.put(data[ofs]);
-					ofs++;
-				}
-
-				// Flip the buffer and write if we can
-				_vBuffer.flip();
-				while (_vBuffer.hasRemaining()) {
-					if (_vwSelector.select(250) > 0) {
-						_stats.addVoiceBytesOut(_vChannel.send(_vBuffer, _vAddr));
-						_vwSelector.selectedKeys().clear();
-						if (writeCount > 4)
-							writeCount--;
-					} else if (!_vChannel.isConnected()) {
-						return;
-					} else {
-						if (writeCount >= MAX_WRITE_ATTEMPTS) {
-							_stats.addVoiceWriteError();
-							_vBuffer.clear();
-							if (_vwSelector.select(250) > 0) {
-								_stats.addVoiceBytesOut(_vChannel.send(_vBuffer, _vAddr));		
-								_vwSelector.selectedKeys().clear();
-							}
-							
-							throw new IOException("UDP write timeout for " + getUserID() + " at " + _remoteAddr);
-						}
-					}
-				}
-			}
-		} catch (IOException ie) {
-			log.warn("Error writing to voice channel for " + getUserID() + " - " + ie.getMessage());
-		}
-		
-		// Update statistics
-		_stats.addPacketOut();
+	public void write(byte[] data) {
+		_udp.queue(data);
 	}
 }
