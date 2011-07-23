@@ -9,7 +9,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 3.7
+ * @version 4.0
  * @since 1.0
  */
 
@@ -45,7 +45,7 @@ public class PositionMessage extends LocationMessage {
 
 	// Flight phase
 	private int phase;
-	private boolean _noFlood;
+	private boolean _isReplay;
 	private boolean _isLogged;
 
 	/**
@@ -116,8 +116,8 @@ public class PositionMessage extends LocationMessage {
 		return this.simRate;
 	}
 
-	public boolean getNoFlood() {
-		return _noFlood;
+	public boolean isReplay() {
+		return _isReplay;
 	}
 
 	public boolean isLogged() {
@@ -144,8 +144,8 @@ public class PositionMessage extends LocationMessage {
 		return _atc;
 	}
 
-	public void setNoFlood(boolean noFlood) {
-		_noFlood = noFlood;
+	public void setReplay(boolean isReplay) {
+		_isReplay = isReplay;
 	}
 
 	public void setLogged(boolean isLogged) {

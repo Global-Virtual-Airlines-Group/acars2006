@@ -154,7 +154,14 @@
 		<sleep type="Integer">45000</sleep>
 		<timeout type="Integer">240</timeout>
 		<ban_length type="Integer">15</ban_length>
-		<position_interval type="Integer">125</position_interval>
+
+		<!-- Position update intervals -->
+		<position>
+			<min type="Integer">125</min>
+			<atc type="Integer">1000</atc>
+			<std type="Integer">5000</std>		
+		</position>
+
 		<voice>
 			<enabled type="Boolean">true</enabled>
 			<port type="Integer">15527</port>		

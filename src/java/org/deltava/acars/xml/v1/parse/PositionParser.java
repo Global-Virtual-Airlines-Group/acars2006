@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -17,9 +17,9 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
 /**
- * A Parser for Position elements.
+ * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 3.2
+ * @version 4.0
  * @since 1.0
  */
 
@@ -34,6 +34,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 	 * @return a PositionMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
+	@Override
 	public PositionMessage parse(Element e, Pilot user) throws XMLException {
 		
 		// Create the bean
@@ -83,7 +84,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
-			msg.setNoFlood(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
+			msg.setReplay(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));

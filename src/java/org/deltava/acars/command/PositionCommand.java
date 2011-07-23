@@ -38,7 +38,9 @@ public class PositionCommand extends ACARSCommand {
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
 	private static final Lock w = new ReentrantLock();
 	
-	private final int MIN_INTERVAL = SystemData.getInt("acars.position_interval", 2000);
+	private final int MIN_INTERVAL = SystemData.getInt("acars.position.min", 2000);
+	private final int ATC_INTERVAL = SystemData.getInt("acars.position.atc", 2000);
+	private final int NOATC_INTERVAL = SystemData.getInt("acars.position.std", 2000);
 
 	/**
 	 * Executes the command.
@@ -53,8 +55,8 @@ public class PositionCommand extends ACARSCommand {
 		if (ac == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
 			return;
-		} else if (ac.getIsDispatch()) {
-			log.warn("Dispatch Client sending Position Report!");
+		} else if (ac.getIsDispatch() || ac.getIsATC()) {
+			log.warn("ATC/Dispatch Client sending Position Report!");
 			return;
 		}
 
@@ -103,23 +105,21 @@ public class PositionCommand extends ACARSCommand {
 		}
 
 		// Queue it up
-		if (msg.getNoFlood())
+		if (msg.isReplay())
 			SetPosition.queue(msg, ac.getFlightID());
-		else {
+		else if (pmAge < MIN_INTERVAL) {
+			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
+			return;
+		} else {
 			boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED);
 			
 			// Check for position flood
-			if (pmAge >= MIN_INTERVAL) {
-				if (!isPaused) {
-					ac.setPosition(msg);
-					if (msg.isLogged())
-						SetPosition.queue(msg, ac.getFlightID());
-				} else
-					ac.setPosition(null);
-			} else if (!msg.isLogged() && !isPaused)
+			if (!isPaused) {
 				ac.setPosition(msg);
-			else
-				log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
+				if (msg.isLogged())
+					SetPosition.queue(msg, ac.getFlightID());
+			} else
+				ac.setPosition(null);
 		}
 		
 		// Log message received
@@ -128,7 +128,7 @@ public class PositionCommand extends ACARSCommand {
 			log.debug("Received position from " + ac.getUserID());
 		
 		// Send it to any dispatchers that are around
-		if (!msg.getNoFlood()) {
+		if (!msg.isReplay()) {
 			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getMP(msg);
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
@@ -143,6 +143,15 @@ public class PositionCommand extends ACARSCommand {
 					else if ((network == null) && (sc.getNetwork() == OnlineNetwork.ACARS))
 						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
 				}
+				
+				// If we have ATC around, decrease position interval
+				if ((ac.getUpdateInterval() > ATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
+					log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
+					ctx.push(new UpdateIntervalMessage(ac.getUser(), ATC_INTERVAL), env.getConnectionID());
+				}
+			} else if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
+				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL), env.getConnectionID());
+				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
 			}
 		}
 
