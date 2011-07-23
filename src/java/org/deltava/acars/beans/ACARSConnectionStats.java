@@ -1,6 +1,8 @@
 // Copyright 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import org.deltava.beans.acars.ConnectionStats;
+
 /**
  * A bean to store statistics about an ACARS connection. 
  * @author Luke
@@ -14,7 +16,7 @@ public class ACARSConnectionStats extends ConnectionStats {
 	 * Initializes the bean.
 	 * @param id the connection ID
 	 */
-	public ACARSConnectionStats(long id) {
+	public ACARSConnectionStats(String id) {
 		super(id);
 	}
 
@@ -48,38 +50,10 @@ public class ACARSConnectionStats extends ConnectionStats {
 	}
 
 	/**
-	 * Updates the voice bandwidth totals.
-	 * @param bytesIn the number of inbound voice bytes
-	 * @param bytesOut the number of outbound voice bytes
-	 */
-	public void setVoiceBytes(long bytesIn, long bytesOut) {
-		_voiceBytesIn = Math.max(0, bytesIn);
-		_voiceBytesOut = Math.max(0, bytesOut);
-	}
-
-	/**
-	 * Updates the number of voice packets.
-	 * @param msgsIn the number of inbound packets
-	 * @param msgsOut the number of outbound packets
-	 */
-	public void setPackets(int packetsIn, int packetsOut) {
-		_pktsIn = Math.max(0, packetsIn);
-		_pktsOut = Math.max(0, packetsOut);
-	}
-
-	/**
 	 * Updates the number of write errors.
 	 * @param errors the number of errors
 	 */
 	public void setWriteErrors(int errors) {
 		_writeErrors = Math.max(0, errors);
-	}
-
-	/**
-	 * Updates the number of voice write errors.
-	 * @param errors the number of errors
-	 */
-	public void setVoiceWriteErrors(int errors) {
-		_voiceWriteErrors = Math.max(0, errors);		
 	}
 }

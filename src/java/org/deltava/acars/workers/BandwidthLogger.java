@@ -1,11 +1,11 @@
-// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
-import org.deltava.beans.acars.Bandwidth;
+import org.deltava.beans.acars.*;
 
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetBandwidth;
@@ -18,14 +18,14 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 3.1
+ * @version 4.0
  * @since 2.1
  */
 
 public class BandwidthLogger extends Worker {
 	
 	private ConnectionPool _jdbcPool;
-	private final Map<Long, ConnectionStats> _lastBW = new HashMap<Long, ConnectionStats>();
+	private final Map<String, ConnectionStats> _lastBW = new HashMap<String, ConnectionStats>();
 
 	/**
 	 * Initializes the Worker.
@@ -66,12 +66,11 @@ public class BandwidthLogger extends Worker {
 				long bytesIn = 0; long bytesOut = 0;
 				
 				// Get the connection statistics
-				Collection<Long> IDs = new HashSet<Long>(_lastBW.keySet());
+				Collection<String> IDs = new HashSet<String>(_lastBW.keySet());
 				Collection<ConnectionStats> stats = _pool.getStatistics();
 				for (Iterator<ConnectionStats> i = stats.iterator(); i.hasNext(); ) {
 					ConnectionStats ac = i.next();
-					Long ID = Long.valueOf(ac.getID());
-					ConnectionStats lastBW = _lastBW.get(ID);
+					ConnectionStats lastBW = _lastBW.get(ac.getID());
 					if (lastBW == null)
 						lastBW = new ACARSConnectionStats(ac.getID());
 					
@@ -81,8 +80,8 @@ public class BandwidthLogger extends Worker {
 					bytesIn += (ac.getBytesIn() - lastBW.getBytesIn());
 					bytesOut += (ac.getBytesOut() - lastBW.getBytesOut());
 					errors += (ac.getWriteErrors() - lastBW.getWriteErrors());
-					_lastBW.put(ID, new ACARSConnectionStats(ac));
-					IDs.remove(ID);
+					_lastBW.put(ac.getID(), new ACARSConnectionStats(ac));
+					IDs.remove(ac.getID());
 				}
 				
 				// Remove the unused entries

@@ -170,17 +170,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
-				ConnectionStats stats = ac.getStatistics();
 				entry.setClientBuild(ac.getClientVersion());
 				entry.setBeta(ac.getBeta());
 				entry.setRemoteAddr(ac.getRemoteAddr());
 				entry.setRemoteHost(ac.getRemoteHost());
 				entry.setAddressInfo(ac.getAddressInfo());
-				entry.setMessages(stats.getMsgsIn(), stats.getMsgsOut());
-				entry.setBytes(stats.getBytesIn(), stats.getBytesOut());
-				entry.setBufferReads(ac.getBufferReads());
-				entry.setBufferWrites(ac.getBufferWrites());
-				entry.setWriteErrors(stats.getWriteErrors());
+				entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
 				entry.setStartTime(new Date(ac.getStartTime()));
 				entry.setUser(ac.getUser());
 				entry.setUserHidden(ac.getUserHidden());
@@ -222,7 +217,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		Collection<ACARSConnection> cons = getAll();
 		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(cons.size() + 8);
 		for (ACARSConnection ac : cons)
-			results.add(ac.getStatistics());
+			results.add(ac.getTCPStatistics());
 		
 		synchronized (_disConStats) {
 			results.addAll(_disConStats);
@@ -257,7 +252,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		try {
 			_w.lock();
 			_cSelector.wakeup();
-			SocketChannel sc = c.getChannel();
+			SelectableChannel sc = c.getChannel();
 			sc.register(_cSelector, SelectionKey.OP_READ);
 			_cons.put(Long.valueOf(c.getID()), c);
 			_conLookup.put(sc, c);
@@ -304,7 +299,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				// Add statistics
 				disCons.add(con);
 				synchronized (_disConStats) {
-					_disConStats.add(new ACARSConnectionStats(con.getStatistics()));
+					_disConStats.add(new ACARSConnectionStats(con.getTCPStatistics()));
 				}
 			}
 		}
@@ -418,7 +413,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 						// Add statistics
 						_disCon.add(con);
 						synchronized (_disConStats) {
-							_disConStats.add(new ACARSConnectionStats(con.getStatistics()));
+							_disConStats.add(new ACARSConnectionStats(con.getTCPStatistics()));
 						}
 					}
 				}

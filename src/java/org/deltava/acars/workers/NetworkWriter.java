@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 3.6
+ * @version 4.0
  * @since 1.0
  */
 
@@ -40,9 +40,9 @@ public class NetworkWriter extends Worker {
 		public void run() {
 			_status.setMessage("Writing to " + _con.getUserID());
 			if (_env instanceof TextEnvelope)
-				_con.queue((String) _env.getMessage());
+				_con.write((String) _env.getMessage());
 			else if (_env instanceof BinaryEnvelope)
-				_con.queue((byte[]) _env.getMessage());
+				_con.write((byte[]) _env.getMessage());
 			else
 				log.warn("Unknown envelope type - " + _env.getClass().getSimpleName());
 			
@@ -61,6 +61,7 @@ public class NetworkWriter extends Worker {
 	 * Opens the worker task and initializes the ConnectionWriter thread pool.
 	 * @see Worker#open()
 	 */
+	@Override
 	public final void open() {
 		super.open();
 
@@ -77,6 +78,7 @@ public class NetworkWriter extends Worker {
 	 * Closes the worker task. All ConnectionWriter thrads will be shut down.
 	 * @see Worker#close()
 	 */
+	@Override
 	public final void close() {
 		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
 		
@@ -97,6 +99,7 @@ public class NetworkWriter extends Worker {
 	 * Returns the status of this Worker and the Connection writers.
 	 * @return a List of WorkerStatus beans, with this Worker's status first
 	 */
+	@Override
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
 		results.addAll(_ioPool.getWorkerStatus());

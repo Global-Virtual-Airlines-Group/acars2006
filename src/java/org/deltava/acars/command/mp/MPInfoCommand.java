@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import static org.gvagroup.acars.ACARSFlags.*;
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 3.0
+ * @version 4.0
  * @since 2.2
  */
 
@@ -30,6 +30,7 @@ public class MPInfoCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the Message and the ACARS Connection
@@ -38,8 +39,8 @@ public class MPInfoCommand extends ACARSCommand {
 		if (ac == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
 			return;
-		} else if (ac.getIsDispatch()) {
-			log.warn("Dispatch Client sending MP Position Report!");
+		} else if (ac.getIsDispatch() || ac.getIsATC()) {
+			log.warn("ATC/Dispatch Client sending MP Position Report!");
 			return;
 		}
 		
@@ -80,17 +81,16 @@ public class MPInfoCommand extends ACARSCommand {
 		updmsg.add(upd);
 		
 		// If the message had a recipient, send it just to that connection
-		if (ac.getViewerID() != 0)
-			ctx.push(updmsg, ac.getViewerID());
-		else {
+		if (ac.getViewerID() == 0) {
 			// Get the connections to notify
 			List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 			cons.remove(ac);
-		
+			
 			// Send the message
 			for (ACARSConnection c : cons)
 				ctx.push(updmsg, c.getID());
-		}
+		} else
+			ctx.push(updmsg, ac.getViewerID());
 	}
 	
 	public final boolean isLogged() {

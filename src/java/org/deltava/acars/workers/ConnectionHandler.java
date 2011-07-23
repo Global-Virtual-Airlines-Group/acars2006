@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -19,7 +19,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 3.7
+ * @version 4.0
  * @since 2.1
  */
 
@@ -101,7 +101,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			log.info("New Connection from " + con.getRemoteAddr());
 			try {
 				_pool.add(con);
-				con.queue(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
+				con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 			} catch (ACARSException ae) {
 				log.error("Error adding to pool - " + ae.getMessage(), ae);
 				con.close();
@@ -119,6 +119,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	/**
 	 * Initializes the worker.
 	 */
+	@Override
 	public final void open() {
 		super.open();
 		
@@ -153,6 +154,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	/**
 	 * Shuts down the Worker.
 	 */
+	@Override
 	public final void close() {
 
 		// Try and close the server socket and the selector
