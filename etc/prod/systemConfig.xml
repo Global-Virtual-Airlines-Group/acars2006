@@ -156,12 +156,18 @@
 			<dva>4</dva>
 			<afv>2</afv>
 		</map>
-		
+
 		<port type="Integer">15527</port>
 		<sleep type="Integer">35000</sleep>
 		<timeout type="Integer">120</timeout>
 		<ban_length type="Integer">15</ban_length>
-		<position_interval type="Integer">30</position_interval>
+
+		<!-- Position update intervals -->
+		<position>
+			<min type="Integer">50</min>
+			<atc type="Integer">1000</atc>
+			<std type="Integer">5000</std>		
+		</position>
 
 		<voice>
 			<enabled type="Boolean">true</enabled>
@@ -202,7 +208,7 @@
 		</build>
 
 		<pool>
-			<size type="Integer">192</size>
+			<size type="Integer">256</size>
 			<multiple type="Boolean">true</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
@@ -219,7 +225,7 @@
 
 		<buffer>
 			<send type="Integer">32768</send>
-			<recv type="Integer">30720</recv>
+			<recv type="Integer">20480</recv>
 			<nio type="Integer">32768</nio>
 		</buffer>
 
