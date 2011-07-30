@@ -37,7 +37,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 		
 		// Register the selector
 		_dc.register(_wSelector, SelectionKey.OP_WRITE);
-		log.info("Enabled voice access from " + addr.toString().substring(1) + " to " + _dc.socket().getLocalAddress().toString().substring(1));
+		log.info("Enabled voice access from " + addr.toString().substring(1));
 		updateLastActivity();
 	}
 	
@@ -57,14 +57,13 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 		return _dc;
 	}
 	
-	@Override
-	public void close() {
-		super.close();
-		try {
-			_dc.close();
-		} catch (Exception e) {
-			// empty
-		}
+	/**
+	 * Read method to increment counters.
+	 */
+	public void read(int bytes) {
+		_stats.addBufferRead();
+		_stats.addMessageIn();
+		_stats.addBytesIn(bytes);
 	}
 	
 	@Override
@@ -90,6 +89,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 				while (_oBuffer.hasRemaining()) {
 					if (_wSelector.select(250) > 0) {
 						_stats.addBytesOut(_dc.send(_oBuffer, _remoteAddr));
+						_stats.addBufferWrite();
 						_wSelector.selectedKeys().clear();
 						if (writeCount > 4)
 							writeCount--;
@@ -100,7 +100,8 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 							_stats.addWriteError();
 							_oBuffer.clear();
 							if (_wSelector.select(250) > 0) {
-								_stats.addBytesOut(_dc.send(_oBuffer, _remoteAddr));		
+								_stats.addBytesOut(_dc.send(_oBuffer, _remoteAddr));
+								_stats.addBufferWrite();
 								_wSelector.selectedKeys().clear();
 							}
 							
