@@ -463,6 +463,14 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	}
 	
 	/**
+	 * Logs reading a voice packet.
+	 * @param bytes the number of bytes
+	 */
+	public void logVoice(int bytes) {
+		_udp.read(bytes);
+	}
+	
+	/**
 	 * Queues a control message to be written.
 	 * @param msg the message text
 	 */
