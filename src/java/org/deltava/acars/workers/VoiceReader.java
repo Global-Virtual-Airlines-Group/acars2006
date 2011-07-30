@@ -123,6 +123,9 @@ public class VoiceReader extends Worker {
 						byte[] pktData = new byte[_buf.flip().limit()];
 						_buf.get(pktData);
 						
+						// Log the read
+						ac.logVoice(pktData.length);
+						
 						// If it's a ping (ie. a 16-byte datagram), send it right back, otherwise push onto the queue
 						if (pktData.length == 16) {
 							log.info("Received MVS Ping from " + ac.getUserID());
