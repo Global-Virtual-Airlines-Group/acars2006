@@ -148,7 +148,12 @@ public class LogicProcessor extends Worker {
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
 			if (isAuthenticated == msg.isAnonymous()) {
-				log.error(Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID());
+				String errorMsg = Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID();
+				ACARSConnection ac = _pool.get(_env.getConnectionID());
+				if (ac != null)
+					errorMsg += " (" + ac.getRemoteAddr() + ")";
+				
+				log.error(errorMsg);
 
 				// Return an ACK requesting a login
 				if (!isAuthenticated) {
