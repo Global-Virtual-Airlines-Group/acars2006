@@ -59,7 +59,7 @@ abstract class ACARSChannel<T> implements java.io.Serializable {
 	}
 
 	/**
-	 * Closes the channel, clears the buffer and releases the selector.
+	 * Closes the channel, clears the write buffer and releases the write selector.
 	 */
 	public void close() {
 		try {
