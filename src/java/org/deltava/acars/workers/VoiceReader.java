@@ -88,14 +88,7 @@ public class VoiceReader extends Worker {
 			_status.execute();
 			int consWaiting = 0;
 			try {
-				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 25)
-					Thread.sleep(25 - runInterval);
-				
 				consWaiting = _rSelector.select(SystemData.getInt("acars.sleep", 30000));
-			} catch (InterruptedException ie) {
-				log.warn("Interrupted");
-				Thread.currentThread().interrupt();
 			} catch (IOException ie) {
 				log.warn("Error on select - " + ie.getMessage());
 			}
