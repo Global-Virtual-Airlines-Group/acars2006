@@ -32,7 +32,6 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 		super(addr);
 		_stats = new InternalConnectionStats("UDP-" + Long.toHexString(id));
 		_dc = dc;
-		_dc.configureBlocking(false);
 		_wSelector = Selector.open();
 		
 		// Register the selector
