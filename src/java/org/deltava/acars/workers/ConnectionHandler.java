@@ -207,7 +207,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 						wt.setUncaughtExceptionHandler(this);
 						wt.start();
 					}
-				} catch (ClosedByInterruptException cie) {
+				} catch (ClosedChannelException cce) {
 					// empty
 				} catch (IOException ie) {
 					log.error("Cannot accept connection - " + ie.getMessage(), ie);
