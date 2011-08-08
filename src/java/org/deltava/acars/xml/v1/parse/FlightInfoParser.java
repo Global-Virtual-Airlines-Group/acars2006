@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 3.0
+ * @version 4.0
  * @since 1.0
  */
 
@@ -53,6 +53,9 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		String fCode = getChildText(e, "flight_num", SystemData.get("airline.code") + "001");
 		if (!Character.isLetter(fCode.charAt(0)))
 			fCode = SystemData.get("airline.code") + fCode;
+		int ofs = fCode.indexOf(" LEG");
+		if (ofs > 0)
+			fCode = fCode.substring(0, ofs).trim(); 
 
 		// Load the bean
 		msg.setFlightID(StringUtils.parse(getChildText(e, "flight_id", "0"), 0));
