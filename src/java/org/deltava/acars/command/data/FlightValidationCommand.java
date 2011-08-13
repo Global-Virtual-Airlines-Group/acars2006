@@ -1,4 +1,4 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
  * An ACARS Command to validate that a route exists in the Flight Schedule,
  * and if any dispatch routes currently exist.
  * @author Luke
- * @version 2.6
+ * @version 4.0
  * @since 2.3
  */
 
@@ -65,7 +65,7 @@ public class FlightValidationCommand extends DataCommand {
 			// If we have no dispatch routes, check for cached routes
 			if (dRoutes == 0) {
 				GetCachedRoutes rcdao = new GetCachedRoutes(con);
-				dRoutes = rcdao.getRoutes(airportD, airportA).size();
+				dRoutes = rcdao.getRoutes(airportD, airportA, false).size();
 			}
 			
 			// Save dispatch routes
