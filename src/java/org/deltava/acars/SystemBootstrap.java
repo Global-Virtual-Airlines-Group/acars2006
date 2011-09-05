@@ -240,6 +240,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	 */
 	private void spawnDaemon(Runnable sd) {
 		Thread dt = new Thread(_dGroup, sd, sd.toString());
+		dt.setDaemon(true);
 		dt.setUncaughtExceptionHandler(this);
 		_daemons.put(dt, sd);
 		dt.start();
