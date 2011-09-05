@@ -49,8 +49,12 @@ public class PoolWorkerFactory implements ThreadFactory {
 		
 		public void run() {
 			super.run();
-			_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
-			_status.setAlive(false);
+			if (_status != null) {
+				_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+				_status.setAlive(false);
+				
+			}
+				
 			removeID(_id);
 			if (_deathHandler != null)
 				_deathHandler.workerTerminated(this, null);
