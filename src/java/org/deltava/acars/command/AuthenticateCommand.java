@@ -27,7 +27,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -188,7 +188,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Get the ACARS connection
 		ACARSConnection con = ctx.getACARSConnection();
-		if ((usr == null) || (con == null))
+		if ((usr == null) || (con == null) || (ud == null))
 			return;
 
 		// Calculate the difference in system times, assume 500ms latency -
