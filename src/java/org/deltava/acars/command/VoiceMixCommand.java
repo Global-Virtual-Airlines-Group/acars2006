@@ -17,7 +17,7 @@ import org.deltava.util.RoleUtils;
 /**
  * An ACARS command to mix voice messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 4.0
  */
 
@@ -94,8 +94,7 @@ public class VoiceMixCommand extends ACARSCommand {
 				continue;
 			
 			// Check for range limitations
-			boolean doSend = (maxRange == 0) || (ctr == null);
-			if (!doSend) {
+			if ((maxRange > 0) && (ctr != null)) {
 				int rcvDistance = ctr.distanceTo(avc.getLocation());
 				if (rcvDistance > maxRange) {
 					if (log.isDebugEnabled())

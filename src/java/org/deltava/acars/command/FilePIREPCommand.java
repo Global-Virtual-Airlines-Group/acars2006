@@ -34,7 +34,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 3.7
+ * @version 4.1
  * @since 1.0
  */
 
@@ -308,10 +308,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			// If we don't have takeoff/touchdown points from Build 100+, derive them
 			GetNavAirway navdao = new GetNavAirway(con);
 			if (afr.getTakeoffHeading() == -1) {
-				List<RouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
+				List<ACARSRouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
 				if (tdEntries.size() > 2) {
 					int ofs = 0;
-					RouteEntry entry = tdEntries.get(0);
+					ACARSRouteEntry entry = tdEntries.get(0);
 					GeoPosition adPos = new GeoPosition(info.getAirportD());
 					while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
 						ofs++;
@@ -487,7 +487,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					mailer.setContext(mctxt);
 					mailer.send(insList);
 				}
-			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
+			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
