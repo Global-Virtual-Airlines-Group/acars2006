@@ -7,7 +7,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS data request/response message.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -17,9 +17,7 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_UNKNOWN = 0;
 	public static final int REQ_USRLIST = 1;
 	
-	/**
-	 * @deprecated
-	 */
+	@Deprecated
 	public static final int REQ_ILIST = 2;
 	
 	public static final int REQ_VALIDATE = 3;
