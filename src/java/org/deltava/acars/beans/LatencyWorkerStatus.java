@@ -10,13 +10,13 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * A Worker status bean with a latency monitor.
  * @author Luke
- * @version 3.6
+ * @version 4.1
  * @since 2.0
  */
 
 public class LatencyWorkerStatus extends WorkerStatus {
 	
-	private LatencyTracker _latency;
+	private final LatencyTracker _latency;
 
 	/**
 	 * Initializes the status bean.
@@ -47,7 +47,8 @@ public class LatencyWorkerStatus extends WorkerStatus {
 	/**
 	 * Returns the message and average latency.
 	 */
-	public String getMessage() {
+	@Override
+	public synchronized String getMessage() {
 		long us = MICROSECONDS.convert(_latency.getLatency(), NANOSECONDS);
 		StringBuilder buf = new StringBuilder(super.getMessage());
 		buf.append(" - average latency ");
