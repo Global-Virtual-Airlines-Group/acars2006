@@ -47,6 +47,7 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Log PIREP filing
@@ -91,7 +92,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
 			if (flightID != 0) {
-				ACARSFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), flightID);
+				FDRFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), flightID);
 				if (afr2 != null) {
 					ctx.release();	
 
