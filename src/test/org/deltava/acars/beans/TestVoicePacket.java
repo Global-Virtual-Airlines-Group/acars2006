@@ -21,6 +21,7 @@ public class TestVoicePacket extends TestCase {
 		
 		File f = new File("c:\\temp\\test.mvs");
 		assertTrue(f.exists());
+		assertNotNull(_rnd);
 		
 		// Start loading stuff
 		PacketInputStream ds = new Packet.PacketInputStream(new FileInputStream(f));
