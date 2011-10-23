@@ -17,7 +17,7 @@ import static org.gvagroup.acars.ACARSFlags.*;
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.2
  */
 
@@ -91,9 +91,5 @@ public class MPInfoCommand extends ACARSCommand {
 				ctx.push(updmsg, c.getID());
 		} else
 			ctx.push(updmsg, ac.getViewerID());
-	}
-	
-	public final boolean isLogged() {
-		return false;
 	}
 }
