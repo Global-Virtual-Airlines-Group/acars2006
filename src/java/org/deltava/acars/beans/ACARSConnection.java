@@ -296,6 +296,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	public String getRemoteAddr() {
 		return _tcp.getRemoteAddress();
 	}
+	
+	public String getRemoteVoiceAddr() {
+		return _udp.getAddress();
+	}
 
 	public String getRemoteHost() {
 		return _tcp.getRemoteHost();

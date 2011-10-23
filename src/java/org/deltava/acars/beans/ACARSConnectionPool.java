@@ -239,6 +239,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				try {
 					_w.lock();
 					_conLookup.put(c.getUserID(), c);
+					if (c.isVoiceEnabled())
+						_conLookup.put(c.getRemoteVoiceAddr(), c);
 				} finally {
 					_w.unlock();
 				}
