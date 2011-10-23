@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import org.jdom.Element;
@@ -11,7 +11,7 @@ import org.deltava.util.*;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 2.8
+ * @version 4.1
  * @since 1.0
  */
 
@@ -27,7 +27,7 @@ public abstract class XMLElementFormatter {
 	/**
 	 * Helper method to initialize the response element.
 	 */
-	protected Element initResponse(int msgType) {
+	protected static Element initResponse(int msgType) {
 		Element e = new Element(ProtocolInfo.CMD_ELEMENT_NAME);
 		e.setAttribute("type", Message.MSG_CODES[msgType]);
 		return e;
@@ -36,7 +36,7 @@ public abstract class XMLElementFormatter {
 	/**
 	 * Helper method to initialize a DataResponse element.
 	 */
-	protected Element initDataResponse(Element cmd, String rspType) {
+	protected static Element initDataResponse(Element cmd, String rspType) {
 		// Get the element
 		Element e = cmd.getChild(rspType);
 		if (e != null)

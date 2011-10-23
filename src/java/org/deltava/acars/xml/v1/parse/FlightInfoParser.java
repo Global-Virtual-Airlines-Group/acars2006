@@ -6,13 +6,10 @@ import java.util.Date;
 
 import org.jdom.Element;
 
-import org.deltava.beans.OnlineNetwork;
-import org.deltava.beans.Pilot;
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.*;
 
 import org.deltava.acars.message.*;
-import org.deltava.acars.xml.XMLElementParser;
-import org.deltava.acars.xml.XMLException;
+import org.deltava.acars.xml.*;
 
 import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
@@ -20,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -32,6 +29,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	 * @return an InfoMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
+	@Override
 	public InfoMessage parse(Element e, Pilot user) throws XMLException {
 
 		// Create the bean
@@ -94,16 +92,5 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		// Load waypoints
 		msg.setWaypoints(getChildText(e, "route", "DIRECT"));
 		return msg;
-	}
-	
-	/**
-	 * Helper method to load an airport.
-	 */
-	private Airport getAirport(String code) throws XMLException {
-		Airport a = SystemData.getAirport(code);
-		if (a == null)
-			throw new XMLException("Invalid Airport Code - " + code);
-
-		return a;
 	}
 }

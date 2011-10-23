@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -25,7 +25,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	/**
 	 * Helper method to format an Airport bean.
 	 */
-	protected Element formatAirport(Airport a, String eName) {
+	protected static Element formatAirport(Airport a, String eName) {
 		Element ae = new Element(eName);
 		if (a != null) {
 			ae.setAttribute("name", a.getName());
@@ -62,7 +62,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	/**
 	 * Helper method to format a flight route.
 	 */
-	protected Element formatRoute(FlightRoute rt) {
+	protected static Element formatRoute(FlightRoute rt) {
 		Element re = new Element("route");
 		re.setAttribute("id", String.valueOf(rt.getID()));
 		re.addContent(formatAirport(rt.getAirportD(), "airportD"));
