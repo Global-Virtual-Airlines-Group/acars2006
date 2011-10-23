@@ -19,7 +19,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Voice Channel data messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 4.0
  */
 
@@ -86,7 +86,7 @@ class ChannelListFormatter extends XMLElementFormatter {
 	/**
 	 * Helper method to format role names.
 	 */
-	private Collection<Element> formatRoles(Collection<String> roleNames, String type) {
+	private static Collection<Element> formatRoles(Collection<String> roleNames, String type) {
 		Collection<Element> results = new ArrayList<Element>();
 		for (String name : roleNames) {
 			Element re = XMLUtils.createElement("role", name);

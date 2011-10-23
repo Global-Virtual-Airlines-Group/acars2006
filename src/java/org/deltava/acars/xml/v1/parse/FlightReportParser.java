@@ -9,18 +9,16 @@ import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.util.*;
-import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.util.ACARSHelper;
-import org.deltava.acars.xml.XMLElementParser;
-import org.deltava.acars.xml.XMLException;
+import org.deltava.acars.xml.*;
 
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -32,6 +30,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 	 * @return a FlightReportMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
+	@Override
 	public FlightReportMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
 
 		// Build the message bean
@@ -129,16 +128,5 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 
 		// Return the message
 		return msg;
-	}
-	
-	/**
-	 * Helper method to load an airport.
-	 */
-	private Airport getAirport(String code) throws XMLException {
-		Airport a = SystemData.getAirport(code);
-		if (a == null)
-			throw new XMLException("Invalid Airport Code - " + code);
-
-		return a;
 	}
 }
