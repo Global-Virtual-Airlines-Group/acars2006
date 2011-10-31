@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
+import java.net.InetSocketAddress;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -25,7 +26,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -37,13 +38,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 22500;
 
 	// List of connections, disconnected connections and connection pool info
-	private int _maxSize;
+	private final int _maxSize;
 	private transient final BlockingQueue<ACARSConnection> _disCon = new LinkedBlockingQueue<ACARSConnection>();
 	private transient final Collection<ConnectionStats> _disConStats = new HashSet<ConnectionStats>();
 	
 	// Pools
 	private final Map<Long, ACARSConnection> _cons = new HashMap<Long, ACARSConnection>();
-	private final Map<Object, ACARSConnection> _conLookup = new HashMap<Object, ACARSConnection>();
+	private final Map<String, ACARSConnection> _conLookup = new HashMap<String, ACARSConnection>();
 	
 	// Pool read/write locks
 	private transient final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock(true);
@@ -233,32 +234,30 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * @throws ACARSException if the connection exists, the pool is full or a network error occurs
 	 */
 	public void add(ACARSConnection c) throws ACARSException {
-		// Check if we're already there, and just adding a USER ID
-		if (_cons.containsValue(c)) {
-			if (!StringUtils.isEmpty(c.getUserID())) {
-				try {
-					_w.lock();
-					_conLookup.put(c.getUserID(), c);
-					if (c.isVoiceEnabled())
-						_conLookup.put(c.getRemoteVoiceAddr(), c);
-				} finally {
-					_w.unlock();
-				}
-			}
-			
-			return;
-		} else if (size() >= _maxSize)
-			throw new ACARSException("Connection Pool full - " + size() + " connections");
-
-		// Register the SocketChannel with the selector, wake it up if it's sleeping
 		try {
 			_w.lock();
+			
+			// Remove existing entries
+			while (_conLookup.containsValue(c))
+				_conLookup.values().remove(c);
+			
+			// Check size
+			if (size() >= _maxSize)
+				throw new ACARSException("Connection Pool full - " + size() + " connections");
+			
+			// Register the SocketChannel with the selector, wake it up if it's sleeping
 			_cSelector.wakeup();
-			SelectableChannel sc = c.getChannel();
-			sc.register(_cSelector, SelectionKey.OP_READ);
+			SocketChannel sc = c.getChannel();
+			if (sc.keyFor(_cSelector) == null)
+				sc.register(_cSelector, SelectionKey.OP_READ);
+			
+			// Add with different keys
 			_cons.put(Long.valueOf(c.getID()), c);
-			_conLookup.put(sc, c);
 			_conLookup.put(c.getRemoteAddr(), c);
+			if (c.isAuthenticated())
+				_conLookup.put(c.getUserID(), c);
+			if (c.isVoiceEnabled())
+				_conLookup.put(c.getRemoteVoiceAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
 		} finally {
@@ -394,7 +393,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				ACARSConnection con = null;
 				try {
 					_r.lock();
-					con = _conLookup.get(sKey.channel());
+					SocketChannel ch = (SocketChannel) sKey.channel();
+					InetSocketAddress rAddr = (InetSocketAddress) ch.getRemoteAddress();
+					con = _conLookup.get(rAddr.getAddress().getHostAddress());
+				} catch (IOException ie) {
+					log.error("Error fetching remote address - " + sKey.channel());
 				} finally {
 					_r.unlock();
 				}
@@ -434,8 +437,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	public void remove(ACARSConnection c) {
 		try {
-			VoiceChannels.getInstance().remove(c.getID());
 			_w.lock();
+			VoiceChannels.getInstance().remove(c.getID());
 			_cons.values().remove(c);
 			while (_conLookup.containsValue(c))
 				_conLookup.values().remove(c);
