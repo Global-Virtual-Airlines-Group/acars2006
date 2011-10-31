@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 4.0
  */
 
@@ -36,7 +36,7 @@ public class TCPChannel extends ACARSChannel<String> {
 	private transient final StringBuilder _msgBuffer = new StringBuilder();
 	private transient final ByteBuffer _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
 	
-	private transient SocketChannel _sc;
+	private transient final SocketChannel _sc;
 	
 	/**
 	 * Creates a new TCP Channel.
@@ -56,9 +56,9 @@ public class TCPChannel extends ACARSChannel<String> {
 	
 	/**
 	 * Returns the Channel.
-	 * @return a SelectableChannel
+	 * @return a SocketChannel
 	 */
-	public SelectableChannel getChannel() {
+	public SocketChannel getChannel() {
 		return _sc;
 	}
 

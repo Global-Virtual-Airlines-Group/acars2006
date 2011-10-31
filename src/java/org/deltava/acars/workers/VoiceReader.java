@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 
+import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
 import org.deltava.beans.mvs.PopulatedChannel;
@@ -17,7 +18,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS worker thread to read voice packets.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 4.0
  */
 
@@ -101,16 +102,26 @@ public class VoiceReader extends Worker {
 				try {
 					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(_buf);
 					while (srcAddr != null) {
-						String addr = srcAddr.getAddress().getHostAddress();
-						log.info("Received voice packet from " + srcAddr.toString().substring(1));
+						String addr = srcAddr.toString().substring(1);
+						log.info("Received voice packet from " + addr);
+						
+						// This might return null if it's the first UDP packet since we don't know what
+						// source port it's coming from. Do a lookup based on the IP address only. 
 						ACARSConnection ac = _pool.get(addr);
-						if (ac == null)
-							throw new IllegalArgumentException(addr + " - not connected");
-						else if (!ac.isVoiceCapable())
+						if (ac == null) {
+							ac = _pool.get(srcAddr.getAddress().getHostAddress());
+							if (ac == null)
+								throw new IllegalArgumentException(addr + " - not connected");
+						} else if (!ac.isVoiceCapable())
 							throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
 
 						// Register the source address
 						ac.enableVoice(_channel, srcAddr);
+						try {
+							_pool.add(ac);
+						} catch (ACARSException ae) {
+							log.error("Cannot register source address - " + ae.getMessage());
+						}
 						
 						// Get the data
 						byte[] pktData = new byte[_buf.flip().limit()];
@@ -128,7 +139,7 @@ public class VoiceReader extends Worker {
 							// Get the channel
 							PopulatedChannel pc = vc.get(ac.getID());
 							if (pc == null)
-								throw new IllegalArgumentException(ac.getUserID() + " not in any channel");
+								throw new IllegalArgumentException(ac.getUserID() + " (not in any channel)");
 							
 							// Create the message
 							VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());

@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -57,7 +57,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	private ScopeInfoMessage _scope;
 
 	// Connection information
-	private long _id;
+	private final long _id;
 	private Pilot _userInfo;
 	private UserData _userData;
 	private IPAddressInfo _addrInfo;
@@ -115,7 +115,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			boolean isNew = !srcAddr.toString().equals(_udp.getAddress());
 			if (isNew) {
 				_udp.setRemoteAddress(srcAddr);
-				log.warn("Switched voice source address for " + getUserID() + " to " + _udp.getAddress().substring(1));
+				log.warn("Switched voice source address for " + getUserID() + " to " + getRemoteVoiceAddr());
 			}
 				
 			return;
@@ -159,7 +159,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return (_udp == null) ? null : _udp.getStatistics();
 	}
 
-	SelectableChannel getChannel() {
+	SocketChannel getChannel() {
 		return _tcp.getChannel();
 	}
 
@@ -298,7 +298,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	}
 	
 	public String getRemoteVoiceAddr() {
-		return _udp.getAddress();
+		return _udp.getAddress().substring(1);
 	}
 
 	public String getRemoteHost() {
