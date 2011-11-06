@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -17,15 +17,16 @@ import org.deltava.util.system.SystemData;
 /**
  * A utility class to convert XML request data into an ACARS Flight Report.
  * @author Luke
- * @version 3.1
+ * @version 4.1
  * @since 1.0
  */
 
-public class ACARSHelper {
+@Helper(FlightReport.class)
+public final class ACARSHelper {
 	
 	private static final Logger log = Logger.getLogger(ACARSHelper.class);
 
-	// singleton constructor
+	// singleton
 	private ACARSHelper() {
 		super();
 	}
