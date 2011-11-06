@@ -13,10 +13,11 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
+@Helper(RouteEntry.class)
 public final class RouteEntryHelper {
 
 	// singleton
