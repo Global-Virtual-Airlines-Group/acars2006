@@ -19,7 +19,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.1
  */
 
@@ -88,11 +88,11 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 			// Get the socket and set various socket options
 			try {
-				Socket s = _sc.socket();
-				s.setSoLinger(false, 0);
-				s.setTcpNoDelay(true);
-				s.setSendBufferSize(SystemData.getInt("acars.buffer.send"));
-				s.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
+				_sc.setOption(StandardSocketOptions.SO_LINGER, Integer.valueOf(1));
+				_sc.setOption(StandardSocketOptions.TCP_NODELAY, Boolean.TRUE);
+				_sc.setOption(StandardSocketOptions.SO_KEEPALIVE, Boolean.TRUE);
+				_sc.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send")));
+				_sc.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
 			} catch (IOException ie) {
 				log.error("Error setting socket options - " + ie.getMessage(), ie);
 			}
@@ -129,19 +129,18 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		Collection<?> addrs = (Collection<?>) SystemData.getObject("acars.block");
 		for (Iterator<?> i = addrs.iterator(); i.hasNext(); )
 			_blockedAddrs.add((String) i.next());
-		
+
+		// Open the socket channel
 		try {
-			// Open the socket channel
 			_cSelector = Selector.open();
 			_channel = ServerSocketChannel.open();
-			ServerSocket socket = _channel.socket();
 			_channel.configureBlocking(false);
+			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
+			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
 
 			// Bind to the port
 			SocketAddress sAddr = new InetSocketAddress(SystemData.getInt("acars.port"));
-			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-			socket.setReuseAddress(true);
-			socket.bind(sAddr);
+			_channel.bind(sAddr);
 
 			// Add the server socket channel to the selector
 			_channel.register(_cSelector, SelectionKey.OP_ACCEPT);
@@ -156,10 +155,8 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	 */
 	@Override
 	public final void close() {
-
-		// Try and close the server socket and the selector
 		try {
-			_channel.socket().close();
+			_channel.close();
 			_cSelector.close();
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
@@ -198,9 +195,9 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				try {
 					SocketChannel cc = _channel.accept();
 					if (cc != null) {
-						gen.reset();
-						String addr = cc.socket().getInetAddress().getHostAddress();
+						String addr = ((InetSocketAddress) cc.getRemoteAddress()).getAddress().getHostAddress();
 						_status.setMessage("Opening connection from " + addr);
+						gen.reset();
 						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());
 						Thread wt = new Thread(wrk, "ConnectWorker-" + addr);
 						wt.setDaemon(true);

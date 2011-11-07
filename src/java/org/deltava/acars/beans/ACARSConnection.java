@@ -95,8 +95,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 				log.warn("Excessive connect time - " + execTime + "ms");
 		} catch (IOException ie) {
 			// Log our error and shut the connection
-			log.error("Cannot set non-blocking I/O from " + sc.socket().getRemoteSocketAddress());
 			try {
+				log.error("Cannot set non-blocking I/O from " + sc.getRemoteAddress());
 				sc.close();
 			} catch (Exception e) {
 				// empty
