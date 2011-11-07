@@ -41,17 +41,15 @@ public class VoiceReader extends Worker {
 	 */
 	public final void open() {
 		super.open();
-		
 		try {
 			_channel = DatagramChannel.open();
 			_channel.configureBlocking(false);
+			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
+			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
+			_channel.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send") * 4));
 			
 			// Bind to the port
-			DatagramSocket socket = _channel.socket();
-			socket.setReceiveBufferSize(SystemData.getInt("acars.buffer.recv"));
-			socket.setSendBufferSize(SystemData.getInt("acars.buffer.send") * 4);
-			socket.setReuseAddress(true);
-			socket.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
+			_channel.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
 			
 			// Add the server socket channel to the selector
 			_rSelector = Selector.open();
@@ -67,7 +65,7 @@ public class VoiceReader extends Worker {
 	 */
 	public final void close() {
 		try {
-			_channel.socket().close();
+			_channel.close();
 			_rSelector.close();
 		} catch (IOException ie) {
 			log.error(ie.getMessage());	

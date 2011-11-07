@@ -45,7 +45,7 @@ public class TCPChannel extends ACARSChannel<String> {
 	 * @throws IOException if an I/O error occurs
 	 */
 	TCPChannel(long id, SocketChannel sc) throws IOException {
-		super((InetSocketAddress) sc.socket().getRemoteSocketAddress());
+		super((InetSocketAddress) sc.getRemoteAddress());
 		_stats = new InternalConnectionStats("TCP-" + Long.toHexString(id));
 		_sc = sc;
 		_wSelector = Selector.open();
