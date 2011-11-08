@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -27,6 +27,7 @@ class AircraftFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message
@@ -55,6 +56,8 @@ class AircraftFormatter extends ElementFormatter {
 				ae.addContent(XMLUtils.createElement("maxWeight", String.valueOf(a.getMaxWeight())));
 				ae.addContent(XMLUtils.createElement("maxTakeoffWeight", String.valueOf(a.getMaxTakeoffWeight())));
 				ae.addContent(XMLUtils.createElement("maxLandingWeight", String.valueOf(a.getMaxLandingWeight())));
+				ae.addContent(XMLUtils.createElement("toRunwayLength", String.valueOf(a.getTakeoffRunwayLength())));
+				ae.addContent(XMLUtils.createElement("lndRunwayLength", String.valueOf(a.getLandingRunwayLength())));
 				
 				// Dump IATA codes
 				for (String iataCode : a.getIATA())
