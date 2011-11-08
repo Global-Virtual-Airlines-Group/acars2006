@@ -13,6 +13,7 @@ import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
+import org.deltava.beans.schedule.ScheduleRoute;
 import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
@@ -23,7 +24,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 3.6
+ * @version 4.1
  * @since 1.0
  */
 
@@ -36,6 +37,7 @@ public class InfoCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message
@@ -94,8 +96,9 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
+				ScheduleRoute rt = new ScheduleRoute(null, msg.getAirportD(), msg.getAirportA());
 				GetSchedule sdao = new GetSchedule(c);
-				int avgTime = sdao.getFlightTime(msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+				int avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
 				msg.setScheduleValidated(avgTime > 0);
 				
 				// If we're not valid, check against draft PIREPs
