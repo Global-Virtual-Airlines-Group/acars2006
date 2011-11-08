@@ -205,6 +205,12 @@ public class FilePIREPCommand extends ACARSCommand {
 				} else
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
+			
+			// Load the aircraft
+			GetAircraft acdao = new GetAircraft(con);
+			Aircraft a = acdao.get(afr.getEquipmentType());
+			if (a == null) 
+				throw new DAOException("Invalid equipment type - " + afr.getEquipmentType());
 
 			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
@@ -230,29 +236,28 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Check if the user is rated to fly the aircraft
+			afr.setAttribute(FlightReport.ATTR_HISTORIC, a.getHistoric());
 			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType())) {
 				log.warn(p.getName() + " not rated in " + afr.getEquipmentType() + " ratings = " + p.getRatings());
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			}
 
-			// Check for historic aircraft
-			GetAircraft acdao = new GetAircraft(con);
-			Aircraft a = acdao.get(afr.getEquipmentType());
-			if (a == null) {
-				log.warn("Invalid equipment type from " + p.getName() + " - " + afr.getEquipmentType());
-				afr.setEquipmentType(p.getEquipmentType());
-			} else {
-				afr.setAttribute(FlightReport.ATTR_HISTORIC, a.getHistoric());
-				
-				// Check for excessive distance
-				if (afr.getDistance() > a.getRange())
-					afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
+			// Check for excessive distance
+			if (afr.getDistance() > a.getRange())
+				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
 
-				// Check for excessive weight
-				if ((a.getMaxTakeoffWeight() != 0) && (afr.getTakeoffWeight() > a.getMaxTakeoffWeight()))
-					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
-				else if ((a.getMaxLandingWeight() != 0) && (afr.getLandingWeight() > a.getMaxLandingWeight()))
-					afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+			// Check for excessive weight
+			if ((a.getMaxTakeoffWeight() != 0) && (afr.getTakeoffWeight() > a.getMaxTakeoffWeight()))
+				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+			else if ((a.getMaxLandingWeight() != 0) && (afr.getLandingWeight() > a.getMaxLandingWeight()))
+				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
+			
+			// Check ETOPS
+			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, afr));
+			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN)) {
+				Collection<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
+				ETOPS etopsClass = ETOPSHelper.classify(rtEntries);
+				comments.add("ETOPS classificataion: " + etopsClass.toString());
 			}
 			
 			// Calculate flight load factor if not set client-side
@@ -265,7 +270,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					afr.setLoadFactor(loadFactor);
 				}
 				
-				if ((a != null) && (a.getSeats() > 0) && (afr.getPassengers() == 0))
+				if ((a.getSeats() > 0) && (afr.getPassengers() == 0))
 					afr.setPassengers((int) Math.round(a.getSeats() * afr.getLoadFactor()));
 			}
 
@@ -285,7 +290,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
-			int avgHours = sdao.getFlightTime(afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
+			int avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
 			if ((avgHours == 0) && (!isAcademy && !isAssignment)) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
@@ -344,6 +349,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
 					rD = new RunwayDistance(r, dist);
+					if (r.getLength() < a.getTakeoffRunwayLength())
+						afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 			}
 
@@ -354,6 +361,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
 					rA = new RunwayDistance(r, dist);
+					if (r.getLength() < a.getLandingRunwayLength())
+						afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 			}
 			
