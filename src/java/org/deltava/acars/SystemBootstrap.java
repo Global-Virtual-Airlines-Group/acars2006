@@ -14,7 +14,10 @@ import org.deltava.mail.MailerDaemon;
 import org.deltava.acars.beans.*;
 
 import org.deltava.acars.ipc.IPCDaemon;
+import org.deltava.beans.flight.ETOPSHelper;
 import org.deltava.beans.mvs.Channel;
+import org.deltava.beans.schedule.Airport;
+
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.*;
@@ -27,13 +30,13 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
 public class SystemBootstrap implements ServletContextListener, Thread.UncaughtExceptionHandler {
 	
-	private Logger log;
+	private final Logger log;
 	
 	private ConnectionPool _jdbcPool;
 	
@@ -166,7 +169,10 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			// Load airports
 			log.info("Loading Airports");
 			GetAirport apdao = new GetAirport(c);
-			SystemData.add("airports", apdao.getAll());
+			Map<String, Airport> airports = apdao.getAll(); 
+			SystemData.add("airports", airports);
+			ETOPSHelper.init(airports.values());
+			log.info("Initialized ETOPS helper");
 			
 			// Load MVS voice channels if enabled
 			if (SystemData.getBoolean("acars.voice.enabled")) {
