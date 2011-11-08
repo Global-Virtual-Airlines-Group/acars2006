@@ -35,6 +35,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 			ae.setAttribute("adse", String.valueOf(a.getADSE()));
+			ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
 
 			// Add UTC offset
 			TimeZone tz = a.getTZ().getTimeZone();
@@ -42,16 +43,12 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("utcOffset", String.valueOf(ofs));
 
 			// Attach airlines
-			for (Iterator<String> i = a.getAirlineCodes().iterator(); i.hasNext();) {
-				String aCode = i.next();
-				Airline al = SystemData.getAirline(aCode);
+			for (String aCode : a.getAirlineCodes()) {
+				final Airline al = SystemData.getAirline(aCode);
 				if (al == null)
 					continue;
 
-				// Build the airline element
-				Element ale = new Element("airline");
-				ale.setAttribute("code", al.getCode());
-				ale.setAttribute("name", al.getName());
+				Element ale = new Element("airline") {{ setAttribute("code", al.getCode()); setAttribute("name", al.getName()); }};
 				ae.addContent(ale);
 			}
 		}
@@ -77,8 +74,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		if (rt instanceof PopulatedRoute) {
 			PopulatedRoute pr = (PopulatedRoute) rt;
 			Element wpe = new Element("waypoints");
-			for (Iterator<NavigationDataBean> ni = pr.getWaypoints().iterator(); ni.hasNext();) {
-				NavigationDataBean nd = ni.next();
+			for (NavigationDataBean nd : pr.getWaypoints()) {
 				Element we = new Element("waypoint");
 				we.setAttribute("code", nd.getCode());
 				we.setAttribute("lat", StringUtils.format(nd.getLatitude(), "##0.00000"));
