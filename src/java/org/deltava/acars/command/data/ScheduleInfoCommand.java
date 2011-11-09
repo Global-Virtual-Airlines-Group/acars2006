@@ -1,7 +1,5 @@
-// Copyright 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
-
-import java.sql.Connection;
 
 import org.deltava.acars.beans.MessageEnvelope;
 
@@ -18,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 3.2
+ * @version 4.1
  * @since 1.0
  */
 
@@ -36,6 +34,7 @@ public class ScheduleInfoCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
@@ -54,6 +53,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
 		sc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		sc.setCheckDispatchRoutes(true);
+		sc.setFlightsPerRoute(3);
 		sc.setSortBy("RAND()");
 		sc.setDispatchOnly(Boolean.valueOf(msg.getFlag("dispatchOnly")).booleanValue());
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 150))
@@ -62,10 +62,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		// Do the search
 		ScheduleMessage rspMsg = new ScheduleMessage(env.getOwner(), msg.getID());
 		try {
-			Connection con = ctx.getConnection();
-			
-			// Get the schedule search DAO
-			GetSchedule sdao = new GetSchedule(con);
+			GetScheduleSearch sdao = new GetScheduleSearch(ctx.getConnection());
 			sdao.setQueryMax(sc.getMaxResults());
 			rspMsg.addAll(sdao.search(sc));
 			ctx.push(rspMsg, env.getConnectionID());
