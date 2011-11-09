@@ -1,7 +1,5 @@
-// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
-
-import java.util.Iterator;
 
 import org.jdom.Element;
 
@@ -13,7 +11,7 @@ import org.deltava.beans.schedule.*;
 /**
  * An XML Formatter for Chart data messages.
  * @author Luke
- * @version 2.2
+ * @version 4.1
  * @since 1.0
  */
 
@@ -24,6 +22,7 @@ public class ChartsFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message
@@ -40,11 +39,15 @@ public class ChartsFormatter extends ElementFormatter {
 		e.setAttribute("icao", a.getICAO());
 		
 		// Write charts
-		for (Iterator<Chart> i = cmsg.getResponse().iterator(); i.hasNext(); ) {
-			Chart c = i.next();
+		for (Chart c : cmsg.getResponse()) {
 			Element ce = new Element("chart");
 			ce.setAttribute("name", c.getName());
 			ce.setAttribute("id", String.valueOf(c.getID()));
+			if (c instanceof ExternalChart) {
+				ExternalChart ec = (ExternalChart) c;
+				ce.setAttribute("src", ec.getSource());
+			}
+			
 			e.addContent(ce);
 		}
 		
