@@ -46,6 +46,7 @@ class AircraftFormatter extends ElementFormatter {
 				ae.setAttribute("engines", String.valueOf(a.getEngines()));
 				ae.setAttribute("seats", String.valueOf(a.getSeats()));
 				ae.setAttribute("historic", String.valueOf(a.getHistoric()));
+				ae.setAttribute("etops", String.valueOf(a.getETOPS()));
 				ae.addContent(XMLUtils.createElement("fullName", a.getFullName()));
 				ae.addContent(XMLUtils.createElement("engineType", a.getEngineType()));
 				ae.addContent(XMLUtils.createElement("range", String.valueOf(a.getRange())));
