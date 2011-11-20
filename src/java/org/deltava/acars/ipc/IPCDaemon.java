@@ -21,7 +21,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -40,9 +40,9 @@ public class IPCDaemon implements Runnable {
 	/**
 	 * Executes the thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Starting");
-		
 		ACARSConnectionPool acPool = null;
 		ConnectionPool cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 
@@ -115,9 +115,11 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case USER_SUSPEND:
-								log.warn(usr.getName() + " Suspended - Validating all Credentials");
+								if (usr == null)
+									break;
 								
 								// Validate all of the connections
+								log.warn(usr.getName() + " Suspended - Validating all Credentials");
 								SetPilot.invalidate(usr.getID());
 								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 								for (Iterator<ACARSConnection> ci = acPool.getAll().iterator(); ci.hasNext(); ) {
@@ -135,9 +137,11 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case USER_INVALIDATE:
-								log.warn("Invalidated User " + usr.getName());
+								if (usr == null)
+									break;
 								
 								// Reload the user
+								log.warn("Invalidated User " + usr.getName());
 								SetPilot.invalidate(usr.getID());
 								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 								ACARSConnection ac = acPool.get(usr.getPilotCode());
