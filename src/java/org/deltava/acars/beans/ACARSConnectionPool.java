@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
-import java.net.InetSocketAddress;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -32,7 +31,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 
 public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Serializable {
 
-	private static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
+	private transient static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 22500;
@@ -44,7 +43,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	
 	// Pools
 	private final Map<Long, ACARSConnection> _cons = new HashMap<Long, ACARSConnection>();
-	private final Map<String, ACARSConnection> _conLookup = new HashMap<String, ACARSConnection>();
+	private final NavigableMap<String, ACARSConnection> _conLookup = new TreeMap<String, ACARSConnection>();
 	
 	// Pool read/write locks
 	private transient final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock(true);
@@ -74,7 +73,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<ACARSConnection> getAll() {
 		try {
 			_r.lock();
-			return new ArrayList<ACARSConnection>(_cons.values());
+			return new LinkedHashSet<ACARSConnection>(_cons.values());
 		} finally {
 			_r.unlock();
 		}
@@ -253,11 +252,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			
 			// Add with different keys
 			_cons.put(Long.valueOf(c.getID()), c);
-			_conLookup.put(c.getRemoteAddr(), c);
+			_conLookup.put(c.getDataSourceAddr(), c);
 			if (c.isAuthenticated())
 				_conLookup.put(c.getUserID(), c);
 			if (c.isVoiceEnabled())
-				_conLookup.put(c.getRemoteVoiceAddr(), c);
+				_conLookup.put(c.getVoiceSourceAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
 		} finally {
@@ -331,7 +330,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public ACARSConnection get(String id) {
 		try {
 			_r.lock();
-			return _conLookup.get(id);
+			ACARSConnection ac = _conLookup.get(id);
+			if (ac != null)
+				return ac;
+			
+			// Do a search for IP address without port
+			String key = _conLookup.ceilingKey(id);
+			if ((key != null) && key.startsWith(id))
+				return _conLookup.get(key);
+			
+			return null;
 		} finally {
 			_r.unlock();
 		}
@@ -378,6 +386,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		return false;
 	}
 
+	/**
+	 * Reads data from the connection pool.
+	 * @return a Collection of TextEnvelope beans
+	 */
 	public Collection<TextEnvelope> read() {
 		Collection<SelectionKey> keys = _cSelector.selectedKeys();
 		if ((keys == null) || keys.isEmpty())
@@ -392,10 +404,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			if (sKey.isValid() && sKey.isReadable()) {
 				ACARSConnection con = null;
 				try {
-					_r.lock();
 					SocketChannel ch = (SocketChannel) sKey.channel();
-					InetSocketAddress rAddr = (InetSocketAddress) ch.getRemoteAddress();
-					con = _conLookup.get(rAddr.getAddress().getHostAddress());
+					String srcAddr = NetworkUtils.getSourceAddress(ch.getRemoteAddress());
+					_r.lock();
+					con = _conLookup.get(srcAddr);
 				} catch (IOException ie) {
 					log.error("Error fetching remote address - " + sKey.channel());
 				} finally {
@@ -421,7 +433,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 							_disConStats.add(new ACARSConnectionStats(con.getTCPStatistics()));
 						}
 					}
-				}
+				} else
+					log.warn("Cannot read from unknown source address " + sKey.channel());
 			}
 
 			// Remove from the selected keys list
@@ -439,7 +452,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		try {
 			_w.lock();
 			VoiceChannels.getInstance().remove(c.getID());
-			_cons.values().remove(c);
+			while (_cons.containsValue(c))
+				_cons.values().remove(c);
 			while (_conLookup.containsValue(c))
 				_conLookup.values().remove(c);
 		} finally {
