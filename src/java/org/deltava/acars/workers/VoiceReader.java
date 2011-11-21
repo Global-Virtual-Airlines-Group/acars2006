@@ -11,6 +11,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
 import org.deltava.beans.mvs.PopulatedChannel;
 
+import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerStatus;
@@ -47,8 +48,6 @@ public class VoiceReader extends Worker {
 			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
 			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
 			_channel.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send") * 4));
-			
-			// Bind to the port
 			_channel.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
 			
 			// Add the server socket channel to the selector
@@ -100,7 +99,7 @@ public class VoiceReader extends Worker {
 				try {
 					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(_buf);
 					while (srcAddr != null) {
-						String addr = srcAddr.toString().substring(1);
+						String addr = NetworkUtils.getSourceAddress(srcAddr);
 						log.info("Received voice packet from " + addr);
 						
 						// This might return null if it's the first UDP packet since we don't know what

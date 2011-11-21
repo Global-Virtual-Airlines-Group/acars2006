@@ -115,7 +115,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			boolean isNew = !srcAddr.toString().equals(_udp.getAddress());
 			if (isNew) {
 				_udp.setRemoteAddress(srcAddr);
-				log.warn("Switched voice source address for " + getUserID() + " to " + getRemoteVoiceAddr());
+				log.warn("Switched voice source address for " + getUserID() + " to " + getVoiceSourceAddr());
 			}
 				
 			return;
@@ -297,8 +297,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _tcp.getRemoteAddress();
 	}
 	
-	public String getRemoteVoiceAddr() {
-		return _udp.getAddress().substring(1);
+	public String getDataSourceAddr() {
+		return _tcp.getAddress();
+	}
+	
+	public String getVoiceSourceAddr() {
+		return _udp.getAddress();
 	}
 
 	public String getRemoteHost() {

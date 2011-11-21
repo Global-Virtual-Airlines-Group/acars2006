@@ -11,7 +11,7 @@ import org.deltava.acars.beans.*;
 
 import org.deltava.beans.system.VersionInfo;
 
-import org.deltava.util.IDGenerator;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerStatus;
@@ -44,8 +44,8 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
 
-		private SocketChannel _sc;
-		private long _id;
+		private final SocketChannel _sc;
+		private final long _id;
 		
 		ConnectWorker(SocketChannel c, long id) {
 			super();
@@ -53,6 +53,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			_id = id;
 		}
 		
+		@Override
 		public void run() {
 			
 			// Create a new connection bean
@@ -74,7 +75,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				ACARSConnection oldCon = _pool.get(con.getRemoteAddr());
 				boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
 				if ((oldCon != null) && oldCon.getIsDispatch())
-					log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher");
+					log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher (" + oldCon.getUserID() + ")");
 				else if ((oldCon != null) && !killOld) {
 					con.close();
 					log.warn("Duplicate connection from " + con.getRemoteAddr());
@@ -195,7 +196,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				try {
 					SocketChannel cc = _channel.accept();
 					if (cc != null) {
-						String addr = ((InetSocketAddress) cc.getRemoteAddress()).getAddress().getHostAddress();
+						String addr = NetworkUtils.getSourceAddress(cc.getRemoteAddress());
 						_status.setMessage("Opening connection from " + addr);
 						gen.reset();
 						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());

@@ -12,12 +12,13 @@ import java.util.concurrent.locks.*;
 
 import org.deltava.beans.acars.ConnectionStats;
 
+import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
 
 /**
  * An abstract class to store common NIO channel information.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 4.0
  */
 
@@ -119,7 +120,7 @@ abstract class ACARSChannel<T> implements java.io.Serializable {
 	 * @return the address in addr:port format
 	 */
 	public String getAddress() {
-		return _remoteAddr.toString();
+		return NetworkUtils.getSourceAddress(_remoteAddr);
 	}
 	
 	/**
