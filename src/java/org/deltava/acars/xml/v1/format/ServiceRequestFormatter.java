@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.0
  */
 
@@ -26,6 +26,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 		
 		// Cast the message
@@ -38,6 +39,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("originator", msg.getSenderID()));
 		e.addContent(XMLUtils.createElement("id", Long.toHexString(msg.getID())));
 		e.addContent(XMLUtils.createElement("routeValid", String.valueOf(reqmsg.isRouteValid())));
+		e.addContent(XMLUtils.createElement("etopsWarn", String.valueOf(reqmsg.getETOPSWarning())));
 		
 		// Add MGW and ZFW
 		e.addContent(XMLUtils.createElement("maxweight", String.valueOf(reqmsg.getMaxWeight())));
