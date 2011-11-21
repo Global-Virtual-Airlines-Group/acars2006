@@ -5,17 +5,18 @@ import java.util.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.*; 
+import org.deltava.util.GeoUtils;
 
 import org.deltava.acars.message.DispatchMessage;
 
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.0
  */
 
-public class RequestMessage extends DispatchMessage implements GeoLocation {
+public class RequestMessage extends DispatchMessage implements GeoLocation, RoutePair {
 	
 	private Airline _a;
 	private Airport _airportD;
@@ -29,6 +30,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	private int _zeroFuelWeight;
 	private boolean _routeValid;
 	private boolean _autoDispatch;
+	private boolean _etopsWarn;
 	
 	private final Map<FuelTank, Integer> _tankSizes = new TreeMap<FuelTank, Integer>();
 
@@ -110,6 +112,18 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public int getZeroFuelWeight() {
 		return _zeroFuelWeight;
+	}
+	
+	/**
+	 * Returns whether the route has an ETOPS warning.
+	 * @return TRUE if an ETOPS warning, otherwise FALSE
+	 */
+	public boolean getETOPSWarning() {
+		return _etopsWarn;
+	}
+	
+	public int getDistance() {
+		return GeoUtils.distance(_airportD, _airportA);
 	}
 	
 	/**
@@ -226,5 +240,17 @@ public class RequestMessage extends DispatchMessage implements GeoLocation {
 	 */
 	public void setRouteValid(boolean isValid) {
 		_routeValid = isValid;
+	}
+
+	/**
+	 * Updates whether there is an ETOPS warning for this route.
+	 * @param isWarn TRUE if there is an ETOPS warning, otherwise FALSE
+	 */
+	public void setETOPSWarning(boolean isWarn) {
+		_etopsWarn = isWarn;
+	}
+	
+	public boolean crosses(double lng) {
+		return GeoUtils.crossesMeridian(_airportD, _airportA, lng);
 	}
 }

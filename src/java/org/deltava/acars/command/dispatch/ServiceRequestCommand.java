@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 3.4
+ * @version 4.1
  * @since 2.0
  */
 
@@ -48,7 +48,6 @@ public class ServiceRequestCommand extends DispatchCommand {
 		
 		// Check minimum build number
 		ACARSConnection c = ctx.getACARSConnection();
-		UserData ud = c.getUserData();
 		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
 		if (cInfo.getNoDispatchBuilds().contains(Integer.valueOf(c.getClientVersion()))) {
 			log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientVersion());
@@ -61,6 +60,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		}
 		
 		// Validate that the route is valid
+		UserData ud = c.getUserData();
 		Flight schedInfo = null;
 		Collection<PopulatedRoute> plans = new ArrayList<PopulatedRoute>();
 		try {
@@ -99,6 +99,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// Set the route validated flag
 			msg.setRouteValid(routeValid);
 			
+			// Get the aircraft type and check ETOPS
+			GetAircraft acdao = new GetAircraft(con);
+			Aircraft a = acdao.get(msg.getEquipmentType());
+			msg.setETOPSWarning(ETOPSHelper.validate(a, msg));
+			
 			// Load existing plans
 			RouteLoadHelper helper = new RouteLoadHelper(con, msg.getAirportD(), msg.getAirportA());
 			helper.loadDispatchRoutes();
@@ -127,7 +132,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 		} finally {
 			ctx.release();
 		}
-
+		
 		// Send to dispatchers if not in auto dispatch mode
 		int reqsSent = 0; int outOfRange = 0;
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
@@ -169,7 +174,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			rmsg.setScheduleInfo(schedInfo);
 			if (msg.isRouteValid() && !rmsg.isRouteValid()) {
 				Airline a = SystemData.getAirline(ud.getAirlineCode());
-				rmsg.setScheduleInfo(new ScheduleEntry(a, Math.min(1, c.getUser().getPilotNumber()), 1));
+				int fNum = c.getUser().getPilotNumber();
+				if (fNum >= 10000)
+					fNum -= 10000;
+				
+				rmsg.setScheduleInfo(new ScheduleEntry(a, Math.max(1, fNum), 1));
 			}
 			
 			// Build message
