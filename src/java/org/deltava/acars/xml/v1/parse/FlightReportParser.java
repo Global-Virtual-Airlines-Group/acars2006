@@ -87,17 +87,16 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setTakeoffFuel(StringUtils.parse(getChildText(e, "takeoffFuel", "0"), 0));
 		afr.setTakeoffWeight(StringUtils.parse(getChildText(e, "takeoffWeight", "1"), 0));
 		afr.setTakeoffSpeed(StringUtils.parse(getChildText(e, "takeoffSpeed", "0"), 0));
+		afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
 		afr.setLandingFuel(StringUtils.parse(getChildText(e, "landingFuel", "0"), 0));
 		afr.setLandingWeight(StringUtils.parse(getChildText(e, "landingWeight", "1"), 0));
 		afr.setLandingSpeed(StringUtils.parse(getChildText(e, "landingSpeed", "0"), 0));
 		afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
 		afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
+		afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
+		afr.setLandingCategory(ILSCategory.get(getChildText(e, "landingCat", "")));
 		afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
 		afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
-
-		// Set the Takeoff/Landing N1 values, but don't fail on invalid numeric values
-		afr.setTakeoffN1(StringUtils.parse(getChildText(e, "takeoffN1", "0.0"), 0.0d));
-		afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
 			
 		// Get the takeoff data
 		afr.setTakeoffHeading(StringUtils.parse(getChildText(e, "takeoffHeading", "-1"), -1));
@@ -123,10 +122,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setTime(2, StringUtils.parse(getChildText(e, "time2X", "0"), 0));
 		afr.setTime(4, StringUtils.parse(getChildText(e, "time4X", "0"), 0));
 
-		// Save the PIREP
+		// Save the PIREP and return
 		msg.setPIREP(afr);
-
-		// Return the message
 		return msg;
 	}
 }
