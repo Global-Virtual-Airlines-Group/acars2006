@@ -15,6 +15,7 @@ import org.deltava.beans.system.IPAddressInfo;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
+import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -112,7 +113,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	 */
 	public void enableVoice(DatagramChannel dc, InetSocketAddress srcAddr) {
 		if (isVoiceEnabled()) {
-			boolean isNew = !srcAddr.toString().equals(_udp.getAddress());
+			boolean isNew = !NetworkUtils.getSourceAddress(srcAddr).equals(_udp.getAddress());
 			if (isNew) {
 				_udp.setRemoteAddress(srcAddr);
 				log.warn("Switched voice source address for " + getUserID() + " to " + getVoiceSourceAddr());
