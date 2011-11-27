@@ -9,7 +9,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -40,6 +40,8 @@ public class PositionMessage extends LocationMessage {
 	private int _windHeading;
 	private int _windSpeed;
 	private double _viz;
+	private int _ceiling;
+	private int _temperature;
 
 	private int simRate = 1;
 
@@ -86,6 +88,14 @@ public class PositionMessage extends LocationMessage {
 	
 	public double getVisibility() {
 		return _viz;
+	}
+	
+	public int getCeiling() {
+		return _ceiling;
+	}
+	
+	public int getTemperature() {
+		return _temperature;
 	}
 
 	public double getMach() {
@@ -235,6 +245,14 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setVisibility(double viz) {
 		_viz = Math.max(0, Math.min(9999, viz));
+	}
+	
+	public void setCeiling(int ft) {
+		_ceiling = Math.min(35000, Math.max(-300, ft));
+	}
+	
+	public void setTemperature(int t) {
+		_temperature = Math.max(-100, Math.min(99, t));
 	}
 	
 	public void setCOM1(String com1) {
