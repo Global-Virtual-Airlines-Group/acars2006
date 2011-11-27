@@ -5,6 +5,7 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.ClientInfo;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
@@ -16,9 +17,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.*;
-
-import org.gvagroup.acars.ACARSClientInfo;
-import org.gvagroup.common.SharedData;
 
 /**
  * An ACARS Command to handle Dispatch request messages.
@@ -41,23 +39,12 @@ public class ServiceRequestCommand extends DispatchCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the inbound message
 		RequestMessage msg = (RequestMessage) env.getMessage();
-		
-		// Check minimum build number
 		ACARSConnection c = ctx.getACARSConnection();
-		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
-		if (cInfo.getNoDispatchBuilds().contains(Integer.valueOf(c.getClientVersion()))) {
-			log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientVersion());
-			
-			// Send response
-			SystemTextMessage txtMsg = new SystemTextMessage();
-			txtMsg.addMessage("ACARS Client Build " + c.getClientVersion() + " cannot request Dispatch service");
-			ctx.push(txtMsg, env.getConnectionID());
-			return;
-		}
 		
 		// Validate that the route is valid
 		UserData ud = c.getUserData();
@@ -65,6 +52,19 @@ public class ServiceRequestCommand extends DispatchCommand {
 		Collection<PopulatedRoute> plans = new ArrayList<PopulatedRoute>();
 		try {
 			Connection con = ctx.getConnection();
+			
+			// Check minimum build number
+			GetACARSBuilds abdao = new GetACARSBuilds(con);
+			if (!abdao.isDispatchAvailable(new ClientInfo(2, c.getClientVersion()))) {
+				ctx.release();
+				log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientVersion());	
+
+				// Send response
+				SystemTextMessage txtMsg = new SystemTextMessage();
+				txtMsg.addMessage("ACARS Client Build " + c.getClientVersion() + " cannot request Dispatch service");
+				ctx.push(txtMsg, env.getConnectionID());
+				return;
+			}
 			
 			// Check the schedule
 			GetSchedule sdao = new GetSchedule(con);

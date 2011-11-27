@@ -7,6 +7,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.ClientInfo;
 import org.deltava.beans.system.*;
 
 import org.deltava.acars.ACARSException;
@@ -20,9 +21,6 @@ import org.deltava.dao.acars.SetConnection;
 import org.deltava.security.*;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
-
-import org.gvagroup.acars.ACARSClientInfo;
-import org.gvagroup.common.SharedData;
 
 /**
  * An ACARS server command to authenticate a user.
@@ -40,52 +38,16 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message and validate the user ID
-		AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
+		final AuthenticateMessage msg = (AuthenticateMessage) env.getMessage();
 		if (StringUtils.isEmpty(msg.getUserID())) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "No User ID specified");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
-		}
-
-		// Get the minimum build number
-		int minBuild = Integer.MAX_VALUE;
-		ACARSClientInfo cInfo = (ACARSClientInfo) SharedData.get(SharedData.ACARS_CLIENT_BUILDS);
-		if (msg.isDispatch())
-			minBuild = cInfo.getMinimumDispatchBuild();
-		else if (msg.isViewer())
-			minBuild = cInfo.getMinimumViewerBuild();
-		else
-			minBuild = cInfo.getMinimumBuild(msg.getVersion());
-
-		// Check the minimum build number
-		if ((msg.getClientBuild() < minBuild) || (minBuild == 0)) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			if (minBuild == Integer.MAX_VALUE) {
-				errMsg.setEntry("error", "Unknown/Deprecated ACARS Client Version - " + msg.getVersion());
-				log.warn(errMsg.getEntry("error"));
-			} else if (minBuild == 0) {
-				minBuild = cInfo.getLatest();
-				errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild + " or newer");
-			} else
-				errMsg.setEntry("error", "Obsolete ACARS Client - Use Build " + minBuild + " or newer");
-
-			ctx.push(errMsg, env.getConnectionID());
-			return;
-		}
-
-		// Check the beta version
-		if (msg.getBeta() > 0) {
-			int minBeta = cInfo.getMinimumBetaBuild(msg.getClientBuild());
-			if ((msg.getBeta() < minBeta) || (minBeta == 0)) {
-				AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-				errMsg.setEntry("error", "Unknown/Deprecated ACARS beta - Build " + msg.getClientBuild() + " Beta " + msg.getBeta());
-				ctx.push(errMsg, env.getConnectionID());
-				return;
-			}
 		}
 
 		// Get the user ID and check for valid airline code
@@ -94,10 +56,23 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (aInfo == null)
 			aInfo = SystemData.getApp(SystemData.get("airline.default"));
 
-		UserData ud = null;
-		Pilot usr = null;
+		ClientInfo cInfo = new ClientInfo(msg.getVersion(), msg.getClientBuild(), msg.getBeta()) {{ setDispatch(msg.isDispatch()); }};
+		ClientInfo latestClient = null; UserData ud = null; Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection();
+			
+			// Get the minimum build number
+			GetACARSBuilds abdao = new GetACARSBuilds(c);
+			latestClient = abdao.getLatestBuild(msg.getVersion());
+			boolean isOK = abdao.isValid(cInfo);
+			if (!isOK || (latestClient == null)) {
+				if (latestClient == null)
+					throw new ACARSException("Unknown/Deprecated ACARS Client Version - " + msg.getVersion());	
+				else if (cInfo.isBeta())
+					throw new ACARSException("Unknown/Deprecated ACARS beta - Build " + msg.getClientBuild() + " Beta " + msg.getBeta());	
+				
+				throw new ACARSException("Obsolete ACARS Client - Use Build " + latestClient.getClientBuild() + " or newer");	
+			}
 
 			// Get the DAOs
 			GetPilot pdao = new GetPilot(c);
@@ -165,6 +140,11 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			ctx.push(errMsg, env.getConnectionID());
 			usr = null;
+		} catch (ACARSException ae) {
+			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
+			errMsg.setEntry("error", ae.getMessage());
+			log.warn(msg.getUserID() + " - " + ae.getMessage());	
+			ctx.push(errMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			usr = null;
 			String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
@@ -313,9 +293,8 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-		int latestBuild = cInfo.getLatest();
-		if (!con.getIsDispatch() && !con.getIsViewer() && (latestBuild > msg.getClientBuild()))
-			ackMsg.setEntry("latestBuild", String.valueOf(latestBuild));
+		if (!con.getIsDispatch() && !con.getIsViewer() && (latestClient != null) && (latestClient.getClientBuild() > msg.getClientBuild()))
+			ackMsg.setEntry("latestBuild", String.valueOf(latestClient.getClientBuild()));
 		
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());

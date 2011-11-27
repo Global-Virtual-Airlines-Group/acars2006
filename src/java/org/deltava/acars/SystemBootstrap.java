@@ -23,7 +23,6 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.acars.ACARSClientInfo;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.jdbc.*;
 
@@ -56,6 +55,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	/**
 	 * Web application termination callback handler.
 	 */
+	@Override
 	public void contextDestroyed(ServletContextEvent e) {
 		_dGroup.interrupt();
 		_daemons.clear();
@@ -93,6 +93,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	/**
 	 * Web application initializaton callback handler.
 	 */
+	@Override
 	public void contextInitialized(ServletContextEvent e) {
 		e.getServletContext().setAttribute("startedOn", new java.util.Date());
 		
@@ -199,34 +200,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			_jdbcPool.release(c);
 		}
 		
-		// Set minimum client builds
-		ACARSClientInfo cInfo = new ACARSClientInfo();
-		cInfo.setLatest(SystemData.getInt("acars.build.latest"));
-		Map<?, ?> minBuilds = (Map<?, ?>) SystemData.getObject("acars.build.minimum");
-		for (Iterator<?> i = minBuilds.keySet().iterator(); i.hasNext(); ) {
-			String ver = (String) i.next();
-			cInfo.setMinimumBuild(ver.replace('_', '.'), StringUtils.parse(minBuilds.get(ver).toString(), 0));
-		}
-		
-		// Set beta builds
-		minBuilds = (Map<?, ?>) SystemData.getObject("acars.build.beta");
-		for (Iterator<?> i = minBuilds.keySet().iterator(); i.hasNext(); ) {
-			String ver = (String) i.next();
-			int build = StringUtils.parse(ver.substring(1), 0);
-			cInfo.setMinimumBetaBuild(build, StringUtils.parse(minBuilds.get(ver).toString(), 0));
-		}
-		
-		// Set dispatch build
-		cInfo.setMinimumDispatchBuild(SystemData.getInt("acars.build.dispatch", 1));
-		cInfo.setMinimumViewerBuild(SystemData.getInt("acars.build.viewer", 1));
-		
-		// Set no dispatch builds
-		Collection<?> noDspBuilds = (Collection<?>) SystemData.getObject("acars.build.noDispatch");
-		for (Iterator<?> i = noDspBuilds.iterator(); i.hasNext(); ) {
-			int build = StringUtils.parse(i.next().toString(), 0);
-			cInfo.addNoDispatchBuild(build);
-		}
-		
 		// Start the ACARS/Mailer/IPC daemons
 		TomcatDaemon tcDaemon = new TomcatDaemon();
 		spawnDaemon(tcDaemon);
@@ -235,7 +208,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
-		SharedData.addData(SharedData.ACARS_CLIENT_BUILDS, cInfo);
 		
 		// Wait a bit for the daemons to spool up
 		ThreadUtils.sleep(1000);
@@ -255,6 +227,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	/**
 	 * Uncaught exception handler.
 	 */
+	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		Runnable r = _daemons.get(t);
 		if (r == null) {

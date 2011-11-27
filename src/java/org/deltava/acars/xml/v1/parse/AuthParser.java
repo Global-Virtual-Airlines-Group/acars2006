@@ -47,7 +47,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
-		msg.setVersion(getChildText(e, "version", "v1.2"));
+		msg.setVersion(StringUtils.parse(getChildText(e, "version", "v1.2").substring(1, 2), 2));
 		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
 		msg.setViewer(Boolean.valueOf(getChildText(e, "viewer", null)).booleanValue());
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
