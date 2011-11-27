@@ -3,20 +3,22 @@ package org.deltava.acars.message;
 
 import java.util.Date;
 
+import org.deltava.beans.acars.ClientVersion;
+
 /**
  * An ACARS authentication message.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
-public final class AuthenticateMessage extends AbstractMessage {
+public final class AuthenticateMessage extends AbstractMessage implements ClientVersion {
 
-	private String _userID;
-	private String _pwd;
+	private final String _userID;
+	private final String _pwd;
 	private int _build;
 	private int _beta;
-	private String _version;
+	private int _version;
 	private boolean _isDispatch;
 	private boolean _isViewer;
 	private boolean _isHidden;
@@ -44,7 +46,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _beta;
 	}
 	
-	public String getVersion() {
+	public int getVersion() {
 		return _version;
 	}
 	
@@ -89,11 +91,11 @@ public final class AuthenticateMessage extends AbstractMessage {
 	}
 	
 	public void setBeta(int beta) {
-		_beta = beta;
+		_beta = Math.max(0, beta);
 	}
 	
-	public void setVersion(String ver) {
-		_version = ver;
+	public void setVersion(int ver) {
+		_version = Math.max(1, ver);
 	}
 	
 	public void setDispatch(boolean isDispatch) {
