@@ -1,5 +1,5 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v1.parse;
+package org.deltava.acars.xml.v2.parse;
 
 import java.text.*;
 import java.util.*;
@@ -17,9 +17,9 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
 /**
- * A Parser for Pilot Client position elements.
+ * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -79,7 +79,9 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
-			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")) * 2.56);	// Fix because ACARS2 multiplied by 100 instead of 256
+			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")));
+			msg.setCeiling(Integer.parseInt(getChildText(e, "ceiling", "9999")));
+			msg.setTemperature(Integer.parseInt(getChildText(e, "temp", "-100")));
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));

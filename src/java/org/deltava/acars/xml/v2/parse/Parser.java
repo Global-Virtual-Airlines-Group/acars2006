@@ -8,7 +8,7 @@ import org.deltava.acars.message.ViewerMessage;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.7
  */
 
@@ -24,6 +24,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 	/**
 	 * Initializes the parser map.
 	 */
+	@Override
 	protected void init() {
 		super.init();
 		
@@ -36,6 +37,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		_eParsers.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_WARN), new WarnParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_WARNRESET), new WarnResetParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_POSITION), new PositionParser());
 		
 		// Dispatch parsers
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoParser());
