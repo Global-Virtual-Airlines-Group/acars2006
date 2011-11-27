@@ -1,13 +1,14 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
+import org.deltava.beans.flight.ILSCategory;
 import org.deltava.beans.schedule.Airport;
 
 /**
  * An ACARS message to track takeoffs and landings.
  * @author Luke
- * @version 2.8
+ * @version 4.1
  * @since 2.8
  */
 
@@ -15,7 +16,9 @@ public class TakeoffMessage extends AbstractMessage {
 	
 	private GeospaceLocation _loc;
 	private int _hdg;
+	
 	private boolean _isTakeoff;
+	private ILSCategory _ils;
 	
 	private String _flightCode;
 	private String _eqType;
@@ -64,6 +67,14 @@ public class TakeoffMessage extends AbstractMessage {
 	}
 	
 	/**
+	 * Returns the ILS category.
+	 * @return the ILS Category, or null if a takeoff
+	 */
+	public ILSCategory getILS() {
+		return _ils;
+	}
+	
+	/**
 	 * Returns whether this is a takeoff or landing.
 	 * @return TRUE if takeoff, otherwise FALSE
 	 */
@@ -109,6 +120,14 @@ public class TakeoffMessage extends AbstractMessage {
 	 */
 	public void setTakeoff(boolean isTakeoff) {
 		_isTakeoff = isTakeoff;
+	}
+	
+	/**
+	 * Sets the ILS category.
+	 * @param ilscat the ILS category
+	 */
+	public void setILS(ILSCategory ilscat) {
+		_ils = ilscat;
 	}
 	
 	/**

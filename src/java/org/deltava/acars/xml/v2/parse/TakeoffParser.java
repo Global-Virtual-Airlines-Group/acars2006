@@ -1,9 +1,10 @@
-// Copyright 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom.Element;
 
 import org.deltava.beans.*;
+import org.deltava.beans.flight.ILSCategory;
 import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.util.StringUtils;
@@ -15,7 +16,7 @@ import org.deltava.acars.xml.XMLException;
 /**
  * A parser for takeoff/touchdown messages. 
  * @author Luke
- * @version 2.8
+ * @version 4.1
  * @since 2.8
  */
 
@@ -27,6 +28,7 @@ class TakeoffParser extends XMLElementParser<TakeoffMessage> {
 	 * @return a TakeoffMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
+	@Override
 	public TakeoffMessage parse(Element e, Pilot usr) throws XMLException {
 		
 		// Create the location
@@ -44,6 +46,9 @@ class TakeoffParser extends XMLElementParser<TakeoffMessage> {
 		msg.setLocation(loc);
 		msg.setHeading(StringUtils.parse(getChildText(e, "hdg", "0"), 0));
 		msg.setTakeoff(Boolean.valueOf(e.getAttributeValue("takeoff")).booleanValue());
+		if (!msg.isTakeoff())
+			msg.setILS(ILSCategory.get(getChildText(e, "ils", "CATI")));
+			
 		return msg;
 	}
 }
