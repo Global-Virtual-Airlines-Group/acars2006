@@ -186,26 +186,6 @@
 				<role>PIREP</role>
 			</list>
 		</voice>
-		
-		<build>
-			<map name="minimum">
-				<v1_4>77</v1_4>
-				<v2_2>98</v2_2>
-				<v3_0>100</v3_0>
-			</map>
-
-			<map name="beta">
-				<b99>4</b99>
-				<b100>9</b100>
-			</map>
-
-			<latest type="Integer">98</latest>
-			<dispatch type="Integer">32</dispatch>
-			<viewer type="Integer">1</viewer>
-			<list name="noDispatch" attr="build" unique="true">
-				<build>96</build>
-			</list>
-		</build>
 
 		<pool>
 			<size type="Integer">256</size>
