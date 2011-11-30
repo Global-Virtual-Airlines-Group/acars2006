@@ -10,7 +10,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to handle Dispatch service completion notifications.
  * @author Luke
- * @version 3.6
+ * @version 4.1
  * @since 2.0
  */
 
@@ -28,6 +28,7 @@ public class ServiceCompleteCommand extends DispatchCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the inbound message
@@ -42,7 +43,7 @@ public class ServiceCompleteCommand extends DispatchCommand {
 		// Find the dispatcher to send to
 		String dispatcherID = msg.getRecipient();
 		if (!StringUtils.isEmpty(dispatcherID)) {
-			ACARSConnection dc2 = ctx.getACARSConnection(dispatcherID);
+			ACARSConnection dc2 = ctx.getACARSConnection(dspID);
 			if ((dc2 != null) && (dc2.getID() != dspID)) {
 				dspID = dc2.getID();
 				if (dc != null)
@@ -58,7 +59,6 @@ public class ServiceCompleteCommand extends DispatchCommand {
 		else
 			log.info("Sending Accept to " + dc.getUserID());
 
-		// Send to the dispatcher
 		ctx.push(msg, dspID);
 	}
 }
