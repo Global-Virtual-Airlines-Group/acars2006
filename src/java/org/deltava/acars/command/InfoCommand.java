@@ -96,7 +96,7 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
-				ScheduleRoute rt = new ScheduleRoute(null, msg.getAirportD(), msg.getAirportA());
+				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
 				GetSchedule sdao = new GetSchedule(c);
 				int avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
 				msg.setScheduleValidated(avgTime > 0);
