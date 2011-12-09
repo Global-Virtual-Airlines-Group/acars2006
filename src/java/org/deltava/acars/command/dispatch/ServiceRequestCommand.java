@@ -105,7 +105,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			msg.setETOPSWarning(ETOPSHelper.validate(a, msg));
 			
 			// Load existing plans
-			RouteLoadHelper helper = new RouteLoadHelper(con, msg.getAirportD(), msg.getAirportA());
+			RouteLoadHelper helper = new RouteLoadHelper(con, msg);
 			helper.loadDispatchRoutes();
 			
 			// Load cached routes

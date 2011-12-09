@@ -51,7 +51,7 @@ public class RouteRequestCommand extends DispatchCommand {
 		try {
 			RouteInfoMessage rmsg = new RouteInfoMessage(usr, msg.getID());
 			Connection con = ctx.getConnection();
-			RouteLoadHelper helper = new RouteLoadHelper(con, msg.getAirportD(), msg.getAirportA());
+			RouteLoadHelper helper = new RouteLoadHelper(con, msg);
 			
 			// Load dispatch routes
 			helper.loadDispatchRoutes();

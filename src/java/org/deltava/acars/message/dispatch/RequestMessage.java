@@ -249,8 +249,4 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	public void setETOPSWarning(boolean isWarn) {
 		_etopsWarn = isWarn;
 	}
-	
-	public boolean crosses(double lng) {
-		return GeoUtils.crossesMeridian(_airportD, _airportA, lng);
-	}
 }
