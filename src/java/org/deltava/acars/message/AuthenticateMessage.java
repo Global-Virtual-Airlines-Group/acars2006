@@ -3,7 +3,7 @@ package org.deltava.acars.message;
 
 import java.util.Date;
 
-import org.deltava.beans.acars.ClientVersion;
+import org.deltava.beans.acars.ClientInfo;
 
 /**
  * An ACARS authentication message.
@@ -12,20 +12,16 @@ import org.deltava.beans.acars.ClientVersion;
  * @since 1.0
  */
 
-public final class AuthenticateMessage extends AbstractMessage implements ClientVersion {
+public final class AuthenticateMessage extends AbstractMessage {
 
 	private final String _userID;
 	private final String _pwd;
-	private int _build;
-	private int _beta;
-	private int _version;
-	private boolean _isDispatch;
-	private boolean _isViewer;
 	private boolean _isHidden;
 	private boolean _isATC;
 	private boolean _isID;
 	
 	private Date _clientUTC;
+	private ClientInfo _info;
 
 	/**
 	 * Creates a new Authentication message.
@@ -38,16 +34,8 @@ public final class AuthenticateMessage extends AbstractMessage implements Client
 		_pwd = password;
 	}
 	
-	public int getClientBuild() {
-	   return _build;
-	}
-	
-	public int getBeta() {
-		return _beta;
-	}
-	
-	public int getVersion() {
-		return _version;
+	public ClientInfo getClientInfo() {
+	   return _info;
 	}
 	
 	public String getUserID() {
@@ -62,16 +50,8 @@ public final class AuthenticateMessage extends AbstractMessage implements Client
 		return _clientUTC; 
 	}
 	
-	public boolean isDispatch() {
-		return _isDispatch;
-	}
-	
 	public boolean isATC() {
 		return _isATC;
-	}
-	
-	public boolean isViewer() {
-		return _isViewer;
 	}
 	
 	public boolean isHidden() {
@@ -86,24 +66,8 @@ public final class AuthenticateMessage extends AbstractMessage implements Client
 		return true;
 	}
 	
-	public void setClientBuild(int buildNumber) {
-	   _build = buildNumber;
-	}
-	
-	public void setBeta(int beta) {
-		_beta = Math.max(0, beta);
-	}
-	
-	public void setVersion(int ver) {
-		_version = Math.max(1, ver);
-	}
-	
-	public void setDispatch(boolean isDispatch) {
-		_isDispatch = isDispatch;
-	}
-	
-	public void setViewer(boolean isViewer) {
-		_isViewer = isViewer;
+	public void setClientInfo(ClientInfo info) {
+	   _info = info;
 	}
 	
 	public void setATC(boolean isATC) {
