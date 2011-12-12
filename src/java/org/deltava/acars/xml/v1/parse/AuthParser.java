@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
@@ -6,17 +6,18 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.ClientInfo;
+import org.deltava.beans.acars.ClientType;
 
 import org.deltava.acars.message.*;
-import org.deltava.acars.xml.XMLElementParser;
-import org.deltava.acars.xml.XMLException;
+import org.deltava.acars.xml.*;
 
 import org.deltava.util.*;
 
 /**
- * A Parser for Authentication elements.
+ * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 2.8
+ * @version 4.1
  * @since 1.0
  */
 
@@ -30,6 +31,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 	 * @return an AuthenticationMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
+	@Override
 	public AuthenticateMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
 
 		// Get the user ID and password and validate
@@ -45,21 +47,27 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		if (isDBID && (id.getUserID() < 1))
 			throw new XMLException("Invalid Database ID - " + userID);
 		
+		// Get version and client type
+		ClientInfo info = new ClientInfo(StringUtils.parse(getChildText(e, "version", "v1.2").substring(1, 2), 2),
+				StringUtils.parse(getChildText(e, "build", "0"), 0), StringUtils.parse(getChildText(e, "beta", "0"), 0));
+		if (Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue())
+			info.setClientType(ClientType.DISPATCH);
+		else if (Boolean.valueOf(getChildText(e, "viewer", null)).booleanValue())
+			info.setClientType(ClientType.VIEWER);
+		else if (Boolean.valueOf(getChildText(e, "atc", null)).booleanValue())
+			info.setClientType(ClientType.ATC);
+		
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
-		msg.setVersion(StringUtils.parse(getChildText(e, "version", "v1.2").substring(1, 2), 2));
-		msg.setDispatch(Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue());
-		msg.setViewer(Boolean.valueOf(getChildText(e, "viewer", null)).booleanValue());
+		msg.setClientInfo(info);
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
-		msg.setClientBuild(StringUtils.parse(getChildText(e, "build", "0"), 0));
-		msg.setBeta(StringUtils.parse(getChildText(e, "beta", "0"), 0));
 		msg.setDatabaseID(isDBID);
 		
 		// Get the user's local UTC time
 		String utc = getChildText(e, "localUTC", null);
 		if (utc != null) {
 			if (utc.indexOf('.') == -1)
-				utc = utc + ".000";
+				utc += ".000";
 			
 			try {
 				Date utcDate = StringUtils.parseDate(utc.replace('-', '/'), "MM/dd/yyyy HH:mm:ss.SSS");
@@ -71,7 +79,6 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		} else
 			msg.setClientUTC(new Date());
 
-		// Return the bean
 		return msg;
 	}
 }

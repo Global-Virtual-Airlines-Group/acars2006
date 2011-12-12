@@ -56,22 +56,23 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (aInfo == null)
 			aInfo = SystemData.getApp(SystemData.get("airline.default"));
 
-		ClientInfo cInfo = new ClientInfo(msg.getVersion(), msg.getClientBuild(), msg.getBeta()) {{ setDispatch(msg.isDispatch()); }};
+		ClientInfo cInfo = msg.getClientInfo();
 		ClientInfo latestClient = null; UserData ud = null; Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection();
 			
 			// Get the minimum build number
 			GetACARSBuilds abdao = new GetACARSBuilds(c);
-			latestClient = abdao.getLatestBuild(msg.getVersion());
+			latestClient = abdao.getLatestBuild(cInfo);
 			boolean isOK = abdao.isValid(cInfo);
 			if (!isOK || (latestClient == null)) {
+				String ct = cInfo.getClientType().getName();
 				if (latestClient == null)
-					throw new ACARSException("Unknown/Deprecated ACARS Client Version - " + msg.getVersion());	
+					throw new ACARSException("Unknown/Deprecated ACARS " + ct + " Version - " + cInfo.getVersion());	
 				else if (cInfo.isBeta())
-					throw new ACARSException("Unknown/Deprecated ACARS beta - Build " + msg.getClientBuild() + " Beta " + msg.getBeta());	
+					throw new ACARSException("Unknown/Deprecated ACARS beta - Build " + cInfo.getClientBuild() + " Beta " + cInfo.getBeta());	
 				
-				throw new ACARSException("Obsolete ACARS Client - Use Build " + latestClient.getClientBuild() + " or newer");	
+				throw new ACARSException("Obsolete ACARS " + ct + " Client - Use Build " + latestClient.getClientBuild() + " or newer");	
 			}
 
 			// Get the DAOs
@@ -94,7 +95,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Check security access before we validate the password
 			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
 				throw new SecurityException();
-			else if (msg.isDispatch() && (!usr.isInRole("Dispatch")))
+			else if (cInfo.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
 			else if (ud == null)
 				throw new SecurityException("Cannot load user data - " + msg.getUserID());
@@ -114,7 +115,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (ac2 != null) {
 				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
 				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
-				boolean isDSP = (msg.isDispatch() || ac2.getIsDispatch());
+				boolean isDSP = (cInfo.isDispatch() || ac2.getIsDispatch());
 				if (!isDSP) {
 					log.warn(code + " already logged in from " + ac2.getRemoteAddr() + ", closing existing connection from " + remoteAddr);
 					ac2.close();
@@ -131,7 +132,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
 				errMsg.setEntry("error", "ACARS Server access disabled");
-			else if (msg.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
+			else if (cInfo.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
 			else if (!StringUtils.isEmpty(se.getMessage()))
 				errMsg.setEntry("error", "Authentication Failed - " + se.getMessage());
@@ -192,8 +193,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Log the user in
 		con.setUser(usr);
 		con.setUserLocation(ud);
-		con.setClientVersion(msg.getClientBuild());
-		con.setBeta(msg.getBeta());
+		con.setClientVersion(cInfo.getClientBuild());
+		con.setBeta(cInfo.getBeta());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff * 1000);
 		if (msg.getProtocolVersion() > con.getProtocolVersion()) {
@@ -202,14 +203,21 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		
 		// If we're a dispatcher, set the default location and range
-		if (msg.isDispatch()) {
-			con.setIsDispatch(true);
-			con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
-		} else if (msg.isViewer())
-			con.setIsViewer(true);
-		else if (msg.isATC())
-			con.setIsATC(true);
-
+		switch (cInfo.getClientType()) {
+			case DISPATCH:
+				con.setIsDispatch(true);
+				con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
+				break;
+				
+			case VIEWER:
+				con.setIsViewer(true);
+				break;
+				
+			case ATC:
+				con.setIsATC(true);
+				break;
+		}
+		 
 		// Save the connection data
 		try {
 			Connection c = ctx.getConnection();
@@ -293,7 +301,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-		if (!con.getIsDispatch() && !con.getIsViewer() && (latestClient != null) && (latestClient.getClientBuild() > msg.getClientBuild()))
+		if (!con.getIsDispatch() && !con.getIsViewer() && (latestClient != null) && (latestClient.getClientBuild() > cInfo.getClientBuild()))
 			ackMsg.setEntry("latestBuild", String.valueOf(latestClient.getClientBuild()));
 		
 		// Set roles/ratings and if we are unrestricted

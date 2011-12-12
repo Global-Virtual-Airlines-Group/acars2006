@@ -363,7 +363,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	}
 	
 	public void setBeta(int beta) {
-		_beta = Math.max(0, beta);
+		if (beta < Integer.MAX_VALUE)
+			_beta = Math.max(0, beta);
 	}
 	
 	public void setIsViewer(boolean isViewer) {
