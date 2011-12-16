@@ -29,7 +29,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -47,6 +47,7 @@ public class PositionCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the Message and the ACARS Connection
@@ -133,6 +134,7 @@ public class PositionCommand extends ACARSCommand {
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
 				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
+				upd.setCallsign(info.getFlightCode());
 				updmsg.add(upd);
 			
 				// Queue the message

@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for multi-player position update messages.
  * @author Luke
- * @version 3.0
+ * @version 4.1
  * @since 2.2
  */
 
@@ -28,6 +28,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 		
 		// Cast the message
@@ -35,13 +36,17 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
+		if (mpmsg.isClear())
+			pe.setAttribute("clear", "true");
+		
+		// Add position updates
 		for (Iterator<MPUpdate> i = mpmsg.getUpdates().iterator(); i.hasNext(); ) {
 			MPUpdate upd = i.next();
 			LocationMessage lmsg = upd.getLocation();
 			
 			// Build the element
 			Element le = new Element("pos");
-			le.setAttribute("id", String.valueOf(upd.getID()));
+			le.setAttribute("id", String.valueOf(upd.getID())); // pilot's database ID!
 			le.setAttribute("lat", StringUtils.format(lmsg.getLatitude(), "##0.000000"));
 			le.setAttribute("lon", StringUtils.format(lmsg.getLongitude(), "##0.000000"));
 			le.setAttribute("v", String.valueOf(lmsg.getVspeed()));
@@ -68,7 +73,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 				le.addContent(XMLUtils.createElement("livery", upd.getLiveryCode()));
 			}
 			
-			// Add child element
+			le.addContent(XMLUtils.createElement("callsign", upd.getCallsign()));
 			pe.addContent(le);
 		}
 		

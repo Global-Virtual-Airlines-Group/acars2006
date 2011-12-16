@@ -5,12 +5,13 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
 import org.deltava.acars.message.dispatch.RoutePlotMessage;
 import org.deltava.acars.message.mp.MPUpdateMessage;
+import org.deltava.acars.message.mp.RemoveMessage;
 import org.deltava.acars.message.viewer.*;
 
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 2.8
  */
 
@@ -29,7 +30,6 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		
 		// Core formatters
 		_eFormatters.put(TakeoffMessage.class, new TakeoffFormatter());
-		_eFormatters.put(MPUpdateMessage.class, new MPUpdateFormatter());
 		_eFormatters.put(DraftPIREPMessage.class, new DraftFlightFormatter());
 		_eFormatters.put(UpdateIntervalMessage.class, new UpdateIntervalFormatter());
 		
@@ -39,6 +39,10 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		
 		// Dispatch formatters
 		_eFormatters.put(RoutePlotMessage.class, new RoutePlotFormatter());
+		
+		// MP formatters
+		_eFormatters.put(MPUpdateMessage.class, new MPUpdateFormatter());
+		_eFormatters.put(RemoveMessage.class, new MPRemoveFormatter());
 		
 		// Flight Viewer formatters
 		_eFormatters.put(AcceptMessage.class, new ViewAcceptFormatter());
