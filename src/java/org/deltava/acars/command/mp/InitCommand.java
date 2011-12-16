@@ -1,4 +1,4 @@
-// Copyright 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to download position data for all multi-player aircraft in range.
  * @author Luke
- * @version 3.0
+ * @version 4.1
  * @since 2.2
  */
 
@@ -32,6 +32,7 @@ public class InitCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message and the ACARS Connection
@@ -59,11 +60,12 @@ public class InitCommand extends ACARSCommand {
 		MPUpdateMessage mpmsg = new MPUpdateMessage(true);
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection c = i.next();
-			if (!c.getIsDispatch()) {
+			if (!c.getIsDispatch() && !c.getIsATC()) {
 				InfoMessage inf = c.getFlightInfo();
 				MPUpdate upd = new MPUpdate(c.getFlightID(), c.getPosition());
 				upd.setEquipmentType(inf.getEquipmentType());
 				upd.setLiveryCode(inf.getLivery());
+				upd.setCallsign(inf.getFlightCode());
 				Flight f = ACARSHelper.create(inf.getFlightCode());
 				upd.setAirlineCode(f.getAirline().getCode());
 				mpmsg.add(upd);
