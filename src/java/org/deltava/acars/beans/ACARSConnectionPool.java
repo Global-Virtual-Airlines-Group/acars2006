@@ -246,9 +246,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			
 			// Register the SocketChannel with the selector, wake it up if it's sleeping
 			_cSelector.wakeup();
-			SocketChannel sc = c.getChannel();
-			if (sc.keyFor(_cSelector) == null)
-				sc.register(_cSelector, SelectionKey.OP_READ);
+			c.register(_cSelector);
 			
 			// Add with different keys
 			_cons.put(Long.valueOf(c.getID()), c);
