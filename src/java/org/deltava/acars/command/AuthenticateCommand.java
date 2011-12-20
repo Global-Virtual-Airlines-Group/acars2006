@@ -206,7 +206,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		switch (cInfo.getClientType()) {
 			case DISPATCH:
 				con.setIsDispatch(true);
-				con.setDispatchRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
+				con.setRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
 				break;
 				
 			case VIEWER:
