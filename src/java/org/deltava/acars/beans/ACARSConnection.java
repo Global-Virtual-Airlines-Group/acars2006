@@ -73,9 +73,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 	private final long _startTime = System.currentTimeMillis();
 	private long _timeOffset;
 
-	// MP field
-	private final int _maxDistance = SystemData.getInt("mp.max_range", 40);
-
 	/**
 	 * Creates a new ACARS connection.
 	 * @param cid the connection ID
@@ -104,7 +101,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			}
 		}
 	}
-	
 	
 	/**
 	 * Connects the UDP socket for voice communications.
@@ -160,10 +156,18 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return (_udp == null) ? null : _udp.getStatistics();
 	}
 
-	SocketChannel getChannel() {
-		return _tcp.getChannel();
+	/**
+	 * Registers this channel with a Selector.
+	 * @param s the Selector to register with
+	 * @throws IOException if the registration failed
+	 */
+	void register(Selector s) throws ClosedChannelException {
+		
+		SocketChannel sc = _tcp.getChannel();
+		if (sc.keyFor(s) == null)
+			sc.register(s, SelectionKey.OP_READ);
 	}
-
+	
 	public int getFlightID() {
 		return (_fInfo == null) ? 0 : _fInfo.getFlightID();
 	}
@@ -196,7 +200,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		if (_scope != null) 
 			return _scope.getRange();
 		else if (getIsMP())
-			return _maxDistance;
+			return _range;
 		else
 			return -1;
 	}
@@ -253,7 +257,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		return _isDispatch ? _loc : _pInfo;
 	}
 	
-	public int getDispatchRange() {
+	public int getRange() {
 		return _range;
 	}
 
@@ -423,9 +427,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 		_updateInterval = Math.min(60000, Math.max(250, interval));
 	}
 	
-	public void setDispatchRange(GeoLocation loc, int range) {
+	public void setRange(GeoLocation loc, int range) {
 		_loc = loc;
-		_range = Math.max(0, range);
+		if (_isDispatch || _isATC || _isViewer)
+			_range = Math.max(0, range);
+		else
+			_range = Math.max(0, Math.min(range, SystemData.getInt("mp.max_range", 40)));
 	}
 	
 	public void setVoiceCapable(boolean voiceOK) {
@@ -445,6 +452,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
 			return "opt3";
 		else if (_isDispatch)
 			return "opt2";
+		else if (getIsMP())
+			return "opt4";
 		
 		return null;
 	}
