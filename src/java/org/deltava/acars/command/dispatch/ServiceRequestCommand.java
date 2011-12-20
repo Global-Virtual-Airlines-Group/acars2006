@@ -142,7 +142,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				if (ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden()) {
 					GeoPosition gp = new GeoPosition(ac.getLocation());
 					int distance = gp.distanceTo(msg);
-					if (distance <= ac.getDispatchRange()) {
+					if (distance <= ac.getRange()) {
 						reqsSent++;
 						ctx.push(msg, ac.getID(), true);
 					} else {

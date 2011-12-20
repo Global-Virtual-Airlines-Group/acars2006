@@ -93,7 +93,7 @@ public final class RouteEntryHelper {
 		DispatchMapEntry result = new DispatchMapEntry(usr, loc);
 		result.setClientBuild(ac.getClientVersion(), ac.getBeta());
 		result.setBusy(ac.getUserBusy());
-		result.setRange(ac.getDispatchRange());
+		result.setRange(ac.getRange());
 		return result;
 	}
 	
@@ -114,7 +114,7 @@ public final class RouteEntryHelper {
 		ATCMapEntry result = new ATCMapEntry(usr, loc);
 		result.setClientBuild(ac.getClientVersion(), ac.getBeta());
 		result.setBusy(ac.getUserBusy());
-		result.setRange(ac.getDispatchRange());
+		result.setRange(ac.getRange());
 		return result;
 	}
 }
