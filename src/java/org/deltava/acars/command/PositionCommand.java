@@ -138,6 +138,7 @@ public class PositionCommand extends ACARSCommand {
 				updmsg.add(upd);
 			
 				// Queue the message
+				// FIXME: this currently sends MP messages even if the source flght wasn't MP - OK for testing only
 				for (ACARSConnection rac : scopes) {
 					ScopeInfoMessage sc = rac.getScope();
 					if ((sc == null) || sc.getAllTraffic() || (sc.getNetwork() == network))

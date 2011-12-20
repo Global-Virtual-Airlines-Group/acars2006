@@ -36,17 +36,20 @@ public class InitCommand extends ACARSCommand {
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message and the ACARS Connection
+		InitMessage imsg = (InitMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
-		if (ac == null) {
-			log.warn("Missing Connection for " + env.getOwnerID());
-			return;
-		} else if (ac.getMPLocation() == null) {
-			log.warn("Missing MP Location for " + env.getOwnerID());
+		InfoMessage infMsg = ac.getFlightInfo();
+		if (infMsg == null) {
+			log.warn("No flight information for " + ac.getUserID());
 			return;
 		}
+		
+		// Set the range and center
+		infMsg.setLivery(imsg.getLivery());
+		ac.setRange(imsg.getLocation(), imsg.getRange());
 
 		// Get connections within a set distance
-		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
+		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(imsg.getLocation());
 		cons.remove(ac);
 		
 		// If we have too many aircraft, filter by distance
@@ -57,7 +60,7 @@ public class InitCommand extends ACARSCommand {
 		}
 		
 		// Build the the position info message
-		MPUpdateMessage mpmsg = new MPUpdateMessage(true);
+		MPUpdateMessage mpmsg = new MPUpdateMessage(true) {{ setShowLivery(true); }};
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection c = i.next();
 			if (!c.getIsDispatch() && !c.getIsATC()) {
@@ -73,7 +76,6 @@ public class InitCommand extends ACARSCommand {
 		}
 		
 		// Return the message
-		mpmsg.setShowLivery(true);
 		ctx.push(mpmsg, ac.getID());
 	}
 }
