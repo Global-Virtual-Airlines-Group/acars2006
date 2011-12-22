@@ -63,7 +63,6 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setBank(Double.parseDouble(getChildText(e, "bank", "0")));
 			msg.setLatitude(Double.parseDouble(getChildText(e, "lat", "0")));
 			msg.setLongitude(Double.parseDouble(getChildText(e, "lon", "0")));
-			msg.setAltitude(Integer.parseInt(getChildText(e, "msl", "0")));
 			msg.setRadarAltitude(Integer.parseInt(getChildText(e, "agl", "0")));
 			msg.setAspeed(Integer.parseInt(getChildText(e, "aSpeed", "0")));
 			msg.setGspeed(Integer.parseInt(getChildText(e, "gSpeed", "0")));
@@ -90,6 +89,9 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
+			double alt = Double.parseDouble(getChildText(e, "a", "0"));
+			msg.setAltitude((int)Math.floor(alt));
+			msg.setFractionalAltitude(Math.abs((int)(Math.floor(alt) - alt)));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}
@@ -100,7 +102,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			String atcID = getChildText(e, "atc", null);
 			if (!StringUtils.isEmpty(atcID)) {
 				Element ce = e.getChild("atc");
-				Controller ctr = new Controller(StringUtils.parse(ce.getAttributeValue("id"), 0));
+				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")));
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
 				msg.setController(ctr);
@@ -109,7 +111,6 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);
 		}
 
-		// Return the bean
 		return msg;
 	}
 }

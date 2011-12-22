@@ -11,7 +11,7 @@ import org.gvagroup.acars.ACARSFlags;
  * An abstract message class used to support messages that store basic aircraft information. This
  * type of message is used for standard position reporting and/or multiplayer data transfer. 
  * @author Luke
- * @version 3.0
+ * @version 4.1
  * @since 2.2
  */
 
@@ -25,6 +25,8 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	private int heading;
 	private int aspeed;
 	private int vspeed;
+	
+	private int _fractionalAlt;
 	
 	private double pitch;
 	private double bank;
@@ -50,7 +52,15 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	public int getAltitude() {
 		return altitude;
 	}
-
+	
+	/**
+	 * Returns the fractional altitude.
+	 * @return the altitude in feet MSL
+	 */
+	public double getDoubleAltitude() {
+		return getAltitude() + (_fractionalAlt / 1000.0);
+	}
+	
 	public int getAspeed() {
 		return aspeed;
 	}
@@ -163,6 +173,14 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	public void setVspeed(int i) {
 		if ((i >= -7000) && (i <= 7000))
 			vspeed = i;
+	}
+	
+	/**
+	 * Updates the fractional altitude.
+	 * @param frac the fractional altitude in thousandths of feet MSL
+	 */
+	public void setFractionalAltitude(int frac) {
+		_fractionalAlt = Math.max(0, frac);
 	}
 	
 	public int compareTo(LocationMessage msg2) {
