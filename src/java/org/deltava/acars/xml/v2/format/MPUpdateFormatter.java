@@ -53,7 +53,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 			le.setAttribute("f", String.valueOf(lmsg.getFlags()));
 			le.setAttribute("h", String.valueOf(lmsg.getHeading()));
 			le.setAttribute("s", String.valueOf(lmsg.getAspeed()));
-			le.setAttribute("a", String.valueOf(lmsg.getAltitude()));
+			le.setAttribute("a", String.valueOf(lmsg.getDoubleAltitude()));
 			le.setAttribute("p", String.valueOf(lmsg.getPitch()));
 			le.setAttribute("b", String.valueOf(lmsg.getBank()));
 			le.setAttribute("fl", String.valueOf(lmsg.getFlaps()));
