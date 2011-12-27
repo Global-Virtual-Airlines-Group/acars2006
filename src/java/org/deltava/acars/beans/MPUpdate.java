@@ -16,6 +16,7 @@ import org.deltava.acars.message.LocationMessage;
 public class MPUpdate extends DatabaseBean {
 
 	private LocationMessage _loc;
+	private int _flightID;
 	
 	private String _callsign;
 	private String _aCode;
@@ -24,7 +25,7 @@ public class MPUpdate extends DatabaseBean {
 	
 	/**
 	 * Creates the bean.
-	 * @param id the ACARS Flight ID
+	 * @param id the Pilot's database ID
 	 * @param msg the latest location
 	 */
 	public MPUpdate(int id, LocationMessage msg) {
@@ -39,6 +40,14 @@ public class MPUpdate extends DatabaseBean {
 	 */
 	public LocationMessage getLocation() {
 		return _loc;
+	}
+	
+	/**
+	 * Returns the ACARS flight ID for this update.
+	 * @return the flight ID
+	 */
+	public int getFlightID() {
+		return _flightID;
 	}
 	
 	/**
@@ -103,6 +112,14 @@ public class MPUpdate extends DatabaseBean {
 	 */
 	public void setCallsign(String cs) {
 		_callsign = cs;
+	}
+	
+	/**
+	 * Updates the ACARS flight ID.
+	 * @param id the flight ID
+	 */
+	public void setFlightID(int id) {
+		_flightID = Math.max(0, id);
 	}
 	
 	public String toString() {

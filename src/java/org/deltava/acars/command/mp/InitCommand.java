@@ -65,7 +65,8 @@ public class InitCommand extends ACARSCommand {
 			ACARSConnection c = i.next();
 			if (!c.getIsDispatch() && !c.getIsATC()) {
 				InfoMessage inf = c.getFlightInfo();
-				MPUpdate upd = new MPUpdate(c.getFlightID(), c.getPosition());
+				MPUpdate upd = new MPUpdate(c.getUser().getID(), c.getPosition());
+				upd.setFlightID(inf.getFlightID());
 				upd.setEquipmentType(inf.getEquipmentType());
 				upd.setLiveryCode(inf.getLivery());
 				upd.setCallsign(inf.getFlightCode());
@@ -75,7 +76,6 @@ public class InitCommand extends ACARSCommand {
 			}
 		}
 		
-		// Return the message
 		ctx.push(mpmsg, ac.getID());
 	}
 }

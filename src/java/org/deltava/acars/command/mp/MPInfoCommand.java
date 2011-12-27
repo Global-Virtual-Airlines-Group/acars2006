@@ -77,7 +77,8 @@ public class MPInfoCommand extends ACARSCommand {
 
 		// Build the update message
 		MPUpdateMessage updmsg = new MPUpdateMessage(false);
-		MPUpdate upd = new MPUpdate(ac.getFlightID(), oldPM);
+		MPUpdate upd = new MPUpdate(ac.getUser().getID(), oldPM);
+		upd.setFlightID(info.getFlightID());
 		upd.setCallsign(info.getFlightCode());
 		updmsg.add(upd);
 		
