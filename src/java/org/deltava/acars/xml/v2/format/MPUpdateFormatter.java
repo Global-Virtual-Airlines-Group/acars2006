@@ -47,6 +47,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 			// Build the element
 			Element le = new Element("pos");
 			le.setAttribute("id", String.valueOf(upd.getID())); // pilot's database ID!
+			le.setAttribute("flightID", String.valueOf(upd.getFlightID()));
 			le.setAttribute("lat", StringUtils.format(lmsg.getLatitude(), "##0.000000"));
 			le.setAttribute("lon", StringUtils.format(lmsg.getLongitude(), "##0.000000"));
 			le.setAttribute("v", String.valueOf(lmsg.getVspeed()));

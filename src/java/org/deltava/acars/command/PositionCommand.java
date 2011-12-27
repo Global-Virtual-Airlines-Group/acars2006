@@ -134,6 +134,7 @@ public class PositionCommand extends ACARSCommand {
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
 				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
+				upd.setFlightID(info.getFlightID());
 				upd.setCallsign(info.getFlightCode());
 				updmsg.add(upd);
 			
