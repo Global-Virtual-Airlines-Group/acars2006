@@ -17,7 +17,7 @@ import org.deltava.dao.DAOException;
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
- * @version 3.5
+ * @version 4.1
  * @since 1.0
  */
 
@@ -30,6 +30,7 @@ public class EndFlightCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message and the connection
@@ -59,7 +60,7 @@ public class EndFlightCommand extends ACARSCommand {
 		// Save an MPRemove message if we are an MP connection
 		if (iMsg.getLivery() != null) {
 			iMsg.setLivery(null);
-			RemoveMessage mrmsg = new RemoveMessage(con.getUser());
+			RemoveMessage mrmsg = new RemoveMessage(con.getUser(), iMsg.getFlightID());
 			MSG_INPUT.add(new MessageEnvelope(mrmsg, con.getID()));
 		}
 
