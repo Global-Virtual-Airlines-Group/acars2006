@@ -3,7 +3,8 @@ package org.deltava.acars.xml.v2.format;
 
 import org.jdom.Element;
 
-import org.deltava.acars.message.*;
+import org.deltava.acars.message.Message;
+import org.deltava.acars.message.mp.RemoveMessage;
 
 import org.deltava.acars.xml.XMLElementFormatter;
 
@@ -26,11 +27,14 @@ public class MPRemoveFormatter extends XMLElementFormatter {
 	@Override
 	public Element format(Message msg) {
 		
+		// Get the message
+		RemoveMessage rmsg = (RemoveMessage) msg;
+		
 		// Create the element
 		Pilot p = msg.getSender();
 		Element pe = initResponse(msg.getType());
-		pe.setAttribute("id", p.getPilotCode());
-		pe.setAttribute("dbID", Integer.toHexString(p.getID()));
+		pe.setAttribute("id", p.getHexID());
+		pe.setAttribute("flightID", Integer.toHexString(rmsg.getFlightID()));
 		return pe;
 	}
 }
