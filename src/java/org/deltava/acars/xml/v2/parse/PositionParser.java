@@ -89,9 +89,10 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
-			double alt = Double.parseDouble(getChildText(e, "a", "0"));
+			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
-			msg.setFractionalAltitude(Math.abs((int)(Math.floor(alt) - alt)));
+			double a2 =(Math.floor(alt) - alt);
+			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}
