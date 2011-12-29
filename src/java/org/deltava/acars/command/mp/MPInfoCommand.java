@@ -82,16 +82,10 @@ public class MPInfoCommand extends ACARSCommand {
 		upd.setCallsign(info.getFlightCode());
 		updmsg.add(upd);
 		
-		// If the message had a recipient, send it just to that connection
-		if (ac.getViewerID() == 0) {
-			// Get the connections to notify
-			List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
-			cons.remove(ac);
-			
-			// Send the message
-			for (ACARSConnection c : cons)
-				ctx.push(updmsg, c.getID());
-		} else
-			ctx.push(updmsg, ac.getViewerID());
+		// Get the connections to notify
+		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
+		cons.remove(ac);
+		for (ACARSConnection c : cons)
+			ctx.push(updmsg, c.getID());
 	}
 }
