@@ -52,8 +52,6 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 				StringUtils.parse(getChildText(e, "build", "0"), 0), StringUtils.parse(getChildText(e, "beta", "0"), 0));
 		if (Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue())
 			info.setClientType(ClientType.DISPATCH);
-		else if (Boolean.valueOf(getChildText(e, "viewer", null)).booleanValue())
-			info.setClientType(ClientType.VIEWER);
 		else if (Boolean.valueOf(getChildText(e, "atc", null)).booleanValue())
 			info.setClientType(ClientType.ATC);
 		

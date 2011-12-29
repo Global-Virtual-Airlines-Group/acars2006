@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 4.0
+ * @version 4.1
  * @since 1.0
  */
 
@@ -28,6 +28,7 @@ class ConnectionFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message
@@ -59,7 +60,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				ce.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 				ce.addContent(XMLUtils.createElement("isDispatch", String.valueOf(con.getIsDispatch())));
-				ce.addContent(XMLUtils.createElement("isViewer", String.valueOf(con.getIsViewer())));
+				ce.addContent(XMLUtils.createElement("isATC", String.valueOf(con.getIsATC())));
 				ce.addContent(XMLUtils.createElement("isHidden", String.valueOf(con.getUserHidden())));
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 				ce.addContent(XMLUtils.createElement("ratings", StringUtils.listConcat(usr.getRatings(), ",")));
