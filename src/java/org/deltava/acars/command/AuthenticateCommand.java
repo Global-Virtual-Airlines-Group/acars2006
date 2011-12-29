@@ -209,10 +209,6 @@ public class AuthenticateCommand extends ACARSCommand {
 				con.setRange(SystemData.getAirport(usr.getHomeAirport()), Integer.MAX_VALUE);
 				break;
 				
-			case VIEWER:
-				con.setIsViewer(true);
-				break;
-				
 			case ATC:
 				con.setIsATC(true);
 				break;
@@ -301,7 +297,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-		if (!con.getIsDispatch() && !con.getIsViewer() && (latestClient != null) && (latestClient.getClientBuild() > cInfo.getClientBuild()))
+		if (!con.getIsDispatch() && (latestClient != null) && (latestClient.getClientBuild() > cInfo.getClientBuild()))
 			ackMsg.setEntry("latestBuild", String.valueOf(latestClient.getClientBuild()));
 		
 		// Set roles/ratings and if we are unrestricted
