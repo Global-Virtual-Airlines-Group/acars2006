@@ -117,6 +117,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					}
 
 					// Remove the connection
+					ac.close();
 					cPool.remove(ac);
 				}
 

@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
  * @since 1.0
  */
 
-public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry {
+public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, Closeable {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
