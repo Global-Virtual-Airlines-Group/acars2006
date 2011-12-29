@@ -44,10 +44,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private int _beta;
 	
 	private long _dispatcherID;
-	private long _viewerID;
 	
 	private boolean _isDispatch;
-	private boolean _isViewer;
 	private boolean _isATC;
 	
 	// Dispatch service location/range
@@ -233,10 +231,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _protocolVersion;
 	}
 
-	public boolean getIsViewer() {
-		return _isViewer;
-	}
-	
 	public boolean getIsATC() {
 		return _isATC;
 	}
@@ -247,10 +241,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	
 	public long getDispatcherID() {
 		return _dispatcherID;
-	}
-	
-	public long getViewerID() {
-		return _viewerID;
 	}
 	
 	public GeoLocation getLocation() {
@@ -371,10 +361,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 			_beta = Math.max(0, beta);
 	}
 	
-	public void setIsViewer(boolean isViewer) {
-		_isViewer = isViewer;
-	}
-	
 	public void setIsATC(boolean isATC) {
 		_isATC = isATC;
 	}
@@ -390,10 +376,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	public void setDispatcherID(long conID) {
 		_dispatcherID = conID;
 	}
-	
-	public void setViewerID(long conID) {
-		_viewerID = conID;
-	}	
 	
 	public void setWarnings(int warns) {
 		_warnings = Math.max(0, warns);
@@ -429,7 +411,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	
 	public void setRange(GeoLocation loc, int range) {
 		_loc = loc;
-		if (_isDispatch || _isATC || _isViewer)
+		if (_isDispatch || _isATC)
 			_range = Math.max(0, range);
 		else
 			_range = Math.max(0, Math.min(range, SystemData.getInt("mp.max_range", 40)));
@@ -448,12 +430,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	}
 
 	public String getRowClassName() {
-		if (_isViewer)
-			return "opt3";
-		else if (_isDispatch)
+		if (_isDispatch)
 			return "opt2";
 		else if (getIsMP())
-			return "opt4";
+			return "opt3";
 		
 		return null;
 	}
