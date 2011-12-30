@@ -60,7 +60,8 @@ public class InitCommand extends ACARSCommand {
 		}
 		
 		// Build the the position info message
-		MPUpdateMessage mpmsg = new MPUpdateMessage(true) {{ setShowLivery(true); }};
+		MPUpdateMessage mpmsg = new MPUpdateMessage(true);
+		mpmsg.setShowLivery(true);
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection c = i.next();
 			if (!c.getIsDispatch() && !c.getIsATC()) {
