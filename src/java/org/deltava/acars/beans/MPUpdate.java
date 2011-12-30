@@ -71,7 +71,7 @@ public class MPUpdate extends DatabaseBean {
 	 * @return the livery code
 	 */
 	public String getLiveryCode() {
-		return _livery;
+		return (_livery == null) ? "DEFAULT" : _livery;
 	}
 	
 	/**
