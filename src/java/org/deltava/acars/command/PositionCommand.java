@@ -131,6 +131,7 @@ public class PositionCommand extends ACARSCommand {
 		// Send it to any dispatchers that are around
 		if (!msg.isReplay()) {
 			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getMP(msg);
+			scopes.remove(ac);
 			if (!scopes.isEmpty()) {
 				MPUpdateMessage updmsg = new MPUpdateMessage(false);
 				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
@@ -150,10 +151,12 @@ public class PositionCommand extends ACARSCommand {
 				
 				// If we have ATC around, decrease position interval
 				if ((ac.getUpdateInterval() > ATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
-					log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
+					ac.setUpdateInterval(ATC_INTERVAL);
 					ctx.push(new UpdateIntervalMessage(ac.getUser(), ATC_INTERVAL), env.getConnectionID());
+					log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
 				}
 			} else if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
+				ac.setUpdateInterval(NOATC_INTERVAL);
 				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL), env.getConnectionID());
 				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
 			}

@@ -41,7 +41,7 @@ class MPLocationParser extends XMLElementParser<MPMessage> {
 			msg.setHeading(Integer.parseInt(getChildText(e, "h", "0")));
 			msg.setPitch(Double.parseDouble(getChildText(e, "p", "0")));
 			msg.setBank(Double.parseDouble(getChildText(e, "b", "0")));
-			msg.setAspeed(Integer.parseInt(getChildText(e, "s", "0")));
+			msg.setGspeed(Integer.parseInt(getChildText(e, "g", "0")));
 			msg.setFlaps(Integer.parseInt(getChildText(e, "fl", "0")));
 			msg.setLights(Integer.parseInt(getChildText(e, "l", "0")));
 			double alt = Double.parseDouble(getChildText(e, "a", "0"));

@@ -23,7 +23,7 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	private double longitude;
 	private int altitude;
 	private int heading;
-	private int aspeed;
+	private int gspeed;
 	private int vspeed;
 	
 	private int _fractionalAlt;
@@ -60,9 +60,9 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	public double getDoubleAltitude() {
 		return getAltitude() + (_fractionalAlt / 1000.0);
 	}
-	
-	public int getAspeed() {
-		return aspeed;
+
+	public int getGspeed() {
+		return gspeed;
 	}
 	
 	public int getVspeed() {
@@ -119,9 +119,9 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 			altitude = alt;
 	}
 
-	public void setAspeed(int i) {
-		if ((i >= 0) && (i <= 700))
-			aspeed = i;
+	public void setGspeed(int i) {
+		if ((i >= -30) && (i <= 3000))
+			gspeed = i;
 	}
 	
 	public void setFlaps(int fl) {
