@@ -194,7 +194,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Log returned flight id
 		if (assignID)
-			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()) + "to " + env.getOwnerID());
+			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()) + " to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 
