@@ -449,6 +449,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public void remove(ACARSConnection c) {
 		try {
 			_w.lock();
+			c.close();
 			VoiceChannels.getInstance().remove(c.getID());
 			while (_cons.containsValue(c))
 				_cons.values().remove(c);
