@@ -66,7 +66,7 @@ public class MPInfoCommand extends ACARSCommand {
 		oldPM.setLongitude(msg.getLongitude());
 		oldPM.setHeading(msg.getHeading());
 		oldPM.setAltitude(msg.getAltitude());
-		oldPM.setAspeed(msg.getAspeed());
+		oldPM.setGspeed(msg.getGspeed());
 		oldPM.setBank(msg.getBank());
 		oldPM.setPitch(msg.getPitch());
 		oldPM.setFlag(FLAG_AFTERBURNER, msg.isFlagSet(FLAG_AFTERBURNER));

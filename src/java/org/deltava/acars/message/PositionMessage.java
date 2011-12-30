@@ -20,7 +20,7 @@ public class PositionMessage extends LocationMessage {
     	"Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
 
 	private int r_altitude;
-	private int gspeed;
+	private int aspeed;
 	private double mach;
 	private int fuelRemaining;
 	private double n1;
@@ -57,7 +57,7 @@ public class PositionMessage extends LocationMessage {
 	public PositionMessage(Pilot msgFrom) {
 		super(Message.MSG_POSITION, msgFrom);
 	}
-
+	
 	public double getAngleOfAttack() {
 		return _angleOfAttack;
 	}
@@ -68,10 +68,6 @@ public class PositionMessage extends LocationMessage {
 
 	public int getFrameRate() {
 		return _frameRate;
-	}
-
-	public int getGspeed() {
-		return gspeed;
 	}
 
 	public int getFuelFlow() {
@@ -96,6 +92,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public int getTemperature() {
 		return _temperature;
+	}
+	
+	public int getAspeed() {
+		return aspeed;
 	}
 
 	public double getMach() {
@@ -175,11 +175,6 @@ public class PositionMessage extends LocationMessage {
 		_frameRate = Math.max(0, rate);
 	}
 
-	public void setGspeed(int i) {
-		if ((i >= -30) && (i <= 3000))
-			gspeed = i;
-	}
-
 	public void setG(double gForce) {
 		if (!Double.isNaN(gForce))
 			_gForce = gForce;
@@ -187,6 +182,11 @@ public class PositionMessage extends LocationMessage {
 
 	public void setFuelFlow(int flow) {
 		_fuelFlow = Math.max(0, flow);
+	}
+	
+	public void setAspeed(int i) {
+		if ((i >= 0) && (i <= 700))
+			aspeed = i;
 	}
 
 	public void setMach(double m) {
