@@ -79,7 +79,7 @@ public class Formatter extends XMLMessageFormatter {
 		// Get the element formatter to use
 		XMLElementFormatter efmt = _eFormatters.get(msg.getClass());
 		if (efmt == null) {
-			log.warn("Cannot format " + msg.getClass().getSimpleName());
+			log.warn("Cannot format " + msg.getClass().getName());
 			return null;
 		}
 
