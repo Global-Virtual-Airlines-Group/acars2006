@@ -1,4 +1,4 @@
-// Copyright 2005 2006, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005 2006, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -16,10 +16,7 @@ public abstract class DataMessage extends AbstractMessage {
 	// Request type constants
 	public static final int REQ_UNKNOWN = 0;
 	public static final int REQ_USRLIST = 1;
-	
-	@Deprecated
-	public static final int REQ_ILIST = 2;
-	
+	public static final int REQ_ONLINE = 2;
 	public static final int REQ_VALIDATE = 3;
 	public static final int REQ_ADDUSER = 4;
 	public static final int REQ_REMOVEUSER = 5;
@@ -45,7 +42,7 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_LOAD = 25;
 	
 	private int _reqType = REQ_UNKNOWN;
-	public static final String[] REQ_TYPES = {"?", "pilots", "info", "validate", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
+	public static final String[] REQ_TYPES = {"?", "pilots", "isonline", "validate", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
 		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat", "hide", "liveries", "wx", "airportinfo",
 		"appInfo", "vchannels", "load"};
 
