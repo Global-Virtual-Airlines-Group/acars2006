@@ -431,8 +431,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 							_disConStats.add(new ACARSConnectionStats(con.getTCPStatistics()));
 						}
 					}
-				} else
-					log.warn("Cannot read from unknown source address " + sKey.channel());
+				} else {
+					try {
+						log.warn("Cannot read from unknown source address " + sKey.channel());
+						sKey.channel().close();
+					} catch (IOException ie) {
+						// empty
+					}
+				}
 			}
 
 			// Remove from the selected keys list
