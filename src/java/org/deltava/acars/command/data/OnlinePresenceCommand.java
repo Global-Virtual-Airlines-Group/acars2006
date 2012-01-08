@@ -12,6 +12,7 @@ import org.deltava.beans.servinfo.*;
 
 import org.deltava.dao.file.GetServInfo;
 
+import org.deltava.util.StringUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -49,9 +50,8 @@ public class OnlinePresenceCommand extends DataCommand {
 		
 		// Create the response
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-		
-		// Get the data
 		if (network != null) {
+			int myID = StringUtils.parse(ctx.getUser().getNetworkID(network), -1);
 			try {
 				File f = new File(SystemData.get("online." + network.toString().toLowerCase() + ".local.info"));
 				if (f.exists()) {
@@ -60,7 +60,7 @@ public class OnlinePresenceCommand extends DataCommand {
 					
 					// Check for the user
 					for (Pilot p : info.getPilots()) {
-						if (p.getPilotID() == ctx.getUser().getID()) {
+						if (p.getID() == myID) {
 							ackMsg.setEntry("isOnline", "true");
 							break;
 						}
