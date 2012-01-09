@@ -1,10 +1,11 @@
-// Copyright 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.util.Collection;
 import java.sql.Connection;
 
-import org.deltava.beans.UserData;
-import org.deltava.beans.flight.ETOPSHelper;
+import org.deltava.beans.*;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -14,6 +15,7 @@ import org.deltava.acars.message.*;
 
 import org.deltava.dao.*;
 
+import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -57,7 +59,9 @@ public class FlightValidationCommand extends DataCommand {
 		
 		// Create the route pair and do ETOPS validation
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(ud.getAirlineCode()), airportD, airportA);
-		rspMsg.setEntry("etops", String.valueOf(ETOPSHelper.validate(null, rt)));
+		Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, 25);
+		ETOPS e = ETOPSHelper.classify(gc);
+		rspMsg.setEntry("etops", String.valueOf(ETOPSHelper.validate(null, e)));
 		
 		try {
 			Connection con = ctx.getConnection();
