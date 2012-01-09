@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -11,6 +11,7 @@ import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
 
+import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 import org.deltava.acars.beans.*;
@@ -102,7 +103,9 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// Get the aircraft type and check ETOPS
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(msg.getEquipmentType());
-			msg.setETOPSWarning(ETOPSHelper.validate(a, msg));
+			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
+			ETOPS e = ETOPSHelper.classify(gc);
+			msg.setETOPSWarning(ETOPSHelper.validate(a, e));
 			
 			// Load existing plans
 			RouteLoadHelper helper = new RouteLoadHelper(con, msg);

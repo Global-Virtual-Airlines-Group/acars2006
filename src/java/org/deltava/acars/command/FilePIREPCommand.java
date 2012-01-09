@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -199,7 +199,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (e != null) {
 					long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 1000;
 					if (timeSinceEnd > 21600) {
-						log.warn("Flight logged over 6 hours after Event completion");
+						comments.add("Flight logged over 6 hours after Event completion");
 						afr.setDatabaseID(DatabaseID.EVENT, 0);
 					}
 				} else
@@ -253,12 +253,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
 			
 			// Check ETOPS
-			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, afr));
-			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN)) {
-				Collection<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
-				ETOPS etopsClass = ETOPSHelper.classify(rtEntries);
+			Collection<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
+			ETOPS etopsClass = ETOPSHelper.classify(rtEntries);
+			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass));
+			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
 				comments.add("ETOPS classificataion: " + etopsClass.toString());
-			}
 			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
@@ -307,7 +306,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ctx.setMessage("Checking Held Flight Reports for " + ac.getUserID());
 			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
 			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
-				afr.setComments("Automatically Held due to " + heldPIREPs + " held Flight Reports");
+				comments.add("Automatically Held due to " + heldPIREPs + " held Flight Reports");
 				afr.setStatus(FlightReport.HOLD);
 			}
 
