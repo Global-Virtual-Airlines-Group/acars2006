@@ -251,7 +251,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			// Add with different keys
 			_cons.put(Long.valueOf(c.getID()), c);
 			_conLookup.put(c.getDataSourceAddr(), c);
-			if (c.isAuthenticated())
+			if (c.isAuthenticated() && !StringUtils.isEmpty(c.getUserID()))
 				_conLookup.put(c.getUserID(), c);
 			if (c.isVoiceEnabled())
 				_conLookup.put(c.getVoiceSourceAddr(), c);
