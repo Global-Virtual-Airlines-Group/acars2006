@@ -257,7 +257,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ETOPS etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
-				comments.add("ETOPS classificataion: " + etopsClass.toString());
+				comments.add("ETOPS classificataion: " + String.valueOf(etopsClass));
 			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
