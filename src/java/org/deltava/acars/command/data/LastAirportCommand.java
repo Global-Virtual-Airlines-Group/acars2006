@@ -43,7 +43,7 @@ public class LastAirportCommand extends DataCommand {
 			frdao.setQueryMax(15);
 			
 			// Load all PIREPs and save the latest PIREP as a separate bean in the request
-			List<FlightReport> results = frdao.getByPilot(ctx.getUser().getID(), new ScheduleSearchCriteria("DATE DESC, PR.ID DESC"));
+			List<FlightReport> results = frdao.getByPilot(ctx.getUser().getID(), new ScheduleSearchCriteria("PR.SUBMITTED DESC"));
 			for (Iterator<FlightReport> i = results.iterator(); i.hasNext();) {
 				FlightReport fr = i.next();
 				if ((fr.getStatus() != FlightReport.DRAFT) && (fr.getStatus() != FlightReport.REJECTED)) {
