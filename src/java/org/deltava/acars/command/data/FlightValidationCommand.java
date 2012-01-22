@@ -72,16 +72,18 @@ public class FlightValidationCommand extends DataCommand {
 			rspMsg.setEntry("routeOK", String.valueOf(flightTime > 0));
 			
 			// Check for dispatch routes
-			GetACARSRoute drdao = new GetACARSRoute(con);
-			int dRoutes = drdao.getRoutes(airportD, airportA, true).size();
+			if (flightTime > 0) {
+				GetACARSRoute drdao = new GetACARSRoute(con);
+				int dRoutes = drdao.getRoutes(airportD, airportA, true).size();
 			
-			// If we have no dispatch routes, check for cached routes
-			if (dRoutes == 0) {
-				GetCachedRoutes rcdao = new GetCachedRoutes(con);
-				dRoutes = rcdao.getRoutes(airportD, airportA, false).size();
+				// If we have no dispatch routes, check for cached routes
+				if (dRoutes == 0) {
+					GetCachedRoutes rcdao = new GetCachedRoutes(con);
+					dRoutes = rcdao.getRoutes(airportD, airportA, false).size();
+				}
+			
+				rspMsg.setEntry("dispatchRoutes", String.valueOf(dRoutes));
 			}
-			
-			rspMsg.setEntry("dispatchRoutes", String.valueOf(dRoutes));
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
 			rspMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
