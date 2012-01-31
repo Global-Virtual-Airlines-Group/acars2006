@@ -284,7 +284,20 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetSchedule sdao = new GetSchedule(con);
 			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
 			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
-			afr.setAttribute(FlightReport.ATTR_ACADEMY, isAcademy);
+			
+			// If we're an Academy flight, check if we have an active course
+			Course c = null;
+			if (isAcademy) {
+				GetAcademyCourses crsdao = new GetAcademyCourses(con);
+				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
+				for (Iterator<Course> i = courses.iterator(); (c == null) && i.hasNext(); ) {
+					Course crs = i.next();
+					if (crs.getStatus() == Course.STARTED)
+						c = crs;
+				}
+				
+				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null));	
+			}
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
@@ -389,7 +402,17 @@ public class FilePIREPCommand extends ACARSCommand {
 			CheckRide cr = null;
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
-				cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
+				// Check for Academy chck ride
+				if (c != null) {
+					List<CheckRide> rides = exdao.getAcademyCheckRides(c.getID(), Test.NEW);
+					if (!rides.isEmpty())
+						cr = rides.get(0);
+				}
+				
+				// Get check ride
+				if (cr == null)
+					cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
+				
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
@@ -465,8 +488,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
 			if ((cr != null) && afr.hasAttribute(FlightReport.ATTR_ACADEMY)) {
 				ctx.setMessage("Sending Flight Academy check ride notification");
-				GetAcademyCourses cdao = new GetAcademyCourses(con);
-				Course c = cdao.get(cr.getCourseID());
 				if (c != null) {
 					MessageContext mctxt = new MessageContext();
 					mctxt.addData("user", p);
