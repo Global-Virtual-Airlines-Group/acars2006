@@ -38,12 +38,15 @@ public class LastAirportCommand extends DataCommand {
 
 		// Create the acknowledgement
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ctx.getUser(), env.getMessage().getID());
+
+		ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("SUBMITTED DESC");
+		ssc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		try {
 			GetFlightReports frdao = new GetFlightReports(ctx.getConnection());
 			frdao.setQueryMax(15);
 			
 			// Load all PIREPs and save the latest PIREP as a separate bean in the request
-			List<FlightReport> results = frdao.getByPilot(ctx.getUser().getID(), new ScheduleSearchCriteria("SUBMITTED DESC"));
+			List<FlightReport> results = frdao.getByPilot(ctx.getUser().getID(), ssc);
 			for (Iterator<FlightReport> i = results.iterator(); i.hasNext();) {
 				FlightReport fr = i.next();
 				if ((fr.getStatus() != FlightReport.DRAFT) && (fr.getStatus() != FlightReport.REJECTED)) {
