@@ -201,7 +201,7 @@ public class LogicProcessor extends Worker {
 		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
-			_cmdPool.awaitTermination(3, TimeUnit.SECONDS);
+			_cmdPool.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException ie) {
 			// empty
 		} catch (Exception e) {

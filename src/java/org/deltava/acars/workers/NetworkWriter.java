@@ -85,7 +85,7 @@ public class NetworkWriter extends Worker {
 		// Wait for the pool to shut down
 		try {
 			_ioPool.shutdown();
-			_ioPool.awaitTermination(1750, TimeUnit.MILLISECONDS);
+			_ioPool.awaitTermination(2500, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException ie) {
 			log.warn("Interrupted Pool Termination");
 		} catch (Exception e) {
