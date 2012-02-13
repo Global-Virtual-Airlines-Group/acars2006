@@ -87,7 +87,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 				usr = pdao.get(ud);
 			} else {
-				usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getCode());
+				usr = pdao.getPilotByCode(usrID.getUserID(), aInfo.getDB());
 				if (usr != null)
 					ud = udao.get(usr.getID());
 			}
