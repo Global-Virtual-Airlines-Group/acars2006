@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -9,14 +9,14 @@ import org.deltava.beans.schedule.Airport;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 3.0
+ * @version 4.1
  * @since 1.0
  */
 
 public class InfoMessage extends AbstractMessage {
 	
-	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1
-	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004, 2006};
+	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1, 2006=FSX, 2008=Prepar3D
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004, 2006, 2008};
 	
 	// Bean fields
 	private int _flightID;
