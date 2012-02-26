@@ -296,7 +296,9 @@ public class FilePIREPCommand extends ACARSCommand {
 						c = crs;
 				}
 				
-				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null));	
+				boolean isINS =ac.getUser().isInRole("Instructor") ||  ac.getUser().isInRole("AcademyAdmin") ||
+						ac.getUser().isInRole("Examiner");
+				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
 			}
 
 			// Check the schedule database and check the route pair
