@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -198,7 +198,7 @@ public class PositionMessage extends LocationMessage {
 		if (Double.isNaN(nn1))
 			this.n1 = 0;
 		else
-			this.n1 = Math.max(0, nn1);
+			this.n1 = Math.min(9999, Math.max(0, nn1));
 	}
 
 	public void setN2(double nn2) {
