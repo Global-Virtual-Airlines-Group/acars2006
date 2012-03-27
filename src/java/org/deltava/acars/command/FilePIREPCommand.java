@@ -87,7 +87,7 @@ public class FilePIREPCommand extends ACARSCommand {
 		try {
 			con = ctx.getConnection();
 			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
-			GetACARSData fddao = new GetACARSData(con);
+			GetACARSPositions fddao = new GetACARSPositions(con);
 
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
