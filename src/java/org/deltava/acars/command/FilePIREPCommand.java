@@ -254,8 +254,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Check ETOPS
 			Collection<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
-			ETOPS etopsClass = ETOPSHelper.classify(rtEntries);
-			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass));
+			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
+			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
 				comments.add("ETOPS classificataion: " + String.valueOf(etopsClass));
 			
