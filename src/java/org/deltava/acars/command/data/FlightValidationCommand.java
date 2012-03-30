@@ -60,7 +60,7 @@ public class FlightValidationCommand extends DataCommand {
 		// Create the route pair and do ETOPS validation
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(ud.getAirlineCode()), airportD, airportA);
 		Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, 25);
-		ETOPS e = ETOPSHelper.classify(gc);
+		ETOPS e = ETOPSHelper.classify(gc).getResult();
 		rspMsg.setEntry("etops", String.valueOf(ETOPSHelper.validate(null, e)));
 		
 		try {

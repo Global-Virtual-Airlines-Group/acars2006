@@ -104,7 +104,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(msg.getEquipmentType());
 			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
-			ETOPS e = ETOPSHelper.classify(gc);
+			ETOPS e = ETOPSHelper.classify(gc).getResult();
 			msg.setETOPSWarning(ETOPSHelper.validate(a, e));
 			
 			// Load existing plans
