@@ -80,6 +80,12 @@ public class IPCDaemon implements Runnable {
 								SystemData.add("airports", apdao.getAll());
 								break;
 								
+							case TZ_RELOAD:
+								log.warn("ACARS Reloading Time Zones");
+								GetTimeZone tzdao = new GetTimeZone(con);
+								tzdao.initAll();
+								break;
+								
 							case MVS_RELOAD:
 								log.warn("Reloading persistent Voice channels");
 								GetMVSChannel chdao = new GetMVSChannel(con);
