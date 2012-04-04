@@ -275,7 +275,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
-			FuelUse use = fddao.checkRefuel(flightID, false);
+			FuelUse use = fddao.checkRefuel(flightID);
 			afr.setTotalFuel(use.getTotalFuel());
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
 
@@ -379,6 +379,9 @@ public class FilePIREPCommand extends ACARSCommand {
 						afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 			}
+			
+			// Get framerates
+			afr.setAverageFrameRate(fddao.getFrameRate(flightID));
 			
 			// Save comments
 			if (!comments.isEmpty())
