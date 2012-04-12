@@ -1,7 +1,7 @@
-// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.navdata.Runway;
 import org.deltava.beans.wx.METAR;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * A formatter for AirportInfoMessages.
  * @author Luke
- * @version 3.6
+ * @version 4.2
  * @since 2.6
  */
 
@@ -25,6 +25,7 @@ public class AirportInfoFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 		
 		// Cast the message

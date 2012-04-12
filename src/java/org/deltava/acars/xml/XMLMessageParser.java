@@ -1,20 +1,21 @@
-// Copyright 2004, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.*;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 
 import org.deltava.acars.beans.TextEnvelope;
 import org.deltava.acars.message.*;
+
 import org.deltava.util.StringUtils;
 
 /**
  * An abstract class to parse ACARS XML messages.
  * @author Luke
- * @version 2.8
+ * @version 4.2
  * @since 2.8
  */
 
@@ -27,7 +28,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	protected final Map<Integer, XMLElementParser<? extends ViewerMessage>> _viewParsers =
 		new HashMap<Integer, XMLElementParser<? extends ViewerMessage>>();
 	
-	protected final SAXBuilder builder = new SAXBuilder(false);
+	protected final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
 
 	/**
 	 * Initializes the parser.
@@ -36,7 +37,6 @@ public abstract class XMLMessageParser extends MessageParser {
 	public XMLMessageParser(int version) {
 		super(version);
 		builder.setReuseParser(true);
-		builder.setFastReconfigure(true);
 		init();
 	}
 	
@@ -109,8 +109,8 @@ public abstract class XMLMessageParser extends MessageParser {
 			}
 			
 			// Get the commands
-			for (Iterator<?> cmds = root.getChildren("CMD").iterator(); cmds.hasNext();) {
-				Element cmdE = (Element) cmds.next();
+			for (Iterator<Element> cmds = root.getChildren("CMD").iterator(); cmds.hasNext();) {
+				Element cmdE = cmds.next();
 
 				// Get message type
 				Message msg = null;

@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.beans.Pilot;
@@ -10,7 +10,7 @@ import org.deltava.acars.xml.*;
 /**
  * A message parser for voice channel switch messages.
  * @author Luke
- * @version 4.0
+ * @version 4.2
  * @since 4.0
  */
 
@@ -23,7 +23,7 @@ public class SwitchChannelParser extends XMLElementParser<SwitchChannelMessage> 
 	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
-	public SwitchChannelMessage parse(org.jdom.Element e, Pilot user) {
+	public SwitchChannelMessage parse(org.jdom2.Element e, Pilot user) {
 		
 		SwitchChannelMessage msg = new SwitchChannelMessage(user, getChildText(e, "channel", null));
 		msg.setDescription(getChildText(e, "desc", null));

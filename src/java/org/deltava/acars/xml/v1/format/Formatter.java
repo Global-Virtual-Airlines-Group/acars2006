@@ -1,7 +1,7 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 2.8
+ * @version 4.2
  * @since 1.0
  */
 

@@ -1,9 +1,9 @@
-// Copyright 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.util.Date;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
 
@@ -15,7 +15,7 @@ import static org.gvagroup.acars.ACARSFlags.*;
 /**
  * A parser for multi-player location elements.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 2.2
  */
 

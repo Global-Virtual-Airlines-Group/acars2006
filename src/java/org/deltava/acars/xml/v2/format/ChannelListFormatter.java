@@ -1,9 +1,9 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.ChannelListMessage;
@@ -19,7 +19,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Voice Channel data messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 4.0
  */
 

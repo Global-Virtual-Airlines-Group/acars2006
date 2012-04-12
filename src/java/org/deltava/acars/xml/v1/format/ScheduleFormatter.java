@@ -1,9 +1,9 @@
-// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.ScheduleMessage;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Flight Schedule messages.
  * @author Luke
- * @version 2.3
+ * @version 4.2
  * @since 1.0
  */
 
@@ -26,6 +26,7 @@ class ScheduleFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message

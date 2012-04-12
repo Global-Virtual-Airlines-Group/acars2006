@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -6,7 +6,7 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import org.jdom.*;
+import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.servinfo.Controller;
@@ -19,7 +19,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 4.0
+ * @version 4.2
  * @since 1.0
  */
 

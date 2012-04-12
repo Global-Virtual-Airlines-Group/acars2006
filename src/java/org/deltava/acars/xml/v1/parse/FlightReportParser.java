@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -31,7 +31,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
-	public FlightReportMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
+	public FlightReportMessage parse(org.jdom2.Element e, Pilot user) throws XMLException {
 
 		// Build the message bean
 		FlightReportMessage msg = new FlightReportMessage(user);

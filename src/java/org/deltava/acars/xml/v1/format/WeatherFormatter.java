@@ -1,7 +1,7 @@
-// Copyright 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.flight.ILSCategory;
 import org.deltava.beans.wx.*;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Weather data messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 2.2
  */
 

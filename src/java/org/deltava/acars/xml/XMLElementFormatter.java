@@ -1,7 +1,7 @@
-// Copyright 2006, 2007, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.xml.ProtocolInfo;
@@ -11,7 +11,7 @@ import org.deltava.util.*;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 

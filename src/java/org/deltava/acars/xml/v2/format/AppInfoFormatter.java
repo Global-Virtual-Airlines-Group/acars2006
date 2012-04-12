@@ -1,7 +1,7 @@
-// Copyright 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.AppInfoMessage;
@@ -13,7 +13,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Cross-Application information messages.
  * @author Luke
- * @version 3.6
+ * @version 4.2
  * @since 3.6
  */
 
