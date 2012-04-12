@@ -1,7 +1,5 @@
-// Copyright 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
-
-import org.jdom.Element;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.*;
@@ -15,7 +13,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for Dispatch service range elements.
  * @author Luke
- * @version 2.8
+ * @version 4.2
  * @since 2.2
  */
 
@@ -27,7 +25,8 @@ public class DispatchRangeParser extends XMLElementParser<RangeMessage> {
 	 * @param user the originating user
 	 * @return a RangeMessage
 	 */
-	public RangeMessage parse(Element e, Pilot user) {
+	@Override
+	public RangeMessage parse(org.jdom2.Element e, Pilot user) {
 		
 		// Create the and set range
 		RangeMessage msg = new RangeMessage(user);
@@ -42,7 +41,6 @@ public class DispatchRangeParser extends XMLElementParser<RangeMessage> {
 		} else
 			msg.setLocation(a);
 		
-		// Return the message
 		return msg;
 	}
 }

@@ -1,11 +1,11 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import org.jdom.*;
-import org.jdom.output.*;
+import org.jdom2.*;
+import org.jdom2.output.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
@@ -21,7 +21,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 3.6
+ * @version 4.2
  * @since 1.0
  */
 

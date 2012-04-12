@@ -1,10 +1,10 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
 import java.util.Date;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.*;
 
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 

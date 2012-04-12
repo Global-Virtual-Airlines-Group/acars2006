@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.acars.message.MuteMessage;
@@ -9,7 +9,7 @@ import org.deltava.beans.Pilot;
 /**
  * A message parser for voice mute messages.
  * @author Luke
- * @version 4.0
+ * @version 4.2
  * @since 4.0
  */
 
@@ -22,9 +22,8 @@ class MuteParser extends XMLElementParser<MuteMessage> {
 	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
-	public MuteMessage parse(org.jdom.Element e, Pilot user) {
+	public MuteMessage parse(org.jdom2.Element e, Pilot user) {
 		
-		MuteMessage msg = new MuteMessage(user, getChildText(e, "user", null));
-		return msg;
+		return new MuteMessage(user, getChildText(e, "user", null));
 	}
 }

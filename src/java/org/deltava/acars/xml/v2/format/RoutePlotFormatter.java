@@ -1,7 +1,7 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.RoutePlotMessage;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.dispatch.RoutePlotMessage;
 /**
  * An XML formatter for route plot messages.
  * @author Luke
- * @version 3.0
+ * @version 4.2
  * @since 3.0
  */
 

@@ -1,9 +1,9 @@
-// Copyright 2006, 2007, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.FuelTank;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 4.0
+ * @version 4.2
  * @since 1.0
  */
 
@@ -27,6 +27,7 @@ class DispatchInfoFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message

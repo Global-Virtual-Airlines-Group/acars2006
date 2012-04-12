@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -32,7 +32,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
-	public AuthenticateMessage parse(org.jdom.Element e, Pilot user) throws XMLException {
+	public AuthenticateMessage parse(org.jdom2.Element e, Pilot user) throws XMLException {
 
 		// Get the user ID and password and validate
 		String userID = getChildText(e, "user", null);

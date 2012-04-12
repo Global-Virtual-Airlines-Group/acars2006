@@ -1,4 +1,4 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An XML parser for RoutePlot messages. 
  * @author Luke
- * @version 3.0
+ * @version 4.2
  * @since 3.0
  */
 
@@ -27,7 +27,8 @@ public class RoutePlotParser extends XMLElementParser<RoutePlotMessage> {
 	 * @return a RoutePlotMessage
 	 * @throws XMLException if a parse error occurs 
 	 */
-	public RoutePlotMessage parse(org.jdom.Element e, Pilot usr) throws XMLException {
+	@Override
+	public RoutePlotMessage parse(org.jdom2.Element e, Pilot usr) throws XMLException {
 
 		// Create the message
 		RoutePlotMessage msg = new RoutePlotMessage(usr);

@@ -1,7 +1,7 @@
-// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
 
@@ -13,7 +13,7 @@ import org.deltava.util.XMLUtils;
 /**
  * A formatter for Takeoff/Touchdown messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 2.8
  */
 

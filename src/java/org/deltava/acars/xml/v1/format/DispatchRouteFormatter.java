@@ -1,9 +1,9 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.beans.Flight;
 import org.deltava.beans.acars.DispatchRoute;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 3.4
+ * @version 4.2
  * @since 2.0
  */
 

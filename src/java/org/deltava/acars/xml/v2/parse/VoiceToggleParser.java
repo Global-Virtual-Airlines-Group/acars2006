@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.xml.*;
 /**
  * A message parser for voice toggle messages.
  * @author Luke
- * @version 4.0
+ * @version 4.2
  * @since 4.0
  */
 
@@ -22,7 +22,7 @@ public class VoiceToggleParser extends XMLElementParser<VoiceToggleMessage> {
 	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
-	public VoiceToggleMessage parse(org.jdom.Element e, Pilot user) {
+	public VoiceToggleMessage parse(org.jdom2.Element e, Pilot user) {
 
 		boolean isEnabled = Boolean.valueOf(getChildText(e, "enabled", "false")).booleanValue();
 		boolean isEcho = Boolean.valueOf(getChildText(e, "echo", "false")).booleanValue();

@@ -1,7 +1,7 @@
-// Copyright 2006, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.ControllerMessage;
@@ -12,7 +12,7 @@ import org.deltava.util.StringUtils;
 /**
  * An XML Formatter for Controller data messages.
  * @author Luke
- * @version 3.6
+ * @version 4.2
  * @since 1.0
  */
 
@@ -23,6 +23,7 @@ class ControllerFormatter extends ElementFormatter {
 	 * @param msg the Message
 	 * @return an XML element
 	 */
+	@Override
 	public Element format(Message msg) {
 
 		// Cast the message
