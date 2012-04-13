@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="/DVA2006/lib/servlet-api-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.62.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-2.0.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JDK1.7.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
