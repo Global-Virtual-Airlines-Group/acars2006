@@ -34,7 +34,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS command to file a Flight Report.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -265,12 +265,16 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (afr.getLoadFactor() == 0) {
 					ctx.setMessage("Calculating flight load factor");
 					LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-					double loadFactor = lf.generate(afr.getSubmittedOn());
+					double loadFactor = lf.generate(afr.getDate());
 					afr.setLoadFactor(loadFactor);
 				}
 				
-				if ((a.getSeats() > 0) && (afr.getPassengers() == 0))
-					afr.setPassengers((int) Math.round(a.getSeats() * afr.getLoadFactor()));
+				if ((a.getSeats() > 0) && (afr.getPassengers() == 0)) {
+					int paxCount = (int) Math.round(a.getSeats() * afr.getLoadFactor());
+					afr.setPassengers(Math.min(a.getSeats(), paxCount));
+					if (paxCount > a.getSeats())
+						log.warn("Invalid passenger count - pax=" + paxCount + ", seats=" + a.getSeats());
+				}
 			}
 
 			// Check for in-flight refueling
