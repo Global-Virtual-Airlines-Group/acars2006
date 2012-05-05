@@ -54,6 +54,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		
 		// Check for load data (this is really v2, but no sense making a new parser for a single element)
 		afr.setLoadFactor(StringUtils.parse(getChildText(e, "loadFactor", "0"), 0.0));
+		if (Double.isNaN(afr.getLoadFactor()))
+			afr.setLoadFactor(0);
 			
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
