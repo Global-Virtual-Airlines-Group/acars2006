@@ -1,17 +1,14 @@
 // Copyright 2006, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
-import java.util.Iterator;
-
 import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.DraftPIREPMessage;
 
-import org.deltava.acars.xml.XMLElementFormatter;
-
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
+
 import org.deltava.util.*;
 
 /**
@@ -21,7 +18,7 @@ import org.deltava.util.*;
  * @since 1.0
  */
 
-class DraftFlightFormatter extends XMLElementFormatter {
+class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 
 	/**
 	 * Formats a DraftPIREPMessage bean into an XML element.
@@ -37,10 +34,7 @@ class DraftFlightFormatter extends XMLElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "pireps");
-		for (Iterator<FlightReport> i = dfmsg.getResponse().iterator(); i.hasNext(); ) {
-			FlightReport fr = i.next();
-			
-			// Build the PIREP element
+		for (FlightReport fr : dfmsg.getResponse()) {
 			Element fe = new Element("pirep");
 			fe.setAttribute("id", StringUtils.formatHex(fr.getID()));
 			fe.setAttribute("airline", fr.getAirline().getCode());
@@ -55,6 +49,8 @@ class DraftFlightFormatter extends XMLElementFormatter {
 				fe.setAttribute("network", OnlineNetwork.VATSIM.toString());
 			else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
 				fe.setAttribute("network", OnlineNetwork.IVAO.toString());
+			if (!StringUtils.isEmpty(fr.getRoute()))
+				fe.addContent(XMLUtils.createElement("route", fr.getRoute(), true));
 			
 			// Add scheduled departure/arrival times
 			if (fr instanceof DraftFlightReport) {
