@@ -97,6 +97,10 @@ public class PositionCommand extends ACARSCommand {
 						if (distance < (ctr.getFacility().getRange() * 2)) {
 							msg.setController(ctr);
 							log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+							if (ackMsg == null)
+								ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+							
+							ackMsg.setEntry("reqATC", "true");
 						}
 					}
 				}
@@ -140,10 +144,12 @@ public class PositionCommand extends ACARSCommand {
 				updmsg.add(upd);
 			
 				// Queue the message
-				// FIXME: this currently sends MP messages even if the source flght wasn't MP - OK for testing only
 				for (ACARSConnection rac : scopes) {
 					ScopeInfoMessage sc = rac.getScope();
-					if ((sc == null) || sc.getAllTraffic() || (sc.getNetwork() == network))
+					if (sc == null) {
+						if (rac.getUser().isInRole("Developer"))
+							MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
+					} else if (sc.getAllTraffic() || (sc.getNetwork() == network))
 						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
 					else if ((network == null) && (sc.getNetwork() == OnlineNetwork.ACARS))
 						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
