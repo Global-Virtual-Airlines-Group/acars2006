@@ -334,14 +334,14 @@ public class FilePIREPCommand extends ACARSCommand {
 			// If we don't have takeoff/touchdown points from Build 100+, derive them
 			GetNavAirway navdao = new GetNavAirway(con);
 			if (afr.getTakeoffHeading() == -1) {
-				List<ACARSRouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
+				List<? extends RouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
 				if (tdEntries.size() > 2) {
 					int ofs = 0;
-					ACARSRouteEntry entry = tdEntries.get(0);
+					ACARSRouteEntry entry = (ACARSRouteEntry) tdEntries.get(0);
 					GeoPosition adPos = new GeoPosition(info.getAirportD());
 					while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
 						ofs++;
-						entry = tdEntries.get(ofs);
+						entry = (ACARSRouteEntry) tdEntries.get(ofs);
 					}
 
 					// Trim out spurious takeoff entries
@@ -365,7 +365,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Load the departure runway
 			Runway rD = null;
 			if (afr.getTakeoffHeading() > -1) {
-				Runway r = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
+				LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
+				Runway r = lr.getBestRunway();
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
 					rD = new RunwayDistance(r, dist);
@@ -377,7 +378,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Load the arrival runway
 			Runway rA = null;
 			if (afr.getLandingHeading() > -1) {
-				Runway r = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
+				LandingRunways lr = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
+				Runway r = lr.getBestRunway();
 				if (r != null) {
 					int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
 					rA = new RunwayDistance(r, dist);
