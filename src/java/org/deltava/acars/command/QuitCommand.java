@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2011 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2011, 2012 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -47,7 +47,7 @@ public class QuitCommand extends ACARSCommand {
 			try {
 				Connection c = ctx.getConnection();
 				SetInfo infoDAO = new SetInfo(c);
-				infoDAO.close(msg.getFlightID(), env.getConnectionID(), false);
+				infoDAO.close(msg.getFlightID(), false);
 
 				// If Teamspeak is enabled, mark us as disconnected
 				if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
