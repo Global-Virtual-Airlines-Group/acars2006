@@ -114,17 +114,16 @@ public class SetInfo extends DAO {
 	 * @param force mark the flight closed even if already closed
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void close(int flightID, long cid, boolean force) throws DAOException {
+	public void close(int flightID, boolean force) throws DAOException {
 	   
 	   // Build the SQL statement
-	   StringBuilder sqlBuf = new StringBuilder("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?) AND (CON_ID=CONV(?,10,16))");
+	   StringBuilder sqlBuf = new StringBuilder("UPDATE acars.FLIGHTS SET END_TIME=NOW() WHERE (ID=?)");
 	   if (!force)
 	      sqlBuf.append(" AND (END_TIME IS NULL)");
 	   
 	   try {
 	      prepareStatement(sqlBuf.toString());
 	      _ps.setInt(1, flightID);
-	      _ps.setLong(2, cid);
 	      executeUpdate(0);
 	   } catch (SQLException se) {
 	      throw new DAOException(se);

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Date;
@@ -17,7 +17,7 @@ import org.deltava.dao.DAOException;
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -69,7 +69,7 @@ public class EndFlightCommand extends ACARSCommand {
 		iMsg.setEndTime(new Date());
 		try {
 			SetInfo infoDAO = new SetInfo(ctx.getConnection());
-			infoDAO.close(iMsg.getFlightID(), env.getConnectionID(), true);
+			infoDAO.close(iMsg.getFlightID(), true);
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
 		} finally {
