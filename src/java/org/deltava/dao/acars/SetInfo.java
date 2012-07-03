@@ -1,8 +1,9 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
 
+import org.deltava.acars.beans.ACARSConnection;
 import org.deltava.acars.message.InfoMessage;
 
 import org.deltava.dao.*;
@@ -10,18 +11,19 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 3.6
+ * @version 4.2
  * @since 1.0
  */
 
 public class SetInfo extends DAO {
 
-	// SQL update statements
-	private static final String ISQL = "INSERT INTO acars.FLIGHTS (CON_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
+	// SQL statements
+	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
 		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, "
-		+ "MP) VALUES (CONV(?,10,16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+		+ "INET_ATON(?), ?, ?, ?)";
 	
-	private static final String USQL = "UPDATE acars.FLIGHTS SET CON_ID=CONV(?,10,16), FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
+	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
 		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
@@ -35,17 +37,17 @@ public class SetInfo extends DAO {
 	
 	/**
 	 * Writes a Flight Information entry to the database. <i>This call handles INSERTs and UPDATEs</i>
+	 * @param ac the ACARSConnection object
 	 * @param msg the InfoMessage bean
-	 * @param cid the connection ID
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void write(InfoMessage msg, long cid) throws DAOException {
+	public void write(ACARSConnection ac, InfoMessage msg) throws DAOException {
 		boolean isNew = (msg.getFlightID() == 0);
 		try {
 			startTransaction();
 			
 			prepareStatementWithoutLimits(isNew ? ISQL : USQL);
-			_ps.setLong(1, cid);
+			_ps.setInt(1, ac.getUser().getID());
 			_ps.setString(2, msg.getFlightCode());
 			_ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
 			_ps.setString(4, msg.getEquipmentType());
@@ -60,8 +62,12 @@ public class SetInfo extends DAO {
 			_ps.setBoolean(13, msg.isScheduleValidated());
 			_ps.setBoolean(14, msg.isDispatchPlan());
 			_ps.setBoolean(15, (msg.getLivery() != null));
+			_ps.setString(16, ac.getRemoteAddr());
+			_ps.setString(17, ac.getRemoteHost());
+			_ps.setInt(18, ac.getClientVersion());
+			_ps.setInt(19, ac.getBeta());
 			if (msg.getFlightID() != 0)
-				_ps.setInt(16, msg.getFlightID());
+				_ps.setInt(20, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(1);

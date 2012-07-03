@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -236,23 +236,9 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.startTX();
 
 			// Get the DAO and write the connection
-			SetConnection cwdao = new SetConnection(c);
-			try {
+			if (con.getIsDispatch()) {
+				SetConnection cwdao = new SetConnection(c);
 				cwdao.add(con);
-			} catch (DAOException de) {
-				Throwable ce = de.getCause();
-				if (ce instanceof SQLException) {
-					SQLException se = (SQLException) ce;
-					if ((se.getErrorCode() == 1062) || ("23000".equals(se.getSQLState()))) {
-						GetACARSData crdao = new GetACARSData(c);
-						if (crdao.getConnection(con.getID()) == null) {
-							ctx.rollbackTX();
-							ctx.startTX();
-							log.warn(de.getMessage() +", cannot find duplicate");
-							cwdao.add(con);
-						}
-					}
-				}
 			}
 			
 			// Log the login
