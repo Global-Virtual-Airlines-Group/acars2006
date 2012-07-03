@@ -25,7 +25,8 @@ public class SetInfo extends DAO {
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
-		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
+		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, "
+		+ "BETA_BUILD=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
