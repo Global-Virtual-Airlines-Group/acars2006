@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -25,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A TCP/IP Connection Pool for ACARS Connections.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -187,13 +187,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				
 				// Get the flight information
 				InfoMessage inf = ac.getFlightInfo();
-				FlightInfo info = new FlightInfo(ac.getID());
+				FlightInfo info = new FlightInfo(0);
 				if (inf != null) {
 					info.setFlightCode(inf.getFlightCode());
 					info.setAirportD(inf.getAirportD());
 					info.setAirportA(inf.getAirportA());
 					info.setEquipmentType(inf.getEquipmentType());
-					info.setConnectionID(ac.getID());
 					info.setPilotID(ac.getUser().getID());
 					info.setFSVersion(inf.getFSVersion());
 					if (inf.getFlightID() != 0)

@@ -1,11 +1,11 @@
-// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.navdata.Runway;
+import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.ICAOAirport;
 
 import org.deltava.acars.beans.*;
@@ -19,7 +19,7 @@ import org.deltava.util.GeoUtils;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 2.8
  */
 
@@ -60,7 +60,8 @@ public class TakeoffCommand extends ACARSCommand {
 
 			// Get the runway
 			GetNavData nvdao = new GetNavData(con);
-			Runway r = nvdao.getBestRunway(a, 0, msg.getLocation(), msg.getHeading());
+			LandingRunways lr = nvdao.getBestRunway(a, info.getFSVersion(), msg.getLocation(), msg.getHeading());
+			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
 				int dist = GeoUtils.distanceFeet(r, msg.getLocation());
 				
