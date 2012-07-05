@@ -193,7 +193,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					info.setAirportD(inf.getAirportD());
 					info.setAirportA(inf.getAirportA());
 					info.setEquipmentType(inf.getEquipmentType());
-					info.setPilotID(ac.getUser().getID());
+					info.setAuthorID(ac.getUser().getID());
 					info.setFSVersion(inf.getFSVersion());
 					if (inf.getFlightID() != 0)
 						info.setID(inf.getFlightID());
