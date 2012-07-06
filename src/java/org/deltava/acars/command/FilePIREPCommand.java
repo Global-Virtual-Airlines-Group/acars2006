@@ -310,15 +310,15 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
-			int avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
-			if ((avgHours == 0) && (!isAcademy && !isAssignment)) {
+			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
+			if ((avgHours.getFlightTime() == 0) && (!isAcademy && !isAssignment)) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
 				if (!wasValid)
 					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, !afr.hasAttribute(FlightReport.ATTR_CHARTER));
 			} else {
-				int minHours = (int) ((avgHours * 0.75) - 5); // fixed 0.5 hour
-				int maxHours = (int) ((avgHours * 1.15) + 5);
+				int minHours = (int) ((avgHours.getFlightTime() * 0.75) - 5); // fixed 0.5 hour
+				int maxHours = (int) ((avgHours.getFlightTime() * 1.15) + 5);
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
 			}
