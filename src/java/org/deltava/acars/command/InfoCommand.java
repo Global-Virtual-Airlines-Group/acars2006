@@ -13,6 +13,7 @@ import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
+import org.deltava.beans.schedule.FlightTime;
 import org.deltava.beans.schedule.ScheduleRoute;
 import org.deltava.beans.testing.*;
 
@@ -98,8 +99,8 @@ public class InfoCommand extends ACARSCommand {
 			if (!isValidated) {
 				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
 				GetSchedule sdao = new GetSchedule(c);
-				int avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
-				msg.setScheduleValidated(avgTime > 0);
+				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
+				msg.setScheduleValidated(avgTime.getFlightTime() > 0);
 				
 				// If we're not valid, check against draft PIREPs
 				if (!msg.isScheduleValidated()) {
