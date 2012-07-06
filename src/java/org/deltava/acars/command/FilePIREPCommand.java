@@ -391,10 +391,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Get framerates
 			afr.setAverageFrameRate(fddao.getFrameRate(flightID));
 			
-			// Save comments
-			if (!comments.isEmpty())
-				afr.setComments(StringUtils.listConcat(comments, "\r\n"));
-			
 			// Set misc options
 			afr.setClientBuild(ac.getClientVersion());
 			afr.setBeta(ac.getBeta());
@@ -470,19 +466,23 @@ public class FilePIREPCommand extends ACARSCommand {
 				// Check actual SID/STAR
 				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.SID, wps.get(0), wps.get(1), rD);
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
-					log.info("Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+					comments.add("Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
 				}
 
 				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
-					log.info("Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+					comments.add("Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 				}
 			}
-
+			
+			// Save comments
+			if (!comments.isEmpty())
+				afr.setComments(StringUtils.listConcat(comments, "\r\n"));
+			
 			// Get the write DAO and save the PIREP
 			ctx.setMessage("Saving Flight report for flight " + afr.getFlightCode() + " for " + ac.getUserID());
 			SetFlightReport wdao = new SetFlightReport(con);
