@@ -9,7 +9,7 @@ import java.nio.channels.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.ConnectionStats;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.system.IPAddressInfo;
 
 import org.deltava.acars.message.*;
@@ -21,11 +21,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
-public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, Closeable {
+public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, ClientVersion, Closeable {
 
 	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
 	
@@ -40,7 +40,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private int _warnings;
 
 	private int _protocolVersion = 1;
-	private int _clientVersion;
+	private int _version;
+	private int _clientBuild;
 	private int _beta;
 	
 	private long _dispatcherID;
@@ -160,7 +161,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	 * @throws IOException if the registration failed
 	 */
 	void register(Selector s) throws ClosedChannelException {
-		
 		SocketChannel sc = _tcp.getChannel();
 		if (sc.keyFor(s) == null)
 			sc.register(s, SelectionKey.OP_READ);
@@ -251,31 +251,27 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _range;
 	}
 
-	public int getClientVersion() {
-		return _clientVersion;
-	}
-	
 	public int getBeta() {
 		return _beta;
 	}
 	
-	public String getVersion() {
-		StringBuilder buf = new StringBuilder();
-		if (_isDispatch)
-			buf.append("Dispatch ");
-		else if (_isATC)
-			buf.append("ATC ");
-		
-		buf.append("Build ");
-		buf.append(_clientVersion);
-		if (_beta > 0) {
-			buf.append(" Beta ");
-			buf.append(_beta);
-		}
-
-		return buf.toString();
+	public int getClientBuild() {
+		return _clientBuild;
 	}
-
+	
+	public ClientType getClientType() {
+		if (_isDispatch)
+			return ClientType.DISPATCH;
+		if (_isATC)
+			return ClientType.ATC;
+		
+		return ClientType.PILOT;
+	}
+	
+	public int getVersion() {
+		return _version;
+	}
+	
 	public long getStartTime() {
 		return _startTime;
 	}
@@ -352,13 +348,14 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_protocolVersion = Math.max(_protocolVersion, pv);
 	}
 
-	public void setClientVersion(int ver) {
-		_clientVersion = Math.max(1, ver);
-	}
-	
-	public void setBeta(int beta) {
+	public void setClientBuild(int bld, int beta) {
+		_clientBuild = Math.max(1, bld);
 		if (beta < Integer.MAX_VALUE)
 			_beta = Math.max(0, beta);
+	}
+	
+	public void setVersion(int ver) {
+		_version = Math.max(1, ver);
 	}
 	
 	public void setIsATC(boolean isATC) {

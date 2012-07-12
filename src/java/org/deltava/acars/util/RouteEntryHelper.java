@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -45,7 +45,7 @@ public final class RouteEntryHelper {
 
 		// Build the MapRouteEntry bean
 		MapRouteEntry result = new MapRouteEntry(new Date(), new GeoPosition(msg), usr, imsg.getEquipmentType());
-		result.setClientBuild(con.getClientVersion(), con.getBeta());
+		result.setClientBuild(con.getClientBuild(), con.getBeta());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
@@ -91,7 +91,7 @@ public final class RouteEntryHelper {
 		
 		// Build the DispatchMapEntry bean
 		DispatchMapEntry result = new DispatchMapEntry(usr, loc);
-		result.setClientBuild(ac.getClientVersion(), ac.getBeta());
+		result.setClientBuild(ac.getClientBuild(), ac.getBeta());
 		result.setBusy(ac.getUserBusy());
 		result.setRange(ac.getRange());
 		return result;
@@ -112,7 +112,7 @@ public final class RouteEntryHelper {
 		
 		// Build the bean
 		ATCMapEntry result = new ATCMapEntry(usr, loc);
-		result.setClientBuild(ac.getClientVersion(), ac.getBeta());
+		result.setClientBuild(ac.getClientBuild(), ac.getBeta());
 		result.setBusy(ac.getUserBusy());
 		result.setRange(ac.getRange());
 		return result;

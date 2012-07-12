@@ -87,7 +87,8 @@ class ConnectionFormatter extends ElementFormatter {
 			
 			// Add connection specific stuff
 			ce.addContent(XMLUtils.createElement("protocol", String.valueOf(con.getProtocolVersion())));
-			ce.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientVersion())));
+			ce.addContent(XMLUtils.createElement("clientVersion", String.valueOf(con.getVersion())));
+			ce.addContent(XMLUtils.createElement("clientBuild", String.valueOf(con.getClientBuild())));
 			ce.addContent(XMLUtils.createElement("beta", String.valueOf(con.getBeta())));
 			ce.addContent(XMLUtils.createElement("starttime", Long.toHexString(con.getStartTime())));
 			ce.addContent(XMLUtils.createElement("lastactivity", StringUtils.formatHex(con.getLastActivity())));

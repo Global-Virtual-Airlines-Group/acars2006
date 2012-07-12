@@ -65,7 +65,7 @@ public class SetInfo extends DAO {
 			_ps.setBoolean(15, (msg.getLivery() != null));
 			_ps.setString(16, ac.getRemoteAddr());
 			_ps.setString(17, ac.getRemoteHost());
-			_ps.setInt(18, ac.getClientVersion());
+			_ps.setInt(18, ac.getClientBuild());
 			_ps.setInt(19, ac.getBeta());
 			if (msg.getFlightID() != 0)
 				_ps.setInt(20, msg.getFlightID());

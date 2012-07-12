@@ -5,7 +5,6 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.ClientInfo;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
@@ -22,7 +21,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 2.0
  */
 
@@ -56,13 +55,13 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// Check minimum build number
 			GetACARSBuilds abdao = new GetACARSBuilds(con);
-			if (!abdao.isDispatchAvailable(new ClientInfo(2, c.getClientVersion()))) {
+			if (!abdao.isDispatchAvailable(c)) {
 				ctx.release();
-				log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientVersion());	
+				log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientBuild());	
 
 				// Send response
 				SystemTextMessage txtMsg = new SystemTextMessage();
-				txtMsg.addMessage("ACARS Client Build " + c.getClientVersion() + " cannot request Dispatch service");
+				txtMsg.addMessage("ACARS Client Build " + c.getClientBuild() + " cannot request Dispatch service");
 				ctx.push(txtMsg, env.getConnectionID());
 				return;
 			}
