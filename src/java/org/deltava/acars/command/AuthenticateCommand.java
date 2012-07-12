@@ -193,8 +193,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Log the user in
 		con.setUser(usr);
 		con.setUserLocation(ud);
-		con.setClientVersion(cInfo.getClientBuild());
-		con.setBeta(cInfo.getBeta());
+		con.setVersion(cInfo.getVersion());
+		con.setClientBuild(cInfo.getClientBuild(), cInfo.getBeta());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(timeDiff * 1000);
 		if (msg.getProtocolVersion() > con.getProtocolVersion()) {

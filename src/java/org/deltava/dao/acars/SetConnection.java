@@ -41,7 +41,7 @@ public final class SetConnection extends DAO {
 			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
 			_ps.setString(4, c.getRemoteAddr());
 			_ps.setString(5, c.getRemoteHost());
-			_ps.setInt(6, c.getClientVersion());
+			_ps.setInt(6, c.getClientBuild());
 			_ps.setInt(7, c.getBeta());
 			executeUpdate(1);
 		} catch (SQLException se) {

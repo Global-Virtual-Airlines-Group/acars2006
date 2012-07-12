@@ -170,7 +170,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
 				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
-				entry.setClientBuild(ac.getClientVersion());
+				entry.setClientBuild(ac.getClientBuild());
 				entry.setBeta(ac.getBeta());
 				entry.setRemoteAddr(ac.getRemoteAddr());
 				entry.setRemoteHost(ac.getRemoteHost());

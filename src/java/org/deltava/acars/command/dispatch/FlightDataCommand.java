@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 2.7
+ * @version 4.2
  * @since 1.1
  */
 
@@ -75,7 +75,7 @@ public class FlightDataCommand extends DispatchCommand {
 				// Write the route
 				if (dupeID == 0) {
 					SetRoute dao = new SetRoute(c);
-					dao.save(msg, con.getClientVersion());
+					dao.save(msg, con.getClientBuild());
 				} else {
 					log.warn(con.getUser().getName() + " attempting to save duplicate of Route #" + dupeID);
 					msg.setRouteID(dupeID);
