@@ -174,11 +174,7 @@ public abstract class XMLMessageParser extends MessageParser {
 						results.add(msg);
 					}
 				} catch (Exception e) {
-					if (e instanceof XMLException)
-						log.warn("Message parse exception - " + e.getMessage());
-					else
-						log.error("Message parse exception - " + e.getMessage(), e);
-					
+					log.error("Message parse exception - " + e.getMessage(), e);
 					results.add(new ErrorMessage(env.getOwner(), e.getMessage(), id));
 				}
 			}

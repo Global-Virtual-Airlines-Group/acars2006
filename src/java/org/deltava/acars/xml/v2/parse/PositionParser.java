@@ -94,7 +94,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			double a2 =(Math.floor(alt) - alt);
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
 		} catch (Exception ex) {
-			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
+			throw new XMLException("Error parsing v2 Position data - " + ex.getMessage(), ex);
 		}
 		
 		// Parse ATC info
