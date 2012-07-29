@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to display approach charts.
  * @author Luke
- * @version 2.2
+ * @version 4.2
  * @since 1.0
  */
 
@@ -35,7 +35,8 @@ public class ChartsCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
-	public final void execute(CommandContext ctx, MessageEnvelope env) {
+	@Override
+	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
@@ -61,7 +62,7 @@ public class ChartsCommand extends DataCommand {
 			rspMsg.setAirport(a);
 			for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
 				Chart ch = ci.next();
-				if ((ch.getImgType() != Chart.PDF) || !noPDF)
+				if ((ch.getImgType() != Chart.ImageType.PDF) || !noPDF)
 					rspMsg.add(ch);
 			}
 			
