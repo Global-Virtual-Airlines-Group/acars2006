@@ -7,7 +7,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS data request/response message.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -41,11 +41,12 @@ public abstract class DataMessage extends AbstractMessage {
 	public static final int REQ_CHLIST = 24;
 	public static final int REQ_LOAD = 25;
 	public static final int REQ_LASTAP = 26;
+	public static final int REQ_ALT = 27;
 	
 	private int _reqType = REQ_UNKNOWN;
 	public static final String[] REQ_TYPES = {"?", "pilots", "isonline", "validate", "addpilots", "delpilots", "sidstar", "navaid", "pvtvox",
 		"eqList", "apList", "aList", "charts", "atc" , "busy", "draftpirep", "ts2servers", "sched", "nat", "hide", "liveries", "wx", "airportinfo",
-		"appInfo", "vchannels", "load", "lastairport"};
+		"appInfo", "vchannels", "load", "lastairport", "alternate"};
 
 	/**
 	 * Creates the message.
@@ -72,8 +73,7 @@ public abstract class DataMessage extends AbstractMessage {
 	 * @see DataMessage#setRequestType(int)
 	 */
 	public void setRequestType(String newRT) {
-		int reqType = StringUtils.arrayIndexOf(REQ_TYPES, newRT);
-		setRequestType((reqType == -1) ? 0 : reqType);
+		_reqType = StringUtils.arrayIndexOf(REQ_TYPES, newRT, 0);
 	}
 	
 	/**
