@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 4.1
+ * @version 4.2
  * @since 1.0
  */
 
@@ -44,7 +44,7 @@ public class LogicProcessor extends Worker {
 	@Override
 	public void open() {
 		super.open();
-		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.min", 1));
+		int minThreads = Math.max(1, SystemData.getInt("acars.pool.threads.logic.min", 1));
 		int maxThreads = Math.max(minThreads, SystemData.getInt("acars.pool.threads.logic.max", minThreads));
 		_cmdPool = new QueueingThreadPool(minThreads, maxThreads, 1250, LogicProcessor.class);
 		_cmdPool.allowCoreThreadTimeOut(false);
@@ -98,6 +98,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LOAD), new LoadFactorCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ONLINE), new OnlinePresenceCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LASTAP), new LastAirportCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ALT), new AlternateAirportCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
