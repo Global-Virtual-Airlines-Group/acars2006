@@ -199,7 +199,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (e != null) {
 					long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 1000;
 					if (timeSinceEnd > 21600) {
-						comments.add("Flight logged over 6 hours after Event completion");
+						comments.add("SYSTEM: Flight logged over 6 hours after Event completion");
 						afr.setDatabaseID(DatabaseID.EVENT, 0);
 					}
 				} else
@@ -230,7 +230,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					if (!isOK) {
 						i.remove();
 						if (!StringUtils.isEmpty(helper.getLastComment()))
-							comments.add("Not eligible for promotion: " + helper.getLastComment());
+							comments.add("SYSTEM: Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
 
@@ -259,7 +259,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
-				comments.add("ETOPS classificataion: " + String.valueOf(etopsClass));
+				comments.add("SYSTEM: ETOPS classificataion: " + String.valueOf(etopsClass));
 			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
@@ -302,8 +302,8 @@ public class FilePIREPCommand extends ACARSCommand {
 						c = crs;
 				}
 				
-				boolean isINS =ac.getUser().isInRole("Instructor") ||  ac.getUser().isInRole("AcademyAdmin") ||
-						ac.getUser().isInRole("Examiner");
+				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") ||
+						p.isInRole("Examiner");
 				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
 			}
 
@@ -327,7 +327,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			ctx.setMessage("Checking Held Flight Reports for " + ac.getUserID());
 			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
 			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
-				comments.add("Automatically Held due to " + heldPIREPs + " held Flight Reports");
+				comments.add("SYSTEM: Automatically Held due to " + heldPIREPs + " held Flight Reports");
 				afr.setStatus(FlightReport.HOLD);
 			}
 
@@ -469,7 +469,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
 					if (ac.getVersion() > 2)
-						comments.add("Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 				}
 
 				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
@@ -477,7 +477,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 					if (ac.getVersion() > 2)
-						comments.add("Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
 				}
 			}
 			
