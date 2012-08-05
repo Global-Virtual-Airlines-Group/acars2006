@@ -473,6 +473,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 
 				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
+				if (aSTAR == null)
+					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), null, rA); 
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
