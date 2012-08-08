@@ -54,6 +54,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			}
 		} catch (Exception ex) {
 			log.warn("Unparseable date from " + user + " - " + de);
+			msg.setDate(new Date());
 		}
 
 		// Get the basic information
@@ -63,7 +64,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setBank(Double.parseDouble(getChildText(e, "bank", "0")));
 			msg.setLatitude(Double.parseDouble(getChildText(e, "lat", "0")));
 			msg.setLongitude(Double.parseDouble(getChildText(e, "lon", "0")));
-			msg.setAltitude(Integer.parseInt(getChildText(e, "msl", "0")));
+			msg.setAltitude((int) Double.parseDouble(getChildText(e, "msl", "0")));
 			msg.setRadarAltitude(Integer.parseInt(getChildText(e, "agl", "0")));
 			msg.setAspeed(Integer.parseInt(getChildText(e, "aSpeed", "0")));
 			msg.setGspeed(Integer.parseInt(getChildText(e, "gSpeed", "0")));
