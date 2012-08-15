@@ -60,6 +60,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				ce.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 				ce.addContent(XMLUtils.createElement("isDispatch", String.valueOf(con.getIsDispatch())));
+				ce.addContent(XMLUtils.createElement("isVoice", String.valueOf(con.isVoiceEnabled() || con.getMuted())));
 				ce.addContent(XMLUtils.createElement("isATC", String.valueOf(con.getIsATC())));
 				ce.addContent(XMLUtils.createElement("isHidden", String.valueOf(con.getUserHidden())));
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
