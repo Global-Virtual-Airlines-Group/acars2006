@@ -63,7 +63,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	public ACARSConnectionPool(int maxSize) {
 		super();
-		_maxSize = (maxSize > 0) ? maxSize : -1;
+		_maxSize = Math.max(0, maxSize);
 	}
 
 	/**
@@ -80,31 +80,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	}
 
 	/**
-	 * Returns network data in a format suitable for Google Maps.
-	 * @return a Collection of MapEntry beans
-	 */
-	public Collection<ACARSMapEntry> getMapEntries() {
-		Collection<ACARSConnection> cons = getAll();
-		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-			ACARSMapEntry re = RouteEntryHelper.build(con);
-			if (re != null)
-				results.add(re);
-		}
-		
-		return results;
-	}
-	
-	/**
 	 * Returns warning levels for connections.
 	 * @return a Map of warning levels, keyed by Connection ID.
 	 */
 	public Map<Long, Integer> getWarnings() {
 		Collection<ACARSConnection> cons = getAll();
 		Map<Long, Integer> results = new HashMap<Long, Integer>();
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
+		for (ACARSConnection con : cons) {
 			synchronized (con) {
 				if (con.getWarnings() > 0)
 					results.put(Long.valueOf(con.getID()), Integer.valueOf(con.getWarnings()));
@@ -121,9 +103,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<byte[]> getSerializedInfo() {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection ac = i.next();
-			if (!ac.getIsDispatch() || !ac.getUserHidden()) {
+		for (ACARSConnection ac : cons) {
+			if (!ac.getUserHidden()) {
 				ACARSMapEntry re = RouteEntryHelper.build(ac);
 				if (re != null)
 					results.add(re);
@@ -140,9 +121,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<Integer> getFlightIDs() {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<Integer> results = new TreeSet<Integer>();
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-			int id = con.getFlightID();
+		for (ACARSConnection ac : cons) {
+			int id = ac.getFlightID();
 			if (id != 0)
 				results.add(Integer.valueOf(id));
 		}
@@ -150,14 +130,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		return results;
 	}
 
-	/**
-	 * Returns the time of the last connection inacitivity check.
-	 * @return the date/time of the last inactivity check
-	 */
-	public Date getLastInactivityCheck() {
-		return new Date(_inactivityLastRun);
-	}
-	
 	/**
 	 * Returns Connection Pool data to a web application.
 	 * @param showHidden TRUE if stealth connections should be displayed, otherwise FALSE
@@ -210,7 +182,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	
 	/**
 	 * Returns ACARS connection statistics.
-	 * @return a Collection of CollectionStats beans
+	 * @return a Collection of ConnectionStats beans
 	 */
 	public Collection<ConnectionStats> getStatistics() {
 		Collection<ACARSConnection> cons = getAll();
@@ -240,8 +212,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				_conLookup.values().remove(c);
 			
 			// Check size
-			if (size() >= _maxSize)
-				throw new ACARSException("Connection Pool full - " + size() + " connections");
+			int size = (_maxSize == 0) ? -1 : size();
+			if (size >= _maxSize)
+				throw new ACARSException("Connection Pool full - " + size + " connections");
 			
 			// Register the SocketChannel with the selector, wake it up if it's sleeping
 			_cSelector.wakeup();
@@ -301,7 +274,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			}
 		}
 		
-		// Return the list of dropped connections
 		return disCons;
 	}
 	
