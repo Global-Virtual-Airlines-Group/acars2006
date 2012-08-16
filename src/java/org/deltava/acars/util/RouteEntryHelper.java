@@ -9,6 +9,7 @@ import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.acars.beans.ACARSConnection;
 import org.deltava.acars.message.*;
+import org.gvagroup.acars.ACARSFlags;
 
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
@@ -42,7 +43,9 @@ public final class RouteEntryHelper {
 		InfoMessage imsg = con.getFlightInfo();
 		if ((usr == null) || (msg == null) || (imsg == null))
 			return null;
-
+		else if (msg.isFlagSet(ACARSFlags.FLAG_PAUSED))
+			return null;
+		
 		// Build the MapRouteEntry bean
 		MapRouteEntry result = new MapRouteEntry(new Date(), new GeoPosition(msg), usr, imsg.getEquipmentType());
 		result.setClientBuild(con.getClientBuild(), con.getBeta());

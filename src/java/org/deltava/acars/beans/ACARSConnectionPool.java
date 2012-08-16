@@ -104,7 +104,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
 		for (ACARSConnection ac : cons) {
-			if (!ac.getUserHidden()) {
+			if (ac.getIsDispatch() || !ac.getUserHidden()) {
 				ACARSMapEntry re = RouteEntryHelper.build(ac);
 				if (re != null)
 					results.add(re);
