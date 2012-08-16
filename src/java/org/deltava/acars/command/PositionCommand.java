@@ -117,14 +117,9 @@ public class PositionCommand extends ACARSCommand {
 			return;
 		} else {
 			boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED);
-			
-			// Check for position flood
-			if (!isPaused) {
-				ac.setPosition(msg);
-				if (msg.isLogged())
-					SetPosition.queue(msg, ac.getFlightID());
-			} else
-				ac.setPosition(null);
+			ac.setPosition(msg);
+			if (msg.isLogged() && !isPaused)
+				SetPosition.queue(msg, ac.getFlightID());
 		}
 		
 		// Log message received
