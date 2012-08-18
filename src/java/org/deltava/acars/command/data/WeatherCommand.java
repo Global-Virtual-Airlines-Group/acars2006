@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -16,20 +16,17 @@ import org.deltava.acars.command.*;
 import org.deltava.dao.*;
 import org.deltava.dao.wsdl.GetFAWeather;
 
-import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 2.7
+ * @version 4.2
  * @since 2.3
  */
 
 public class WeatherCommand extends DataCommand {
 	
-	private static final Cache<WeatherDataBean> _cache = new ExpiringCache<WeatherDataBean>(256, 1800);
-
 	/**
 	 * Initializes the Command.
 	 */
@@ -42,6 +39,7 @@ public class WeatherCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
@@ -59,14 +57,6 @@ public class WeatherCommand extends DataCommand {
 		// Create the response
 		WXMessage wxMsg = new WXMessage(env.getOwner(), msg.getID());
 		wxMsg.setAirport(SystemData.getAirport(code));
-		
-		// Check the cache
-		WeatherDataBean info = _cache.get(wt.toString() + "$" + code);
-		if (info != null) {
-			wxMsg.add(info);
-			ctx.push(wxMsg, env.getConnectionID());
-			return;
-		}
 		
 		// Get the weather source
 		boolean isFA = "FA".equals(msg.getFilter()) && SystemData.getBoolean("schedule.flightaware.enabled");
