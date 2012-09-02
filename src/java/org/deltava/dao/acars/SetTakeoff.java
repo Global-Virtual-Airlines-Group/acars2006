@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -8,7 +8,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to log ACARS takeoffs and touchdowns. 
  * @author Luke
- * @version 2.8
+ * @version 4.2
  * @since 2.8
  */
 
@@ -31,6 +31,7 @@ public class SetTakeoff extends DAO {
 	 */
 	public boolean logTakeoff(int id, boolean isTakeoff) throws DAOException {
 		try {
+			startTransaction();
 			prepareStatementWithoutLimits("UPDATE acars.TOLAND SET EVENT_TIME=NOW() WHERE (ID=?) AND (TAKEOFF=?) LIMIT 1");
 			_ps.setInt(1, id);
 			_ps.setBoolean(2, isTakeoff);
@@ -38,15 +39,16 @@ public class SetTakeoff extends DAO {
 			
 			// Log if it's not a bounce
 			if (!isBounce) {
-				prepareStatementWithoutLimits("INSERT INTO acars.TOLAND (ID, TAKEOFF, EVENT_TIME) VALUES "
-						+ "(?, ?, NOW()) ON DUPLICATE KEY UPDATE EVENT_TIME=NOW()");
+				prepareStatementWithoutLimits("INSERT INTO acars.TOLAND (ID, TAKEOFF, EVENT_TIME) VALUES (?, ?, NOW())");
 				_ps.setInt(1, id);
 				_ps.setBoolean(2, isTakeoff);
 				executeUpdate(1);
 			}
 			
+			commitTransaction();
 			return isBounce;
 		} catch (SQLException se) {
+			rollbackTransaction();
 			throw new DAOException(se);
 		}
 	}
