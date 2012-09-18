@@ -1,5 +1,7 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
+
+import java.util.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.*;
@@ -9,7 +11,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message for Dispatcher progress responses.
  * @author Luke
- * @version 2.1
+ * @version 5.0
  * @since 2.1
  */
 
@@ -22,6 +24,7 @@ public class ProgressResponseMessage extends DispatchMessage {
 	private Airport _airportD;
 	private Airport _airportA;
 	private Airport _airportL;
+	private final Collection<Airport> _alternates = new ArrayList<Airport>();
 	
 	private GeospaceLocation _loc;
 	private String _eqType;
@@ -72,6 +75,14 @@ public class ProgressResponseMessage extends DispatchMessage {
 	 */
 	public Airport getAirportA() {
 		return _airportA;
+	}
+	
+	/**
+	 * Returns the closest Airports suitable for the aircraft.
+	 * @return the closest Airports
+	 */
+	public Collection<Airport> getClosestAirports() {
+		return _alternates;
 	}
 	
 	/**
@@ -144,6 +155,14 @@ public class ProgressResponseMessage extends DispatchMessage {
 	 */
 	public void setAirportL(Airport a) {
 		_airportL = a;
+	}
+	
+	/**
+	 * Updates the closest suitable Airports.
+	 * @param airports a Collection of Airports
+	 */
+	public void addClosestAirports(Collection<Airport> airports) {
+		_alternates.addAll(airports);
 	}
 	
 	/**

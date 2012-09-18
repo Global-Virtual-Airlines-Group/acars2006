@@ -6,12 +6,14 @@ import org.jdom2.Element;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.ProgressResponseMessage;
 
+import org.deltava.beans.schedule.Airport;
+
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for DispatchProgressResponse messages.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 2.1
  */
 
@@ -43,6 +45,11 @@ class DispatchProgressFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("fuel", String.valueOf(rspmsg.getFuel())));
 		e.addContent(XMLUtils.createElement("fuelFlow", String.valueOf(rspmsg.getBurnRate())));
 		e.addContent(XMLUtils.createElement("groundSpeed", String.valueOf(rspmsg.getGroundSpeed())));
+		Element ae = new Element("alternates");
+		for (Airport a : rspmsg.getClosestAirports())
+			ae.addContent(formatAirport(a, "alt"));
+		
+		e.addContent(ae);
 		return pe;
 	}
 }
