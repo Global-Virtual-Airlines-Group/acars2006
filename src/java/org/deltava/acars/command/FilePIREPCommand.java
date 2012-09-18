@@ -7,7 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.academy.Course;
+import org.deltava.beans.academy.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
 import org.deltava.beans.event.Event;
@@ -32,9 +32,9 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.common.*;
 
 /**
- * An ACARS command to file a Flight Report.
+ * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -298,7 +298,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
 				for (Iterator<Course> i = courses.iterator(); (c == null) && i.hasNext(); ) {
 					Course crs = i.next();
-					if (crs.getStatus() == Course.STARTED)
+					if (crs.getStatus() == Status.STARTED)
 						c = crs;
 				}
 				
@@ -413,20 +413,20 @@ public class FilePIREPCommand extends ACARSCommand {
 				GetExam exdao = new GetExam(con);
 				// Check for Academy chck ride
 				if (c != null) {
-					List<CheckRide> rides = exdao.getAcademyCheckRides(c.getID(), Test.NEW);
+					List<CheckRide> rides = exdao.getAcademyCheckRides(c.getID(), TestStatus.NEW);
 					if (!rides.isEmpty())
 						cr = rides.get(0);
 				}
 				
 				// Get check ride
 				if (cr == null)
-					cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), Test.NEW);
+					cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), TestStatus.NEW);
 				
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(new Date());
-					cr.setStatus(Test.SUBMITTED);
+					cr.setStatus(TestStatus.SUBMITTED);
 					if (cr.getAcademy() && !afr.hasAttribute(FlightReport.ATTR_ACADEMY))
 						afr.setAttribute(FlightReport.ATTR_ACADEMY, true);
 

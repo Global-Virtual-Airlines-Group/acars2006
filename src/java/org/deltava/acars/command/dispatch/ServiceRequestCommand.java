@@ -21,7 +21,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch request messages.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 2.0
  */
 
@@ -159,6 +159,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 		if (reqsSent > 0) {
 			SystemTextMessage txtMsg = new SystemTextMessage();
 			txtMsg.addMessage("Dispatch Request sent to " + reqsSent + " Dispatcher(s)");
+			if ((schedInfo != null) && !msg.getAirline().equals(schedInfo.getAirline()))
+				txtMsg.addMessage("Airline changed to " + schedInfo.getAirline().getName());
 			if (!msg.isRouteValid())
 				txtMsg.addMessage("You are requesting an Invalid Route, and are unlikely to receive Service!");
 			

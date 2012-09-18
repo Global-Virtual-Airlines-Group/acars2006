@@ -1,7 +1,13 @@
-// Copyright 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
+import java.util.List;
+
 import org.deltava.acars.beans.*;
+import org.deltava.beans.schedule.*;
+
+import org.deltava.dao.*;
+
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.*;
@@ -9,7 +15,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 2.7
+ * @version 5.0
  * @since 2.1
  */
 
@@ -27,6 +33,7 @@ public class ProgressCommand extends DispatchCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the inbound message and the owner
@@ -51,7 +58,24 @@ public class ProgressCommand extends DispatchCommand {
 		rmsg.setGroundSpeed(pos.getGspeed());
 		rmsg.setLocation(pos);
 		
-		// Send the response
+		// Calculate closest diversion airport
+		try {
+			GetAircraft acdao = new GetAircraft(ctx.getConnection());
+			Aircraft a = acdao.get(inf.getEquipmentType());
+			if (a != null) {
+				List<Airport> alts = AlternateAirportHelper.calculateAlternates(a, pos);
+				alts.remove(inf.getAirportA());
+				if (alts.size() > 5)
+					alts.subList(5, alts.size()).clear();
+				
+				rmsg.addClosestAirports(alts);
+			}
+		} catch (DAOException de) {
+			log.error("Error calculating alternates - " + de.getMessage(), de);
+		} finally {
+			ctx.release();
+		}
+		
 		ctx.push(rmsg, env.getConnectionID());
 	}
 }

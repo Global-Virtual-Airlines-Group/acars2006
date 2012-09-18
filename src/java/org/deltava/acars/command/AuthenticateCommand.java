@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -294,7 +294,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
 		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
-		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType()));
+		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
 			ackMsg.setEntry("unrestricted", "true");

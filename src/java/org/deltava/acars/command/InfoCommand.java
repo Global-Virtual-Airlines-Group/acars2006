@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -127,7 +127,7 @@ public class InfoCommand extends ACARSCommand {
 
 			// Look for a checkride record
 			GetExam exdao = new GetExam(c);
-			CheckRide cr = exdao.getCheckRide(usrLoc.getID(), msg.getEquipmentType(), Test.NEW);
+			CheckRide cr = exdao.getCheckRide(usrLoc.getID(), msg.getEquipmentType(), TestStatus.NEW);
 			msg.setCheckRide(cr != null);
 			ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
 			if (cr != null)
