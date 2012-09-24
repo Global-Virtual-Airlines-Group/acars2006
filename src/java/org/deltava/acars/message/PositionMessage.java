@@ -190,8 +190,8 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public void setMach(double m) {
-		if (m <= 4.2)
-			this.mach = Math.max(0, m);
+		if (!Double.isNaN(m))
+			this.mach = Math.min(4.2, Math.max(0, m));
 	}
 
 	public void setN1(double nn1) {
@@ -205,7 +205,7 @@ public class PositionMessage extends LocationMessage {
 		if (Double.isNaN(nn2))
 			this.n2 = 0;
 		else
-			this.n2 = Math.max(0, nn2);
+			this.n2 = Math.min(9999, Math.max(0, nn2));
 	}
 
 	public void setPhase(int newPhase) {
