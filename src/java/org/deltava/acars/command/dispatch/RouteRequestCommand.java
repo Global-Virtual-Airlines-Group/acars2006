@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 3.4
+ * @version 5.0
  * @since 2.0
  */
 
@@ -40,6 +40,7 @@ public class RouteRequestCommand extends DispatchCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the inbound message and the owner
@@ -89,7 +90,7 @@ public class RouteRequestCommand extends DispatchCommand {
 			
 			// Check if the route is valid
 			GetSchedule sdao = new GetSchedule(con);
-			rmsg.setScheduleInfo(sdao.getFlightNumber(msg.getAirportD(), msg.getAirportA(), ac.getUserData().getDB()));
+			rmsg.setScheduleInfo(sdao.getFlightNumber(msg, ac.getUserData().getDB()));
 			
 			// Send the response
 			if (!ac.getIsDispatch())

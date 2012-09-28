@@ -68,7 +68,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// Check the schedule
 			GetSchedule sdao = new GetSchedule(con);
-			schedInfo = sdao.getFlightNumber(msg.getAirportD(), msg.getAirportA(), ud.getDB());
+			schedInfo = sdao.getFlightNumber(msg, ud.getDB());
 			boolean routeValid = (schedInfo != null);
 			
 			// If we're not valid, check for a draft flight assignment
