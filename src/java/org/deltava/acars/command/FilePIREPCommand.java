@@ -212,7 +212,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (a == null) 
 				throw new DAOException("Invalid equipment type - " + afr.getEquipmentType());
 			else if (!a.getName().equals(afr.getEquipmentType()))
-				log.warn("Expected " + afr.getEquipmentType() + ", received " + a.getName());
+				throw new DAOException("Expected " + afr.getEquipmentType() + ", received " + a.getName());
 
 			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
@@ -492,6 +492,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
+			if (wdao.updatePaxCount(afr.getID(), usrLoc.getDB()))
+				log.warn("Update Passnger count for PIREP #" + afr.getID());
 
 			// Commit the transaction
 			ctx.commitTX();
