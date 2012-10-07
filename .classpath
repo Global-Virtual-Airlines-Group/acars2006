@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="/DVA2006"/>
 	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
-	<classpathentry kind="lib" path="/DVA2006/lib/deploy/edtftpj-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/DVA2006/lib/servlet-api-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.63.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-2.0.3.jar"/>
