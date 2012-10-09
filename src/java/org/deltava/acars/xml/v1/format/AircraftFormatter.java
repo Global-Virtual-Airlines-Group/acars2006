@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -56,6 +56,7 @@ class AircraftFormatter extends ElementFormatter {
 				ae.addContent(XMLUtils.createElement("taxiFuel", String.valueOf(a.getTaxiFuel())));
 				ae.addContent(XMLUtils.createElement("fuelFlow", String.valueOf(a.getFuelFlow())));
 				ae.addContent(XMLUtils.createElement("maxWeight", String.valueOf(a.getMaxWeight())));
+				ae.addContent(XMLUtils.createElement("maxZFW", String.valueOf(a.getMaxZeroFuelWeight())));
 				ae.addContent(XMLUtils.createElement("maxTakeoffWeight", String.valueOf(a.getMaxTakeoffWeight())));
 				ae.addContent(XMLUtils.createElement("maxLandingWeight", String.valueOf(a.getMaxLandingWeight())));
 				ae.addContent(XMLUtils.createElement("toRunwayLength", String.valueOf(a.getTakeoffRunwayLength())));
