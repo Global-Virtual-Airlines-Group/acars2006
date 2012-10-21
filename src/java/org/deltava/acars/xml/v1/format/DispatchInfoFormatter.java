@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -72,7 +72,7 @@ class DispatchInfoFormatter extends ElementFormatter {
 			NavigationDataBean nd = i.next();
 			Element wpe = new Element("waypoint");
 			wpe.setAttribute("code", nd.getCode());
-			wpe.setAttribute("type", nd.getTypeName());
+			wpe.setAttribute("type", nd.getType().getName());
 			wpe.setAttribute("lat", StringUtils.format(nd.getLatitude(), "#0.00000"));
 			wpe.setAttribute("lon", StringUtils.format(nd.getLongitude(), "#0.00000"));
 			wpe.setAttribute("uniqueID", nd.toString());

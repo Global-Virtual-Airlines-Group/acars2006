@@ -1,4 +1,4 @@
-// Copyright 2007, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * A Data Access Object to write routes into the database.
  * @author Luke
- * @version 2.2
+ * @version 5.0
  * @since 2.0
  */
 
@@ -67,7 +67,7 @@ public class SetRoute extends DAO {
 				if (!nd.isInTerminalRoute()) {
 					_ps.setInt(2, ++seq);
 					_ps.setString(3, nd.getCode());
-					_ps.setInt(4, nd.getType());
+					_ps.setInt(4, nd.getType().ordinal());
 					_ps.setDouble(5, nd.getLatitude());
 					_ps.setDouble(6, nd.getLongitude());
 					_ps.setString(7, nd.getAirway());

@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 2.1
  */
 
@@ -67,7 +67,8 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 			Element wpe = i.next();
 			double lat = StringUtils.parse(wpe.getAttributeValue("lat"), 0.0);
 			double lng = StringUtils.parse(wpe.getAttributeValue("lon"), 0.0);
-			NavigationDataBean nd = NavigationDataBean.create(wpe.getAttributeValue("type"), lat, lng);
+			Navaid nt = Navaid.fromName(wpe.getAttributeValue("type"));
+			NavigationDataBean nd = NavigationDataBean.create(nt, lat, lng);
 			nd.setCode(wpe.getAttributeValue("code"));
 			nd.setRegion(wpe.getAttributeValue("region"));
 			boolean inTR = Boolean.valueOf(wpe.getAttributeValue("tr")).booleanValue();

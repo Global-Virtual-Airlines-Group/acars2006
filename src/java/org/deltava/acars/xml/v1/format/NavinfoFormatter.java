@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Navigation Data messages.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -58,12 +58,12 @@ class NavinfoFormatter extends ElementFormatter {
 			Element e = initDataResponse(pe, "navaid");
 			Element ne = new Element("navaid");
 			ne.addContent(XMLUtils.createElement("radio", nrb.getRadio()));
-			ne.addContent(XMLUtils.createElement("type", navaid.getTypeName()));
+			ne.addContent(XMLUtils.createElement("type", navaid.getType().getName()));
 			ne.addContent(XMLUtils.createElement("code", navaid.getCode()));
-			if (navaid.getType() == NavigationDataBean.VOR) {
+			if (navaid.getType() == Navaid.VOR) {
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
 				ne.addContent(XMLUtils.createElement("hdg", nrb.getHeading()));
-			} else if (navaid.getType() == NavigationDataBean.NDB) {
+			} else if (navaid.getType() == Navaid.NDB) {
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
 			}
 
