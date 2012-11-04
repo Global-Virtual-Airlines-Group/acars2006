@@ -15,8 +15,8 @@ import org.deltava.beans.schedule.Airport;
 
 public class InfoMessage extends AbstractMessage {
 	
-	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1, 2006=FSX, 2008=Prepar3D
-	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 2002, 2004, 2006, 2008};
+	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1, 2006=FSX, 2008=Prepar3D/ESP
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 0, 2002, 2004, 2006, 2008, 2008};
 	
 	// Bean fields
 	private int _flightID;
@@ -214,10 +214,10 @@ public class InfoMessage extends AbstractMessage {
 	}
 	
 	public void setFSVersion(int ver) {
-		if (ver > 20)
+		if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length))
+			_fsVersion = FSUIPC_FS_VERSIONS[ver];
+		else if (ver > 20)
 			_fsVersion = ver;
-		else if ((ver > 0) && (ver <= FSUIPC_FS_VERSIONS.length))
-			_fsVersion = FSUIPC_FS_VERSIONS[ver - 1];
 		else
 			_fsVersion = 2004;
 	}
