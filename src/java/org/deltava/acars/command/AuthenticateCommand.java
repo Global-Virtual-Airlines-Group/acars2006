@@ -7,7 +7,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.ClientInfo;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.system.*;
 
 import org.deltava.acars.ACARSException;
@@ -93,7 +93,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			}
 
 			// Check security access before we validate the password
-			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
+			if ((usr == null) || (usr.getStatus() != Pilot.ACTIVE) || (usr.getACARSRestriction() == Restriction.BLOCK))
 				throw new SecurityException();
 			else if (cInfo.isDispatch() && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
@@ -130,7 +130,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			if ((usr != null) && (usr.getACARSRestriction() == Pilot.ACARS_BLOCK))
+			if ((usr != null) && (usr.getACARSRestriction() == Restriction.BLOCK))
 				errMsg.setEntry("error", "ACARS Server access disabled");
 			else if (cInfo.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
@@ -296,9 +296,9 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		
-		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Pilot.ACARS_OK))
+		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
 			ackMsg.setEntry("unrestricted", "true");
-		else if (usr.getACARSRestriction() == Pilot.ACARS_NOMSGS)
+		else if (usr.getACARSRestriction() == Restriction.NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
 		
 		// Get max time acceleration rate

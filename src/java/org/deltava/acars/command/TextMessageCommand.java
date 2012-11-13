@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 2.7
+ * @version 5.0
  * @since 1.0
  */
 
@@ -55,14 +55,14 @@ public class TextMessageCommand extends ACARSCommand {
 		// If we have messaging restrictions on this user, apply the profanity filter
 		TextMessage txtRsp = null;
 		switch (usr.getACARSRestriction()) {
-			case Pilot.ACARS_NOMSGS:
+			case NOMSGS:
 				log.warn(usr.getName() + " attempted to send message!");
 				txtRsp = new TextMessage(null, "ACARS text Message blocked");
 				txtRsp.setRecipient(usr.getPilotCode());
 				ctx.push(txtRsp, env.getConnectionID());
 				return;
 				
-			case Pilot.ACARS_RESTRICT:
+			case RESTRICT:
 				if (!hasHR) {
 					log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
 					txtRsp = new TextMessage(null, "ACARS text Message blocked");

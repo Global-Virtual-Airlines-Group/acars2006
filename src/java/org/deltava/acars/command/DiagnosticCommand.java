@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -7,6 +7,7 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.Restriction;
 import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.acars.beans.*;
@@ -22,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 4.0
+ * @version 5.0
  * @since 1.0
  */
 
@@ -35,6 +36,7 @@ public class DiagnosticCommand extends ACARSCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message and the connection pool
@@ -103,9 +105,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						
 						// Restrict ACARS access
 						if (p != null) {
-							p.setACARSRestriction(Pilot.ACARS_RESTRICT);
-							
-							// Update the pilot record
+							p.setACARSRestriction(Restriction.RESTRICT);
 							SetPilot pwdao = new SetPilot(con);
 							pwdao.write(p, ud.getDB());
 						} else
@@ -170,9 +170,7 @@ public class DiagnosticCommand extends ACARSCommand {
 							
 							// Restrict ACARS access
 							if (p != null) {
-								p.setACARSRestriction(Pilot.ACARS_BLOCK);
-								
-								// Update the pilot record
+								p.setACARSRestriction(Restriction.BLOCK);
 								SetPilot pwdao = new SetPilot(con);
 								pwdao.write(p, ud.getDB());
 							} else
