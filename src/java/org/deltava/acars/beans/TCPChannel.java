@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 4.1
+ * @version 5.0
  * @since 4.0
  */
 
@@ -187,6 +187,7 @@ public class TCPChannel extends ACARSChannel<String> {
 							_stats.addWriteError();
 							_oBuffer.clear();
 							_oBuffer.put(MAGIC_RESET_CODE.getBytes(cs));
+							_oBuffer.flip();
 							if (_wSelector.select(300) > 0) {
 								_stats.addBytesOut(_sc.write(_oBuffer));		
 								_wSelector.selectedKeys().clear();
