@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.gvagroup.ipc.IPCInfo;
 /**
  * A bean to store voice channel information.
  * @author Luke
- * @version 4.0
+ * @version 5.0
  * @since 4.0
  */
 
@@ -36,6 +36,7 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 		addRole(Access.TALK, "Dispatch");
 		addRole(Access.TALK_IF_PRESENT, "HR");
 		addRole(Access.TALK_IF_PRESENT, "Dispatch");
+		addRole(Access.TALK_IF_PRESENT, "Operations");
 		addRole(Access.ADMIN, "HR");
 	}};
 
