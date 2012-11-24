@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -16,19 +16,18 @@ import org.deltava.util.CalendarUtils;
  * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
  * since ACARS positions may be written several times a second by the server.
  * @author Luke
- * @version 3.2
+ * @version 5.0
  * @since 1.0
  */
 
-public class SetPosition extends DAO implements FlushableDAO<PositionMessage> {
+public class SetPosition extends DAO {
 	
 	private static final BlockingQueue<PositionCacheEntry> _queue = new LinkedBlockingQueue<PositionCacheEntry>();
 	private static long _maxAge = -1; 
 
 	private static class PositionCacheEntry {
-		
-		private PositionMessage _msg;
-		private int _flightID;
+		private final PositionMessage _msg;
+		private final int _flightID;
 		
 		PositionCacheEntry(PositionMessage msg, int flightID) {
 			super();
