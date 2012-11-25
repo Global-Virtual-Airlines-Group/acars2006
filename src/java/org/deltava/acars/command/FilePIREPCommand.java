@@ -302,16 +302,16 @@ public class FilePIREPCommand extends ACARSCommand {
 						c = crs;
 				}
 				
-				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") ||
-						p.isInRole("Examiner");
+				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") || p.isInRole("Examiner");
 				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
 			}
 
 			// Check the schedule database and check the route pair
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
+			boolean isEvent = (afr.getDatabaseID(DatabaseID.EVENT) != 0);
 			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
-			if ((avgHours.getFlightTime() == 0) && (!isAcademy && !isAssignment)) {
+			if ((avgHours.getFlightTime() == 0) && (!isAcademy && !isAssignment && !isEvent)) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
 				if (!wasValid)
