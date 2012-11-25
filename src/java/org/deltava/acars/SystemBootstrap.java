@@ -1,6 +1,7 @@
 // Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -21,6 +22,7 @@ import org.deltava.beans.schedule.Airport;
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.*;
+import org.deltava.util.cache.CacheLoader;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
@@ -29,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 4.1
+ * @version 5.0
  * @since 1.0
  */
 
@@ -124,6 +126,13 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SystemData.add(SystemData.JDBC_POOL, _jdbcPool);
 		SharedData.addData(SharedData.JDBC_POOL + SystemData.get("airline.code"), _jdbcPool);
 		
+		// Initialize caches
+		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
+			CacheLoader.load(is);
+		} catch(IOException ie) {
+			log.warn("Cannot configure caches from code");
+		}
+		
 		// Get and load the authenticator
 		String authClass = SystemData.get("security.auth");
 		try {
@@ -213,15 +222,17 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		ThreadUtils.sleep(1000);
 	}
 	
-	/**
+	/*
 	 * Helper method to spawn a system daemon.
 	 */
 	private void spawnDaemon(Runnable sd) {
 		Thread dt = new Thread(_dGroup, sd, sd.toString());
 		dt.setDaemon(true);
 		dt.setUncaughtExceptionHandler(this);
-		_daemons.put(dt, sd);
-		dt.start();
+		synchronized (_daemons) {
+			_daemons.put(dt, sd);
+			dt.start();
+		}
 	}
 
 	/**

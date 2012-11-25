@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -13,6 +13,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.dao.*;
 
 import org.deltava.util.CollectionUtils;
+import org.deltava.util.cache.CacheManager;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
@@ -21,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 4.1
+ * @version 5.0
  * @since 1.0
  */
 
@@ -126,7 +127,7 @@ public class IPCDaemon implements Runnable {
 								
 								// Validate all of the connections
 								log.warn(usr.getName() + " Suspended - Validating all Credentials");
-								SetPilot.invalidate(usr.getID());
+								CacheManager.invalidate("Pilots", usr.cacheKey());
 								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 								for (Iterator<ACARSConnection> ci = acPool.getAll().iterator(); ci.hasNext(); ) {
 									ACARSConnection ac = ci.next();
@@ -148,7 +149,7 @@ public class IPCDaemon implements Runnable {
 								
 								// Reload the user
 								log.warn("Invalidated User " + usr.getName());
-								SetPilot.invalidate(usr.getID());
+								CacheManager.invalidate("Pilots", usr.cacheKey());
 								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 								ACARSConnection ac = acPool.get(usr.getPilotCode());
 								if (ac != null) {
