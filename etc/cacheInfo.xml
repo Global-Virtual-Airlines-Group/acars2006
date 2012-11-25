@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caches>
+	<!-- Pilot data caches -->
+	<cache id="AirlineInfo" max="4" />
+	<cache id="UserData" max="512" />
+	<cache id="Pilots" max="512" expires="14400" />
+
+	<!-- Navigation Data caches -->
+	<cache id="NavData" max="1024" />
+	<cache id="NavAirway" max="512" />
+	<cache id="NavRunway" max="256" />
+	<cache id="NavSIDSTAR" max="512" />
+	<cache id="NavRoute" max="512" />
+	<cache id="FIRs" max="64" />
+	<cache id="FIRIDs" max="64" />
+
+	<!-- Weather caches -->
+	<cache id="METAR" max="256" expires="1800" />
+	<cache id="TAF" max="256" expires="1800" />
+	<cache id="FlightAwareMETAR" max="256" expires="1800" />
+	<cache id="FlightAwareTAF" max="256" expires="1800" />
+
+	<!-- ServInfo caches -->
+	<cache id="ServInfoStatus" max="3" expires="43200" />
+	<cache id="ServInfoData" max="3" expires="30" />
+
+	<!-- System caches -->
+	<cache id="AircraftInfo" max="32" expires="3600" />
+	<cache id="EquipmentTypes" max="24" expires="3600" />
+	<cache id="Accomplishments" max="24" expires="3600" />
+
+	<cache id="MessageTemplate" max="16" />
+	<cache id="IPInfo" max="256" expires="86400" />
+	<cache id="TS2Data" max="16" expires="1200" />
+</caches>
