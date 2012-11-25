@@ -138,6 +138,9 @@
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
 			</fileset>
+			<fileset dir="etc">
+				<include name="cacheInfo.xml" />
+			</fileset>
 		</scp>
 	</target>
 
