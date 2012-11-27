@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.system.IPAddressInfo;
+import org.deltava.beans.system.IPBlock;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 4.2
+ * @version 5.0
  * @since 1.0
  */
 
@@ -60,7 +60,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private final long _id;
 	private Pilot _userInfo;
 	private UserData _userData;
-	private IPAddressInfo _addrInfo;
+	private IPBlock _addrInfo;
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
 	private int _updateInterval = 5000;
@@ -174,7 +174,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _id;
 	}
 	
-	public IPAddressInfo getAddressInfo() {
+	public IPBlock getAddressInfo() {
 		return _addrInfo;
 	}
 
@@ -398,7 +398,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_userData = ud;
 	}
 	
-	public void setAddressInfo(IPAddressInfo addrInfo) {
+	public void setAddressInfo(IPBlock addrInfo) {
 		_addrInfo = addrInfo;
 	}
 	
