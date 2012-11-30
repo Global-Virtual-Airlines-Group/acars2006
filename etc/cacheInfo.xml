@@ -20,7 +20,6 @@
 	<cache id="FlightAwareTAF" max="256" expires="1800" />
 
 	<!-- ServInfo caches -->
-	<cache id="ServInfoStatus" max="3" expires="43200" />
 	<cache id="ServInfoData" max="3" expires="30" />
 
 	<!-- System caches -->
