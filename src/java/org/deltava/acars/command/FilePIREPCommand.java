@@ -27,6 +27,7 @@ import org.deltava.dao.http.SetFacebookData;
 
 import org.deltava.mail.*;
 import org.deltava.util.*;
+import org.deltava.util.cache.CacheManager;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
@@ -166,7 +167,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Reload the User
 			GetPilotDirectory pdao = new GetPilotDirectory(con);
-			GetPilot.invalidateID(usrLoc.getID());
+			CacheManager.invalidate("Pilots", usrLoc.cacheKey());
 			Pilot p = pdao.get(usrLoc);
 
 			// Add user data
@@ -564,6 +565,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Post Facebook notification
 			Object rawCreds = SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
 			if ((rawCreds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
+				FacebookCredentials fbCreds = (FacebookCredentials) rawCreds;
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
@@ -576,9 +578,10 @@ public class FilePIREPCommand extends ACARSCommand {
 				
 				// Load the template and generate the body text
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "FBPIREP"));
-				NewsEntry nws = new NewsEntry(mctxt.getBody(), baseURL + "pirep.do?id=" + afr.getHexID());
-				nws.setLinkCaption(afr.getFlightCode());
 				ctx.release();
+				NewsEntry nws = new NewsEntry(mctxt.getBody(), baseURL + "pirep.do?id=" + afr.getHexID());
+				nws.setImageURL(fbCreds.getIconURL());
+				nws.setLinkCaption(afr.getFlightCode());
 				
 				// Post to user's feed
 				SetFacebookData fbwdao = new SetFacebookData();
@@ -603,6 +606,7 @@ public class FilePIREPCommand extends ACARSCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
+	@Override
 	public final int getMaxExecTime() {
 		return 2500;
 	}
