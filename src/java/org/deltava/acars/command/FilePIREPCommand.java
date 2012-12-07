@@ -563,9 +563,9 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 			
 			// Post Facebook notification
-			Object rawCreds = SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
+			java.io.Serializable rawCreds = SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
 			if ((rawCreds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
-				FacebookCredentials fbCreds = (FacebookCredentials) rawCreds;
+				FacebookCredentials fbCreds = (FacebookCredentials) IPCUtils.reserialize(rawCreds);
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
