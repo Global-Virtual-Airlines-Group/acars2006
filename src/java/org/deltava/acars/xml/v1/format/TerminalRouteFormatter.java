@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Terminal Route data messages.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 2.0
  */
 
@@ -35,14 +35,11 @@ class TerminalRouteFormatter extends ElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "sid_stars");
-		for (Iterator<TerminalRoute> i = trmsg.getResponse().iterator(); i.hasNext(); ) {
-			TerminalRoute tr = i.next();
-			
-			// Build the route element
+		for (TerminalRoute tr : trmsg.getResponse()) {
 			Element tre = new Element("troute");
 			tre.setAttribute("airport", tr.getICAO());
 			tre.setAttribute("name", tr.getName());
-			tre.setAttribute("type", tr.getTypeName());
+			tre.setAttribute("type", tr.getType().name());
 			tre.setAttribute("transition", tr.getTransition());
 			tre.setAttribute("runway", tr.getRunway());
 			
@@ -53,7 +50,7 @@ class TerminalRouteFormatter extends ElementFormatter {
 				buf.append(nd.getCode());
 				rbuf.append(nd.toString());
 				if (wi.hasNext()) {
-					buf.append(' ' );
+					buf.append(' ');
 					rbuf.append(' ');
 				}
 			}
