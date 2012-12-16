@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 3.1
+ * @version 5.1
  * @since 1.0
  */
 
@@ -36,6 +36,7 @@ public class NavaidCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
@@ -49,7 +50,7 @@ public class NavaidCommand extends DataCommand {
 			// Get the DAO and find the Navaid in the DAFIF database
 			GetNavData dao = new GetNavData(con);
 			if (isRunway) {
-				Airport ap = SystemData.getAirport(msg.getFlag("id").toUpperCase());
+				Airport ap = SystemData.getAirport(msg.getFlag("id"));
 
 				// Add a leading zero to the runway if required
 				if (ap != null) {
@@ -59,7 +60,7 @@ public class NavaidCommand extends DataCommand {
 					else if (runway.length() == 1)
 						runway = "0" + runway;
 
-					Runway nav = dao.getRunway(ap.getICAO(), runway);
+					Runway nav = dao.getRunway(ap, runway);
 					if (nav != null) {
 						log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
 						
