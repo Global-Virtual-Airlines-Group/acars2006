@@ -22,7 +22,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 3.4
+ * @version 5.1
  * @since 3.0
  */
 
@@ -91,7 +91,7 @@ public class RoutePlotCommand extends DispatchCommand {
 				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute sid = null;
 				for (Iterator<Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
-					sid = navdao.getBestRoute(msg.getAirportD(), TerminalRoute.SID, name, wp, rwy);
+					sid = navdao.getBestRoute(msg.getAirportD(), TerminalRoute.Type.SID, name, wp, rwy);
 					if (sid != null) {
 						msg.setSID(sid.getCode());
 						rt.setSID(sid.getCode());
@@ -112,7 +112,7 @@ public class RoutePlotCommand extends DispatchCommand {
 				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute star = null;
 				for (Iterator<Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
-					star = navdao.getBestRoute(msg.getAirportA(), TerminalRoute.STAR, name, wp, rwy);
+					star = navdao.getBestRoute(msg.getAirportA(), TerminalRoute.Type.STAR, name, wp, rwy);
 					if (star != null) {
 						msg.setSTAR(star.getCode());
 						rt.setSTAR(star.getCode());

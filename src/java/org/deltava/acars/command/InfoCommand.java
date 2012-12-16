@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 5.0
+ * @version 5.1
  * @since 1.0
  */
 
@@ -135,8 +135,8 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Get the SID/STAR data
 			GetNavAirway navdao = new GetNavAirway(c);
-			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.SID, msg.getSID(), true);
-			TerminalRoute star = navdao.getRoute(msg.getAirportA(), TerminalRoute.STAR, msg.getSTAR(), true);
+			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.Type.SID, msg.getSID(), true);
+			TerminalRoute star = navdao.getRoute(msg.getAirportA(), TerminalRoute.Type.STAR, msg.getSTAR(), true);
 			
 			// Log unknown SID/STAR
 			if ((sid == null) && (!StringUtils.isEmpty(msg.getSID())))
