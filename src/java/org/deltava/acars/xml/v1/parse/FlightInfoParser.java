@@ -66,7 +66,6 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText(e, "airportL", null)));
 		msg.setCheckRide(Boolean.valueOf(getChildText(e, "checkRide", null)).booleanValue());
-		msg.setOffline(Boolean.valueOf(getChildText(e, "offline", "false")).booleanValue());
 		msg.setComplete(Boolean.valueOf(getChildText(e, "complete", null)).booleanValue());
 		msg.setDispatchPlan(Boolean.valueOf(getChildText(e, "dispatchPlan", "false")).booleanValue());
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
