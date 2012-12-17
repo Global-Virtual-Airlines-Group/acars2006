@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
@@ -19,14 +19,14 @@ public class SetInfo extends DAO {
 
 	// SQL statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
-		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, OFFLINE, SCHED_VALID, DISPATCH_PLAN, "
-		+ "MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, "
+		+ "REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
 		+ "INET_ATON(?), ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
-		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, OFFLINE=?, "
-		+ "SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, "
-		+ "BETA_BUILD=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
+		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, "
+		+ "DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, BETA_BUILD=?, "
+		+ "END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -58,17 +58,16 @@ public class SetInfo extends DAO {
 			_ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
 			_ps.setString(9, msg.getRoute());
 			_ps.setString(10, msg.getComments());
-			_ps.setInt(11, msg.getFSVersion());
-			_ps.setBoolean(12, msg.isOffline());
-			_ps.setBoolean(13, msg.isScheduleValidated());
-			_ps.setBoolean(14, msg.isDispatchPlan());
-			_ps.setBoolean(15, (msg.getLivery() != null));
-			_ps.setString(16, ac.getRemoteAddr());
-			_ps.setString(17, ac.getRemoteHost());
-			_ps.setInt(18, ac.getClientBuild());
-			_ps.setInt(19, ac.getBeta());
+			_ps.setInt(11, msg.getSimulator().getCode());
+			_ps.setBoolean(12, msg.isScheduleValidated());
+			_ps.setBoolean(13, msg.isDispatchPlan());
+			_ps.setBoolean(14, (msg.getLivery() != null));
+			_ps.setString(15, ac.getRemoteAddr());
+			_ps.setString(16, ac.getRemoteHost());
+			_ps.setInt(17, ac.getClientBuild());
+			_ps.setInt(18, ac.getBeta());
 			if (msg.getFlightID() != 0)
-				_ps.setInt(20, msg.getFlightID());
+				_ps.setInt(19, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(1);
