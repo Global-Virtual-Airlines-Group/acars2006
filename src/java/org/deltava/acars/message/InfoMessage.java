@@ -9,16 +9,12 @@ import org.deltava.beans.schedule.Airport;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 4.1
+ * @version 5.1
  * @since 1.0
  */
 
 public class InfoMessage extends AbstractMessage {
 	
-	// FSUIPC Flight Simulator version constants - 1002/1001 are CFS2/CFS1, 2006=FSX, 2008=Prepar3D/ESP
-	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 1002, 1001, 0, 2002, 2004, 2006, 2008, 2008};
-	
-	// Bean fields
 	private int _flightID;
 	private Date _startTime;
 	private Date _endTime;
@@ -33,12 +29,11 @@ public class InfoMessage extends AbstractMessage {
 	private String _fpAlt;
 	private OnlineNetwork _network;
 	private String _comments;
-	private int _fsVersion;
+	private Simulator _sim = Simulator.UNKNOWN;
 	
 	private String _sid;
 	private String _star;
 	
-	private boolean _offlineFlight;
 	private boolean _flightComplete;
 	private boolean _checkRide;
 	private boolean _scheduleValidated;
@@ -105,8 +100,8 @@ public class InfoMessage extends AbstractMessage {
 		return _star;
 	}
 	
-	public int getFSVersion() {
-		return _fsVersion;
+	public Simulator getSimulator() {
+		return _sim;
 	}
 	
 	public Date getStartTime() {
@@ -135,10 +130,6 @@ public class InfoMessage extends AbstractMessage {
 	
 	public boolean isComplete() {
 		return _flightComplete;
-	}
-	
-	public boolean isOffline() {
-		return _offlineFlight;
 	}
 	
 	public boolean isCheckRide() {
@@ -213,17 +204,8 @@ public class InfoMessage extends AbstractMessage {
 		_flightID = id;
 	}
 	
-	public void setFSVersion(int ver) {
-		if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length))
-			_fsVersion = FSUIPC_FS_VERSIONS[ver];
-		else if (ver > 20)
-			_fsVersion = ver;
-		else
-			_fsVersion = 2004;
-	}
-	
-	public void setOffline(boolean isOffline) {
-		_offlineFlight = isOffline;
+	public void setSimulator(Simulator sim) {
+		_sim = sim;
 	}
 	
 	public void setCheckRide(boolean isCR) {

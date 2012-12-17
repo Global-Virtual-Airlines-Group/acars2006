@@ -23,9 +23,9 @@ import org.deltava.acars.util.RouteEntryHelper;
 import org.gvagroup.acars.ACARSAdminInfo;
 
 /**
- * A TCP/IP Connection Pool for ACARS Connections.
+ * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
@@ -166,7 +166,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					info.setAirportA(inf.getAirportA());
 					info.setEquipmentType(inf.getEquipmentType());
 					info.setAuthorID(ac.getUser().getID());
-					info.setFSVersion(inf.getFSVersion());
+					info.setFSVersion(inf.getSimulator());
 					if (inf.getFlightID() != 0)
 						info.setID(inf.getFlightID());
 				}
