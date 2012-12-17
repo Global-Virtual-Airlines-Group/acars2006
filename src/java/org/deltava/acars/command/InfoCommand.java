@@ -43,7 +43,6 @@ public class InfoCommand extends ACARSCommand {
 
 		// Get the message
 		InfoMessage msg = (InfoMessage) env.getMessage();
-		String flightType = msg.isOffline() ? "Offline" : "Online";
 
 		// Check if we already have a flight ID and are requesting a new one
 		boolean assignID = (msg.getFlightID() == 0);
@@ -195,7 +194,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Log returned flight id
 		if (assignID)
-			log.info("Assigned " + flightType + " Flight ID " + String.valueOf(msg.getFlightID()) + " to " + env.getOwnerID());
+			log.info("Assigned Flight ID " + String.valueOf(msg.getFlightID()) + " to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 
@@ -206,6 +205,6 @@ public class InfoCommand extends ACARSCommand {
 
 		// Set the info for the connection and write it to the database
 		con.setFlightInfo(msg);
-		log.info("Received " + flightType + " flight information from " + con.getUserID());
+		log.info("Received flight information from " + con.getUserID());
 	}
 }
