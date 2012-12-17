@@ -19,7 +19,7 @@ import org.deltava.util.GeoUtils;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 2.8
  */
 
@@ -60,7 +60,7 @@ public class TakeoffCommand extends ACARSCommand {
 
 			// Get the runway
 			GetNavData nvdao = new GetNavData(con);
-			LandingRunways lr = nvdao.getBestRunway(a, info.getFSVersion(), msg.getLocation(), msg.getHeading());
+			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg.getLocation(), msg.getHeading());
 			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
 				int dist = GeoUtils.distanceFeet(r, msg.getLocation());
