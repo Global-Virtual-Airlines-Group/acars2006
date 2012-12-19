@@ -18,6 +18,8 @@ import org.deltava.beans.testing.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.AirlineInformation;
 
+import org.deltava.comparators.GeoComparator;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
@@ -35,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 5.0
+ * @version 5.1
  * @since 1.0
  */
 
@@ -256,11 +258,30 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
 			
 			// Check ETOPS
-			Collection<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
+			List<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
 				comments.add("SYSTEM: ETOPS classificataion: " + String.valueOf(etopsClass));
+			
+			// Calculate gates
+			Gate gD = null; Gate gA = null;
+			if (rtEntries.size() > 1) {
+				ctx.setMessage("Calculating departure/arrival Gates");
+				GeoComparator dgc = new GeoComparator(rtEntries.get(0), true);
+				GeoComparator agc = new GeoComparator(rtEntries.get(rtEntries.size() - 1), true);
+			
+				// Get the closest departure gate
+				GetGates gdao = new GetGates(con);
+				SortedSet<Gate> dGates = new TreeSet<Gate>(dgc);
+				dGates.addAll(gdao.getAllGates(afr.getAirportD(), info.getSimulator()));
+				gD = dGates.isEmpty() ? null : dGates.first();
+				
+				// Get the closest arrival gate
+				SortedSet<Gate> aGates = new TreeSet<Gate>(agc);
+				aGates.addAll(gdao.getAllGates(afr.getAirportA(), info.getSimulator()));
+				gA = aGates.isEmpty() ? null : aGates.first();
+			}
 			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
@@ -333,6 +354,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 
 			// If we don't have takeoff/touchdown points from Build 100+, derive them
+			// FIXME: You can remove this with ACARSv1 deprecation
 			GetNavAirway navdao = new GetNavAirway(con);
 			if (afr.getTakeoffHeading() == -1) {
 				List<? extends RouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
@@ -396,7 +418,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
-			afr.setFSVersion(info.getFSVersion());
+			afr.setFSVersion(info.getSimulator());
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 
@@ -438,9 +460,10 @@ public class FilePIREPCommand extends ACARSCommand {
 					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
 			}
 
-			// Write the runway data
-			SetACARSData awdao = new SetACARSData(con);
+			// Write the runway/gate data
+			SetACARSRunway awdao = new SetACARSRunway(con);
 			awdao.writeRunways(flightID, rD, rA);
+			awdao.writeGates(flightID, gD, gA);
 			
 			// Check if we're a dispatch plan
 			if (msg.isDispatch() && !info.isDispatchPlan()) {
@@ -465,7 +488,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + flightID);
 
 				// Check actual SID/STAR
-				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.SID, wps.get(0), wps.get(1), rD);
+				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, wps.get(0), wps.get(1), rD);
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
@@ -473,9 +496,9 @@ public class FilePIREPCommand extends ACARSCommand {
 						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 				}
 
-				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
+				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
 				if (aSTAR == null)
-					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.STAR, wps.get(wps.size() - 1), null, rA); 
+					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, wps.get(wps.size() - 1), null, rA); 
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
