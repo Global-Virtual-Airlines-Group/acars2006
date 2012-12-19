@@ -1,12 +1,11 @@
 // Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import java.util.*;
-
 import org.jdom2.Element;
 
 import org.deltava.beans.Flight;
 import org.deltava.beans.acars.DispatchRoute;
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.Message;
@@ -18,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 2.0
  */
 
@@ -51,12 +50,15 @@ public class DispatchRouteFormatter extends ElementFormatter {
 			e.setAttribute("leg", String.valueOf(f.getLeg()));
 		}
 		
+		// Add the gates
+		if (rmsg.getClass() != null)
+			e.addContent(formatGate(rmsg.getClosestGate(), "gateD"));
+		for (Gate g : rmsg.getArrivalGates())
+			e.addContent(formatGate(g, "gateA"));
+		
 		// Add the routes
-		for (Iterator<? extends PopulatedRoute> i = rmsg.getPlans().iterator(); i.hasNext(); ) {
-			PopulatedRoute rp = i.next();
+		for (PopulatedRoute rp : rmsg.getPlans()) {
 			Element re = formatRoute(rp);
-			
-			// Add external properties
 			if (rp instanceof ExternalFlightRoute) {
 				re.setAttribute("external", "true");
 				re.addContent(XMLUtils.createElement("source", ((ExternalFlightRoute) rp).getSource(), true));

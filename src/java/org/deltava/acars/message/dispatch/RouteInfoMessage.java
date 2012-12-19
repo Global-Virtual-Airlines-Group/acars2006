@@ -1,9 +1,10 @@
-// Copyright 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
 import org.deltava.beans.*;
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.PopulatedRoute;
 
 import org.deltava.acars.message.DispatchMessage;
@@ -11,15 +12,18 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * A message to store route search results.
  * @author Luke
- * @version 3.3
+ * @version 5.1
  * @since 2.0
  */
 
 public class RouteInfoMessage extends DispatchMessage {
 
 	private final Collection<PopulatedRoute> _plans = new ArrayList<PopulatedRoute>();
+	private final Collection<Gate> _arrivalGates = new LinkedHashSet<Gate>();
+	
 	private long _parent;
 	private Flight _schedInfo;
+	private Gate _gateD;
 	
 	private String _msg;
 	
@@ -48,6 +52,22 @@ public class RouteInfoMessage extends DispatchMessage {
 	 */
 	public long getParentID() {
 		return _parent;
+	}
+	
+	/**
+	 * Returns the most likely arrival gates.
+	 * @return a Collection of Gates
+	 */
+	public Collection<Gate> getArrivalGates() {
+		return _arrivalGates;
+	}
+	
+	/**
+	 * Returns the closest gate to the Aircraft's position.
+	 * @return the closest Gate, or null
+	 */
+	public Gate getClosestGate() {
+		return _gateD;
 	}
 	
 	/**
@@ -80,6 +100,22 @@ public class RouteInfoMessage extends DispatchMessage {
 	 */
 	public void addPlan(PopulatedRoute rp) {
 		_plans.add(rp);
+	}
+	
+	/**
+	 * Adds an arrival gate to the message.
+	 * @param g a Gate
+	 */
+	public void addGate(Gate g) {
+		_arrivalGates.add(g);
+	}
+	
+	/**
+	 * Updates the closest Gate to the aircraft's position.
+	 * @param g a Gate
+	 */
+	public void setClosestGate(Gate g) {
+		_gateD = g;
 	}
 	
 	/**
