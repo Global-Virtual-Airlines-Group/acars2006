@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.jdom2.Element;
 
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.FuelTank;
 
 import org.deltava.acars.message.Message;
@@ -15,7 +16,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 2.0
  */
 
@@ -38,6 +39,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		e.setAttribute("id", String.valueOf(reqmsg.getID()));
 		e.addContent(XMLUtils.createElement("originator", msg.getSenderID()));
 		e.addContent(XMLUtils.createElement("id", Long.toHexString(msg.getID())));
+		e.addContent(XMLUtils.createElement("sim", reqmsg.getSimulator().name()));
 		e.addContent(XMLUtils.createElement("routeValid", String.valueOf(reqmsg.isRouteValid())));
 		e.addContent(XMLUtils.createElement("etopsWarn", String.valueOf(reqmsg.getETOPSWarning())));
 		
@@ -51,20 +53,29 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("airportD", reqmsg.getAirportD().getICAO()));
 		e.addContent(XMLUtils.createElement("airportA", reqmsg.getAirportA().getICAO()));
 		if (reqmsg.getAirportL() != null)
-			e.addContent(XMLUtils.createElement("airportL", reqmsg.getAirportL().getICAO()));	
+			e.addContent(XMLUtils.createElement("airportL", reqmsg.getAirportL().getICAO()));
+		
+		// Add closest gate
+		if (reqmsg.getClosestGate() != null)
+			e.addContent(formatGate(reqmsg.getClosestGate(), "gate"));
 		
 		// Add tank capacity data
 		Element tse = new Element("tanks");
+		e.addContent(tse);
 		Map<FuelTank, Integer> tankSizes = reqmsg.getTankSizes();
-		for (Iterator<Map.Entry<FuelTank, Integer>> i = tankSizes.entrySet().iterator(); i.hasNext(); ) {
-			Map.Entry<FuelTank, Integer> fte = i.next();
+		for (Map.Entry<FuelTank, Integer> fte : tankSizes.entrySet()) {
 			Element te = new Element("tank");
 			te.setAttribute("name", fte.getKey().getName());
 			te.setAttribute("size", String.valueOf(fte.getValue()));
 			tse.addContent(te);
 		}
 		
-		e.addContent(tse);
+		// Add arrival gates
+		Element age = new Element("gates");
+		e.addContent(age);
+		for (Gate g : reqmsg.getArrivalGates())
+			age.addContent(formatGate(g, "gate"));
+		
 		return pe;
 	}
 }

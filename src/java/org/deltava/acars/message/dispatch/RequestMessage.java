@@ -1,10 +1,12 @@
-// Copyright 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
 import org.deltava.beans.*;
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*; 
+
 import org.deltava.util.GeoUtils;
 
 import org.deltava.acars.message.DispatchMessage;
@@ -12,7 +14,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 4.1
+ * @version 5.1
  * @since 2.0
  */
 
@@ -23,9 +25,13 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	private Airport _airportA;
 	private Airport _airportL;
 	
+	private Gate _gateD;
+	private final Collection<Gate> _arrivalGates = new LinkedHashSet<Gate>();
+	
 	private GeoLocation _loc = new GeoPosition(0, 0);
 	
 	private String _eqType;
+	private Simulator _sim;
 	private int _maxGrossWeight;
 	private int _zeroFuelWeight;
 	private boolean _routeValid;
@@ -54,6 +60,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * Returns the departure airport for this flight.
 	 * @return the Airport
 	 */
+	@Override
 	public Airport getAirportD() {
 		return _airportD;
 	}
@@ -62,6 +69,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * Returns the arrival airport for this flight.
 	 * @return the Airport
 	 */
+	@Override
 	public Airport getAirportA() {
 		return _airportA;
 	}
@@ -78,6 +86,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * Returns the requesting pilot's latitude.
 	 * @return the latitude in degrees
 	 */
+	@Override
 	public double getLatitude() {
 		return _loc.getLatitude();
 	}
@@ -86,6 +95,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * Returns the requesting pilot's longitude.
 	 * @return the longitude in degrees
 	 */
+	@Override
 	public double getLongitude() {
 		return _loc.getLongitude();
 	}
@@ -96,6 +106,30 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 */
 	public String getEquipmentType() {
 		return _eqType;
+	}
+	
+	/**
+	 * Returns the pilot's simulator.
+	 * @return a Simulator
+	 */
+	public Simulator getSimulator() {
+		return _sim;
+	}
+	
+	/**
+	 * Returns the closest gate to the Aircraft's position.
+	 * @return the closest Gate, or null
+	 */
+	public Gate getClosestGate() {
+		return _gateD;
+	}
+
+	/**
+	 * Returns the available arrival Gates.
+	 * @return a Collection of Gates
+	 */
+	public Collection<Gate> getArrivalGates() {
+		return _arrivalGates;
 	}
 	
 	/**
@@ -122,6 +156,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 		return _etopsWarn;
 	}
 	
+	@Override
 	public int getDistance() {
 		return GeoUtils.distance(_airportD, _airportA);
 	}
@@ -186,6 +221,14 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	}
 	
 	/**
+	 * Updates the pilot's Simulator
+	 * @param sim a Simulator
+	 */
+	public void setSimulator(Simulator sim) {
+		_sim = sim;
+	}
+	
+	/**
 	 * Updates the location of the pilot.
 	 * @param loc the requesting Pilot's location
 	 */
@@ -232,6 +275,22 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 */
 	public void setAirportL(Airport a) {
 		_airportL = a;
+	}
+	
+	/**
+	 * Updates the closest Gate to the aircraft's position.
+	 * @param g a Gate
+	 */
+	public void setClosestGate(Gate g) {
+		_gateD = g;
+	}
+	
+	/**
+	 * Updates the list of arrival Gates.
+	 * @param g a Collection of Gates
+	 */
+	public void setArrivalGates(Collection<Gate> gates) {
+		_arrivalGates.addAll(gates);
 	}
 	
 	/**
