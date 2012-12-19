@@ -7,16 +7,16 @@ import org.jdom2.Element;
 
 import org.deltava.acars.xml.*;
 
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
- * A formatter to create XML command elements.
+ * A formatter to create XML data elements.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
@@ -24,6 +24,8 @@ abstract class ElementFormatter extends XMLElementFormatter {
 
 	/**
 	 * Helper method to format an Airport bean.
+	 * @param a the Airport
+	 * @param eName the XML element name
 	 */
 	protected static Element formatAirport(Airport a, String eName) {
 		Element ae = new Element(eName);
@@ -58,6 +60,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 
 	/**
 	 * Helper method to format a flight route.
+	 * @param rt the FlightRoute
 	 */
 	protected static Element formatRoute(FlightRoute rt) {
 		Element re = new Element("route");
@@ -90,5 +93,20 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		}
 
 		return re;
+	}
+
+	/**
+	 * Helper method to format a Gate.
+	 * @param g the Gate
+	 * @param eName the XML element name
+	 * @return
+	 */
+	protected static Element formatGate(Gate g, String eName) {
+		Element ge = new Element(eName);		
+		ge.setAttribute("icao", g.getCode());
+		ge.setAttribute("code", g.getName());
+		ge.setAttribute("lat", StringUtils.format(g.getLatitude(), "#0.00000"));
+		ge.setAttribute("lon", StringUtils.format(g.getLongitude(), "#0.00000"));
+		return ge;
 	}
 }
