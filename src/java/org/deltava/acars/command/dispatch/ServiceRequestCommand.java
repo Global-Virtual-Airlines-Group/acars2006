@@ -6,7 +6,10 @@ import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
+
+import org.deltava.comparators.GeoComparator;
 
 import org.deltava.dao.*;
 
@@ -19,9 +22,9 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.*;
 
 /**
- * An ACARS Command to handle Dispatch request messages.
+ * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 5.0
+ * @version 5.1
  * @since 2.0
  */
 
@@ -106,6 +109,15 @@ public class ServiceRequestCommand extends DispatchCommand {
 			ETOPS e = ETOPSHelper.classify(gc).getResult();
 			msg.setETOPSWarning(ETOPSHelper.validate(a, e));
 			
+			// Find the closest gate
+			GetGates gdao = new GetGates(con);
+			gdao.setQueryMax(25);
+			msg.setArrivalGates(gdao.getPopularGates(msg, msg.getSimulator(), false));
+			SortedSet<Gate> gates = new TreeSet<Gate>(new GeoComparator(msg, true));
+			gates.addAll(gdao.getGates(msg.getAirportD(), msg.getSimulator()));
+			if (!gates.isEmpty())
+				msg.setClosestGate(gates.first());
+			
 			// Load existing plans
 			RouteLoadHelper helper = new RouteLoadHelper(con, msg);
 			helper.loadDispatchRoutes();
@@ -171,6 +183,9 @@ public class ServiceRequestCommand extends DispatchCommand {
 		// Return back the routes - only if valid
 		if (!plans.isEmpty() && msg.isRouteValid()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
+			rmsg.setClosestGate(msg.getClosestGate());
+			for (Gate g : msg.getArrivalGates())
+				rmsg.addGate(g);
 			for (PopulatedRoute rp : plans)
 				rmsg.addPlan(rp);
 			
