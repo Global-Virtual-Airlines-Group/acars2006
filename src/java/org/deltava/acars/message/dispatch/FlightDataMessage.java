@@ -1,10 +1,10 @@
-// Copyright 2006, 2007, 2008, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
 import org.deltava.beans.*;
-import org.deltava.beans.navdata.NavigationDataBean;
+import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store Dispatch data.
  * @author Luke
- * @version 4.0
+ * @version 5.1
  * @since 1.1
  */
 
@@ -24,11 +24,15 @@ public class FlightDataMessage extends DispatchMessage {
 	private int _flight;
 	private int _leg;
 	
+	private Simulator _sim = Simulator.UNKNOWN;
+	
 	private boolean _routeValid;
 	private boolean _noSave;
 	
 	private String _eqType;
 	private String _cruiseAlt;
+	private Gate _gateD;
+	private Gate _gateA;
 	
 	private Airport _airportD;
 	private Airport _airportA;
@@ -65,6 +69,10 @@ public class FlightDataMessage extends DispatchMessage {
 		return _leg;
 	}
 	
+	public Simulator getSimulator() {
+		return _sim;
+	}
+	
 	public String getCruiseAltitude() {
 		return _cruiseAlt;
 	}
@@ -91,6 +99,14 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	public Airport getAirportL() {
 		return _airportL;
+	}
+	
+	public Gate getGateD() {
+		return _gateD;
+	}
+	
+	public Gate getGateA() {
+		return _gateA;
 	}
 	
 	public String getSID() {
@@ -149,6 +165,10 @@ public class FlightDataMessage extends DispatchMessage {
 		_a = a;
 	}
 	
+	public void setSimulator(Simulator sim) {
+		_sim = sim;
+	}
+	
 	public void setAirportD(Airport a) {
 		_airportD = a;
 	}
@@ -159,6 +179,14 @@ public class FlightDataMessage extends DispatchMessage {
 	
 	public void setAirportL(Airport a) {
 		_airportL = a;
+	}
+	
+	public void setGateD(Gate g) {
+		_gateD = g;
+	}
+	
+	public void setGateA(Gate g) {
+		_gateA = g;
 	}
 	
 	public void setSID(String sid) {
