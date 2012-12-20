@@ -17,11 +17,14 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
 class FlightInfoParser extends XMLElementParser<InfoMessage> {
+	
+	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008};
 
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
@@ -40,7 +43,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 			Date dt = dtf.parse(getChildText(e, "startTime", ""));
 			if (dt.getTime() > (System.currentTimeMillis() + 86400000))
-				throw new Exception("Start date/time too far in future - " + dt);
+				throw new IllegalArgumentException("Start date/time too far in future - " + dt);
 				
 			msg.setStartTime(dt);
 		} catch (Exception ex) {
@@ -61,7 +64,6 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setFlightCode(fCode);
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
 		msg.setComments(getChildText(e, "remarks", null));
-		msg.setFSVersion(StringUtils.parse(getChildText(e, "fs_ver", "2004"), 2004));
 		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText(e, "airportL", null)));
@@ -76,6 +78,15 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		} catch (Exception ex) {
 			msg.setNetwork(null);
 		}
+		
+		// Parse the simulator
+		int ver = StringUtils.parse(getChildText(e, "fs_ver", "2004"), 2004);
+		if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length))
+			msg.setSimulator(Simulator.fromVersion(FSUIPC_FS_VERSIONS[ver]));
+		else
+			msg.setSimulator(Simulator.fromVersion(ver));
+		if (msg.getSimulator() == Simulator.UNKNOWN)
+			msg.setSimulator(Simulator.FS9);
 		
 		// Load SID data
 		Element sid = e.getChild("sid");
