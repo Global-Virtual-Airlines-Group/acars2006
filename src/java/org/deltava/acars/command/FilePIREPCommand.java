@@ -175,6 +175,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Add user data
 			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
 			afr.setRank(p.getRank());
+			afr.setFSVersion(info.getSimulator());
 
 			// Convert the date into the user's local time zone
 			DateTime dt = new DateTime(afr.getDate());
@@ -418,7 +419,6 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
-			afr.setFSVersion(info.getSimulator());
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 
