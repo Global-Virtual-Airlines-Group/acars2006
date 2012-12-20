@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 5.0
+ * @version 5.1
  * @since 1.0
  */
 
@@ -43,33 +43,34 @@ class DispatchInfoFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("leg", String.valueOf(dmsg.getLeg())));
 		e.addContent(XMLUtils.createElement("eqType", dmsg.getEquipmentType()));
 		e.addContent(XMLUtils.createElement("cruiseAlt", dmsg.getCruiseAltitude()));
-		e.addContent(XMLUtils.createElement("tx", StringUtils.format(dmsg.getTXCode(), "0000")));
+		e.addContent(XMLUtils.createElement("tx", StringUtils.format(dmsg.getTXCode(), "2200")));
 		e.addContent(formatAirport(dmsg.getAirportD(), "airportD"));
 		e.addContent(formatAirport(dmsg.getAirportA(), "airportA"));
 		if (dmsg.getAirportL() != null)
 			e.addContent(formatAirport(dmsg.getAirportL(), "airportL"));
 		if (dmsg.getSID() != null)
-			e.addContent(XMLUtils.createElement("sid", dmsg.getSID().toString()));
+			e.addContent(XMLUtils.createElement("sid", dmsg.getSID()));
 		if (dmsg.getSTAR() != null)
-			e.addContent(XMLUtils.createElement("star", dmsg.getSTAR().toString()));
+			e.addContent(XMLUtils.createElement("star", dmsg.getSTAR()));
+		if (dmsg.getGateD() != null)
+			e.addContent(formatGate(dmsg.getGateD(), "gateD"));
+		if (dmsg.getGateA() != null)
+			e.addContent(formatGate(dmsg.getGateA(), "gateA"));
 
 		// Add fuel tanks
 		Element fe = new Element("fuel");
 		e.addContent(fe);
-		Map<FuelTank, Integer> fuelInfo = dmsg.getFuel();
-		for (Iterator<FuelTank> i = fuelInfo.keySet().iterator(); i.hasNext(); ) {
-			FuelTank t = i.next();
+		for (Map.Entry<FuelTank, Integer> me : dmsg.getFuel().entrySet()) {
 			Element fte = new Element("tank");
-			fte.setAttribute("name", t.getName());
-			fte.setAttribute("load", fuelInfo.get(t).toString());
+			fte.setAttribute("name", me.getKey().getName());
+			fte.setAttribute("load", me.getValue().toString());
 			fe.addContent(fte);
 		}
 		
 		// Add waypoints
 		Element re = XMLUtils.createElement("route", dmsg.getRoute(), true);
 		e.addContent(re);
-		for (Iterator<NavigationDataBean> i = dmsg.getWaypoints().iterator(); i.hasNext(); ) {
-			NavigationDataBean nd = i.next();
+		for (NavigationDataBean nd : dmsg.getWaypoints()) {
 			Element wpe = new Element("waypoint");
 			wpe.setAttribute("code", nd.getCode());
 			wpe.setAttribute("type", nd.getType().getName());
