@@ -7,6 +7,7 @@ import org.jdom2.Element;
 
 import org.deltava.acars.xml.*;
 
+import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.navdata.NavigationDataBean;
 import org.deltava.beans.schedule.*;
 
@@ -16,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
@@ -99,5 +100,19 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		}
 
 		return re;
+	}
+	
+	/**
+	 * Helper method to format a Gate.
+	 * @param g the Gate
+	 * @param eName the XML element name
+	 */
+	protected static Element formatGate(Gate g, String eName) {
+		Element ge = new Element(eName);		
+		ge.setAttribute("icao", g.getCode());
+		ge.setAttribute("code", g.getName());
+		ge.setAttribute("lat", StringUtils.format(g.getLatitude(), "#0.00000"));
+		ge.setAttribute("lon", StringUtils.format(g.getLongitude(), "#0.00000"));
+		return ge;
 	}
 }

@@ -99,7 +99,6 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	 * Helper method to format a Gate.
 	 * @param g the Gate
 	 * @param eName the XML element name
-	 * @return
 	 */
 	protected static Element formatGate(Gate g, String eName) {
 		Element ge = new Element(eName);		
