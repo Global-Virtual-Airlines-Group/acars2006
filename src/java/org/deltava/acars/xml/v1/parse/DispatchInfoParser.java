@@ -86,7 +86,7 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 	 * Creates an undefined gate.
 	 */
 	private static Gate emptyGate(ICAOAirport a, String id) {
-		if (a == null) return null;
+		if ((a == null) || (id == null)) return null;
 		
 		Gate g = new Gate(0, 0);
 		g.setCode(a.getICAO());
