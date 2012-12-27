@@ -82,11 +82,9 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		// Parse the simulator
 		int ver = StringUtils.parse(getChildText(e, "fs_ver", "2004"), 2004);
 		if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length))
-			msg.setSimulator(Simulator.fromVersion(FSUIPC_FS_VERSIONS[ver]));
+			msg.setSimulator(Simulator.fromVersion(FSUIPC_FS_VERSIONS[ver], Simulator.FS9));
 		else
-			msg.setSimulator(Simulator.fromVersion(ver));
-		if (msg.getSimulator() == Simulator.UNKNOWN)
-			msg.setSimulator(Simulator.FS9);
+			msg.setSimulator(Simulator.fromVersion(ver, Simulator.FS9));
 		
 		// Load SID data
 		Element sid = e.getChild("sid");
