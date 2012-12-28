@@ -51,7 +51,7 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		}
 		
 		// Add the gates
-		if (rmsg.getClass() != null)
+		if ((rmsg.getClass() != null) && (rmsg.getClosestGate() != null))
 			e.addContent(formatGate(rmsg.getClosestGate(), "gateD"));
 		for (Gate g : rmsg.getArrivalGates())
 			e.addContent(formatGate(g, "gateA"));
