@@ -10,12 +10,12 @@ import org.deltava.beans.GeoLocation;
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 
 /**
  * A utility class to parse MVS packets.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
@@ -31,14 +31,15 @@ public class Packet {
 		}
 
 		public final String readUTF8() throws IOException {
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			int b = read();
-			while (b > 0) {
-				os.write(b);
-				b = in.read();
-			}
+			try (ByteArrayOutputStream os = new ByteArrayOutputStream(64)) {
+				int b = read();
+				while (b > 0) {
+					os.write(b);
+					b = in.read();
+				}
 
-			return new String(os.toByteArray(), "UTF-8");
+				return new String(os.toByteArray(), "UTF-8");
+			}
 		}
 
 		public final int readInt32() throws IOException {
@@ -133,9 +134,8 @@ public class Packet {
 			msg.setRate(SampleRate.getRate(in.readInt32()));
 
 			// Load Location
-			double lat = in.readDouble64();
-			double lng = in.readDouble64();
-			if ((lat != 0.0d) || (lng != 0.0d)) msg.setLocation(new GeoPosition(lat, lng));
+			GeoLocation pos = new GeoPosition(in.readDouble64(), in.readDouble64());
+			if (GeoUtils.isValid(pos)) msg.setLocation(pos);
 
 			// Load the data
 			msg.setCRC32(in.readInt64());
@@ -172,33 +172,31 @@ public class Packet {
 		int flags = vmsg.getCompression().ordinal();
 
 		// Write the packet
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(2048);
-		PacketOutputStream out = new PacketOutputStream(bos);
-		out.write(HDR + String.valueOf(PROTOCOL_VERSION));
-		out.write(vmsg.getSenderID());
-		out.write(vmsg.getChannel());
-		out.writeInt32(flags);
-		out.writeInt64(vmsg.getConnectionID());
-		out.writeInt64(vmsg.getID());
-		out.writeInt32(vmsg.getRate().getRate());
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
+		try (PacketOutputStream out = new PacketOutputStream(bos)) {
+			out.write(HDR + String.valueOf(PROTOCOL_VERSION));
+			out.write(vmsg.getSenderID());
+			out.write(vmsg.getChannel());
+			out.writeInt32(flags);
+			out.writeInt64(vmsg.getConnectionID());
+			out.writeInt64(vmsg.getID());
+			out.writeInt32(vmsg.getRate().getRate());
 
-		// Write location
-		GeoLocation loc = (vmsg.getLocation() == null) ? new GeoPosition(0, 0) : vmsg.getLocation();
-		out.writeDouble64(loc.getLatitude());
-		out.writeDouble64(loc.getLongitude());
+			// Write location
+			GeoLocation loc = vmsg.getLocation();
+			out.writeDouble64((loc == null) ? 0 : loc.getLatitude());
+			out.writeDouble64((loc == null) ? 0 : loc.getLongitude());
 
-		// Write the CRC
-		out.writeInt64(vmsg.getCRC32());
+			// Write the CRC
+			out.writeInt64(vmsg.getCRC32());
 
-		// Write the data, but remember that vmsg.getData() is the entire packet, so strip off the header
-		byte[] data = vmsg.getData();
-		int dataLength = data.length - hdrSize;
-		out.writeInt32(dataLength);
-		out.write(data, hdrSize, dataLength);
-
-		// Return the packet
-		out.flush();
-		out.close();
+			// Write the data, but remember that vmsg.getData() is the entire packet, so strip off the header
+			byte[] data = vmsg.getData();
+			int dataLength = data.length - hdrSize;
+			out.writeInt32(dataLength);
+			out.write(data, hdrSize, dataLength);
+		}
+		
 		return bos.toByteArray();
 	}
 }
