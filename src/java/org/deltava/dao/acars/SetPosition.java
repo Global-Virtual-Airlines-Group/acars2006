@@ -10,13 +10,14 @@ import org.deltava.dao.*;
 import org.deltava.acars.message.PositionMessage;
 
 import org.deltava.util.CalendarUtils;
+import org.deltava.util.GeoUtils;
 
 /**
  * A Data Access Object to write ACARS Position Messages. This DAO is unique in that it maintains an internal queue of messages,
  * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
  * since ACARS positions may be written several times a second by the server.
  * @author Luke
- * @version 5.0
+ * @version 5.1
  * @since 1.0
  */
 
@@ -63,7 +64,7 @@ public class SetPosition extends DAO {
 			_maxAge = System.currentTimeMillis();
 		
 		// Don't add 0/0 pairs
-		if ((msg.getLatitude() != 0.0) || (msg.getLongitude() != 0.0))
+		if (GeoUtils.isValid(msg))
 			_queue.add(new PositionCacheEntry(msg, flightID));
 	}
 	
