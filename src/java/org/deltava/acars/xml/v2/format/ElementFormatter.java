@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
@@ -39,6 +39,8 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 			ae.setAttribute("adse", String.valueOf(a.getADSE()));
+			if (a.getSupercededAirport() != null)
+				ae.setAttribute("supercedes", a.getSupercededAirport());
 
 			// Add UTC offset
 			TimeZone tz = a.getTZ().getTimeZone();
@@ -46,11 +48,9 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("utcOffset", String.valueOf(ofs));
 
 			// Attach airlines
-			for (Iterator<String> i = a.getAirlineCodes().iterator(); i.hasNext();) {
-				String aCode = i.next();
+			for (String aCode : a.getAirlineCodes()) {
 				Airline al = SystemData.getAirline(aCode);
-				if (al == null)
-					continue;
+				if (al == null) continue;
 
 				// Build the airline element
 				Element ale = new Element("airline");
@@ -83,8 +83,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		if (rt instanceof PopulatedRoute) {
 			PopulatedRoute pr = (PopulatedRoute) rt;
 			Element wpe = new Element("waypoints");
-			for (Iterator<NavigationDataBean> ni = pr.getWaypoints().iterator(); ni.hasNext();) {
-				NavigationDataBean nd = ni.next();
+			for (NavigationDataBean nd : pr.getWaypoints()) {
 				Element we = new Element("waypoint");
 				we.setAttribute("code", nd.getCode());
 				we.setAttribute("lat", StringUtils.format(nd.getLatitude(), "##0.00000"));
@@ -98,7 +97,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			
 			re.addContent(wpe);
 		}
-
+		
 		return re;
 	}
 	
