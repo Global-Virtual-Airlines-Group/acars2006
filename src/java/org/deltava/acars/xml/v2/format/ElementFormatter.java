@@ -39,6 +39,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
 			ae.setAttribute("adse", String.valueOf(a.getADSE()));
+			ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
 			if (a.getSupercededAirport() != null)
 				ae.setAttribute("supercedes", a.getSupercededAirport());
 
