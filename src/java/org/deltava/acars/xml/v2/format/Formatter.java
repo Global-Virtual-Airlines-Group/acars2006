@@ -16,12 +16,15 @@ import org.deltava.acars.message.mp.*;
 public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 
 	/**
-	 * Initializes the Message Formatter.
+	 * Constructor.
 	 */
 	public Formatter() {
 		super(2);
 	}
 
+	/**
+	 * Initializes the Message Formatter.
+	 */
 	@Override
 	protected void init() {
 		super.init();
@@ -36,6 +39,7 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		_eFormatters.put(AppInfoMessage.class, new AppInfoFormatter());
 		_eFormatters.put(ChannelListMessage.class, new ChannelListFormatter());
 		_eFormatters.put(AirportMessage.class, new AirportFormatter());
+		_eFormatters.put(IATACodeMessage.class, new IATACodeFormatter());
 		
 		// Dispatch formatters
 		_eFormatters.put(RoutePlotMessage.class, new RoutePlotFormatter());
