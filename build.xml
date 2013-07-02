@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2005, 2006, 2008, 2010 Global Virtual Airlines Group. All Rights Reserved. -->
+<!-- Copyright 2005, 2006, 2008, 2010, 2013 Global Virtual Airlines Group. All Rights Reserved. -->
 <project default="deploy">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
@@ -142,6 +142,10 @@
 			</fileset>
 			<fileset dir="etc">
 				<include name="cacheInfo.xml" />
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+					<param name="algorithm.algorithm" value="MD5" />
+					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
+				</modified>
 			</fileset>
 		</scp>
 	</target>
