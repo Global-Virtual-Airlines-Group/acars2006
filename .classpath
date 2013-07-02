@@ -7,7 +7,7 @@
 	<classpathentry kind="lib" path="/DVA2006/lib/servlet-api-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/deploy/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.71.jar"/>
+	<classpathentry kind="lib" path="lib/deploy/golgotha_ipc-1.71.jar" sourcepath="/IPC"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
