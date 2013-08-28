@@ -19,7 +19,7 @@
 	<!-- JDBC data source configuration -->
 	<jdbc>
 		<driver>com.mysql.jdbc.Driver</driver>
-		<url>jdbc:mysql://polaris.sce.net/acars</url>
+		<url>jdbc:mysql://localhost/acars</url>
 		<user>dva</user>
 		<pwd>m4n3l5</pwd>
 		
@@ -34,7 +34,7 @@
 			<continueBatchOnError>true</continueBatchOnError>
 			<useServerPrepStmts>true</useServerPrepStmts>
 			<dontTrackOpenResources>true</dontTrackOpenResources>
-			<useLocalSessionState>false</useLocalSessionState>
+			<useLocalSessionState>true</useLocalSessionState>
 			<useCursorFetch>true</useCursorFetch>
 			<maintainTimeStats>false</maintainTimeStats>
 			<validationQuery>/* ping */</validationQuery>
