@@ -24,7 +24,6 @@
 		<pwd>m4n3l5</pwd>
 		
 		<map name="connectProperties">
-			<socket>/var/run/mysql/mysql.sock</socket>
 			<useCompression>false</useCompression>
 			<characterEncoding>utf-8</characterEncoding>
 			<useUnicode>true</useUnicode>
