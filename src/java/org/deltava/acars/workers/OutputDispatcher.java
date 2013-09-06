@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -9,25 +9,23 @@ import org.jdom2.output.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.Message;
-
 import org.deltava.acars.xml.*;
-
 import org.deltava.beans.Pilot;
 
 import org.deltava.util.system.SystemData;
-
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 4.2
+ * @version 5.1
  * @since 1.0
  */
 
 public final class OutputDispatcher extends Worker {
 
-	private final Map<Integer, MessageFormatter> _formatters = new HashMap<Integer, MessageFormatter>();
+	private final SortedMap<Integer, MessageFormatter> _formatters = new TreeMap<Integer, MessageFormatter>();
+	private MessageFormatter _defaultFmt;
 	
 	private final XMLOutputter _xmlOut = new XMLOutputter(Format.getPrettyFormat().setEncoding("UTF-8"));
 	private final XMLOutputter _tinyOut = new XMLOutputter(Format.getCompactFormat().setEncoding("UTF-8"));
@@ -74,15 +72,14 @@ public final class OutputDispatcher extends Worker {
 	 * Initializes the Worker.
 	 * @see Worker#open()
 	 */
+	@Override
 	public void open() {
 		super.open();
 
 		// Build the message formatter map
 		Map<?, ?> versions = (Map<?, ?>) SystemData.getObject("acars.protocols");
-		if (versions == null) {
-			log.warn("No trasnalation packages specified!");
-			versions = Collections.emptyMap();
-		}
+		if (versions == null)
+			throw new IllegalStateException("No trasnalation packages specified");
 
 		// Initialize the formatters
 		for (Iterator<?> i = versions.keySet().iterator(); i.hasNext();) {
@@ -95,11 +92,14 @@ public final class OutputDispatcher extends Worker {
 				log.error("Error loading " + version + " Message Formatter", e);
 			}
 		}
+		
+		_defaultFmt = _formatters.get(_formatters.firstKey());
 	}
 
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
@@ -139,10 +139,8 @@ public final class OutputDispatcher extends Worker {
 						// Get the formatter
 						MessageFormatter fmt = _formatters.get(Integer.valueOf(ac.getProtocolVersion()));
 						if (fmt == null) {
-							SortedSet<Integer> vers = new TreeSet<Integer>(_formatters.keySet());
-							Integer defaultVersion = vers.first();
-							log.warn("No formatter found for protocol v" + ac.getProtocolVersion() + " - using v" + defaultVersion);
-							fmt = _formatters.get(defaultVersion);
+							fmt = _defaultFmt;
+							log.warn("No formatter found for protocol v" + ac.getProtocolVersion() + " - using v" + fmt.getProtocolVersion());
 						}
 
 						try {
@@ -159,7 +157,6 @@ public final class OutputDispatcher extends Worker {
 						}
 					}
 
-					// Check for another message
 					env = MSG_OUTPUT.poll();
 				}
 
@@ -193,7 +190,6 @@ public final class OutputDispatcher extends Worker {
 				docs.clear();
 			}
 
-			// Log execution
 			_status.complete();
 		}
 		
