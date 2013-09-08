@@ -198,17 +198,15 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setDatabaseID(DatabaseID.EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
 
 			// Check that it was submitted in time
-			if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
-				Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
-				if (e != null) {
-					long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 1000;
-					if (timeSinceEnd > 21600) {
-						comments.add("SYSTEM: Flight logged over 6 hours after Event completion");
-						afr.setDatabaseID(DatabaseID.EVENT, 0);
-					}
-				} else
+			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
+			if (e != null) {
+				long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 3600_000;
+				if (timeSinceEnd > 6) {
+					comments.add("SYSTEM: Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
-			}
+				}
+			} else
+					afr.setDatabaseID(DatabaseID.EVENT, 0);
 			
 			// Load the aircraft
 			GetAircraft acdao = new GetAircraft(con);
