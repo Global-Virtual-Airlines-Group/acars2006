@@ -65,10 +65,9 @@ public class OceanicTrackCommand extends DataCommand {
 			if (rspMsg.getDate() == null)
 				rspMsg.setDate(new Date());
 		} catch (DAOException de) {
-			String trackType = OceanicTrackInfo.TYPES[rType.ordinal()];
-			log.error("Error loading " + trackType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
+			log.error("Error loading " + rType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load " + msg.getFlag("date") + " " + trackType + " data");
+			errMsg.setEntry("error", "Cannot load " + msg.getFlag("date") + " " + rType + " data");
 			ctx.push(errMsg, ctx.getACARSConnection().getID());
 		} finally {
 			ctx.release();
