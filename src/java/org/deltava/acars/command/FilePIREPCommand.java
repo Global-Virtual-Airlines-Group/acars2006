@@ -352,62 +352,27 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setStatus(FlightReport.HOLD);
 			}
 
-			// If we don't have takeoff/touchdown points from Build 100+, derive them
-			// FIXME: You can remove this with ACARSv1 deprecation
-			GetNavAirway navdao = new GetNavAirway(con);
-			if (afr.getTakeoffHeading() == -1) {
-				List<? extends RouteEntry> tdEntries = fddao.getTakeoffLanding(flightID, false);
-				if (tdEntries.size() > 2) {
-					int ofs = 0;
-					ACARSRouteEntry entry = (ACARSRouteEntry) tdEntries.get(0);
-					GeoPosition adPos = new GeoPosition(info.getAirportD());
-					while ((ofs < (tdEntries.size() - 1)) && (adPos.distanceTo(entry) < 15) && (entry.getVerticalSpeed() > 0)) {
-						ofs++;
-						entry = (ACARSRouteEntry) tdEntries.get(ofs);
-					}
-
-					// Trim out spurious takeoff entries
-					if (ofs > 0)
-						tdEntries.subList(0, ofs - 1).clear();
-					if (tdEntries.size() > 2)
-						tdEntries.subList(1, tdEntries.size() - 1).clear();
-				}
-				
-				// Save the entry points
-				if (tdEntries.size() > 0) {
-					afr.setTakeoffLocation(tdEntries.get(0));
-					afr.setTakeoffHeading(tdEntries.get(0).getHeading());
-					if (tdEntries.size() > 1) {
-						afr.setLandingLocation(tdEntries.get(1));
-						afr.setLandingHeading(tdEntries.get(1).getHeading());
-					}
-				}
-			}
-
 			// Load the departure runway
+			GetNavAirway navdao = new GetNavAirway(con);
 			Runway rD = null;
-			if (afr.getTakeoffHeading() > -1) {
-				LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
-				Runway r = lr.getBestRunway();
-				if (r != null) {
-					int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
-					rD = new RunwayDistance(r, dist);
-					if (r.getLength() < a.getTakeoffRunwayLength())
-						afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
-				}
+			LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
+			Runway r = lr.getBestRunway();
+			if (r != null) {
+				int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
+				rD = new RunwayDistance(r, dist);
+				if (r.getLength() < a.getTakeoffRunwayLength())
+					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 			}
 
 			// Load the arrival runway
 			Runway rA = null;
-			if (afr.getLandingHeading() > -1) {
-				LandingRunways lr = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
-				Runway r = lr.getBestRunway();
-				if (r != null) {
-					int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
-					rA = new RunwayDistance(r, dist);
-					if (r.getLength() < a.getLandingRunwayLength())
-						afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
-				}
+			lr = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
+			r = lr.getBestRunway();
+			if (r != null) {
+				int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
+				rA = new RunwayDistance(r, dist);
+				if (r.getLength() < a.getLandingRunwayLength())
+					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 			}
 			
 			// Get framerates
@@ -529,35 +494,33 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
 			if ((cr != null) && afr.hasAttribute(FlightReport.ATTR_ACADEMY)) {
 				ctx.setMessage("Sending Flight Academy check ride notification");
-				if (c != null) {
-					MessageContext mctxt = new MessageContext();
-					mctxt.addData("user", p);
-					mctxt.addData("pirep", afr);
-					mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
-					mctxt.addData("url", "http://www." + usrLoc.getDomain() + "/");
+				MessageContext mctxt = new MessageContext();
+				mctxt.addData("user", p);
+				mctxt.addData("pirep", afr);
+				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
+				mctxt.addData("url", "http://www." + usrLoc.getDomain() + "/");
 					
-					// Load the template
-					mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "CRSUBMIT"));
+				// Load the template
+				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "CRSUBMIT"));
 					
-					// Get the Instructor(s)
-					GetUserData uddao = new GetUserData(con);
-					Collection<Pilot> insList = new TreeSet<Pilot>();
-					if (c.getInstructorID() != 0) {
-						Pilot ins = pdao.get(uddao.get(c.getInstructorID()));
-						if (ins != null)
-							insList.add(ins);
-					}
-					
-					if (insList.isEmpty()) {
-						for (AirlineInformation ai : uddao.getAirlines(false).values())
-							insList.addAll(pdao.getByRole("Instructor", ai.getDB()));
-					}
-					
-					// Send the message to the Instructors
-					Mailer mailer = new Mailer(p);
-					mailer.setContext(mctxt);
-					mailer.send(insList);
+				// Get the Instructor(s)
+				GetUserData uddao = new GetUserData(con);
+				Collection<Pilot> insList = new TreeSet<Pilot>();
+				if ((c != null) && (c.getInstructorID() != 0)) {
+					Pilot ins = pdao.get(uddao.get(c.getInstructorID()));
+					if (ins != null)
+						insList.add(ins);
 				}
+					
+				if (insList.isEmpty()) {
+					for (AirlineInformation ai : uddao.getAirlines(false).values())
+						insList.addAll(pdao.getByRole("Instructor", ai.getDB()));
+				}
+					
+				// Send the message to the Instructors
+				Mailer mailer = new Mailer(p);
+				mailer.setContext(mctxt);
+				mailer.send(insList);
 			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
