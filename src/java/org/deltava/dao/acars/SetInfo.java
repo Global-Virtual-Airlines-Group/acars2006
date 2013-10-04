@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 5.1
+ * @version 5.2
  * @since 1.0
  */
 
@@ -21,11 +21,11 @@ public class SetInfo extends DAO {
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, "
 		+ "AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, "
 		+ "REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-		+ "INET_ATON(?), ?, ?, ?)";
+		+ "INET6_ATON(?), ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, "
 		+ "CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, "
-		+ "DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, BETA_BUILD=?, "
+		+ "DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, BETA_BUILD=?, "
 		+ "END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
