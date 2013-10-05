@@ -141,9 +141,6 @@
 	<!-- ACARS Server Properties -->
 	<acars>
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
-		<list name="block" attr="addr">
-			<addr>127.0.0.1</addr>
-		</list>
 
 		<!-- List of valid protocol revisions -->
 		<map name="protocols">
