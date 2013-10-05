@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -19,7 +19,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 4.1
+ * @version 5.2
  * @since 2.1
  */
 
@@ -41,7 +41,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	protected final Collection<String> _blockedAddrs = new HashSet<String>();
 	
 	private class ConnectWorker implements Runnable {
-
 		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
 
 		private final SocketChannel _sc;
@@ -108,6 +107,10 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				con.close();
 			}
 		}
+		
+		public long getID() {
+			return _id;
+		}
 	}
 	
 	/**
@@ -127,9 +130,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		// Load the list of blocked connections
 		_blockedAddrs.clear();
 		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
-		Collection<?> addrs = (Collection<?>) SystemData.getObject("acars.block");
-		for (Iterator<?> i = addrs.iterator(); i.hasNext(); )
-			_blockedAddrs.add((String) i.next());
 
 		// Open the socket channel
 		try {
@@ -138,10 +138,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			_channel.configureBlocking(false);
 			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
 			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
-
-			// Bind to the port
-			SocketAddress sAddr = new InetSocketAddress(SystemData.getInt("acars.port"));
-			_channel.bind(sAddr);
+			_channel.bind(new InetSocketAddress(SystemData.getInt("acars.port")));
 
 			// Add the server socket channel to the selector
 			_channel.register(_cSelector, SelectionKey.OP_ACCEPT);
@@ -170,6 +167,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	/**
 	 * Uncaught exception handler for Connection workers.
 	 */
+	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		log.error(t.getName() + " - " + e.getMessage(), e);
 	}
@@ -177,6 +175,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
@@ -196,11 +195,10 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				try {
 					SocketChannel cc = _channel.accept();
 					if (cc != null) {
-						String addr = NetworkUtils.getSourceAddress(cc.getRemoteAddress());
-						_status.setMessage("Opening connection from " + addr);
+						_status.setMessage("Opening connection from " + NetworkUtils.getSourceAddress(cc.getRemoteAddress()));
 						gen.reset();
 						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());
-						Thread wt = new Thread(wrk, "ConnectWorker-" + addr);
+						Thread wt = new Thread(wrk, "ConnectWorker-" + wrk.getID());
 						wt.setDaemon(true);
 						wt.setUncaughtExceptionHandler(this);
 						wt.start();
@@ -215,7 +213,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				}
 			}
 			
-			// Log executiuon
 			_status.complete();
 		}
 	}

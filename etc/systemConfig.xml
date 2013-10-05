@@ -136,10 +136,6 @@
 		<debug type="Boolean">true</debug>
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
 
-		<list name="block" attr="addr">
-			<!-- <addr>127.0.0.1</addr> -->
-		</list>
-
 		<!-- List of valid protocol revisions -->
 		<map name="protocols">
 			<v1>org.deltava.acars.xml.v1</v1>
