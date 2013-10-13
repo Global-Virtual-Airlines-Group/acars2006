@@ -1,25 +1,25 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
 
+import org.deltava.util.NetworkUtils;
+
 /**
  * An object to handle UDP voice connections.
  * @author Luke
- * @version 4.0
+ * @version 5.2
  * @since 4.0
  */
 
 public class UDPChannel extends ACARSChannel<byte[]> {
 	
 	private static transient final Logger log = Logger.getLogger(UDPChannel.class);
-
-	private transient DatagramChannel _dc;
+	private transient final DatagramChannel _dc;
 
 	/**
 	 * Creates a new UDP channel.
@@ -36,7 +36,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 		
 		// Register the selector
 		_dc.register(_wSelector, SelectionKey.OP_WRITE);
-		log.info("Enabled voice access from " + addr.toString().substring(1));
+		log.info("Enabled voice access from " + NetworkUtils.getSourceAddress(addr));
 		updateLastActivity();
 	}
 	
@@ -48,10 +48,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 		_remoteAddr = addr;
 	}
 	
-	/**
-	 * Returns the Channel.
-	 * @return a SelectableChannel
-	 */
+	@Override
 	public SelectableChannel getChannel() {
 		return _dc;
 	}
@@ -67,8 +64,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 	
 	@Override
 	public void write(byte[] data) {
-		if (data == null)
-			return;
+		if (data == null) return;
 		
 		int writeCount = 1;
 		try {
@@ -86,7 +82,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(250) > 0) {
+					if (_wSelector.select(200) > 0) {
 						_stats.addBytesOut(_dc.send(_oBuffer, _remoteAddr));
 						_stats.addBufferWrite();
 						_wSelector.selectedKeys().clear();
@@ -98,22 +94,21 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
 							_stats.addWriteError();
 							_oBuffer.clear();
-							if (_wSelector.select(250) > 0) {
+							if (_wSelector.select(200) > 0) {
 								_stats.addBytesOut(_dc.send(_oBuffer, _remoteAddr));
 								_stats.addBufferWrite();
 								_wSelector.selectedKeys().clear();
 							}
 							
-							throw new IOException("UDP write timeout for " + getRemoteAddress());
+							throw new IOException("Write timeout for " + getRemoteAddress());
 						}
 					}
 				}
 			}
+			
+			_stats.addMessageOut();
 		} catch (IOException ie) {
 			log.warn("Error writing to voice channel for " + getRemoteAddress() + " - " + ie.getMessage());
 		}
-		
-		// Update statistics
-		_stats.addMessageOut();
 	}
 }
