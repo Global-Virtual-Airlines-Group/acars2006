@@ -31,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 5.1
+ * @version 5.2
  * @since 1.0
  */
 
@@ -64,13 +64,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// If ACARS is enabled, then clean out the active flags
 		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-			log.info("Resetting TeamSpeak 2 client activity flags");
-
 			Connection c = null;
 			try {
 				c = _jdbcPool.getConnection();
 				SetTS2Data ts2wdao = new SetTS2Data(c);
-				ts2wdao.clearActiveFlags();
+				int flagsCleared = ts2wdao.clearActiveFlags();
+				log.info("Cleared " + flagsCleared + " TeamSpeak 2 client activity flags");
 			} catch (Exception de) {
 				log.error(de.getMessage(), de);
 			} finally {
@@ -81,8 +80,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
 		_jdbcPool.close();
-		JDBCUtils.cleanMySQLTimer();
-		JDBCUtils.deregisterDrivers();
 		java.beans.Introspector.flushCaches();
 
 		// Close the Log4J manager
@@ -219,7 +216,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
 		
 		// Wait a bit for the daemons to spool up
-		ThreadUtils.sleep(1000);
+		ThreadUtils.sleep(500);
 	}
 	
 	/*
