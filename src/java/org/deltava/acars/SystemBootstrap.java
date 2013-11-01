@@ -7,14 +7,13 @@ import java.util.*;
 
 import javax.servlet.*;
 
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 import org.deltava.dao.*;
 import org.deltava.mail.MailerDaemon;
-
 import org.deltava.acars.beans.*;
-
 import org.deltava.acars.ipc.IPCDaemon;
+
 import org.deltava.beans.flight.ETOPSHelper;
 import org.deltava.beans.mvs.Channel;
 import org.deltava.beans.schedule.Airport;
@@ -37,7 +36,7 @@ import org.gvagroup.jdbc.*;
 
 public class SystemBootstrap implements ServletContextListener, Thread.UncaughtExceptionHandler {
 	
-	private final Logger log;
+	private static final Logger log = Logger.getLogger(SystemBootstrap.class);
 	
 	private ConnectionPool _jdbcPool;
 	
@@ -45,22 +44,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	private final Map<Thread, Runnable> _daemons = new HashMap<Thread, Runnable>();
 
 	/**
-	 * Initialize the System bootstrap loader, and configure log4j.
-	 */
-	public SystemBootstrap() {
-		super();
-		PropertyConfigurator.configure(getClass().getResource("/etc/log4j.properties"));
-		log = Logger.getLogger(SystemBootstrap.class);
-		log.info("Initialized log4j");
-	}
-	
-	/**
 	 * Web application termination callback handler.
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent e) {
-		_dGroup.interrupt();
 		_daemons.clear();
+		_dGroup.interrupt();
 		
 		// If ACARS is enabled, then clean out the active flags
 		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
@@ -80,13 +69,11 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
 		_jdbcPool.close();
-		java.beans.Introspector.flushCaches();
-
-		// Close the Log4J manager
-		SharedData.purge(SystemData.get("airline.code"));
-		log.error("Shut down " + SystemData.get("airline.code"));
-		ThreadUtils.sleep(200);
-		LogManager.shutdown();
+		
+		// Clear shared data
+		String code = SystemData.get("airline.code");
+		SharedData.purge(code);
+		log.error("Shut down " + code);
 	}
 	
 	/**
@@ -98,7 +85,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Initialize system data
 		SystemData.init();
-		SharedData.addApp(SystemData.get("airline.code"));
+		String code = SystemData.get("airline.code");
+		log.info("Starting " + code);
+		SharedData.addApp(code);
 		
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
@@ -216,7 +205,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
 		
 		// Wait a bit for the daemons to spool up
-		ThreadUtils.sleep(500);
+		ThreadUtils.sleep(250);
 	}
 	
 	/*
