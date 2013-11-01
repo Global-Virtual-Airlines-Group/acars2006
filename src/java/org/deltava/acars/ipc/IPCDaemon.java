@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 5.0
+ * @version 5.2
  * @since 1.0
  */
 
@@ -34,6 +34,7 @@ public class IPCDaemon implements Runnable {
 	 * Returns the thread name.
 	 * @return the tread name
 	 */
+	@Override
 	public String toString() {
 		return "ACARS IPC Daemon";
 	}
@@ -174,5 +175,6 @@ public class IPCDaemon implements Runnable {
 		}
 		
 		log.info("Stopping");
+		EventDispatcher.unregister();
 	}
 }
