@@ -42,7 +42,6 @@
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path.common}"
 			port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
 			<fileset dir="lib/deploy" includes="*.jar">
-				<exclude name="log4j*.jar" />
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
@@ -56,13 +55,6 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
-					<param name="algorithm.algorithm" value="MD5" />
-					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
-				</modified>
-			</fileset>
-			<fileset dir="lib/deploy">
-				<include name="log4j*.jar" />
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
@@ -103,7 +95,6 @@
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path.common}"
 			port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
 			<fileset dir="lib/deploy" includes="*.jar">
-				<exclude name="log4j*.jar" />
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
@@ -117,13 +108,6 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
-					<param name="algorithm.algorithm" value="MD5" />
-					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
-				</modified>
-			</fileset>
-			<fileset dir="lib/deploy">
-				<include name="log4j*.jar" />
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
