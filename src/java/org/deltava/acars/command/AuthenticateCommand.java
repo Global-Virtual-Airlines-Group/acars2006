@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 5.0
+ * @version 5.2
  * @since 1.0
  */
 
@@ -302,10 +302,15 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("noMsgs", "true");
 		
 		// Get max time acceleration rate
-		Map<?, ?> maxAccels = (Map<?, ?>) SystemData.getObject("acars.maxAccel");
-		if (maxAccels != null) {
-			String maxAccel = (String) maxAccels.get(ud.getAirlineCode().toLowerCase());
-			ackMsg.setEntry("maxAccel", StringUtils.isEmpty(maxAccel) ? "4" : maxAccel);
+		if (!con.getIsDispatch()) {
+			if (!usr.getNoTimeCompression()) {
+				Map<?, ?> maxAccels = (Map<?, ?>) SystemData.getObject("acars.maxAccel");
+				if (maxAccels != null) {
+					String maxAccel = (String) maxAccels.get(ud.getAirlineCode().toLowerCase());
+					ackMsg.setEntry("maxAccel", StringUtils.isEmpty(maxAccel) ? "4" : maxAccel);
+				}
+			} else
+				ackMsg.setEntry("maxAccel", "1");
 		}
 		
 		// Check if we can add voice channels
@@ -342,10 +347,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		else if (con.getIsATC())
 			sysMsg.addMessage("You are currently operating as an Air Traffic Controller.");
 
-		// Send the message
+		// Send the message and log
 		ctx.push(sysMsg, env.getConnectionID());
-
-		// Log new connection
 		log.info("New Connection from " + usr.getName() + " (" + con.getVersion() + ")");
 	}
 
@@ -353,6 +356,7 @@ public class AuthenticateCommand extends ACARSCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
+	@Override
 	public final int getMaxExecTime() {
 		return 2500;
 	}
