@@ -182,9 +182,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Convert times to client date/time
 			DateTime usrTime = new DateTime(msg.getClientUTC(), TZInfo.UTC);
 			usrTime.convertTo(usr.getTZ());
+			now.convertTo(usr.getTZ());
 
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "It is " + now.toString() + ". Your system clock is set to " + usrTime.toString() + " ( " + timeDiff + " seconds off)");
+			errMsg.setEntry("error", "It is now " + now.toString() + ". Your system clock is set to " + usrTime.toString() + " ( " + timeDiff + " seconds off)");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
 		} else if (Math.abs(timeDiff) > 900)
