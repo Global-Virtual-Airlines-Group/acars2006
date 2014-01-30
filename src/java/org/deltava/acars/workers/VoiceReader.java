@@ -1,7 +1,8 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.net.*;
+import java.util.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
@@ -9,7 +10,6 @@ import java.nio.channels.*;
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
-import org.deltava.beans.mvs.PopulatedChannel;
 
 import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
@@ -19,16 +19,16 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS worker thread to read voice packets.
  * @author Luke
- * @version 4.1
+ * @version 5.2
  * @since 4.0
  */
 
 public class VoiceReader extends Worker {
 	
 	private Selector _rSelector;
-	private DatagramChannel _channel;
+	private final Collection<DatagramChannel> _channels = new ArrayList<DatagramChannel>();
 	
-	private final ByteBuffer _buf = ByteBuffer.allocateDirect(32768);
+	private final ByteBuffer _buf = ByteBuffer.allocateDirect(20480);
 	
 	/**
 	 * Creates the Worker.
@@ -40,19 +40,34 @@ public class VoiceReader extends Worker {
 	/**
 	 * Initializes the Worker.
 	 */
+	@Override
 	public final void open() {
 		super.open();
 		try {
-			_channel = DatagramChannel.open();
-			_channel.configureBlocking(false);
-			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
-			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
-			_channel.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send") * 4));
-			_channel.bind(new InetSocketAddress(SystemData.getInt("acars.voice.port")));
-			
-			// Add the server socket channel to the selector
 			_rSelector = Selector.open();
-			_channel.register(_rSelector, SelectionKey.OP_READ);
+			
+			// Get channels
+			for (Enumeration<NetworkInterface> ints = NetworkInterface.getNetworkInterfaces(); (ints != null) && ints.hasMoreElements(); ) {
+				NetworkInterface ni = ints.nextElement();
+				if (ni.isLoopback() || !ni.isUp() || ni.isVirtual()) {
+					log.info("Skipping " + ni.getDisplayName() + ", loopback/virtual/down");
+					continue;
+				}
+				
+				log.info("Found " + ni.getDisplayName());
+				for (Enumeration<InetAddress> addrs = ni.getInetAddresses(); addrs.hasMoreElements(); ) {
+					InetAddress addr = addrs.nextElement();
+					log.info("Binding to " + addr.getHostAddress());
+				
+					DatagramChannel ch = DatagramChannel.open();
+					ch.configureBlocking(false);
+					ch.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv") * 2));
+					ch.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send") * 4));
+					ch.bind(new InetSocketAddress(addr, SystemData.getInt("acars.port")));
+					ch.register(_rSelector, SelectionKey.OP_READ);
+					_channels.add(ch);
+				}
+			}
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
 			throw new IllegalStateException(ie);
@@ -62,12 +77,17 @@ public class VoiceReader extends Worker {
 	/**
 	 * Shuts down the Worker.
 	 */
+	@Override
 	public final void close() {
 		try {
-			_channel.close();
+			for (DatagramChannel ch : _channels)
+				ch.close();
+			
 			_rSelector.close();
 		} catch (IOException ie) {
 			log.error(ie.getMessage());	
+		} finally {
+			_channels.clear();
 		}
 		
 		super.close();
@@ -76,11 +96,11 @@ public class VoiceReader extends Worker {
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
 		long lastExecTime = 0;
-		VoiceChannels vc = VoiceChannels.getInstance();
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Listening for Voice packet");
 			_status.execute();
@@ -96,74 +116,75 @@ public class VoiceReader extends Worker {
 			// See if we have some data
 			if (consWaiting > 0) {
 				_status.setMessage("Reading Inbound Voice Data");
-				try {
-					InetSocketAddress srcAddr = (InetSocketAddress) _channel.receive(_buf);
-					while (srcAddr != null) {
-						String addr = NetworkUtils.getSourceAddress(srcAddr);
-						log.info("Received voice packet from " + addr);
-						
-						// This might return null if it's the first UDP packet since we don't know what
-						// source port it's coming from. Do a lookup based on the IP address only. 
-						ACARSConnection ac = _pool.get(addr);
-						if (ac == null) {
-							ac = _pool.get(srcAddr.getAddress().getHostAddress());
-							if (ac == null)
-								throw new IllegalArgumentException(addr + " - not connected");
-						} else if (!ac.isVoiceCapable())
-							throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
-
-						// Register the source address
-						ac.enableVoice(_channel, srcAddr);
-						try {
-							_pool.add(ac);
-						} catch (ACARSException ae) {
-							log.error("Cannot register source address - " + ae.getMessage());
-						}
-						
-						// Get the data
-						byte[] pktData = new byte[_buf.flip().limit()];
-						_buf.get(pktData);
-						
-						// Log the read
-						ac.logVoice(pktData.length);
-						
-						// If it's a ping (ie. a 16-byte datagram), send it right back, otherwise push onto the queue
-						if (pktData.length == 16) {
-							log.info("Received MVS Ping from " + ac.getUserID());
-							BinaryEnvelope oenv = new BinaryEnvelope(ac.getUser(), pktData, ac.getID());
-							RAW_OUTPUT.add(oenv);
-						} else {
-							// Get the channel
-							PopulatedChannel pc = vc.get(ac.getID());
-							if (pc == null)
-								throw new IllegalArgumentException(ac.getUserID() + " (not in any channel)");
+				Collection<SelectionKey> keys = _rSelector.selectedKeys();
+				for (SelectionKey k : keys) {
+					DatagramChannel ch = (DatagramChannel) k.channel();
+					try {
+						InetSocketAddress srcAddr = (InetSocketAddress) ch.receive(_buf);
+						while (srcAddr != null) {
+							String addr = NetworkUtils.getSourceAddress(srcAddr);
+							log.info("Received packet from " + addr + " on " + NetworkUtils.getSourceAddress(ch.getLocalAddress()));
 							
-							// Create the message
-							VoiceMessage msg = new VoiceMessage(ac.getUser(), pc.getChannel().getName());
-							msg.setConnectionID(ac.getID());
-							msg.setData(pktData);
-							MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+							// Get the data
+							byte[] pktData = new byte[_buf.flip().limit()];
+							_buf.get(pktData);
+							
+							// This might return null if it's the first UDP packet since we don't know what
+							// source port it's coming from. Do a lookup based on the IP address only. 
+							ACARSConnection ac = _pool.get(addr);
+							if (ac == null) {
+								ac = _pool.get(srcAddr.getAddress().getHostAddress());
+								if (ac == null) {
+									if (pktData.length < 48) {
+										_buf.flip();
+										ch.send(_buf, srcAddr);
+									}
+									
+									throw new IllegalArgumentException(addr + " - not connected" + ((pktData.length < 48) ? " (echo)" : ""));
+								}
+							} else if (!ac.isVoiceCapable() && (pktData.length > 47))
+								throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
+
+							// Register the source/destination addresses
+							ac.enableVoice(ch, srcAddr);
+							try {
+								_pool.add(ac);
+							} catch (ACARSException ae) {
+								log.error("Cannot register source address - " + ae.getMessage());
+							}
+							
+							// Log the read
+							ac.logVoice(pktData.length);
+							
+							// If it's a ping (ie. a 16-byte datagram), send it right back, otherwise push onto the queue
+							if (pktData.length == 16) {
+								log.info("Received MVS Ping from " + ac.getUserID());
+								BinaryEnvelope oenv = new BinaryEnvelope(ac.getUser(), pktData, ac.getID());
+								RAW_OUTPUT.add(oenv);
+							} else {
+								VoiceMessage msg = new VoiceMessage(ac.getUser(), pktData);
+								MSG_INPUT.add(new MessageEnvelope(msg, ac.getID()));
+							}
+							
+							srcAddr = (InetSocketAddress) ch.receive(_buf);
 						}
-						
+					} catch (IllegalArgumentException iae) {
+						log.error("Unexpected packet from " + iae.getMessage());
+					} catch (IOException ie) {
+						log.error("Error reading packet - " + ie.getMessage(), ie);
+					} finally {
 						_buf.clear();
-						srcAddr = (InetSocketAddress) _channel.receive(_buf);
 					}
-				} catch (IllegalArgumentException iae) {
-					log.error("Unexpected voice packet from " + iae.getMessage());
-					_buf.clear();
-				} catch (IOException ie) {
-					log.error("Error reading voice packet - " + ie.getMessage(), ie);
-					_buf.clear();
 				}
+				
+				_rSelector.selectedKeys().clear();
 			}
 			
 			// Check execution time
-			_rSelector.selectedKeys().clear();
 			long execTime = System.currentTimeMillis() - lastExecTime;
 			if (execTime > 1250)
 				log.warn("Excessive read time - " + execTime + "ms (" + consWaiting + " connections)");
 
-			// Log executiuon
 			_status.complete();
 		}
 	}
