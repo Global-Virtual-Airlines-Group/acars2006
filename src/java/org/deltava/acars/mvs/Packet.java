@@ -22,6 +22,7 @@ public class Packet {
 	public static final int PROTOCOL_VERSION = 2;
 	
 	private SampleRate _rate;
+	private String _userID;
 	private VoiceCompression _compression;
 	private long _crc32;
 	private GeoLocation _loc;
@@ -73,6 +74,14 @@ public class Packet {
 	 */
 	public long getConnectionID() {
 		return _conID;
+	}
+	
+	/**
+	 * Returns the user ID.
+	 * @return the user ID
+	 */
+	public String getUserID() {
+		return _userID;
 	}
 	
 	/**
@@ -147,6 +156,14 @@ public class Packet {
 	public void setData(byte[] data) {
 		_data = data;
 	}
+	
+	/**
+	 * Updates the user ID.
+	 * @param id the user ID
+	 */
+	public void setUserID(String id) {
+		_userID = id;
+	}
 
 	/**
 	 * Parses an MVS voice packet.
@@ -166,15 +183,16 @@ public class Packet {
 			if (ver != PROTOCOL_VERSION) throw new IOException("Unknown Protocol - " + hdr);
 
 			// Load data
+			p._userID = in.readUTF8();
 			int flags = in.readInt32();
-			p.setCompression(VoiceCompression.values()[flags & 0xf]);
-			p.setConnectionID(in.readInt64());
-			p.setID(in.readInt64());
-			p.setRate(SampleRate.getRate(in.readInt32()));
+			p._compression = VoiceCompression.values()[flags & 0xf];
+			p._conID = in.readInt64();
+			p._id = in.readInt64();
+			p._rate = SampleRate.getRate(in.readInt32());
 
 			// Load Location
 			GeoLocation pos = new GeoPosition(in.readDouble64(), in.readDouble64());
-			if (GeoUtils.isValid(pos)) p.setLocation(pos);
+			if (GeoUtils.isValid(pos)) p._loc = pos;
 
 			// Load the data
 			p.setCRC32(in.readInt64());
@@ -182,7 +200,7 @@ public class Packet {
 			byte[] data = new byte[dataLength];
 			int actualLength = in.read(data);
 			if (actualLength != dataLength) throw new IOException("Expected " + dataLength + " payload, received " + actualLength);
-			p.setData(data);
+			p._data = data;
 
 			// Get the CRC-32
 			CRC32 crc = new CRC32();
@@ -203,6 +221,7 @@ public class Packet {
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream(512)) {
 			try (PacketOutputStream out = new PacketOutputStream(bos)) {
 				out.write(HDR + String.valueOf(PROTOCOL_VERSION));
+				out.write(p._userID);
 				out.writeInt32(p._compression.ordinal());
 				out.writeInt64(p._conID);
 				out.writeInt64(p._id);

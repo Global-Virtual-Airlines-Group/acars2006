@@ -41,6 +41,7 @@ public class TestVoicePacket extends TestCase {
 		_rnd.nextBytes(data);
 		
 		Packet pkt = new Packet();
+		pkt.setUserID("foo");
 		pkt.setCompression(VoiceCompression.NONE);
 		pkt.setRate(SampleRate.SR6K);
 		pkt.setID(1);
@@ -56,6 +57,7 @@ public class TestVoicePacket extends TestCase {
 		Packet p2 = Packet.parse(pd);
 		
 		// Compare
+		assertEquals(pkt.getUserID(), p2.getUserID());
 		assertEquals(pkt.getCompression(), p2.getCompression());
 		assertEquals(pkt.getRate(), p2.getRate());
 		assertEquals(pkt.getID(), p2.getID());
