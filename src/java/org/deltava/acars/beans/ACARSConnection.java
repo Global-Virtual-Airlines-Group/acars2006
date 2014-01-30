@@ -110,7 +110,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		if (isVoiceEnabled()) {
 			boolean isNew = !NetworkUtils.getSourceAddress(srcAddr).equals(_udp.getAddress());
 			if (isNew) {
-				_udp.setRemoteAddress(srcAddr);
+				_udp.setRemoteAddress(srcAddr, dc);
 				log.warn("Switched voice source address for " + getUserID() + " to " + getVoiceSourceAddr());
 			}
 				

@@ -1,23 +1,25 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-
-import org.deltava.acars.beans.*;
+import org.deltava.acars.beans.ACARSConnection;
+import org.deltava.acars.beans.ACARSConnectionPool;
+import org.deltava.acars.beans.BinaryEnvelope;
+import org.deltava.acars.beans.MessageEnvelope;
+import org.deltava.acars.beans.VoiceChannels;
 import org.deltava.acars.message.VoiceMessage;
+import org.deltava.acars.mvs.*;
 import org.deltava.acars.workers.Worker;
-
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
-
 import org.deltava.util.RoleUtils;
 
 /**
  * An ACARS command to mix voice messages.
  * @author Luke
- * @version 4.1
+ * @version 5.2
  * @since 4.0
  */
 
@@ -40,10 +42,13 @@ public class VoiceMixCommand extends ACARSCommand {
 		ACARSConnection ac = ctx.getACARSConnection();
 		
 		// Parse the voice message
+		Packet pkt = null;
 		try {
-			Packet.parse(vmsg);
-			if (vmsg.getLocation() == null)
-				vmsg.setLocation(ac.getMPLocation());
+			pkt = Packet.parse(vmsg.getData());
+			pkt.setConnectionID(ac.getID());
+			pkt.setUserID(ac.getUserID());
+			if (pkt.getLocation() == null)
+				pkt.setLocation(ac.getMPLocation());
 		} catch (IOException ie) {
 			log.warn(ie.getMessage());
 			return;
@@ -51,10 +56,10 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Make sure this is greater than the max seq for the connection
 		synchronized (ac) {
-			if (ac.getVoiceSequence() >= (vmsg.getID() + 2))
+			if (ac.getVoiceSequence() >= (pkt.getID() + 2))
 				log.warn("Out of sequence voice packet from " + ac.getUserID() + ", " + ac.getVoiceSequence() + " >= " + vmsg.getID());
 			else
-				ac.setVoiceSequence(vmsg.getID());
+				ac.setVoiceSequence(pkt.getID());
 		}
 		
 		// Get the channel
@@ -74,15 +79,11 @@ public class VoiceMixCommand extends ACARSCommand {
 		}
 		
 		// Add the connection ID to the packet
-		try {
-			vmsg.setData(Packet.rewrite(vmsg));
-		} catch (IOException ie) {
-			log.error("Error adding connection ID to packet - " + ie.getMessage(), ie);
-		}
+		byte[] pktData = Packet.rewrite(pkt);
 		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
-		GeoPosition ctr = (vmsg.getLocation() == null) ? null : new GeoPosition(vmsg.getLocation());
+		GeoPosition ctr = (pkt.getLocation() == null) ? null : new GeoPosition(pkt.getLocation());
 		
 		// Loop through the connection IDs, sending if in range of center
 		ACARSConnectionPool pool = ctx.getACARSConnectionPool();
@@ -104,7 +105,7 @@ public class VoiceMixCommand extends ACARSCommand {
 				}
 			}
 			
-			BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), vmsg.getData(), avc.getID());
+			BinaryEnvelope oenv = new BinaryEnvelope(vmsg.getSender(), pktData, avc.getID());
 			Worker.RAW_OUTPUT.add(oenv);
 		}
 	}
