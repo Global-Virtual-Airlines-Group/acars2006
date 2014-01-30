@@ -65,7 +65,7 @@
 		<!-- Upload the config file to the app server -->
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc"
 			port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
-			<fileset dir="etc" includes="*.*">
+			<fileset dir="etc" includes="*.*" excludes="log4j.test.properties">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
@@ -124,7 +124,7 @@
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
 			</fileset>
-			<fileset dir="etc">
+			<fileset dir="etc" excludes="log4j.test.properties">
 				<include name="cacheInfo.xml" />
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
