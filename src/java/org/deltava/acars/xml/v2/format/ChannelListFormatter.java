@@ -1,4 +1,4 @@
-// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Voice Channel data messages.
  * @author Luke
- * @version 4.2
+ * @version 5.2
  * @since 4.0
  */
 
@@ -40,8 +40,7 @@ class ChannelListFormatter extends XMLElementFormatter {
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "channels");
 		e.setAttribute("clear", String.valueOf(cmsg.getClearList()));
-		for (Iterator<PopulatedChannel> i = cmsg.getResponse().iterator(); i.hasNext(); ) {
-			PopulatedChannel pc = i.next();
+		for (PopulatedChannel pc : cmsg.getResponse()) {
 			Channel c = pc.getChannel();
 			
 			// Build the channel element
@@ -64,11 +63,13 @@ class ChannelListFormatter extends XMLElementFormatter {
 			// Format users
 			for (Map.Entry<Long, Pilot> me : pc.getEntries()) {
 				Pilot p = me.getValue();
-				int warnLevel = cmsg.getWarning(me.getKey());
+				Long conID = me.getKey();
+				int warnLevel = cmsg.getWarning(conID);
 				
 				Element ue = new Element("user");
 				ue.setAttribute("id", p.getPilotCode());
 				ue.setAttribute("dbID", p.getHexID().substring(2));
+				ue.setAttribute("conID", Long.toHexString(conID.longValue()));
 				ue.setAttribute("owner", String.valueOf(c.getIsTemporary() && (c.getOwner().getID() == p.getID())));
 				ue.setAttribute("warn", String.valueOf(warnLevel));
 				ue.addContent(XMLUtils.createElement("name", p.getName(), true));
@@ -83,7 +84,7 @@ class ChannelListFormatter extends XMLElementFormatter {
 		return pe;
 	}
 	
-	/**
+	/*
 	 * Helper method to format role names.
 	 */
 	private static Collection<Element> formatRoles(Collection<String> roleNames, String type) {
