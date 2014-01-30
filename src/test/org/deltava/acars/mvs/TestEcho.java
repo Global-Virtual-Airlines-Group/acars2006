@@ -131,6 +131,7 @@ public class TestEcho extends TestCase {
 		_rnd.nextBytes(data);
 
 		Packet p = new Packet();
+		p.setUserID("test User");
 		p.setCompression(VoiceCompression.NONE);
 		p.setRate(SampleRate.SR6K);
 		p.setID(id);
