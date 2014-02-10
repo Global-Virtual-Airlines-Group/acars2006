@@ -20,6 +20,7 @@ public class Packet {
 
 	private static final String HDR = "MVX";
 	public static final int PROTOCOL_VERSION = 2;
+	private static final String VER_HDR = HDR + String.valueOf(PROTOCOL_VERSION);
 	
 	private SampleRate _rate;
 	private String _userID;
@@ -176,11 +177,14 @@ public class Packet {
 		Packet p = new Packet();
 		try (PacketInputStream in = new PacketInputStream(new ByteArrayInputStream(pkt))) {
 			String hdr = in.readUTF8();
-			if ((hdr == null) || !hdr.startsWith(HDR)) throw new IOException("Invalid Header - " + hdr);
+			if ((hdr == null) || !hdr.startsWith(HDR) || (hdr.length() < 4)) throw new IOException("Invalid Header - " + hdr);
 
 			// Check the version
 			int ver = StringUtils.parse(hdr.substring(HDR.length()), 0);
-			if (ver != PROTOCOL_VERSION) throw new IOException("Unknown Protocol - " + hdr);
+			if (ver > PROTOCOL_VERSION)
+				throw new IOException("Unknown Protocol - " + hdr);
+			else if (ver < PROTOCOL_VERSION)
+				return null;
 
 			// Load data
 			p._userID = in.readUTF8();
@@ -220,7 +224,7 @@ public class Packet {
 	public static byte[] rewrite(Packet p) {
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream(512)) {
 			try (PacketOutputStream out = new PacketOutputStream(bos)) {
-				out.write(HDR + String.valueOf(PROTOCOL_VERSION));
+				out.write(VER_HDR);
 				out.write(p._userID);
 				out.writeInt32(p._compression.ordinal());
 				out.writeInt64(p._conID);
