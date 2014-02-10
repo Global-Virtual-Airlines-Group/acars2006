@@ -45,6 +45,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		Packet pkt = null;
 		try {
 			pkt = Packet.parse(vmsg.getData());
+			if (pkt == null) return;
 			pkt.setConnectionID(ac.getID());
 			pkt.setUserID(ac.getUserID());
 			if (pkt.getLocation() == null)
