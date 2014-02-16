@@ -46,6 +46,7 @@ public class TestVoicePacket extends TestCase {
 		pkt.setRate(SampleRate.SR6K);
 		pkt.setID(1);
 		pkt.setLocation(new GeoPosition(33, -85.3));
+		pkt.setData(data);
 		
 		// Calculate CRC32
 		CRC32 crc = new CRC32();
@@ -55,6 +56,7 @@ public class TestVoicePacket extends TestCase {
 		// Now read the packet back
 		byte[] pd = Packet.rewrite(pkt);
 		Packet p2 = Packet.parse(pd);
+		assertEquals(2, Packet.getVersion(pd));
 		
 		// Compare
 		assertEquals(pkt.getUserID(), p2.getUserID());
@@ -67,6 +69,10 @@ public class TestVoicePacket extends TestCase {
 		p2.setConnectionID(1234);
 		byte[] pd2 = Packet.rewrite(p2);
 		Packet p3 = Packet.parse(pd2);
+		assertEquals(2, Packet.getVersion(pd2));
 		assertEquals(p2.getConnectionID(), p3.getConnectionID());
+		
+		// Test packet version of junk data
+		assertEquals(-1, Packet.getVersion(data));
 	}
 }

@@ -7,6 +7,7 @@ import java.util.zip.CRC32;
 import org.deltava.beans.GeoLocation;
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
+
 import org.deltava.util.*;
 
 /**
@@ -174,8 +175,8 @@ public class Packet {
 	 * @throws IOException if an error occurs
 	 */
 	public static Packet parse(byte[] pkt) throws IOException {
-		Packet p = new Packet();
 		try (PacketInputStream in = new PacketInputStream(new ByteArrayInputStream(pkt))) {
+			Packet p = new Packet();
 			String hdr = in.readUTF8();
 			if ((hdr == null) || !hdr.startsWith(HDR) || (hdr.length() < 4)) throw new IOException("Invalid Header - " + hdr);
 
@@ -248,6 +249,21 @@ public class Packet {
 			return bos.toByteArray();
 		} catch (IOException ie) {
 			return null;
+		}
+	}
+	
+	/**
+	 * Gets the version number of an MVS packet.
+	 * @param pktData the packet data
+	 * @return the version number, or -1 if unparseable
+	 */
+	public static int getVersion(byte[] pktData) {
+		try (PacketInputStream in = new PacketInputStream(new ByteArrayInputStream(pktData))) {
+			String hdr = in.readUTF8();
+			if ((hdr == null) || !hdr.startsWith(HDR) || (hdr.length() < 4)) return -1;
+			return StringUtils.parse(hdr.substring(HDR.length()), 0);
+		} catch (Exception e) {
+			return -1;
 		}
 	}
 }
