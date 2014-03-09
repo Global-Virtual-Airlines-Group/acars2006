@@ -56,11 +56,12 @@ public class FlightDataCommand extends DispatchCommand {
 		// Get the recipient
 		Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
 		if (!isPlot) {
-			dstC.add(ctx.getACARSConnection(msg.getRecipient()));
-			if (dstC.isEmpty() && !isPlot) {
+			ACARSConnection dc = ctx.getACARSConnection(msg.getRecipient());
+			if (dc == null) {
 				ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
 				log.warn("Cannot send dispatch message to " + msg.getRecipient());
-			}
+			} else
+				dstC.add(dc);
 		}
 
 		boolean canCreate = usr.isInRole("Route");
