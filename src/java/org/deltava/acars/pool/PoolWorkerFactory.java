@@ -1,4 +1,4 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -8,19 +8,19 @@ import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * A factory to generate thread pool worker threads. This thread factory resuses thread IDs
- * to allow workers 
+ * to not allow thread IDs to continue incrementing. 
  * @author Luke
- * @version 2.0
+ * @version 5.3
  * @since 2.0
  */
 
 public class PoolWorkerFactory implements ThreadFactory {
 	
 	private final Collection<Integer> _IDs = new TreeSet<Integer>();
-	protected String _name;
+	protected final String _name;
 	
 	class PoolThread extends Thread implements Thread.UncaughtExceptionHandler {
-		private int _id;
+		private final int _id;
 		private PoolWorker.PoolWorkerDeathHandler _deathHandler;
 		private WorkerStatus _status;
 		
@@ -47,17 +47,21 @@ public class PoolWorkerFactory implements ThreadFactory {
 			_deathHandler = handler;
 		}
 		
+		@Override
 		public void run() {
-			super.run();
-			if (_status != null) {
-				_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
-				_status.setAlive(false);
-				
+			try {
+				super.run();
+				if (_status != null) {
+					_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+					_status.setAlive(false);
+				}
+			} catch (IllegalMonitorStateException ime) {
+				// empty
+			} finally {
+				removeID(_id);
+				if (_deathHandler != null)
+					_deathHandler.workerTerminated(this, null);
 			}
-				
-			removeID(_id);
-			if (_deathHandler != null)
-				_deathHandler.workerTerminated(this, null);
 		}
 		
 		public void uncaughtException(Thread t, Throwable e) {
@@ -78,6 +82,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 	/**
 	 * Returns the factory name.
 	 */
+	@Override
 	public String toString() {
 		return _name + "WorkerFactory";
 	}
@@ -86,6 +91,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 	 * Spawns a new thread pool thread.
 	 * @param r the Runnable to wrap the Thread around
 	 */
+	@Override
 	public Thread newThread(Runnable r) {
 		int id = getNextID();
 		return new PoolThread(id, r, _name + "-" + String.valueOf(id));
@@ -99,10 +105,8 @@ public class PoolWorkerFactory implements ThreadFactory {
 		int expectedID = 1;
 		for (Iterator<Integer> i = _IDs.iterator(); i.hasNext(); ) {
 			Integer id = i.next();
-			if (id.intValue() > expectedID) {
-				_IDs.add(Integer.valueOf(expectedID));
-				return expectedID;
-			}
+			if (id.intValue() > expectedID)
+				break;
 				
 			expectedID++;
 		}
