@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 5.1
+ * @version 5.3
  * @since 1.0
  */
 
@@ -186,16 +186,24 @@ public class FilePIREPCommand extends ACARSCommand {
 			OnlineNetwork network = afr.getNetwork();
 			if ((network != null) && (!p.hasNetworkID(network))) {
 				log.info(p.getName() + " does not have a " + network.toString() + " ID");
-				comments.add("No " + network.toString() + " ID, resetting Online Network flag");
+				comments.add("SYSTEM: No " + network.toString() + " ID, resetting Online Network flag");
 				afr.setNetwork(null);
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			} else if ((network == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0))
+			} else if ((network == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
+				comments.add("SYSTEM: Filed offline, resetting Online Event flag");
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
+			}
 			
 			// Check if it's an Online Event flight
 			GetEvent evdao = new GetEvent(con);
-			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK)))
-				afr.setDatabaseID(DatabaseID.EVENT, evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network));
+			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
+				int eventID = evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network);
+				if (eventID != 0) {
+					Event e = evdao.get(eventID);
+					comments.add("SYSTEM: Detected participation in " + e.getName() + " Online Event");
+					afr.setDatabaseID(DatabaseID.EVENT, eventID);
+				}
+			}
 
 			// Check that it was submitted in time
 			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
@@ -206,7 +214,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
 				}
 			} else
-					afr.setDatabaseID(DatabaseID.EVENT, 0);
+				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			
 			// Load the aircraft
 			GetAircraft acdao = new GetAircraft(con);
