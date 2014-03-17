@@ -6,7 +6,6 @@ import org.jdom2.Element;
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.DraftPIREPMessage;
 
-import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
 
 import org.deltava.util.*;
@@ -14,7 +13,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 5.0
+ * @version 5.3
  * @since 1.0
  */
 
@@ -46,10 +45,8 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			fe.addContent(XMLUtils.createElement("lf", StringUtils.format(fr.getLoadFactor(), "0.000")));
-			if (fr.hasAttribute(FlightReport.ATTR_VATSIM))
-				fe.setAttribute("network", OnlineNetwork.VATSIM.toString());
-			else if (fr.hasAttribute(FlightReport.ATTR_IVAO))
-				fe.setAttribute("network", OnlineNetwork.IVAO.toString());
+			if (fr.getNetwork() != null)
+				fe.setAttribute("network", fr.getNetwork().toString());
 			if (!StringUtils.isEmpty(fr.getRoute()))
 				fe.addContent(XMLUtils.createElement("route", fr.getRoute(), true));
 			
