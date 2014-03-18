@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 5.1
+ * @version 5.3
  * @since 1.0
  */
 
@@ -117,8 +117,8 @@ public class InfoCommand extends ACARSCommand {
 				// If we're still not valid, check for an event
 				if (!msg.isScheduleValidated()) {
 					GetEvent edao = new GetEvent(c); 
-					boolean isOK = (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.VATSIM) > 0);
-					isOK |= (edao.getEvent(msg.getAirportD(), msg.getAirportA(), OnlineNetwork.VATSIM) > 0);
+					boolean isOK = (edao.getPossibleEvent(msg, OnlineNetwork.VATSIM, msg.getStartTime()) > 0);
+					isOK |= (edao.getPossibleEvent(msg, OnlineNetwork.IVAO, msg.getStartTime()) > 0);
 					msg.setScheduleValidated(isOK);
 				}
 			} else
