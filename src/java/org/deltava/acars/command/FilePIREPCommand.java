@@ -197,7 +197,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check if it's an Online Event flight
 			GetEvent evdao = new GetEvent(con);
 			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
-				int eventID = evdao.getEvent(afr.getAirportD(), afr.getAirportA(), network);
+				int eventID = evdao.getPossibleEvent(afr);
 				if (eventID != 0) {
 					Event e = evdao.get(eventID);
 					comments.add("SYSTEM: Detected participation in " + e.getName() + " Online Event");
