@@ -1,4 +1,4 @@
-// Copyright 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -7,9 +7,10 @@ import org.deltava.dao.*;
 
 import org.deltava.beans.UserData;
 import org.deltava.beans.acars.IATACodes;
-
 import org.deltava.acars.beans.MessageEnvelope;
+
 import org.deltava.acars.command.*;
+import org.deltava.dao.acars.GetACARSIATACodes;
 
 import org.deltava.acars.message.DataRequestMessage;
 import org.deltava.acars.message.data.IATACodeMessage;
@@ -17,7 +18,7 @@ import org.deltava.acars.message.data.IATACodeMessage;
 /**
  * An ACARS Command to return a list of IATA aircraft codes.
  * @author Luke
- * @version 5.1
+ * @version 5.4
  * @since 5.1
  */
 
