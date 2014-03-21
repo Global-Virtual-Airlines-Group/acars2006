@@ -1,4 +1,4 @@
-// Copyright 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 5.0
+ * @version 5.4
  * @since 4.0
  */
 
@@ -28,9 +28,8 @@ public class TCPChannel extends ACARSChannel<String> {
 	
 	private transient static final String MAGIC_RESET_CODE = "</!ACARSReset>";
 	
-	// Byte byffer decoder and character set
-	private transient final Charset cs = Charset.forName("UTF-8"); 
-	private transient final CharsetDecoder decoder = cs.newDecoder();
+	// Byte byffer decoder
+	private transient final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
 	
 	// Input buffers
 	private transient final StringBuilder _msgBuffer = new StringBuilder();
@@ -156,7 +155,7 @@ public class TCPChannel extends ACARSChannel<String> {
 
 		int writeCount = 1;
 		try {
-			byte[] msgBytes = msg.getBytes(cs);
+			byte[] msgBytes = msg.getBytes(StandardCharsets.UTF_8);
 
 			// Keep writing until the message is done
 			int ofs = 0;
@@ -186,7 +185,7 @@ public class TCPChannel extends ACARSChannel<String> {
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
 							_stats.addWriteError();
 							_oBuffer.clear();
-							_oBuffer.put(MAGIC_RESET_CODE.getBytes(cs));
+							_oBuffer.put(MAGIC_RESET_CODE.getBytes(StandardCharsets.UTF_8));
 							_oBuffer.flip();
 							if (_wSelector.select(300) > 0) {
 								_stats.addBytesOut(_sc.write(_oBuffer));		
