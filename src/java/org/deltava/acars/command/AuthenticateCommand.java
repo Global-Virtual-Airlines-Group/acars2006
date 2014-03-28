@@ -1,6 +1,7 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.net.*;
 import java.sql.*;
 import java.util.*;
 
@@ -12,6 +13,7 @@ import org.deltava.beans.system.*;
 
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
+
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ConnectionMessage;
 
@@ -19,13 +21,14 @@ import org.deltava.dao.*;
 import org.deltava.dao.acars.SetConnection;
 
 import org.deltava.security.*;
+
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 5.2
+ * @version 5.3
  * @since 1.0
  */
 
@@ -101,7 +104,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException("Cannot load user data - " + msg.getUserID());
 			
 			// Validate the password
-			Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
+			org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			if (auth instanceof SQLAuthenticator) {
 				SQLAuthenticator sqlAuth = (SQLAuthenticator) auth;
 				sqlAuth.setConnection(c);
@@ -247,8 +250,15 @@ public class AuthenticateCommand extends ACARSCommand {
 			pwdao.login(ud.getID(), con.getRemoteHost(), ud.getDB());
 
 			// Save login hostname/IP address forever
-			SetSystemData sysdao = new SetSystemData(c);
-			sysdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
+			try {
+				InetAddress addr = InetAddress.getByName(con.getRemoteAddr());
+				if (!addr.isLinkLocalAddress() && !addr.isSiteLocalAddress()) {
+					SetSystemData sysdao = new SetSystemData(c);
+					sysdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
+				}
+			} catch (UnknownHostException uhe) {
+				log.warn("Unknown Host " + con.getRemoteAddr());
+			}
 
 			// If Teamspeak is enabled, mark us as logged in
 			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
