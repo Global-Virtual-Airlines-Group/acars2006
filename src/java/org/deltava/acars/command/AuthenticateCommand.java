@@ -299,6 +299,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());
+		ackMsg.setEntry("dbID", String.valueOf(usr.getID()));
 		ackMsg.setEntry("rank", usr.getRank().getName());
 		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
