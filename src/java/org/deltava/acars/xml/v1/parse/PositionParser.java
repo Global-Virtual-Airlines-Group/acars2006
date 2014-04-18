@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -19,7 +19,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 4.2
+ * @version 5.4
  * @since 1.0
  */
 
@@ -102,7 +102,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				Controller ctr = new Controller(StringUtils.parse(ce.getAttributeValue("id"), 0));
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
-				msg.setController(ctr);
+				msg.setATC1(ctr);
 			}
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);

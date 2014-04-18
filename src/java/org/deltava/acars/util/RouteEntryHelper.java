@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 4.2
+ * @version 5.4
  * @since 1.0
  */
 
@@ -75,7 +75,11 @@ public final class RouteEntryHelper {
 		result.setFuelRemaining(msg.getFuelRemaining());
 		result.setVisibility(msg.getVisibility());
 		result.setCOM1(msg.getCOM1());
-		result.setController(msg.getController());
+		result.setCOM2(msg.getCOM2());
+		result.setNAV1(msg.getNAV1());
+		result.setNAV2(msg.getNAV2());
+		result.setATC1(msg.getATC1());
+		result.setATC2(msg.getATC2());
 		return result;
 	}
 	
