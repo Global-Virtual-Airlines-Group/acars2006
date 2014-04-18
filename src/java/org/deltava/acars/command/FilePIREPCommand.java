@@ -196,7 +196,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			
 			// Check if it's an Online Event flight
 			GetEvent evdao = new GetEvent(con);
-			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK))) {
+			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (network != null)) {
 				int eventID = evdao.getPossibleEvent(afr);
 				if (eventID != 0) {
 					Event e = evdao.get(eventID);
@@ -213,8 +213,10 @@ public class FilePIREPCommand extends ACARSCommand {
 					comments.add("SYSTEM: Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
 				}
-			} else
+			} else if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
+				comments.add("SYSTEM: Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
+			}
 			
 			// Load the aircraft
 			GetAircraft acdao = new GetAircraft(con);
