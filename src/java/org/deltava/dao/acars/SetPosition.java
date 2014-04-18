@@ -93,7 +93,7 @@ public class SetPosition extends DAO {
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
 					+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, "
 					+ "WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE, NAV1, NAV2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-					+ "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+					+ "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Drain the queue
 			Collection<PositionCacheEntry> entries = new ArrayList<PositionCacheEntry>();
