@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.text.*;
@@ -19,7 +19,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 4.2
+ * @version 5.4
  * @since 1.0
  */
 
@@ -89,6 +89,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
+			msg.setNAV1(getChildText(e, "nav1", "109.90"));
+			msg.setNAV2(getChildText(e, "nav2", "109.90"));
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
@@ -100,13 +102,23 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 		// Parse ATC info
 		try {
 			msg.setCOM1(getChildText(e, "com1", "122.8"));
+			msg.setCOM2(getChildText(e, "com2", "122.8"));
 			String atcID = getChildText(e, "atc", null);
 			if (!StringUtils.isEmpty(atcID)) {
 				Element ce = e.getChild("atc");
 				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")));
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
-				msg.setController(ctr);
+				msg.setATC1(ctr);
+			}
+			
+			atcID = getChildText(e, "atc2", null);
+			if (!StringUtils.isEmpty(atcID)) {
+				Element ce = e.getChild("atc2");
+				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")));
+				ctr.setCallsign(atcID);
+				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
+				msg.setATC2(ctr);
 			}
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);

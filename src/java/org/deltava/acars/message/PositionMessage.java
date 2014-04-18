@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -9,7 +9,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 4.1
+ * @version 5.4
  * @since 1.0
  */
 
@@ -34,7 +34,12 @@ public class PositionMessage extends LocationMessage {
 	private boolean _txActive;
 	
 	private String _com1;
-	private Controller _atc;
+	private String _com2;
+	private String _nav1;
+	private String _nav2;
+	
+	private Controller _atc1;
+	private Controller _atc2;
 
 	// Weather information
 	private int _windHeading;
@@ -150,8 +155,28 @@ public class PositionMessage extends LocationMessage {
 		return _com1;
 	}
 	
-	public Controller getController() { 
-		return _atc;
+	public String getCOM2() {
+		return _com2;
+	}
+	
+	public String getNAV1() {
+		return _nav1;
+	}
+	
+	public String getNAV2() {
+		return _nav2;
+	}
+	
+	public Controller getATC1() { 
+		return _atc1;
+	}
+	
+	public Controller getATC2() { 
+		return _atc2;
+	}
+	
+	public boolean hasATC() {
+		return (_atc1 != null) || (_atc2 != null);
 	}
 
 	public void setReplay(boolean isReplay) {
@@ -255,11 +280,27 @@ public class PositionMessage extends LocationMessage {
 		_temperature = Math.max(-100, Math.min(99, t));
 	}
 	
-	public void setCOM1(String com1) {
-		_com1 = com1;
+	public void setCOM1(String freq) {
+		_com1 = freq;
 	}
 	
-	public void setController(Controller atc) {
-		_atc = atc; 
+	public void setCOM2(String freq) {
+		_com2 = freq;
+	}
+	
+	public void setNAV1(String freq) {
+		_nav1 = freq;
+	}
+	
+	public void setNAV2(String freq) {
+		_nav2 = freq;
+	}
+	
+	public void setATC1(Controller atc) {
+		_atc1 = atc; 
+	}
+	
+	public void setATC2(Controller atc) {
+		_atc2 = atc; 
 	}
 }
