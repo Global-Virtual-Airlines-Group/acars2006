@@ -19,7 +19,7 @@ import org.deltava.util.RoleUtils;
 /**
  * An ACARS command to mix voice messages.
  * @author Luke
- * @version 5.2
+ * @version 5.4
  * @since 4.0
  */
 
@@ -40,6 +40,8 @@ public class VoiceMixCommand extends ACARSCommand {
 		// Get the message
 		VoiceMessage vmsg = (VoiceMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
+		if (ac.getMuted())
+			return;
 		
 		// Parse the voice message
 		Packet pkt = null;
@@ -90,7 +92,7 @@ public class VoiceMixCommand extends ACARSCommand {
 		ACARSConnectionPool pool = ctx.getACARSConnectionPool();
 		for (Long ID : pc.getConnectionIDs()) {
 			ACARSConnection avc = pool.get(ID.longValue());
-			if ((avc == null) || !avc.isVoiceEnabled() || avc.getMuted())
+			if ((avc == null) || !avc.isVoiceEnabled())
 				continue;
 			else if ((avc.getID() == ac.getID()) && !ac.isVoiceEcho())
 				continue;
