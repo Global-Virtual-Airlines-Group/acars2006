@@ -1,26 +1,23 @@
-// Copyright 2005, 2006, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.io.*;
 import java.util.Collection;
 
 import org.deltava.acars.beans.MessageEnvelope;
-
 import org.deltava.acars.command.*;
+
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.ControllerMessage;
 
 import org.deltava.beans.*;
-import org.deltava.beans.servinfo.NetworkInfo;
-
-import org.deltava.dao.file.GetServInfo;
+import org.deltava.beans.servinfo.*;
 
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 3.6
+ * @version 5.4
  * @since 1.0
  */
 
@@ -38,6 +35,7 @@ public class ATCInfoCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message and the network
@@ -54,17 +52,7 @@ public class ATCInfoCommand extends DataCommand {
 		}
 		
 		// Get the data
-		NetworkInfo info = null;
-		try {
-			File f = new File(SystemData.get("online." + network.toString().toLowerCase() + ".local.info"));
-			if (f.exists()) {
-				GetServInfo sidao = new GetServInfo(new FileInputStream(f));
-				info = sidao.getInfo(network);
-			}
-		} catch (Exception e) {
-			log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
-			return;
-		}
+		NetworkInfo info = ServInfoHelper.getInfo(network);
 		
 		// Get the position
 		GeoLocation loc = ctx.getACARSConnection().getPosition();
@@ -74,8 +62,7 @@ public class ATCInfoCommand extends DataCommand {
 		// Filter the controllers based on range from position
 		ControllerMessage rspMsg = new ControllerMessage(env.getOwner(), msg.getID());
 		rspMsg.setNetwork(network);
-		if (info != null)
-			rspMsg.addAll(info.getControllers(loc));
+		rspMsg.addAll(info.getControllers(loc));
 		
 		// Push the response
 		ctx.push(rspMsg, env.getConnectionID());

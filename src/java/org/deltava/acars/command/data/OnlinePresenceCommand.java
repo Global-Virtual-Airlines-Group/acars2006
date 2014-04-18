@@ -1,7 +1,5 @@
-// Copyright 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
-
-import java.io.*;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
@@ -10,15 +8,12 @@ import org.deltava.acars.message.*;
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.*;
 
-import org.deltava.dao.file.GetServInfo;
-
 import org.deltava.util.StringUtils;
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to determine whether a user is connected to an Online Network.
  * @author Luke
- * @version 4.1
+ * @version 5.4
  * @since 4.1
  */
 
@@ -47,27 +42,19 @@ public class OnlinePresenceCommand extends DataCommand {
 		} catch (IllegalArgumentException iae) {
 			log.warn("Unknown Online network - " + msg.getFlag("network"));
 		}
-		
+
 		// Create the response
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		if (network != null) {
 			int myID = StringUtils.parse(ctx.getUser().getNetworkID(network), -1);
-			try {
-				File f = new File(SystemData.get("online." + network.toString().toLowerCase() + ".local.info"));
-				if (f.exists()) {
-					GetServInfo sidao = new GetServInfo(new FileInputStream(f));
-					NetworkInfo info = sidao.getInfo(network);
-					
-					// Check for the user
-					for (Pilot p : info.getPilots()) {
-						if (p.getID() == myID) {
-							ackMsg.setEntry("isOnline", "true");
-							break;
-						}
-					}
+			NetworkInfo info = ServInfoHelper.getInfo(network);
+
+			// Check for the user
+			for (Pilot p : info.getPilots()) {
+				if (p.getID() == myID) {
+					ackMsg.setEntry("isOnline", "true");
+					break;
 				}
-			} catch (Exception e) {
-				log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
 			}
 		}
 

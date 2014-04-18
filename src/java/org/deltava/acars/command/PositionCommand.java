@@ -1,7 +1,6 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.io.*;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
@@ -19,7 +18,6 @@ import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
 import org.deltava.dao.acars.SetPosition;
-import org.deltava.dao.file.GetServInfo;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -29,7 +27,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 4.1
+ * @version 5.4
  * @since 1.0
  */
 
@@ -83,29 +81,41 @@ public class PositionCommand extends ACARSCommand {
 		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
 		long pmAge = (oldPM == null) ? Long.MAX_VALUE : TimeUnit.MILLISECONDS.convert(System.nanoTime() - oldPM.getTime(), TimeUnit.NANOSECONDS);
 		
-		// If we're online, have a frequency and no controller, find one
+		// Check for frequency with missing controller
 		OnlineNetwork network = info.getNetwork();
-		if (msg.isLogged() && (network != null) && (msg.getController() == null) && !StringUtils.isEmpty(msg.getCOM1())) {
-			File f = new File(SystemData.get("online." + network.toString().toLowerCase() + ".local.info"));
-			try {
-				if (f.exists()) {
-					GetServInfo sidao = new GetServInfo(new FileInputStream(f));
-					NetworkInfo netInfo = sidao.getInfo(info.getNetwork());
-					Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
-					if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
-						int distance = GeoUtils.distance(msg, ctr);
-						if (distance < (ctr.getFacility().getRange() * 2)) {
-							msg.setController(ctr);
-							log.warn("No controller set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
-							if (ackMsg == null)
-								ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-							
-							ackMsg.setEntry("reqATC", "true");
-						}
+		boolean noATC1 = ((network != null) && (msg.getATC1() == null) && !StringUtils.isEmpty(msg.getCOM1()));
+		boolean noATC2 = ((network != null) && (msg.getATC2() == null) && !StringUtils.isEmpty(msg.getCOM2()));
+		
+		// If we're online, have a frequency and no controller, find one
+		if (msg.isLogged() && (noATC1 || noATC2)) {
+			NetworkInfo netInfo = ServInfoHelper.getInfo(network);
+			if (ackMsg == null)
+				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+			
+			if (noATC1) {
+				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
+				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
+					int distance = GeoUtils.distance(msg, ctr);
+					if (distance < (ctr.getFacility().getRange() * 2)) {
+						msg.setATC1(ctr);
+						log.warn("No ATC1 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						
+						ackMsg.setEntry("reqATC", "true");
 					}
 				}
-			} catch (Exception e) {
-				log.error("Cannot load " + network + " ServInfo feed - " + e.getMessage(), e);
+			}
+			
+			if (noATC2) {
+				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM2(), msg);
+				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
+					int distance = GeoUtils.distance(msg, ctr);
+					if (distance < (ctr.getFacility().getRange() * 2)) {
+						msg.setATC2(ctr);
+						log.warn("No ATC2 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						
+						ackMsg.setEntry("reqATC", "true");
+					}
+				}
 			}
 		}
 
@@ -177,7 +187,6 @@ public class PositionCommand extends ACARSCommand {
 				}
 			}
 			
-			// Release the lock
 			w.unlock();
 		}
 	}
