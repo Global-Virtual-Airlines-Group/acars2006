@@ -10,7 +10,7 @@ import org.deltava.beans.schedule.RoutePair;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 5.3
+ * @version 5.4
  * @since 1.0
  */
 
@@ -38,6 +38,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private boolean _flightComplete;
 	private boolean _checkRide;
 	private boolean _scheduleValidated;
+	private boolean _noRideCheck;
 	
 	private boolean _dispatchPlan;
 	private int _dispatcherID;
@@ -157,6 +158,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return _scheduleValidated;
 	}
 	
+	public boolean isNoRideCheck() {
+		return _noRideCheck;
+	}
+	
 	public boolean matches(Airport org, Airport dst) {
 		return (_airportD.equals(org) && _airportA.equals(dst));
 	}
@@ -215,6 +220,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setCheckRide(boolean isCR) {
 		_checkRide = isCR;
+	}
+	
+	public void setNoRideCheck(boolean noCheck) {
+		_noRideCheck = noCheck;
 	}
 	
 	public void setScheduleValidated(boolean isOK) {

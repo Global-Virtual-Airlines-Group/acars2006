@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 5.3
+ * @version 5.4
  * @since 1.0
  */
 
@@ -124,13 +124,15 @@ public class InfoCommand extends ACARSCommand {
 			} else
 				msg.setScheduleValidated(true);
 
-			// Look for a checkride record
-			GetExam exdao = new GetExam(c);
-			CheckRide cr = exdao.getCheckRide(usrLoc.getID(), msg.getEquipmentType(), TestStatus.NEW);
-			msg.setCheckRide(cr != null);
-			ackMsg.setEntry("checkRide", String.valueOf(msg.isCheckRide()));
-			if (cr != null)
-				ackMsg.setEntry("crName", cr.getName());
+			// Look for a check ride record - Builds prior to 103 send no check ride flag, but submit on PIREP
+			boolean properCRHandling = (con.getClientBuild() > 103);
+			if (!msg.isNoRideCheck()) {
+				GetExam exdao = new GetExam(c);
+				CheckRide cr = exdao.getCheckRide(usrLoc.getID(), msg.getEquipmentType(), TestStatus.NEW);
+				ackMsg.setEntry("checkRide", String.valueOf(cr != null));
+				if (!properCRHandling)
+					msg.setCheckRide(cr != null);
+			}
 			
 			// Get the SID/STAR data
 			GetNavAirway navdao = new GetNavAirway(c);
@@ -203,7 +205,7 @@ public class InfoCommand extends ACARSCommand {
 		ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
 		ctx.push(ackMsg, env.getConnectionID(), true);
 
-		// Set the info for the connection and write it to the database
+		// Set the info for the connection
 		con.setFlightInfo(msg);
 		log.info("Received flight information from " + con.getUserID());
 	}
