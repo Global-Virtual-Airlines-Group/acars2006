@@ -2,15 +2,17 @@
 package org.deltava.acars.command.data;
 
 import java.util.*;
+import java.sql.Connection;
 
 import org.deltava.dao.*;
+import org.deltava.dao.acars.GetACARSIATACodes;
 
 import org.deltava.beans.UserData;
 import org.deltava.beans.acars.IATACodes;
+import org.deltava.beans.schedule.Aircraft;
 import org.deltava.acars.beans.MessageEnvelope;
 
 import org.deltava.acars.command.*;
-import org.deltava.dao.acars.GetACARSIATACodes;
 
 import org.deltava.acars.message.DataRequestMessage;
 import org.deltava.acars.message.data.IATACodeMessage;
@@ -45,8 +47,24 @@ public class IATACodeCommand extends DataCommand {
 		UserData ud = ctx.getACARSConnection().getUserData();
 
 		try {
-			GetACARSIATACodes dao = new GetACARSIATACodes(ctx.getConnection());
+			Connection con = ctx.getConnection();
+			GetACARSIATACodes dao = new GetACARSIATACodes(con);
 			Map<String, IATACodes> codes = dao.getAll(ud.getDB());
+			
+			// Add existing codes
+			GetAircraft acdao = new GetAircraft(con);
+			Collection<Aircraft> allAC = acdao.getAircraftTypes(ud.getAirlineCode());
+			for (Aircraft ac : allAC) {
+				IATACodes c = codes.get(ac.getName());
+				if (c == null) {
+					c = new IATACodes(ac.getName());
+					codes.put(ac.getName(), c);
+				}
+				
+				for (String iata : ac.getIATA())
+					c.putIfAbsent(iata, Integer.valueOf(1));
+			}
+			
 			rspMsg.addAll(codes.values());
 		} catch (DAOException de) {
 			log.error("Error loading FDE codes - " + de.getMessage(), de);
