@@ -14,15 +14,14 @@ import org.deltava.util.cache.*;
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 5.3
+ * @version 5.4
  * @since 5.1
  */
 
 public class GetACARSIATACodes extends DAO {
 	
 	@SuppressWarnings("rawtypes")
-	private static final Cache<CacheableMap> _cache = 
-			CacheManager.get(CacheableMap.class, "IATACodes");
+	private static final Cache<CacheableMap> _cache = CacheManager.get(CacheableMap.class, "IATACodes");
 	
 	/**
 	 * Initializes the Data Access Object.
@@ -63,6 +62,8 @@ public class GetACARSIATACodes extends DAO {
 				int max = 0; IATACodes c = null;
 				while (rs.next()) {
 					String code = rs.getString(1);
+					String iata = rs.getString(2);
+					if (iata.length() > 5) continue;
 					if ((c == null) || !code.equals(c.getEquipmentType())) {
 						max = 0;
 						if (c != null)
@@ -74,7 +75,7 @@ public class GetACARSIATACodes extends DAO {
 					int cnt = rs.getInt(3);
 					max = Math.max(max, cnt);
 					if (cnt > (max / 5))
-						c.put(rs.getString(2), Integer.valueOf(cnt));
+						c.put(iata, Integer.valueOf(cnt));
 				}
 			}
 			
