@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 5.3
+ * @version 5.4
  * @since 1.0
  */
 
@@ -459,23 +459,44 @@ public class FilePIREPCommand extends ACARSCommand {
 			wps.remove(info.getAirportA().getICAO());
 			if (wps.size() > 2) {
 				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + flightID);
+				
+				// Check what SID we filed
+				String trName = wps.get(0); String trTrans = wps.get(1);
+				if (!StringUtils.isEmpty(info.getSID())) {
+					TerminalRoute fSID = navdao.getRoute(afr.getAirportD(), TerminalRoute.Type.SID, info.getSID(), true);
+					if (fSID != null) {
+						trName = fSID.getName(); 
+						trTrans = fSID.getTransition();
+					}
+				}
 
-				// Check actual SID/STAR
-				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, wps.get(0), wps.get(1), rD);
+				// Check actual SID
+				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, trName, trTrans, rD);
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
-					if (ac.getVersion() > 2)
+					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
 						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 				}
+				
+				// Check what STAR we filed
+				trName = wps.get(wps.size() - 1); trTrans = wps.get(wps.size() - 2);
+				if (!StringUtils.isEmpty(info.getSTAR())) {
+					TerminalRoute fSTAR = navdao.getRoute(afr.getAirportA(), TerminalRoute.Type.STAR, info.getSTAR(), true);
+					if (fSTAR != null) {
+						trName = fSTAR.getName();
+						trTrans = fSTAR.getTransition();
+					}
+				}
 
-				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, wps.get(wps.size() - 1), wps.get(wps.size() - 2), rA);
+				// Check actual STAR
+				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, trTrans, rA);
 				if (aSTAR == null)
-					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, wps.get(wps.size() - 1), null, rA); 
+					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, null, rA); 
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
-					if (ac.getVersion() > 2)
+					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
 						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
 				}
 			}
