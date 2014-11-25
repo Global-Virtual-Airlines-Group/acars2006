@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 4.2
+ * @version 5.4
  * @since 1.0
  */
 
@@ -100,6 +100,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LASTAP), new LastAirportCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ALT), new AlternateAirportCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_IATA), new IATACodeCommand());
+		_dataCommands.put(Integer.valueOf(DataMessage.REQ_FLIGHTNUM), new FlightNumberCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
@@ -119,8 +120,8 @@ public class LogicProcessor extends Worker {
 
 	private class CommandWorker extends PoolWorker {
 
-		private MessageEnvelope _env;
-		private ACARSCommand _cmd;
+		private final MessageEnvelope _env;
+		private final ACARSCommand _cmd;
 
 		CommandWorker(MessageEnvelope env, ACARSCommand cmd) {
 			super();
@@ -128,10 +129,12 @@ public class LogicProcessor extends Worker {
 			_cmd = cmd;
 		}
 
+		@Override
 		public String getName() {
 			return "CommandProcessor";
 		}
 
+		@Override
 		public void run() {
 			if ((_env == null) || (_cmd == null)) return;
 
@@ -186,9 +189,9 @@ public class LogicProcessor extends Worker {
 
 	/**
 	 * Returns the status of this Worker and the Connection writers.
-	 * 
 	 * @return a List of WorkerStatus beans, with this Worker's status first
 	 */
+	@Override
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
 		results.addAll(_cmdPool.getWorkerStatus());
@@ -198,6 +201,7 @@ public class LogicProcessor extends Worker {
 	/**
 	 * Shuts down the worker.
 	 */
+	@Override
 	public final void close() {
 
 		// Wait for the pool to shut down
@@ -216,6 +220,7 @@ public class LogicProcessor extends Worker {
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
