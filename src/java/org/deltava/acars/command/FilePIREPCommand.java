@@ -156,7 +156,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
 			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
-			List<FlightReport> dFlights = prdao.getDraftReports(usrLoc.getID(), afr.getAirportD(), afr.getAirportA(), usrLoc.getDB());
+			List<FlightReport> dFlights = prdao.getDraftReports(usrLoc.getID(), afr, usrLoc.getDB());
 			if (!dFlights.isEmpty()) {
 				FlightReport fr = dFlights.get(0);
 				afr.setID(fr.getID());

@@ -104,7 +104,7 @@ public class InfoCommand extends ACARSCommand {
 				// If we're not valid, check against draft PIREPs
 				if (!msg.isScheduleValidated()) {
 					GetFlightReports prdao = new GetFlightReports(c);
-					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg.getAirportD(), msg.getAirportA(), usrLoc.getDB());
+					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg, usrLoc.getDB());
 					for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !msg.isScheduleValidated(); ) {
 						FlightReport fr = i.next();
 						boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
