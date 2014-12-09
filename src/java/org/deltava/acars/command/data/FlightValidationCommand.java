@@ -1,28 +1,24 @@
-// Copyright 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.util.Collection;
+import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
-
 import org.deltava.acars.beans.MessageEnvelope;
-
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
-
 import org.deltava.dao.*;
-
 import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 /**
- * An ACARS Command to validate that a route exists in the Flight Schedule,
- * and if any dispatch routes currently exist.
+ * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
+ * valid flight assignment or charter request, and if any dispatch routes currently exist.
  * @author Luke
- * @version 4.2
+ * @version 5.4
  * @since 2.3
  */
 
@@ -69,19 +65,29 @@ public class FlightValidationCommand extends DataCommand {
 			// Check the route
 			GetSchedule sdao = new GetSchedule(con);
 			FlightTime flightTime = sdao.getFlightTime(rt, ud.getDB());
-			rspMsg.setEntry("routeOK", String.valueOf(flightTime.getFlightTime() > 0));
+			boolean inSchedule = (flightTime.getFlightTime() > 0); boolean isValid = inSchedule;
+			
+			// Check for draft flights if not in schedule
+			if (!inSchedule) {
+				GetFlightReports frdao = new GetFlightReports(con);
+				List<FlightReport> pireps = frdao.getDraftReports(ud.getID(), rt, ud.getDB());
+				pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0)));
+				isValid = (pireps.size() > 0);
+			}
+			
+			rspMsg.setEntry("routeOK", String.valueOf(isValid));
 			rspMsg.setEntry("hasCurrent", String.valueOf(flightTime.hasCurrent()));
 			rspMsg.setEntry("hasHistoric", String.valueOf(flightTime.hasHistoric()));
 			
 			// Check for dispatch routes
-			if (flightTime.getFlightTime() > 0) {
+			if (inSchedule) {
 				GetACARSRoute drdao = new GetACARSRoute(con);
-				int dRoutes = drdao.getRoutes(airportD, airportA, true).size();
+				int dRoutes = drdao.getRoutes(rt, true).size();
 			
 				// If we have no dispatch routes, check for cached routes
 				if (dRoutes == 0) {
 					GetCachedRoutes rcdao = new GetCachedRoutes(con);
-					dRoutes = rcdao.getRoutes(airportD, airportA, false).size();
+					dRoutes = rcdao.getRoutes(rt, false).size();
 				}
 			
 				rspMsg.setEntry("dispatchRoutes", String.valueOf(dRoutes));

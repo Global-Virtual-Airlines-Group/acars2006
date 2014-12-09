@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -12,11 +12,11 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store Dispatch data.
  * @author Luke
- * @version 5.1
+ * @version 5.4
  * @since 1.1
  */
 
-public class FlightDataMessage extends DispatchMessage {
+public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	
 	private String _recipient;
 	private int _routeID;
@@ -89,12 +89,19 @@ public class FlightDataMessage extends DispatchMessage {
 		return _eqType;
 	}
 	
+	@Override
 	public Airport getAirportD() {
 		return _airportD;
 	}
 	
+	@Override
 	public Airport getAirportA() {
 		return _airportA;
+	}
+	
+	@Override
+	public int getDistance() {
+		return _airportD.getPosition().distanceTo(_airportA);
 	}
 	
 	public Airport getAirportL() {

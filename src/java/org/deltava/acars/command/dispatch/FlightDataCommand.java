@@ -78,7 +78,7 @@ public class FlightDataCommand extends DispatchCommand {
 			// Save the dispatch message data
 			if ((msg.getRouteID() == 0) && canCreate && !msg.getNoSave()) {
 				GetACARSRoute rdao = new GetACARSRoute(c);
-				int dupeID = rdao.hasDuplicate(msg.getAirportD(), msg.getAirportA(), msg.getRoute());
+				int dupeID = rdao.hasDuplicate(msg, msg.getRoute());
 
 				// Write the route
 				if (dupeID == 0) {
