@@ -1,10 +1,8 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
 import java.util.*;
-import java.io.IOException;
-import java.nio.channels.Selector;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.QuitMessage;
@@ -20,14 +18,13 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 3.6
+ * @version 5.4
  * @since 1.0
  */
 
 public class NetworkReader extends Worker {
 	
 	private ConnectionPool _cPool;
-	private Selector _cSelector;
 
 	/**
 	 * Initializes the Worker.
@@ -39,22 +36,21 @@ public class NetworkReader extends Worker {
 	/**
 	 * Initializes the worker.
 	 */
+	@Override
 	public final void open() {
 		super.open();
-		
-		// Create the selector and attach it to the connection pool
+		_cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 		try {
-			_cSelector = Selector.open();
-			_pool.setSelector(_cSelector);
-			_cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
-		} catch (IOException ie) {
-			throw new IllegalStateException(ie);
+			_pool.updateSelector();
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
 	/**
 	 * Shuts down the Worker. All existing connections to the server socket will be closed.
 	 */
+	@Override
 	public final void close() {
 
 		// Close all of the connections
@@ -75,14 +71,13 @@ public class NetworkReader extends Worker {
 		
 		// Log connection close
 		logCloseConnections(conIDs);
-
-		// Call the superclass close
 		super.close();
 	}
 
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
@@ -97,7 +92,7 @@ public class NetworkReader extends Worker {
 				if (runInterval < 50)
 					Thread.sleep(50 - runInterval);
 				
-				consWaiting = _cSelector.select(sleepTime);
+				consWaiting = _pool.select(sleepTime);
 			} catch (InterruptedException ie) {
 				log.warn("Interrupted");
 				Thread.currentThread().interrupt();
@@ -156,15 +151,15 @@ public class NetworkReader extends Worker {
 				}
 			}
 			
-			// Log executiuon
 			_status.complete();
 		}
 	}
 	
-	/**
+	/*
 	 * Helper method to log closing of connections.
 	 */
 	private void logCloseConnections(Collection<Long> ids) {
+		if (ids.isEmpty()) return;
 		_status.setMessage("Loggng Closed Connections");
 		Connection con = null;
 		try {
