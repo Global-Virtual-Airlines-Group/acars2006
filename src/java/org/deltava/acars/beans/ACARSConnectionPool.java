@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -25,7 +25,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 5.1
+ * @version 5.4
  * @since 1.0
  */
 
@@ -54,8 +54,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	private long _inactivityTimeout = -1;
 	private long _inactivityLastRun = 0;
 
-	// The selector to use for non-blocking I/O reads
+	// The selector to use for non-blocking I/O reads and counters for select operations
 	private transient Selector _cSelector;
+	private int _selectCount;
+	private int _maxSelects = Integer.MAX_VALUE;
 
 	/**
 	 * Creates a new ACARS Connection Pool.
@@ -100,6 +102,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * Returns network data in a serialized form for transfer between virtual machines or class loaders.
 	 * @return a Collection of byte arrays
 	 */
+	@Override
 	public Collection<byte[]> getSerializedInfo() {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
@@ -118,6 +121,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * Returns the flight IDs of all active flights.
 	 * @return a Collection of Integer flight IDs
 	 */
+	@Override
 	public Collection<Integer> getFlightIDs() {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<Integer> results = new TreeSet<Integer>();
@@ -135,6 +139,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * @param showHidden TRUE if stealth connections should be displayed, otherwise FALSE
 	 * @return a Collection of serialized ConnectionEntry beans
 	 */
+	@Override
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size());
@@ -184,6 +189,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * Returns ACARS connection statistics.
 	 * @return a Collection of ConnectionStats beans
 	 */
+	@Override
 	public Collection<ConnectionStats> getStatistics() {
 		Collection<ACARSConnection> cons = getAll();
 		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(cons.size() + 8);
@@ -234,6 +240,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		}
 	}
 
+	/**
+	 * Checks to see whether any connections should be closed for inactivity.
+	 * @return a Collection of ACARSConnections
+	 */
 	public Collection<ACARSConnection> checkConnections() {
 
 		// Start with the list of dropped connections
@@ -338,13 +348,16 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	/**
 	 * Returns the size of the connection pool.
 	 */
+	@Override
 	public int size() {
 		return getAll().size();
 	}
 	
 	/**
 	 * Returns if a Dispatcher is online.
+	 * @return TRUE if a Dispatcher is connected, otheriwse FALSE
 	 */
+	@Override
 	public boolean isDispatchOnline() {
 		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
 			ACARSConnection c = i.next();
@@ -365,7 +378,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			return Collections.emptySet();
 
 		// Get the list of channels waiting for input
-		Collection<TextEnvelope> results = new ArrayList<TextEnvelope>(keys.size());
+		Collection<TextEnvelope> results = new ArrayList<TextEnvelope>(keys.size() + 1);
 		for (Iterator<SelectionKey> i = keys.iterator(); i.hasNext();) {
 			SelectionKey sKey = i.next();
 
@@ -421,7 +434,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 
 	/**
 	 * Removes a connection from the pool.
-	 * @param c the ACARSConnection
+	 * @param c the ACARSConnection to remove
 	 */
 	public void remove(ACARSConnection c) {
 		try {
@@ -438,11 +451,49 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	}
 
 	/**
-	 * Sets the selector to use for this pool.
-	 * @param cs the Selector
+	 * Recycles the read selector.
+	 * @throws IOException if an I/O error occurs
 	 */
-	public void setSelector(Selector cs) {
-		_cSelector = cs;
+	public void updateSelector() throws IOException {
+		if (_cSelector != null)
+			log.info("Updating Read Selector after " + _selectCount + " selects");
+		
+		try {
+			_w.lock();
+			Selector s = Selector.open();
+			for (ACARSConnection ac : _cons.values())
+				ac.register(s);
+			
+			if (_cSelector != null)
+				_cSelector.close();
+			_cSelector = s;
+			_selectCount = 0;
+		} finally {
+			_w.unlock();
+		}
+	}
+	
+	/**
+	 * Waits for data to be available for reading on any connection.
+	 * @param timeout the timeout in milliseconds
+	 * @return the number of connections with data ready to be read 
+	 * @throws IOException if an I/O error occurs
+	 */
+	public int select(long timeout) throws IOException {
+		if (_selectCount > _maxSelects)
+			updateSelector();
+		
+		_selectCount++;
+		return _cSelector.select(timeout);
+	}
+	
+	/**
+	 * Returns the number of select operations that have been performed on the current Selector.
+	 * @return the number of selects
+	 */
+	@Override
+	public int getSelectCount() {
+		return _selectCount;
 	}
 
 	/**
@@ -451,5 +502,17 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	public void setTimeout(int toSeconds) {
 		_inactivityTimeout = (toSeconds < 60) ? -1 : (toSeconds * 1000);
+	}
+	
+	/**
+	 * Sets the maximum number of select operations to be performed on the read Selector before
+	 * it is recycled and replaced with a new one. This is to get around a bug in the JVM's epoll()
+	 * implementation. 
+	 * @param maxSelects the maxmimum number of selects, or <= 0 for infinite
+	 * @see {@link ACARSConnectionPool#updateSelector()}
+	 * @See {@link ACARSConnectionPool#getSelectCount()}
+	 */
+	public void setMaxSelects(int maxSelects) {
+		_maxSelects = (maxSelects < 1) ? Integer.MAX_VALUE : maxSelects;
 	}
 }

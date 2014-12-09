@@ -180,6 +180,7 @@
 
 		<pool>
 			<size type="Integer">20</size>
+			<maxSelect type="Integer">100</maxSelect>
 			<multiple type="Boolean">true</multiple>
 			<threads>
 				<logic>
