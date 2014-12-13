@@ -185,8 +185,8 @@
 		</voice>
 
 		<pool>
-			<size type="Integer">256</size>
-			<maxSelect type="Integer">12000</maxSelect>
+			<size type="Integer">320</size>
+			<maxSelect type="Integer">125000</maxSelect>
 			<multiple type="Boolean">true</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
