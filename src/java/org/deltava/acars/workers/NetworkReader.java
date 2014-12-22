@@ -84,7 +84,7 @@ public class NetworkReader extends Worker {
 		long lastExecTime = 0; int sleepTime = SystemData.getInt("acars.sleep", 30000);
 
 		while (!Thread.currentThread().isInterrupted()) {
-			_status.setMessage("Waiting for Data");
+			_status.setMessage("Waiting for Data - " + String.valueOf(_pool.getSelectCount()) + " selects");
 			_status.execute();
 			int consWaiting = 0;
 			try {
