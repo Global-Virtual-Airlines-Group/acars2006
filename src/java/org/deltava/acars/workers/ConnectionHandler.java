@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -8,24 +8,22 @@ import java.util.*;
 
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
-
 import org.deltava.beans.system.VersionInfo;
-
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
-
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 5.2
+ * @version 5.4
  * @since 2.1
  */
 
 public class ConnectionHandler extends Worker implements Thread.UncaughtExceptionHandler {
 	
 	private Selector _cSelector;
+	private int _selectCount;
 	private ServerSocketChannel _channel;
 	
 	private final IDGenerator gen = new IDGenerator();
@@ -97,7 +95,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				log.error("Error setting socket options - " + ie.getMessage(), ie);
 			}
 
-			// Register the channel with the selector
+			// Register the channel with the pool
 			log.info("New Connection from " + con.getRemoteAddr());
 			try {
 				_pool.add(con);
@@ -139,8 +137,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			_channel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
 			_channel.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
 			_channel.bind(new InetSocketAddress(SystemData.getInt("acars.port")));
-
-			// Add the server socket channel to the selector
 			_channel.register(_cSelector, SelectionKey.OP_ACCEPT);
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
@@ -164,6 +160,19 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		super.close();
 	}
 	
+	/*
+	 * Updates the accept selector.
+	 */
+	private void updateSelector() throws IOException {
+		Selector s = Selector.open();
+		_channel.register(s, SelectionKey.OP_ACCEPT);
+		if (_cSelector != null)
+			_cSelector.close();
+		
+		_cSelector = s;
+		_selectCount = 0;
+	}
+	
 	/**
 	 * Uncaught exception handler for Connection workers.
 	 */
@@ -179,12 +188,16 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
+		final int maxSelect = SystemData.getInt("acars.pool.maxSelect", 15000); final int sleepTime = SystemData.getInt("acars.sleep", 30000);
 		
 		while (!Thread.currentThread().isInterrupted()) {
-			_status.setMessage("Listening for new Connection");
+			_selectCount++;
+			_status.setMessage("Listening for new Connection - " + String.valueOf(_selectCount) + " selects");
 			_status.execute();
 			try {
-				_cSelector.select(SystemData.getInt("acars.sleep", 30000));
+				_cSelector.select(sleepTime);
+				if (_selectCount > maxSelect)
+					updateSelector();
 			} catch (IOException ie) {
 				log.warn("Error on select - " + ie.getMessage());
 			}

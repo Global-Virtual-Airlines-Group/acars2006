@@ -19,13 +19,15 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS worker thread to read voice packets.
  * @author Luke
- * @version 5.2
+ * @version 5.4
  * @since 4.0
  */
 
 public class VoiceReader extends Worker {
 	
 	private Selector _rSelector;
+	private int _selectCount;
+	
 	private final Collection<DatagramChannel> _channels = new ArrayList<DatagramChannel>();
 	
 	private final ByteBuffer _buf = ByteBuffer.allocateDirect(20480);
@@ -38,15 +40,12 @@ public class VoiceReader extends Worker {
 	}
 	
 	/**
-	 * Initializes the Worker.
+	 * Initializes the Worker. Binds to each non-loopback local address.
 	 */
 	@Override
 	public final void open() {
 		super.open();
 		try {
-			_rSelector = Selector.open();
-			
-			// Get channels
 			for (Enumeration<NetworkInterface> ints = NetworkInterface.getNetworkInterfaces(); (ints != null) && ints.hasMoreElements(); ) {
 				NetworkInterface ni = ints.nextElement();
 				if (ni.isLoopback() || !ni.isUp() || ni.isVirtual()) {
@@ -54,20 +53,20 @@ public class VoiceReader extends Worker {
 					continue;
 				}
 				
-				log.info("Found " + ni.getDisplayName());
 				for (Enumeration<InetAddress> addrs = ni.getInetAddresses(); addrs.hasMoreElements(); ) {
 					InetAddress addr = addrs.nextElement();
-					log.info("Binding to " + addr.getHostAddress());
+					log.info("Binding to " + addr.getHostAddress() + " - " + ni.getDisplayName());
 				
 					DatagramChannel ch = DatagramChannel.open();
 					ch.configureBlocking(false);
 					ch.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv") * 2));
 					ch.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send") * 4));
 					ch.bind(new InetSocketAddress(addr, SystemData.getInt("acars.port")));
-					ch.register(_rSelector, SelectionKey.OP_READ);
 					_channels.add(ch);
 				}
 			}
+			
+			updateSelector();
 		} catch (IOException ie) {
 			log.error(ie.getMessage());
 			throw new IllegalStateException(ie);
@@ -92,6 +91,21 @@ public class VoiceReader extends Worker {
 		
 		super.close();
 	}
+	
+	/*
+	 * Updates the read selector.
+	 */
+	private void updateSelector() throws IOException {
+		Selector s = Selector.open();
+		for (DatagramChannel ch : _channels)
+			ch.register(s, SelectionKey.OP_READ);
+		
+		if (_rSelector != null)
+			_rSelector.close();
+		
+		_rSelector = s;
+		_selectCount = 0;
+	}
 
 	/**
 	 * Executes the Thread.
@@ -101,12 +115,16 @@ public class VoiceReader extends Worker {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
 		long lastExecTime = 0;
+		final int maxSelect = SystemData.getInt("acars.pool.maxSelect", 15000); final int sleepTime = SystemData.getInt("acars.sleep", 30000);
 		while (!Thread.currentThread().isInterrupted()) {
-			_status.setMessage("Listening for Voice packet");
+			_selectCount++;
+			_status.setMessage("Listening for Voice packet - " + String.valueOf(_selectCount) + " selects");
 			_status.execute();
 			int consWaiting = 0;
 			try {
-				consWaiting = _rSelector.select(SystemData.getInt("acars.sleep", 30000));
+				consWaiting = _rSelector.select(sleepTime);
+				if (_selectCount >= maxSelect)
+					updateSelector();
 			} catch (IOException ie) {
 				log.warn("Error on select - " + ie.getMessage());
 			}
@@ -177,7 +195,7 @@ public class VoiceReader extends Worker {
 					}
 				}
 				
-				_rSelector.selectedKeys().clear();
+				keys.clear();
 			}
 			
 			// Check execution time
