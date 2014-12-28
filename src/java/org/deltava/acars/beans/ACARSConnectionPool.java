@@ -158,10 +158,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				entry.setUserHidden(ac.getUserHidden());
 				entry.setVoice(ac.isVoiceEnabled());
 				
-				// Get the flight phase
-				PositionMessage pm = ac.getPosition();
-				entry.setFlightPhase((pm == null) ? "N/A" : pm.getPhaseName());
-				
 				// Get the flight information
 				InfoMessage inf = ac.getFlightInfo();
 				FlightInfo info = new FlightInfo(0);
@@ -175,6 +171,13 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					if (inf.getFlightID() != 0)
 						info.setID(inf.getFlightID());
 				}
+				
+				// Get the flight phase
+				PositionMessage pm = ac.getPosition();
+				if (pm == null)
+					entry.setFlightPhase((inf == null) ? "N/A" : "Unknown");
+				else
+					entry.setFlightPhase(pm.getPhaseName());
 				
 				// Save the flight info
 				entry.setFlightInfo(info);
