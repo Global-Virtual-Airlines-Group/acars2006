@@ -186,7 +186,7 @@
 
 		<pool>
 			<size type="Integer">320</size>
-			<maxSelect type="Integer">125000</maxSelect>
+			<maxSelect type="Integer">32000</maxSelect>
 			<multiple type="Boolean">true</multiple>
 			<kill_old type="Boolean">true</kill_old>
 			<threads>
