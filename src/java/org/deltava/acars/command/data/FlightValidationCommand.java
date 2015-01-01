@@ -1,7 +1,8 @@
-// Copyright 2008, 2009, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.sql.Connection;
 
 import org.deltava.beans.*;
@@ -18,7 +19,7 @@ import org.deltava.util.system.SystemData;
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
  * valid flight assignment or charter request, and if any dispatch routes currently exist.
  * @author Luke
- * @version 5.4
+ * @version 5.5
  * @since 2.3
  */
 
@@ -71,8 +72,8 @@ public class FlightValidationCommand extends DataCommand {
 			if (!inSchedule) {
 				GetFlightReports frdao = new GetFlightReports(con);
 				List<FlightReport> pireps = frdao.getDraftReports(ud.getID(), rt, ud.getDB());
-				pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0)));
-				isValid = (pireps.size() > 0);
+				List<FlightReport> fp = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0))).collect(Collectors.toList());
+				isValid = (fp.size() > 0);
 			}
 			
 			rspMsg.setEntry("routeOK", String.valueOf(isValid));
