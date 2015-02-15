@@ -1,19 +1,18 @@
-// Copyright 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
+import java.util.Map;
+
 import org.jdom2.Element;
-
 import org.deltava.beans.acars.IATACodes;
-
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.IATACodeMessage;
-
 import org.deltava.util.XMLUtils;
 
 /**
  * An XML Formatter for IATA code data messages.
  * @author Luke
- * @version 5.1
+ * @version 6.0
  * @since 5.1
  */
 
@@ -36,8 +35,11 @@ class IATACodeFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 		for (IATACodes fc : fmsg.getResponse()) {
 			Element fe = new Element("eqType");
 			fe.setAttribute("type", fc.getEquipmentType());
-			for (String code : fc.keySet())
-				fe.addContent(XMLUtils.createElement("code", code, false));
+			for (Map.Entry<String, ? extends Number> me : fc.entrySet()) {
+				Element ae = XMLUtils.createElement("code", me.getKey(), false);
+				ae.setAttribute("count", String.valueOf(me.getValue()));
+				fe.addContent(ae);
+			}
 			
 			e.addContent(fe);
 		}
