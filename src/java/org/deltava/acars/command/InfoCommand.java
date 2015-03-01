@@ -132,7 +132,8 @@ public class InfoCommand extends ACARSCommand {
 				ackMsg.setEntry("checkRide", String.valueOf(cr != null));
 				if (!properCRHandling)
 					msg.setCheckRide(cr != null);
-			}
+			} else if (properCRHandling && msg.isCheckRide())
+				ackMsg.setEntry("checkRide", "true");
 			
 			// Get the SID/STAR data
 			GetNavAirway navdao = new GetNavAirway(c);
