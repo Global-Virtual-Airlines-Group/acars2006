@@ -389,9 +389,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			if (sKey.isValid() && sKey.isReadable()) {
 				ACARSConnection con = null;
 				try {
+					_r.lock();
 					SocketChannel ch = (SocketChannel) sKey.channel();
 					String srcAddr = NetworkUtils.getSourceAddress(ch.getRemoteAddress());
-					_r.lock();
 					con = _conLookup.get(srcAddr);
 				} catch (IOException ie) {
 					log.error("Error fetching remote address - " + sKey.channel());
