@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 5.4
+ * @version 6.0
  * @since 1.0
  */
 
@@ -54,23 +54,16 @@ public class NetworkReader extends Worker {
 	public final void close() {
 
 		// Close all of the connections
-		Collection<Long> conIDs = new HashSet<Long>();
 		_status.setMessage("Closing connections");
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-			if (con.isAuthenticated()) {
+		for (ACARSConnection con : _pool.getAll()) {
+			if (con.isAuthenticated())
 				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");
-				conIDs.add(new Long(con.getID()));
-			} else
+			else
 				log.warn("Disconnecting (" + con.getRemoteAddr() + ")");
 
-			// Close the connection and remove from the worker threads
-			con.close();
-			i.remove();
+			_pool.remove(con);
 		}
 		
-		// Log connection close
-		logCloseConnections(conIDs);
 		super.close();
 	}
 

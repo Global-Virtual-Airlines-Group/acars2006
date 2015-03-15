@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 5.2
+ * @version 6.0
  * @since 1.0
  */
 
@@ -73,6 +73,22 @@ public final class SetConnection extends DAO {
 			
 			_ps.executeBatch();
 			_ps.close();
+		} catch (SQLException se) {
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
+	 * Marks all unclosed connections as closed. This will only close those opened within the past 24 hours.
+	 * @return the number of connections marked closed
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public int closeAll() throws DAOException {
+		try {
+			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND "
+				+ "(STARTDATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
+			_ps.setInt(1, 24);
+			return executeUpdate(0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
