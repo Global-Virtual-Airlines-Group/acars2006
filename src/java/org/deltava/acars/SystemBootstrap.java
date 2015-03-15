@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -10,6 +10,7 @@ import javax.servlet.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.dao.*;
+import org.deltava.dao.acars.SetConnection;
 import org.deltava.mail.MailerDaemon;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.ipc.IPCDaemon;
@@ -30,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 5.2
+ * @version 6.0
  * @since 1.0
  */
 
@@ -55,10 +56,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
 			Connection c = null;
 			try {
-				c = _jdbcPool.getConnection();
+				c = _jdbcPool.getConnection(); c.setAutoCommit(true);
 				SetTS2Data ts2wdao = new SetTS2Data(c);
-				int flagsCleared = ts2wdao.clearActiveFlags();
-				log.info("Cleared " + flagsCleared + " TeamSpeak 2 client activity flags");
+				log.info("Cleared " + ts2wdao.clearActiveFlags() + " TeamSpeak 2 client activity flags");
+				SetConnection cwdao = new SetConnection(c);
+				cwdao.closeAll();
+				c.commit();
 			} catch (Exception de) {
 				log.error(de.getMessage(), de);
 			} finally {
@@ -116,7 +119,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
 			CacheLoader.load(is);
 		} catch(IOException ie) {
-			log.warn("Cannot configure caches from code");
+			log.warn("Cannot configure caches from code - " + ie.getMessage());
 		}
 		
 		// Get and load the authenticator
@@ -205,7 +208,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
 		
 		// Wait a bit for the daemons to spool up
-		ThreadUtils.sleep(250);
+		ThreadUtils.sleep(225);
 	}
 	
 	/*
