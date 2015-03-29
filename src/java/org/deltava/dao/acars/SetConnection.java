@@ -86,7 +86,7 @@ public final class SetConnection extends DAO {
 	public int closeAll() throws DAOException {
 		try {
 			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND "
-				+ "(STARTDATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
+				+ "(DATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
 			_ps.setInt(1, 24);
 			return executeUpdate(0);
 		} catch (SQLException se) {
