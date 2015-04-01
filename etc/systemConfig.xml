@@ -68,7 +68,7 @@
 	</weather>
 
 	<security>
-		<auth>org.deltava.security.ApacheSQLAuthenticator</auth>
+		<auth>org.deltava.security.MirrorAuthenticator</auth>
 		<baseDN>ou=dva,o=sce</baseDN>
 	</security>
 	
