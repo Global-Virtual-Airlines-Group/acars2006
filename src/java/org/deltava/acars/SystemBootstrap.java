@@ -56,7 +56,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
 			Connection c = null;
 			try {
-				c = _jdbcPool.getConnection(); c.setAutoCommit(true);
+				c = _jdbcPool.getConnection(); c.setAutoCommit(false);
 				SetTS2Data ts2wdao = new SetTS2Data(c);
 				log.info("Cleared " + ts2wdao.clearActiveFlags() + " TeamSpeak 2 client activity flags");
 				SetConnection cwdao = new SetConnection(c);
