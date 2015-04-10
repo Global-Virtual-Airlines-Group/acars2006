@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 5.4
+ * @version 6.0
  * @since 1.0
  */
 
@@ -69,6 +69,7 @@ public class FilePIREPCommand extends ACARSCommand {
 		ACARSFlightReport afr = msg.getPIREP();
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
+		AirlineInformation usrAirline = SystemData.getApp(usrLoc.getAirlineCode());
 
 		// Adjust the times
 		afr.setStartTime(CalendarUtils.adjustMS(afr.getStartTime(), ac.getTimeOffset()));
@@ -528,8 +529,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				MessageContext mctxt = new MessageContext();
 				mctxt.addData("user", p);
 				mctxt.addData("pirep", afr);
-				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
-				mctxt.addData("url", "http://www." + usrLoc.getDomain() + "/");
+				mctxt.addData("airline", usrAirline.getName());
+				mctxt.addData("url", (usrAirline.getSSL() ? "http" : "https") + "://www." + usrLoc.getDomain() + "/");
 					
 				// Load the template
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "CRSUBMIT"));
@@ -556,11 +557,12 @@ public class FilePIREPCommand extends ACARSCommand {
 				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
+					
 					MessageContext mctxt = new MessageContext();
 					mctxt.addData("user", p);
 					mctxt.addData("pirep", afr);
 					mctxt.addData("airline", crEQ.getOwner().getName());
-					mctxt.addData("url", "http://www." + eq.getOwner().getDomain() + "/");
+					mctxt.addData("url", (crEQ.getOwner().getSSL() ? "http" : "https") + "://www." + eq.getOwner().getDomain() + "/");
 					
 					// Load the template
 					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
@@ -584,7 +586,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				ctx.setMessage("Posting to Facebook");
 				
 				// Build the message
-				String baseURL = "http://www." + usrLoc.getDomain() + "/";
+				String baseURL = (usrAirline.getSSL() ? "http" : "https") + "://www." + usrLoc.getDomain() + "/";
 				MessageContext mctxt = new MessageContext();
 				mctxt.addData("user", p);
 				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
