@@ -519,6 +519,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
+			ackMsg.setEntry("protocol", usrAirline.getSSL() ? "http" : "https");
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 			ctx.push(ackMsg, ac.getID(), true);
 			
