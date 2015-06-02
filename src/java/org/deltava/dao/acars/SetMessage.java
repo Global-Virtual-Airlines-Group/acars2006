@@ -1,4 +1,4 @@
-// Copyright 2005, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2007, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.TextMessage;
 /**
  * A Data Access Object to log ACARS messages.
  * @author Luke
- * @version 1.0
+ * @version 6.0
  * @since 1.0
  */
 
@@ -33,15 +33,11 @@ public class SetMessage extends DAO {
 	 */
 	public void write(TextMessage msg, int recipientID) throws DAOException {
 		try {
-		   prepareStatement("INSERT INTO acars.MESSAGES (DATE, AUTHOR, RECIPIENT, BODY) VALUES (NOW(), ?, ?, ?) "
-				   + "ON DUPLICATE KEY UPDATE DATE=DATE_ADD(DATE, INTERVAL 1 SECOND)");
-
-		   // Set the prepared statement parameters
+			prepareStatement("INSERT INTO acars.MESSAGES (DATE, AUTHOR, RECIPIENT, BODY) VALUES (NOW(), ?, ?, ?))");
+		   	_ps.setQueryTimeout(3);
 			_ps.setInt(1, msg.getSender().getID());
 			_ps.setInt(2, recipientID);
 			_ps.setString(3, msg.getText());
-			
-			// Update the database
 			executeUpdate(1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
