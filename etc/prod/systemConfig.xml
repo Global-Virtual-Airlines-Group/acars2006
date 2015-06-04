@@ -133,7 +133,7 @@
 
 	<!-- SMTP server data -->
 	<smtp>
-		<server>pollux.gvagroup.org</server>
+		<server>localhost</server>
 		<errors-to>acars@gvagroup.org</errors-to>
 		<testMode type="Boolean">false</testMode>
 	</smtp>
