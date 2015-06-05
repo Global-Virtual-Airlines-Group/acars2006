@@ -41,7 +41,8 @@ public class FlightNumberCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		AcknowledgeMessage rspMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
-		// Get the Airports
+		// Get the Airports / Time of Day
+		int hour = StringUtils.parse(msg.getFlag("hour"), 12);
 		Airport airportD = SystemData.getAirport(msg.getFlag("airportD"));
 		Airport airportA = SystemData.getAirport(msg.getFlag("airportA"));
 		if ((airportD == null) || (airportA == null)) {
@@ -56,11 +57,12 @@ public class FlightNumberCommand extends DataCommand {
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(airlineCode), airportD, airportA);
 		try {
 			GetSchedule sdao = new GetSchedule(ctx.getConnection());
-			ScheduleEntry se = sdao.getFlightNumber(rt, ud.getDB());
+			ScheduleEntry se = sdao.getFlightNumber(rt, hour, ud.getDB());
 			if (se != null) {
 				rspMsg.setEntry("airline", se.getAirline().getCode());
 				rspMsg.setEntry("flight", String.valueOf(se.getFlightNumber()));
 				rspMsg.setEntry("leg", String.valueOf(se.getLeg()));
+				rspMsg.setEntry("timeD", StringUtils.format(se.getTimeD(), "HH:mm"));
 			}
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
