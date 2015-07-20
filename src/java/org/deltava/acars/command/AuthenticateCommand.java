@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -28,7 +28,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 5.3
+ * @version 6.1
  * @since 1.0
  */
 
@@ -308,11 +308,14 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
-		
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Restriction.NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
+		
+		// Check if airline uses SSL
+		AirlineInformation ai = SystemData.getApp(ud.getAirlineCode());
+		ackMsg.setEntry("useSSL", String.valueOf(ai.getSSL()));
 		
 		// Get max time acceleration rate
 		if (!con.getIsDispatch()) {
