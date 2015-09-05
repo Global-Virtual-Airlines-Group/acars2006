@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 6.0
+ * @version 6.1
  * @since 1.0
  */
 
@@ -371,8 +371,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (r != null) {
 				int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
 				rD = new RunwayDistance(r, dist);
-				if (r.getLength() < a.getTakeoffRunwayLength())
+				if (r.getLength() < a.getTakeoffRunwayLength()) {
+					comments.add("Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
+				}
 			}
 
 			// Load the arrival runway
@@ -382,8 +384,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			if (r != null) {
 				int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
 				rA = new RunwayDistance(r, dist);
-				if (r.getLength() < a.getLandingRunwayLength())
+				if (r.getLength() < a.getLandingRunwayLength()) {
+					comments.add("Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
+				}
 			}
 			
 			// Get framerates
