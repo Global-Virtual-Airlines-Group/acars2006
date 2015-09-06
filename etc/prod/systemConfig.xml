@@ -78,7 +78,14 @@
 			<taf>ftp://tgftp.nws.noaa.gov/data/forecasts/taf/stations/</taf>
 		</url>	
 	</weather>
-	
+
+	<!-- Memcached server info -->
+    <memcached>
+        <list name="addrs" attr="addr" unique="true">
+            <addr>localhost:11211</addr>
+        </list>
+    </memcached>
+
 	<!-- Maximum held pirep value -->
 	<users>
 		<pirep>
