@@ -31,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 6.0
+ * @version 6.1
  * @since 1.0
  */
 
@@ -71,6 +71,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
+		MemcachedUtils.shutdown();
 		_jdbcPool.close();
 		
 		// Clear shared data
@@ -114,6 +115,14 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Save the connection pool in the SystemData
 		SystemData.add(SystemData.JDBC_POOL, _jdbcPool);
 		SharedData.addData(SharedData.JDBC_POOL + SystemData.get("airline.code"), _jdbcPool);
+		
+		// Init memcached
+		Collection<?> rawAddrs = (Collection<?>) SystemData.getObject("memcached.addrs");
+		if (rawAddrs != null) {
+			List<String> addrs = rawAddrs.stream().map(Object::toString).collect(java.util.stream.Collectors.toList());
+			MemcachedUtils.init(addrs);
+		} else
+			MemcachedUtils.init(Collections.singletonList("localhost:11211"));
 		
 		// Initialize caches
 		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
