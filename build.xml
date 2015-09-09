@@ -11,7 +11,6 @@
 		    	<fileset dir="lib">
 					<include name="**/*.jar"/>
 				</fileset>
-				<pathelement location="../DVA2006/lib/servlet-api-3.1.jar" />
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>
@@ -31,17 +30,6 @@
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF" port="${webapp.dev.port}" 
 			verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
 			<fileset file="WEB-INF/web.xml">
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
-					<param name="algorithm.algorithm" value="MD5" />
-					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
-				</modified>
-			</fileset>
-		</scp>
-
-		<!-- Upload the common JAR files to the app server -->
-		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path.common}"
-			port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
-			<fileset dir="lib/deploy" includes="*.jar">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
