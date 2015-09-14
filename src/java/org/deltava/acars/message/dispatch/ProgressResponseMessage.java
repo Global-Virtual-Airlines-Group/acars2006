@@ -1,9 +1,10 @@
-// Copyright 2007, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
 
 import org.deltava.beans.*;
+import org.deltava.beans.navdata.FIR;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.DispatchMessage;
@@ -11,7 +12,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message for Dispatcher progress responses.
  * @author Luke
- * @version 5.0
+ * @version 6.1
  * @since 2.1
  */
 
@@ -28,6 +29,8 @@ public class ProgressResponseMessage extends DispatchMessage {
 	
 	private GeospaceLocation _loc;
 	private String _eqType;
+	
+	private FIR _fir;
 
 	/**
 	 * Initializes the Message.
@@ -110,6 +113,14 @@ public class ProgressResponseMessage extends DispatchMessage {
 	}
 	
 	/**
+	 * Returns the Flight Information Region for the aircraft position.
+	 * @return the FIR, or null if unknown
+	 */
+	public FIR getFIR() {
+		return _fir;
+	}
+	
+	/**
 	 * Updates the aircraft's fuel.
 	 * @param fuel the amount of fuel in pounds
 	 */
@@ -179,5 +190,13 @@ public class ProgressResponseMessage extends DispatchMessage {
 	 */
 	public void setEquipmentType(String eqType) {
 		_eqType = eqType;
+	}
+	
+	/**
+	 * Sets the Flight Information Region for the aircraft position.
+	 * @param f the FIR
+	 */
+	public void setFIR(FIR f) {
+		_fir = f;
 	}
 }
