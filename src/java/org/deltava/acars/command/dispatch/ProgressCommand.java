@@ -1,7 +1,8 @@
-// Copyright 2007, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.List;
+import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.beans.schedule.*;
@@ -15,7 +16,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 5.0
+ * @version 6.1
  * @since 2.1
  */
 
@@ -60,7 +61,10 @@ public class ProgressCommand extends DispatchCommand {
 		
 		// Calculate closest diversion airport
 		try {
-			GetAircraft acdao = new GetAircraft(ctx.getConnection());
+			Connection con = ctx.getConnection();
+			
+			// Calculate closest diversion airport
+			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(inf.getEquipmentType());
 			if (a != null) {
 				List<Airport> alts = AlternateAirportHelper.calculateAlternates(a, pos);
@@ -70,6 +74,10 @@ public class ProgressCommand extends DispatchCommand {
 				
 				rmsg.addClosestAirports(alts);
 			}
+			
+			// Determine FIR
+			GetFIR fdao = new GetFIR(con);
+			rmsg.setFIR(fdao.search(pos));
 		} catch (DAOException de) {
 			log.error("Error calculating alternates - " + de.getMessage(), de);
 		} finally {

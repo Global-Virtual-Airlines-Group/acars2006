@@ -1,11 +1,11 @@
-// Copyright 2007, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.dispatch.ProgressResponseMessage;
-
+import org.deltava.beans.navdata.FIR;
 import org.deltava.beans.schedule.Airport;
 
 import org.deltava.util.*;
@@ -13,7 +13,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchProgressResponse messages.
  * @author Luke
- * @version 5.0
+ * @version 6.1
  * @since 2.1
  */
 
@@ -45,6 +45,15 @@ class DispatchProgressFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("fuel", String.valueOf(rspmsg.getFuel())));
 		e.addContent(XMLUtils.createElement("fuelFlow", String.valueOf(rspmsg.getBurnRate())));
 		e.addContent(XMLUtils.createElement("groundSpeed", String.valueOf(rspmsg.getGroundSpeed())));
+		if (rspmsg.getFIR() != null) {
+			FIR f = rspmsg.getFIR();
+			Element fe = XMLUtils.createElement("fir", f.getName());
+			fe.setAttribute("id", f.getID());
+			fe.setAttribute("aux", String.valueOf(f.isAux()));
+			fe.setAttribute("oceanic", String.valueOf(f.isOceanic()));
+			e.addContent(fe);
+		}
+		
 		Element ae = new Element("alternates");
 		for (Airport a : rspmsg.getClosestAirports())
 			ae.addContent(formatAirport(a, "alt"));
