@@ -41,7 +41,7 @@
 			<dontTrackOpenResources>true</dontTrackOpenResources>
 			<useLocalSessionState>false</useLocalSessionState>
 			<elideSetAutoCommits>true</elideSetAutoCommits>
-			<cacheServerConfiguration>true</cacheServerConfiguration>
+			<cacheServerConfiguration>false</cacheServerConfiguration>
 			<useCursorFetch>true</useCursorFetch>
 			<maintainTimeStats>false</maintainTimeStats>
 			<validationQuery>/* ping */</validationQuery>
