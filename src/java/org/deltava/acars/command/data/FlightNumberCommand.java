@@ -1,10 +1,13 @@
-// Copyright 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import org.deltava.beans.UserData;
+import org.deltava.beans.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
+
+import java.util.List;
+import java.sql.Connection;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
@@ -16,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 5.4
+ * @version 6.1
  * @since 5.4
  */
 
@@ -56,13 +59,25 @@ public class FlightNumberCommand extends DataCommand {
 		String airlineCode = StringUtils.isEmpty(msg.getFlag("airline")) ? ud.getAirlineCode() : msg.getFlag("airline");
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(airlineCode), airportD, airportA);
 		try {
-			GetSchedule sdao = new GetSchedule(ctx.getConnection());
-			ScheduleEntry se = sdao.getFlightNumber(rt, hour, ud.getDB());
+			Connection con = ctx.getConnection();
+			GetFlightReports frdao = new GetFlightReports(con);
+			List<? extends Flight> pireps = frdao.getDraftReports(ud.getID(), rt, ud.getDB());
+			Flight se = pireps.isEmpty() ? null : pireps.get(0); 
+			
+			// Check in schedule if no draft found
+			if (se == null) {
+				GetSchedule sdao = new GetSchedule(con);
+				se = sdao.getFlightNumber(rt, hour, ud.getDB());
+			}
+			
 			if (se != null) {
 				rspMsg.setEntry("airline", se.getAirline().getCode());
 				rspMsg.setEntry("flight", String.valueOf(se.getFlightNumber()));
 				rspMsg.setEntry("leg", String.valueOf(se.getLeg()));
-				rspMsg.setEntry("timeD", StringUtils.format(se.getTimeD(), "HH:mm"));
+				if (se instanceof FlightTimes) {
+					FlightTimes ft = (FlightTimes) se;
+					rspMsg.setEntry("timeD", StringUtils.format(ft.getTimeD(), "HH:mm"));
+				}
 			}
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
