@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 5.3
+ * @version 6.1
  * @since 1.0
  */
 
@@ -52,7 +52,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setFDE(getChildText(e, "fde", null));
 		afr.setAircraftCode(getChildText(e, "code", null));
 		
-		// Check for load data (this is really v2, but no sense making a new parser for a single element)
+		// Check for SDK and load data (this is really v2, but no sense making a new parser for a these elements element)
+		afr.setSDK(getChildText(e, "sdk", null));
 		afr.setLoadFactor(StringUtils.parse(getChildText(e, "loadFactor", "0"), 0.0));
 		if (Double.isNaN(afr.getLoadFactor()))
 			afr.setLoadFactor(0);
@@ -106,8 +107,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		if (afr.getTakeoffHeading() > -1) {
 			double lat = StringUtils.parse(getChildText(e, "takeoffLat", "0.0"), 0.0d);
 			double lng = StringUtils.parse(getChildText(e, "takeoffLng", "0.0"), 0.0d);
-			GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0));
-			afr.setTakeoffLocation(pos);
+			afr.setTakeoffLocation(new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0)));
 		}
 			
 		// Get the landing data
@@ -115,8 +115,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		if (afr.getLandingHeading() > -1) {
 			double lat = StringUtils.parse(getChildText(e, "landingLat", "0.0"), 0.0d);
 			double lng = StringUtils.parse(getChildText(e, "landingLng", "0.0"), 0.0d);	
-			GeoPosition pos = new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0));
-			afr.setLandingLocation(pos);
+			afr.setLandingLocation(new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0)));
 		}
 
 		// Load the 0X/1X/2X/4X times
