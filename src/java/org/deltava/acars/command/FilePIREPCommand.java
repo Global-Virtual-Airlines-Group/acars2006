@@ -343,7 +343,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
 			boolean isEvent = (afr.getDatabaseID(DatabaseID.EVENT) != 0);
 			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
-			if ((avgHours.getFlightTime() == 0) && (!isAcademy && !isAssignment && !isEvent)) {
+			if (!avgHours.hasCurrent() && !avgHours.hasHistoric() && !isAcademy && !isAssignment && !isEvent) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
 				if (!wasValid)

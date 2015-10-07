@@ -99,7 +99,7 @@ public class InfoCommand extends ACARSCommand {
 				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
 				GetSchedule sdao = new GetSchedule(c);
 				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
-				msg.setScheduleValidated(avgTime.getFlightTime() > 0);
+				msg.setScheduleValidated(avgTime.hasHistoric() || avgTime.hasCurrent());
 				
 				// If we're not valid, check against draft PIREPs
 				if (!msg.isScheduleValidated()) {
