@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,11 +6,11 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to update the Pilot Client's non-logged position interval.
  * @author Luke
- * @version 4.0
+ * @version 6.2
  * @since 4.0
  */
 
-public class UpdateIntervalMessage extends AbstractMessage {
+public class UpdateIntervalMessage extends AbstractMessage implements IntervalMessage {
 	
 	private int _interval;
 
@@ -28,6 +28,7 @@ public class UpdateIntervalMessage extends AbstractMessage {
 	 * Returns the update interval.
 	 * @return the update interval in milliseconds
 	 */
+	@Override
 	public int getInterval() {
 		return _interval;
 	}
