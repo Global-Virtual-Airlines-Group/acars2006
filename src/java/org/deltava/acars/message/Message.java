@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,11 +6,11 @@ import org.deltava.beans.Pilot;
 /**
  * An interface to store common ACARS message data.
  * @author Luke
- * @version 4.0
+ * @version 6.2
  * @since 1.0
  */
 
-public interface Message extends java.io.Serializable {
+public interface Message {
 
 	/**
 	 * System user name.
@@ -45,13 +45,14 @@ public interface Message extends java.io.Serializable {
 	public static final int MSG_WARN = 24;
 	public static final int MSG_WARNRESET = 25;
 	public static final int MSG_POSUPDINT = 26;
+	public static final int MSG_VOICEPINGINT = 27;
 
 	/**
 	 * XML message codes.
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxtoggle", "vox", "warn", "warnreset", "updint"};
+	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping"};
 	
 	/**
 	 * XML message type descriptions.
@@ -59,7 +60,7 @@ public interface Message extends java.io.Serializable {
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
 			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
-			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval"};
+			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval", "Voice Ping Interval"};
 
 	/**
 	 * Returns the message type.
