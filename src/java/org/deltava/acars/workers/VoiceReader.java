@@ -1,4 +1,4 @@
-// Copyright 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.net.*;
@@ -10,7 +10,7 @@ import java.nio.channels.*;
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
-
+import org.deltava.acars.message.VoicePingIntervalMessage;
 import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
 
@@ -19,7 +19,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS worker thread to read voice packets.
  * @author Luke
- * @version 5.4
+ * @version 6.2
  * @since 4.0
  */
 
@@ -164,11 +164,17 @@ public class VoiceReader extends Worker {
 								throw new IllegalArgumentException(ac.getUserID() + " is not voice enabled");
 
 							// Register the source/destination addresses
-							ac.enableVoice(ch, srcAddr);
+							boolean isSourceSwitched = ac.enableVoice(ch, srcAddr);
 							try {
 								_pool.add(ac);
 							} catch (ACARSException ae) {
 								log.error("Cannot register source address - " + ae.getMessage());
+							}
+							
+							// If we switched the source, drop the ping interval down
+							if (isSourceSwitched) {
+								VoicePingIntervalMessage pmsg = new VoicePingIntervalMessage(15);
+								MSG_OUTPUT.add(new MessageEnvelope(pmsg, ac.getID()));
 							}
 							
 							// Log the read
