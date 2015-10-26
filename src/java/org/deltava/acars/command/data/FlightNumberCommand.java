@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 6.1
+ * @version 6.2
  * @since 5.4
  */
 
@@ -76,7 +76,8 @@ public class FlightNumberCommand extends DataCommand {
 				rspMsg.setEntry("leg", String.valueOf(se.getLeg()));
 				if (se instanceof FlightTimes) {
 					FlightTimes ft = (FlightTimes) se;
-					rspMsg.setEntry("timeD", StringUtils.format(ft.getTimeD(), "HH:mm"));
+					if (ft.getTimeD() != null)
+						rspMsg.setEntry("timeD", StringUtils.format(ft.getTimeD(), "HH:mm"));
 				}
 			}
 		} catch (DAOException de) {
