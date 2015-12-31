@@ -28,7 +28,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 6.1
+ * @version 6.4
  * @since 1.0
  */
 
@@ -205,6 +205,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			log.info(usr.getName() + " requesting protocol v" + msg.getProtocolVersion());
 			con.setProtocolVersion(msg.getProtocolVersion());
 		}
+		if (msg.getCompression() != Compression.NONE) {
+			log.info(usr.getName() + " requesting " + msg.getCompression().name().toLowerCase() + " compression");
+			con.setCompression(msg.getCompression());
+		}
 		
 		// If we're a dispatcher, set the default location and range
 		switch (cInfo.getClientType()) {
@@ -374,6 +378,6 @@ public class AuthenticateCommand extends ACARSCommand {
 	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 2500;
+		return 2250;
 	}
 }

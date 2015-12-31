@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.acars.message.*;
@@ -6,7 +6,7 @@ import org.deltava.acars.message.*;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 4.1
+ * @version 6.4
  * @since 2.7
  */
 
@@ -36,6 +36,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		_eParsers.put(Integer.valueOf(Message.MSG_WARN), new WarnParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_WARNRESET), new WarnResetParser());
 		_eParsers.put(Integer.valueOf(Message.MSG_POSITION), new PositionParser());
+		_eParsers.put(Integer.valueOf(Message.MSG_COMPRESS), new CompressionParser());
 		
 		// Dispatch parsers
 		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoParser());

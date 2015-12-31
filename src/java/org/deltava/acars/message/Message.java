@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An interface to store common ACARS message data.
  * @author Luke
- * @version 6.2
+ * @version 6.4
  * @since 1.0
  */
 
@@ -46,13 +46,14 @@ public interface Message {
 	public static final int MSG_WARNRESET = 25;
 	public static final int MSG_POSUPDINT = 26;
 	public static final int MSG_VOICEPINGINT = 27;
+	public static final int MSG_COMPRESS = 28;
 
 	/**
 	 * XML message codes.
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping"};
+	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping", "compress"};
 	
 	/**
 	 * XML message type descriptions.
@@ -60,7 +61,8 @@ public interface Message {
 	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
 			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
 			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
-			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval", "Voice Ping Interval"};
+			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval", "Voice Ping Interval",
+			"Data Compression"};
 
 	/**
 	 * Returns the message type.

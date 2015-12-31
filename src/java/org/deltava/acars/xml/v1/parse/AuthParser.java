@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Date;
@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.ClientInfo;
 import org.deltava.beans.acars.ClientType;
-
+import org.deltava.acars.beans.Compression;
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 4.2
+ * @version 6.4
  * @since 1.0
  */
 
@@ -60,6 +60,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		msg.setClientInfo(info);
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
 		msg.setDatabaseID(isDBID);
+		msg.setCompression(Compression.valueOf(getChildText(e, "compress", "none").toUpperCase()));
 		
 		// Get the user's local UTC time
 		String utc = getChildText(e, "localUTC", null);

@@ -1,14 +1,16 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
+
+import org.deltava.acars.beans.Compression;
 
 import org.deltava.beans.acars.ClientInfo;
 
 /**
  * An ACARS authentication message.
  * @author Luke
- * @version 4.1
+ * @version 6.4
  * @since 1.0
  */
 
@@ -22,6 +24,8 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	private Date _clientUTC;
 	private ClientInfo _info;
+	
+	private Compression _compress = Compression.NONE;
 
 	/**
 	 * Creates a new Authentication message.
@@ -50,6 +54,10 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _clientUTC; 
 	}
 	
+	public Compression getCompression() {
+		return _compress;
+	}
+	
 	public boolean isATC() {
 		return _isATC;
 	}
@@ -62,6 +70,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _isID;
 	}
 	
+	@Override
 	public final boolean isAnonymous() {
 		return true;
 	}
@@ -88,5 +97,9 @@ public final class AuthenticateMessage extends AbstractMessage {
 	
 	public void setRequestedProtocolVersion(int pVersion) {
 		setProtocolVersion(pVersion);
+	}
+	
+	public void setCompression(Compression c) {
+		_compress = c;
 	}
 }
