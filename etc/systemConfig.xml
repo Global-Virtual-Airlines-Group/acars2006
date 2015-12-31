@@ -141,6 +141,7 @@
 	<!-- ACARS Server Properties -->
 	<acars>
 		<debug type="Boolean">true</debug>
+		<compress type="Boolean">true</compress>
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
 
 		<!-- List of valid protocol revisions -->
@@ -203,7 +204,7 @@
 		
 		<buffer>
 			<send type="Integer">20480</send>
-			<recv type="Integer">30720</recv>
+			<recv type="Integer">16384</recv>
 			<nio type="Integer">30720</nio>
 		</buffer>
 		
