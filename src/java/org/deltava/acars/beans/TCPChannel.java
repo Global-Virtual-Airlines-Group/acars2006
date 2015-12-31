@@ -1,12 +1,14 @@
-// Copyright 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
-import java.io.IOException;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.net.*;
+import java.io.IOException;
 
 import java.nio.*;
 import java.nio.channels.*;
-import java.nio.charset.*;
+//import java.nio.charset.*;
 
 import org.deltava.acars.xml.ProtocolInfo;
 import org.deltava.beans.acars.ConnectionStats;
@@ -18,7 +20,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 5.4
+ * @version 6.4
  * @since 4.0
  */
 
@@ -28,14 +30,13 @@ public class TCPChannel extends ACARSChannel<String> {
 	
 	private transient static final String MAGIC_RESET_CODE = "</!ACARSReset>";
 	
-	// Byte byffer decoder
-	private transient final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-	
 	// Input buffers
 	private transient final StringBuilder _msgBuffer = new StringBuilder();
 	private transient final ByteBuffer _iBuffer = ByteBuffer.allocateDirect(SystemData.getInt("acars.buffer.nio"));
 	
 	private transient final SocketChannel _sc;
+	
+	private transient final DataCompressor _compress = new DataCompressor();
 	
 	/**
 	 * Creates a new TCP Channel.
@@ -54,9 +55,18 @@ public class TCPChannel extends ACARSChannel<String> {
 	}
 	
 	/**
+	 * Returns the daata compression type.
+	 * @return a Compression type
+	 */
+	public Compression getCompression() {
+		return _compress.getCompression();
+	}
+	
+	/**
 	 * Returns the Channel.
 	 * @return a SocketChannel
 	 */
+	@Override
 	public SocketChannel getChannel() {
 		return _sc;
 	}
@@ -74,6 +84,14 @@ public class TCPChannel extends ACARSChannel<String> {
 		} catch (Exception e) {
 			// empty
 		}
+	}
+	
+	/**
+	 * Enables/disables data compression.
+	 * @param c the Compression to use
+	 */
+	public void setCompression(Compression c) {
+		_compress.setCompression(c);
 	}
 	
 	/**
@@ -102,17 +120,14 @@ public class TCPChannel extends ACARSChannel<String> {
 		_stats.addBytesIn(_iBuffer.flip().limit());
 		updateLastActivity();
 		
-		// Reset the decoder and decode into a char buffer - strip out ping nulls
-		try {
-			CharBuffer cBuffer = decoder.decode(_iBuffer);
-			for (int x = cBuffer.position(); x < cBuffer.limit(); x++) {
-				char c = cBuffer.charAt(x);
-				if (c > 1)
-					_msgBuffer.append(c);
-			}
-		} catch (CharacterCodingException cce) {
-			// empty
-		}
+		// Decompress the data
+		byte[] rawData = new byte[_iBuffer.remaining()];
+		_iBuffer.get(rawData);
+		if (DataCompressor.isGZIP(rawData)) {
+			byte[] data = _compress.decompress(rawData, Compression.GZIP);
+			_msgBuffer.append(new String(data, UTF_8));
+		} else
+			_msgBuffer.append(new String(rawData, UTF_8));
 		
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
@@ -122,7 +137,6 @@ public class TCPChannel extends ACARSChannel<String> {
 				_msgBuffer.setLength(0);
 			}
 
-			// Return nothing
 			return null;
 		}
 		
@@ -155,7 +169,7 @@ public class TCPChannel extends ACARSChannel<String> {
 
 		int writeCount = 1;
 		try {
-			byte[] msgBytes = msg.getBytes(StandardCharsets.UTF_8);
+			byte[] msgBytes = _compress.compress(msg.getBytes(UTF_8));
 
 			// Keep writing until the message is done
 			int ofs = 0;
@@ -171,7 +185,7 @@ public class TCPChannel extends ACARSChannel<String> {
 				// Flip the buffer and write if we can
 				_oBuffer.flip();
 				while (_oBuffer.hasRemaining()) {
-					if (_wSelector.select(250) > 0) {
+					if (_wSelector.select(225) > 0) {
 						_stats.addBytesOut(_sc.write(_oBuffer));
 						_wSelector.selectedKeys().clear();
 						_stats.addBufferWrite();
@@ -185,7 +199,7 @@ public class TCPChannel extends ACARSChannel<String> {
 						if (writeCount >= MAX_WRITE_ATTEMPTS) {
 							_stats.addWriteError();
 							_oBuffer.clear();
-							_oBuffer.put(MAGIC_RESET_CODE.getBytes(StandardCharsets.UTF_8));
+							_oBuffer.put(_compress.compress(MAGIC_RESET_CODE.getBytes(UTF_8)));
 							_oBuffer.flip();
 							if (_wSelector.select(300) > 0) {
 								_stats.addBytesOut(_sc.write(_oBuffer));		
