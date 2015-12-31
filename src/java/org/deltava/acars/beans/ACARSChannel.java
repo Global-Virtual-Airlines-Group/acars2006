@@ -1,6 +1,7 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import java.io.*;
 import java.net.InetSocketAddress;
 
 import java.nio.ByteBuffer;
@@ -18,11 +19,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An abstract class to store common NIO channel information.
  * @author Luke
- * @version 4.1
+ * @version 6.4
  * @since 4.0
  */
 
-abstract class ACARSChannel<T> implements java.io.Serializable {
+abstract class ACARSChannel<T> implements Serializable, Closeable {
 	
 	/**
 	 * Maximum number of timed out write attempts.
