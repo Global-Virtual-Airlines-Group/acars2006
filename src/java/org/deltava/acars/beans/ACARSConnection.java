@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 6.2
+ * @version 6.4
  * @since 1.0
  */
 
@@ -142,11 +142,13 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	/**
 	 * Closes the connection.
 	 */
+	@Override
 	public void close() {
 		disableVoice();
 		_tcp.close();
 	}
 
+	@Override
 	public boolean equals(Object o2) {
 		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
 	}
@@ -255,14 +257,17 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return _range;
 	}
 
+	@Override
 	public int getBeta() {
 		return _beta;
 	}
 	
+	@Override
 	public int getClientBuild() {
 		return _clientBuild;
 	}
 	
+	@Override
 	public ClientType getClientType() {
 		if (_isDispatch)
 			return ClientType.DISPATCH;
@@ -272,6 +277,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return ClientType.PILOT;
 	}
 	
+	@Override
 	public int getVersion() {
 		return _version;
 	}
@@ -324,6 +330,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return (_userInfo != null);
 	}
 	
+	public Compression getCompression() {
+		return _tcp.getCompression();
+	}
+	
 	public boolean isVoiceCapable() {
 		return _voiceCapable;
 	}
@@ -350,6 +360,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	
 	public void setProtocolVersion(int pv) {
 		_protocolVersion = Math.max(_protocolVersion, pv);
+	}
+	
+	public void setCompression(Compression c) {
+		_tcp.setCompression(c);
 	}
 
 	public void setClientBuild(int bld, int beta) {
@@ -430,6 +444,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_maxVoiceSeq = Math.max(seq, _maxVoiceSeq);
 	}
 
+	@Override
 	public String getRowClassName() {
 		if (_isDispatch)
 			return "opt2";
@@ -439,10 +454,12 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		return null;
 	}
 	
+	@Override
 	public int hashCode() {
 		return Long.valueOf(_id).hashCode();
 	}
 	
+	@Override
 	public int compareTo(ACARSConnection c2) {
 		if (!isAuthenticated())
 			return -1;
