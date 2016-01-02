@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.mvs;
 
 import java.io.*;
@@ -9,11 +9,12 @@ import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
 
 import org.deltava.util.*;
+import org.deltava.acars.util.*;
 
 /**
  * A utility class to parse MVS packets.
  * @author Luke
- * @version 5.2
+ * @version 6.4
  * @since 1.0
  */
 

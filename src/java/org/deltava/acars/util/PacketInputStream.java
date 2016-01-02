@@ -1,22 +1,22 @@
-// Copyright 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.mvs;
+// Copyright 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.util;
 
 import java.io.*;
 
 /**
- * A class to handle decoding for MVS packets.
+ * A class to handle decoding for data packets.
  * @author Luke
- * @version 5.2
+ * @version 6.4
  * @since 4.0
  */
 
-class PacketInputStream extends DataInputStream {
+public class PacketInputStream extends DataInputStream {
 
 	/**
 	 * Creates the stream.
 	 * @param is the source InputStream
 	 */
-	PacketInputStream(InputStream is) {
+	public PacketInputStream(InputStream is) {
 		super(is);
 	}
 	
