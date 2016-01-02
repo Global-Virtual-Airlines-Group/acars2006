@@ -1,24 +1,42 @@
-/*
- * Created on Feb 15, 2004
- *
- * XML Message constants
- */
+// Copyright 2004, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 /**
- * @author Luke J. Kolin
+ * An interface to store ACARS protocol constants.
+ * @author luke
+ * @version 6.4
+ * @since 1.0
  */
+
 public interface ProtocolInfo {
 	
-	// Standard XML header string
-	public final static String XML_HEADER = "<?xml version=\"1.0\" ?>";
+	/**
+	 * Standard XML header string.
+	 */
+	public final static String XML_HEADER = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 	
-	// Request and command element names
+	/**
+	 * Request element name.
+	 */
 	public final static String REQ_ELEMENT_NAME = "ACARSRequest";
+	
+	/**
+	 * Response element name.
+	 */
 	public final static String RSP_ELEMENT_NAME = "ACARSResponse";
+	
+	/**
+	 * Command element name.
+	 */
 	public final static String CMD_ELEMENT_NAME = "CMD";
 	
-	// Request element open/close tags for use in reading from the socket
+	/**
+	 * Request element XML open substring.
+	 */
 	public final static String REQ_ELEMENT_OPEN = "<" + REQ_ELEMENT_NAME;
+	
+	/**
+	 * Request element XML close substring.
+	 */
 	public final static String REQ_ELEMENT_CLOSE = "</" + REQ_ELEMENT_NAME + ">";
 }
