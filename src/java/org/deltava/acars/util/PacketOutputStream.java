@@ -1,22 +1,22 @@
-// Copyright 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.mvs;
+// Copyright 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+package org.deltava.acars.util;
 
 import java.io.*;
 
 /**
- * A class to handle encoding for MVS packets.
+ * A class to handle encoding for data packets.
  * @author Luke
- * @version 5.2
+ * @version 6.4
  * @since 4.0
  */
 
-class PacketOutputStream extends DataOutputStream {
+public class PacketOutputStream extends DataOutputStream {
 
 	/**
 	 * Creates the stream.
 	 * @param os the destination OutputStream
 	 */
-	PacketOutputStream(OutputStream os) {
+	public PacketOutputStream(OutputStream os) {
 		super(os);
 	}
 

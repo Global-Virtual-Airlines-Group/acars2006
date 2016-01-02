@@ -6,7 +6,7 @@ import java.util.zip.CRC32;
 
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
-import org.deltava.acars.mvs.Packet;
+import org.deltava.acars.util.PacketInputStream;
 
 import junit.framework.TestCase;
 
