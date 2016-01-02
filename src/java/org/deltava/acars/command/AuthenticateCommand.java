@@ -205,10 +205,6 @@ public class AuthenticateCommand extends ACARSCommand {
 			log.info(usr.getName() + " requesting protocol v" + msg.getProtocolVersion());
 			con.setProtocolVersion(msg.getProtocolVersion());
 		}
-		if (msg.getCompression() != Compression.NONE) {
-			log.info(usr.getName() + " requesting " + msg.getCompression().name().toLowerCase() + " compression");
-			con.setCompression(msg.getCompression());
-		}
 		
 		// If we're a dispatcher, set the default location and range
 		switch (cInfo.getClientType()) {
