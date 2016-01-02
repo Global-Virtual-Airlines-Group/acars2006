@@ -1,6 +1,10 @@
-package org.deltava.acars.beans;
+package org.deltava.acars.util;
 
 import java.io.*;
+import java.util.Arrays;
+
+import org.deltava.acars.beans.Compression;
+import org.deltava.acars.util.DataCompressor;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -56,7 +60,7 @@ public class TestDataCompressor extends TestCase {
 		
 		byte[] data = cmp.compress(rawData);
 		assertNotNull(data); assertTrue(data.length > 0);
-		assertTrue(DataCompressor.isGZIP(data));
+		assertTrue(DataCompressor.isCompressed(data));
 		
 		byte[] rawData2 = cmp.decompress(data);
 		assertNotNull(rawData2);
@@ -110,7 +114,97 @@ public class TestDataCompressor extends TestCase {
 		assertNotNull(data); assertTrue(data.length > 0);
 
 		byte[] rawData2 = cmp2.decompress(data);
-		assertNotNull(rawData2);
-		assertEquals(0, rawData2.length);
+		assertNull(rawData2);
+	}
+	
+	public void testBuffer() {
+		DataCompressor cmp = new DataCompressor();
+		cmp.setCompression(Compression.GZIP);
+		assertEquals(Compression.GZIP, cmp.getCompression());
+
+		String data1 = loadFile("data/multiMsg.xml");
+		assertNotNull(data1); assertTrue(data1.length() > 0);
+		byte[] rawData = data1.getBytes(UTF_8);
+
+		byte[] data = cmp.compress(rawData);
+		assertNotNull(data); assertTrue(data.length > 0);
+
+		// Split the data into two
+		int ofs = (data.length / 4); 
+		byte[] data_p1 = Arrays.copyOfRange(data, 0, ofs);
+		byte[] data_p2 = Arrays.copyOfRange(data, ofs, data.length);
+		assertEquals(data.length, data_p1.length + data_p2.length);
+		assertTrue(DataCompressor.isCompressed(data_p1));
+		assertFalse(DataCompressor.isCompressed(data_p2));
+		
+		// Buffer the data
+		cmp.buffer(data_p1);
+		assertTrue(cmp.hasBuffer());
+		assertFalse(cmp.hasCompletePacket());
+		cmp.buffer(data_p2);
+		assertTrue(cmp.hasBuffer());
+		assertTrue(cmp.hasCompletePacket());
+		byte[] data_p = cmp.getPacket();
+		assertNotNull(data_p);
+		assertEquals(data.length, data_p.length);
+		assertFalse(cmp.hasCompletePacket());
+		assertFalse(cmp.hasBuffer());
+
+		// Extract the data
+		byte[] rawData2 = cmp.decompress(data_p);
+		assertEquals(rawData.length, rawData2.length);
+		assertEquals(data1, new String(rawData2, UTF_8));
+	}
+	
+	public void testMultiPacket() {
+
+		DataCompressor cmp = new DataCompressor();
+		cmp.setCompression(Compression.GZIP);
+		assertEquals(Compression.GZIP, cmp.getCompression());
+
+		String data1 = loadFile("data/multiMsg.xml");
+		assertNotNull(data1); assertTrue(data1.length() > 0);
+		byte[] rawData = data1.getBytes(UTF_8);
+
+		byte[] data = cmp.compress(rawData);
+		assertNotNull(data); assertTrue(data.length > 0);
+
+		// Split the data into two
+		int ofs = (data.length / 3); 
+		byte[] data_p1 = Arrays.copyOfRange(data, 0, ofs);
+		byte[] data_p2 = Arrays.copyOfRange(data, ofs, data.length);
+		assertEquals(data.length, data_p1.length + data_p2.length);
+		assertTrue(DataCompressor.isCompressed(data_p1));
+		assertFalse(DataCompressor.isCompressed(data_p2));
+
+		// Buffer the data
+		cmp.buffer(data_p1);
+		assertTrue(cmp.hasBuffer());
+		assertFalse(cmp.hasCompletePacket());
+		cmp.buffer(data_p2);
+		assertTrue(cmp.hasBuffer());
+		assertTrue(cmp.hasCompletePacket());
+		cmp.buffer(data);
+		assertTrue(cmp.hasBuffer());
+		assertTrue(cmp.hasCompletePacket());
+
+		// Get the first packet
+		byte[] data_p = cmp.getPacket();
+		assertNotNull(data_p);
+		assertEquals(data.length, data_p.length);
+		assertTrue(cmp.hasBuffer());
+		assertTrue(cmp.hasCompletePacket());
+		
+		// Get the second packet
+		data_p = cmp.getPacket();
+		assertNotNull(data_p);
+		assertEquals(data.length, data_p.length);
+		assertFalse(cmp.hasBuffer());
+		assertFalse(cmp.hasCompletePacket());
+		
+		// Extract the data
+		byte[] rawData2 = cmp.decompress(data_p);
+		assertEquals(rawData.length, rawData2.length);
+		assertEquals(data1, new String(rawData2, UTF_8));
 	}
 }
