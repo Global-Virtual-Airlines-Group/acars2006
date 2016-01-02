@@ -1,6 +1,8 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
+import static org.deltava.acars.xml.ProtocolInfo.XML_HEADER;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -403,10 +405,20 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				if (con != null) {
 					try {
 						String msg = con.read();
+						
+						// This may have multiple XML messages in it - split them
 						if (msg != null) {
-							TextEnvelope env = new TextEnvelope(con.getUser(), msg, con.getID());
-							env.setVersion(con.getProtocolVersion());
-							results.add(env);
+							int ePos = msg.indexOf(XML_HEADER, XML_HEADER.length());
+							do {
+								String xml = (ePos == -1) ? msg :  msg.substring(0, ePos);
+								TextEnvelope env = new TextEnvelope(con.getUser(), xml, con.getID());
+								env.setVersion(con.getProtocolVersion());
+								results.add(env);
+								if (ePos > -1) {
+									msg = msg.substring(ePos);
+									ePos = msg.indexOf(XML_HEADER, XML_HEADER.length());
+								}
+							} while (ePos > -1);
 						}
 					} catch (IOException ie) {
 						con.setMuted(con.isVoiceEnabled());

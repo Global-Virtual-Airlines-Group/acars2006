@@ -161,11 +161,12 @@ public class TCPChannel extends ACARSChannel<String> {
 		// Get the end of the message - if there's an end element build a message and return it
 		int ePos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
 		if (ePos == -1) return null;
-		ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
 
 		// Get the XML messages out of the buffer
-		StringBuilder msgOut = new StringBuilder(ProtocolInfo.XML_HEADER);
-		while (ePos > sPos) {
+		StringBuilder msgOut = new StringBuilder();
+		while ((ePos > sPos) && (sPos > -1)) {
+			msgOut.append(ProtocolInfo.XML_HEADER);
+			ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
 			_stats.addMessageIn();
 			msgOut.append(_msgBuffer.substring(sPos, ePos));
 			_msgBuffer.delete(0, ePos);
