@@ -312,7 +312,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
-		if (con.getCompression() == Compression.NONE)
+		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1))
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
 			ackMsg.setEntry("unrestricted", "true");
