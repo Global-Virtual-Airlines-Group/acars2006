@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.acars.ConnectionStats;
@@ -6,7 +6,7 @@ import org.deltava.beans.acars.ConnectionStats;
 /**
  * An updateable class to track ACARS connection statistics. 
  * @author Luke
- * @version 4.0
+ * @version 6.4
  * @since 4.0
  */
 
@@ -42,6 +42,10 @@ public class InternalConnectionStats extends ConnectionStats {
 	
 	void addBytesOut(int bytes) {
 		_bytesOut += bytes;
+	}
+	
+	void addBytesSaved(int bytes) {
+		_bytesSaved += bytes;
 	}
 	
 	void addWriteError() {
