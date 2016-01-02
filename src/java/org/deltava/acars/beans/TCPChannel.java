@@ -8,8 +8,8 @@ import java.io.IOException;
 
 import java.nio.*;
 import java.nio.channels.*;
-//import java.nio.charset.*;
 
+import org.deltava.acars.util.DataCompressor;
 import org.deltava.acars.xml.ProtocolInfo;
 import org.deltava.beans.acars.ConnectionStats;
 
@@ -123,10 +123,28 @@ public class TCPChannel extends ACARSChannel<String> {
 		// Decompress the data
 		byte[] rawData = new byte[_iBuffer.remaining()];
 		_iBuffer.get(rawData);
-		if (DataCompressor.isGZIP(rawData)) {
-			byte[] data = _compress.decompress(rawData, Compression.GZIP);
-			_msgBuffer.append(new String(data, UTF_8));
-		} else
+		
+		// If the data is compressed and the buffer is empty, add it to the buffer.
+		// If the data is compressed and the buffer is not empty, reset the buffer and add it.
+		// If the buffer has data, add this to it and check whether the packet is complete.
+		// If the buffer does not have data, treat as uncompressed
+		boolean isCompressed = DataCompressor.isCompressed(rawData); boolean hasBufferedData = _compress.hasBuffer();
+		if (isCompressed) {
+			if (hasBufferedData && !_compress.hasCompletePacket()) _compress.reset();
+			_compress.buffer(rawData);
+		} else if (hasBufferedData)
+			_compress.buffer(rawData);
+		
+		// If we have a complete packet in the buffer, decompress it
+		if (_compress.hasCompletePacket()) {
+			byte[] pkt = _compress.getPacket();
+			while (pkt != null) {
+				byte[] data = DataCompressor.decompress(pkt, Compression.GZIP);
+				_stats.addBytesSaved(data.length - pkt.length);
+				_msgBuffer.append(new String(data, UTF_8));
+				pkt = _compress.getPacket();
+			}
+		} else if (!_compress.hasBuffer())
 			_msgBuffer.append(new String(rawData, UTF_8));
 		
 		// Now, search the start of an XML message in the buffer; if there's no open discard the whole thing
@@ -142,25 +160,30 @@ public class TCPChannel extends ACARSChannel<String> {
 		
 		// Get the end of the message - if there's an end element build a message and return it
 		int ePos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
-		if (ePos == -1)
-			return null;
-
+		if (ePos == -1) return null;
 		ePos += ProtocolInfo.REQ_ELEMENT_CLOSE.length();
 
-		// Get the XML message out of the buffer
+		// Get the XML messages out of the buffer
 		StringBuilder msgOut = new StringBuilder(ProtocolInfo.XML_HEADER);
-		msgOut.append(_msgBuffer.substring(sPos, ePos));
+		while (ePos > sPos) {
+			_stats.addMessageIn();
+			msgOut.append(_msgBuffer.substring(sPos, ePos));
+			_msgBuffer.delete(0, ePos);
+			sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
+			ePos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_CLOSE, sPos);
+		}
+		
+		if ((_msgBuffer.capacity() - _msgBuffer.length()) > 2048) {
+			_msgBuffer.trimToSize();
+			_msgBuffer.ensureCapacity(256);
+		}
 
-		// Clear the message out of the buffer
-		_msgBuffer.delete(0, ePos);
-
-		// Return the buffer
-		_stats.addMessageIn();
 		return msgOut.toString();
 	}
 
 	/**
 	 * Writes a message to the TCP channel.
+	 * @param msg the message text
 	 */
 	@Override
 	public void write(String msg) {
@@ -169,7 +192,9 @@ public class TCPChannel extends ACARSChannel<String> {
 
 		int writeCount = 1;
 		try {
-			byte[] msgBytes = _compress.compress(msg.getBytes(UTF_8));
+			byte[] msgData = msg.getBytes(UTF_8);
+			byte[] msgBytes = _compress.compress(msgData);
+			_stats.addBytesSaved(msgData.length - msgBytes.length);
 
 			// Keep writing until the message is done
 			int ofs = 0;
