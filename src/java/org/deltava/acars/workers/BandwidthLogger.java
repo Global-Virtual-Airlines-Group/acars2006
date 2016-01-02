@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 4.0
+ * @version 6.4
  * @since 2.1
  */
 
@@ -38,6 +38,7 @@ public class BandwidthLogger extends Worker {
 	 * Initializes the Worker.
 	 * @see Worker#open()
 	 */
+	@Override
 	public void open() {
 		super.open();
 		
@@ -48,6 +49,7 @@ public class BandwidthLogger extends Worker {
 	/**
 	 * Executes the thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
@@ -62,14 +64,12 @@ public class BandwidthLogger extends Worker {
 				_status.setMessage("Updating statistics");
 				
 				// Init the counters
-				int msgsIn = 0; int msgsOut = 0; int errors = 0;
-				long bytesIn = 0; long bytesOut = 0;
+				int msgsIn = 0; int msgsOut = 0; int errors = 0; long bytesIn = 0; long bytesOut = 0; long bytesSaved = 0;
 				
 				// Get the connection statistics
 				Collection<String> IDs = new HashSet<String>(_lastBW.keySet());
 				Collection<ConnectionStats> stats = _pool.getStatistics();
-				for (Iterator<ConnectionStats> i = stats.iterator(); i.hasNext(); ) {
-					ConnectionStats ac = i.next();
+				for (ConnectionStats ac : stats) {
 					ConnectionStats lastBW = _lastBW.get(ac.getID());
 					if (lastBW == null)
 						lastBW = new ACARSConnectionStats(ac.getID());
@@ -79,6 +79,7 @@ public class BandwidthLogger extends Worker {
 					msgsOut += (ac.getMsgsOut() - lastBW.getMsgsOut());
 					bytesIn += (ac.getBytesIn() - lastBW.getBytesIn());
 					bytesOut += (ac.getBytesOut() - lastBW.getBytesOut());
+					bytesSaved += (ac.getBytesSaved() - lastBW.getBytesSaved());
 					errors += (ac.getWriteErrors() - lastBW.getWriteErrors());
 					_lastBW.put(ac.getID(), new ACARSConnectionStats(ac));
 					IDs.remove(ac.getID());
@@ -93,6 +94,7 @@ public class BandwidthLogger extends Worker {
 				bw.setErrors(errors);
 				bw.setMessages(msgsIn, msgsOut);
 				bw.setBytes(bytesIn, bytesOut);
+				bw.setBytesSaved(bytesSaved);
 				
 				// Write the bean
 				Connection con = null;
