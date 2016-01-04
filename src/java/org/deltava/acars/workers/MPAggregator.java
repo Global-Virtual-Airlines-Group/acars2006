@@ -1,4 +1,4 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS worker thread to aggregate multi-player update messages.
  * @author Luke
- * @version 3.1
+ * @version 6.4
  * @since 3.0
  */
 
@@ -28,6 +28,7 @@ public class MPAggregator extends Worker {
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);
@@ -35,10 +36,9 @@ public class MPAggregator extends Worker {
 		final Map<Long, MPUpdateMessage> upds = new HashMap<Long, MPUpdateMessage>();
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle");
-			
 			try {
 				MessageEnvelope env = MP_UPDATE.poll(30, TimeUnit.SECONDS);
-				_status.execute();
+				_status.execute(); _status.setMessage("Aggregating Updates");
 
 				// Get all of the entries
 				while (env != null) {
@@ -62,12 +62,10 @@ public class MPAggregator extends Worker {
 				}
 				
 				// Dump the messages out
-				for (Iterator<Map.Entry<Long, MPUpdateMessage>> i = upds.entrySet().iterator(); i.hasNext(); ) {
-					Map.Entry<Long, MPUpdateMessage> me = i.next();
-					MSG_OUTPUT.add(new MessageEnvelope(me.getValue(), me.getKey().longValue()));
-				}
+				upds.entrySet().forEach(me -> MSG_OUTPUT.add(new MessageEnvelope(me.getValue(), me.getKey().longValue())));
 				
 				// Sleep for a bit to let them accumulate
+				_status.setMessage("Pausing for Updates");
 				Thread.sleep(250);
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
@@ -77,10 +75,7 @@ public class MPAggregator extends Worker {
 				upds.clear();
 			}
 			
-			// Log execution
 			_status.complete();
 		}
-
-		log.warn("Shutting Down");
 	}
 }
