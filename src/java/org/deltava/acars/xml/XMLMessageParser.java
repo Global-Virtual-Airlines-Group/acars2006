@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -15,18 +15,15 @@ import org.deltava.util.StringUtils;
 /**
  * An abstract class to parse ACARS XML messages.
  * @author Luke
- * @version 4.2
+ * @version 6.4
  * @since 2.8
  */
 
 public abstract class XMLMessageParser extends MessageParser {
 	
-	protected final Map<Integer, XMLElementParser<? extends Message>> _eParsers = 
-		new HashMap<Integer, XMLElementParser<? extends Message>>();
-	protected final Map<Integer, XMLElementParser<? extends DispatchMessage>> _dspParsers = 
-		new HashMap<Integer, XMLElementParser<? extends DispatchMessage>>();
-	protected final Map<Integer, XMLElementParser<? extends ViewerMessage>> _viewParsers =
-		new HashMap<Integer, XMLElementParser<? extends ViewerMessage>>();
+	protected final Map<Integer, XMLElementParser<? extends Message>> _eParsers =  new HashMap<Integer, XMLElementParser<? extends Message>>();
+	protected final Map<Integer, XMLElementParser<? extends DispatchMessage>> _dspParsers = new HashMap<Integer, XMLElementParser<? extends DispatchMessage>>();
+	protected final Map<Integer, XMLElementParser<? extends ViewerMessage>> _viewParsers = new HashMap<Integer, XMLElementParser<? extends ViewerMessage>>();
 	
 	protected final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
 
@@ -51,6 +48,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	 * @return a Collection of Message beans
 	 * @throws XMLException if an error occurs
 	 */
+	@Override
 	public Collection<Message> parse(TextEnvelope env) throws XMLException {
 		if (env == null)
 			return Collections.emptySet();
@@ -63,10 +61,9 @@ public abstract class XMLMessageParser extends MessageParser {
 		// Check for muiltiple XML headers
 		final Collection<String> msgs = new ArrayList<String>();
 		if (rawMsg.indexOf(XML_HDR) != rawMsg.lastIndexOf(XML_HDR)) {
-			log.warn("Detected multiple XML headers from " + env.getOwnerID());
 			int pos = rawMsg.indexOf(XML_HDR);
 			while (pos > -1) {
-				int endPos = rawMsg.indexOf(XML_HDR, pos + 1);
+				int endPos = rawMsg.indexOf(XML_HDR, pos + 4);
 				msgs.add(rawMsg.substring(pos, (endPos == -1) ? rawMsg.length() : endPos));
 				pos = endPos;
 			}
@@ -76,8 +73,7 @@ public abstract class XMLMessageParser extends MessageParser {
 		// Split up the XML
 		final Collection<Document> xdocs = new ArrayList<Document>();
 		try {
-			for (Iterator<String> i = msgs.iterator(); i.hasNext();) {
-				String req = i.next();
+			for (String req : msgs) {
 				xdocs.add(builder.build(new java.io.StringReader(req)));
 				if (log.isDebugEnabled())
 					log.debug(req);
@@ -88,8 +84,7 @@ public abstract class XMLMessageParser extends MessageParser {
 		
 		// Parse the XML documents
 		final Collection<Message> results = new ArrayList<Message>();
-		for (Iterator<Document> i = xdocs.iterator(); i.hasNext();) {
-			Document xdoc = i.next();
+		for (Document xdoc:  xdocs) {
 			Element root = xdoc.getRootElement();
 			if (root == null) {
 				log.warn("Empty XML Message from " + env.getOwnerID());
@@ -109,10 +104,7 @@ public abstract class XMLMessageParser extends MessageParser {
 			}
 			
 			// Get the commands
-			for (Iterator<Element> cmds = root.getChildren("CMD").iterator(); cmds.hasNext();) {
-				Element cmdE = cmds.next();
-
-				// Get message type
+			for (Element cmdE: root.getChildren(ProtocolInfo.CMD_ELEMENT_NAME)) {
 				Message msg = null;
 				int msgType = StringUtils.arrayIndexOf(Message.MSG_CODES, cmdE.getAttributeValue("type"));
 				try {
