@@ -1,12 +1,11 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
-import static org.deltava.acars.xml.ProtocolInfo.XML_HEADER;
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
+import java.util.stream.Collectors;
 import java.nio.channels.*;
 
 import org.apache.log4j.Logger;
@@ -126,14 +125,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	@Override
 	public Collection<Integer> getFlightIDs() {
 		Collection<ACARSConnection> cons = getAll();
-		Collection<Integer> results = new TreeSet<Integer>();
-		for (ACARSConnection ac : cons) {
-			int id = ac.getFlightID();
-			if (id != 0)
-				results.add(Integer.valueOf(id));
-		}
-		
-		return results;
+		return cons.stream().filter(ac -> (ac.getFlightID() != 0)).map(ACARSConnection::getFlightID).collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	/**
@@ -144,7 +136,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	@Override
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
 		Collection<ACARSConnection> cons = getAll();
-		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size());
+		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size() + 2);
 		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
 			ACARSConnection ac = i.next();
 			if (showHidden || !ac.getUserHidden()) {
@@ -406,19 +398,11 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					try {
 						String msg = con.read();
 						
-						// This may have multiple XML messages in it - split them
+						// This may have multiple XML messages in it - the message parser will split them
 						if (msg != null) {
-							int ePos = msg.indexOf(XML_HEADER, XML_HEADER.length());
-							do {
-								String xml = (ePos == -1) ? msg :  msg.substring(0, ePos);
-								TextEnvelope env = new TextEnvelope(con.getUser(), xml, con.getID());
-								env.setVersion(con.getProtocolVersion());
-								results.add(env);
-								if (ePos > -1) {
-									msg = msg.substring(ePos);
-									ePos = msg.indexOf(XML_HEADER, XML_HEADER.length());
-								}
-							} while (ePos > -1);
+							TextEnvelope env = new TextEnvelope(con.getUser(), msg, con.getID());
+							env.setVersion(con.getProtocolVersion());
+							results.add(env);
 						}
 					} catch (IOException ie) {
 						con.setMuted(con.isVoiceEnabled());
