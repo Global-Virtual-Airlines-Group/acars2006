@@ -481,7 +481,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID);
 				}
 				
 				// Check what STAR we filed
@@ -502,7 +502,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR);
 				}
 			}
 			
