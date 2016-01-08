@@ -31,9 +31,11 @@
 		<pwd>***REMOVED***</pwd>
 		
 		<map name="connectProperties">
+		    <useSSL>false</useSSL>
 			<useCompression>false</useCompression>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>true</autoReconnect>
+			<sendFractionalSeconds>true</sendFractionalSeconds>
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
@@ -193,7 +195,7 @@
 		</voice>
 
 		<pool>
-			<size type="Integer">320</size>
+			<size type="Integer">240</size>
 			<maxSelect type="Integer">32000</maxSelect>
 			<multiple type="Boolean">true</multiple>
 			<kill_old type="Boolean">true</kill_old>
@@ -211,8 +213,8 @@
 
 		<buffer>
 			<send type="Integer">32768</send>
-			<recv type="Integer">20480</recv>
-			<nio type="Integer">32768</nio>
+			<recv type="Integer">16384</recv>
+			<nio type="Integer">20480</nio>
 		</buffer>
 
 		<list name="login_msgs" attr="msg">

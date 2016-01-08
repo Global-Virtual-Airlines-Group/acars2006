@@ -24,11 +24,13 @@
 		<pwd>***REMOVED***</pwd>
 		
 		<map name="connectProperties">
+            <useSSL>false</useSSL>
 			<useCompression>false</useCompression>
 			<characterEncoding>utf-8</characterEncoding>
 			<useUnicode>true</useUnicode>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>false</autoReconnect>
+			<sendFractionalSeconds>true</sendFractionalSeconds>
 			<cachePrepStmts>true</cachePrepStmts>
 			<cacheResultSetMetadata>false</cacheResultSetMetadata>
 			<continueBatchOnError>true</continueBatchOnError>
