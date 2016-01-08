@@ -89,7 +89,6 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TS2SERVERS), new TS2ServerListCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TRINFO), new TerminalRouteCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_NATS), new OceanicTrackCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LIVERIES), new LiveryListCommand());
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_WX), new WeatherCommand());

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -11,7 +11,7 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 4.2
+ * @version 6.4
  * @since 1.0
  */
 
@@ -37,7 +37,6 @@ public class Formatter extends XMLMessageFormatter {
 		_eFormatters.put(PilotMessage.class, new PilotFormatter());
 		_eFormatters.put(ScheduleMessage.class, new ScheduleFormatter());
 		_eFormatters.put(TS2ServerMessage.class, new TS2ServerFormatter());
-		_eFormatters.put(TerminalRouteMessage.class, new TerminalRouteFormatter());
 		_eFormatters.put(OceanicTrackMessage.class, new OceanicRouteFormatter());
 		_eFormatters.put(LiveryMessage.class, new LiveryFormatter());
 		_eFormatters.put(WXMessage.class, new WeatherFormatter());
