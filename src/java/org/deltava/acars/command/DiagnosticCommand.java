@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 5.0
+ * @version 6.4
  * @since 1.0
  */
 
@@ -227,11 +227,10 @@ public class DiagnosticCommand extends ACARSCommand {
 							Collection<Pilot> pilots = pdao.getByRole("HR", ai.getDB());
 							for (Iterator<Pilot> pi = pilots.iterator(); pi.hasNext();) {
 								Pilot p = pi.next();
-								MessageContext mctxt = new MessageContext();
+								MessageContext mctxt = new MessageContext(ai.getCode());
 								mctxt.addData("user", usr);
 								mctxt.setSubject("ACARS Content Warning");
-								mctxt.setBody("Potentially inappropriate content in ACARS has been reported - " + msg.getRequestData() + 
-										"\n\n${user.name}");
+								mctxt.setBody("Potentially inappropriate content in ACARS has been reported - " + msg.getRequestData() + "\n\n${user.name}");
 								
 								// Send the message
 								Mailer mailer = new Mailer(ctx.getACARSConnection().getUser());

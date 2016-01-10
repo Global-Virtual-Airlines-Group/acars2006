@@ -531,7 +531,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
 			if ((cr != null) && afr.hasAttribute(FlightReport.ATTR_ACADEMY)) {
 				ctx.setMessage("Sending Flight Academy check ride notification");
-				MessageContext mctxt = new MessageContext();
+				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
 				mctxt.addData("user", p);
 				mctxt.addData("pirep", afr);
 				mctxt.addData("airline", usrAirline.getName());
@@ -562,12 +562,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
-					
-					MessageContext mctxt = new MessageContext();
+					MessageContext mctxt = new MessageContext(crEQ.getOwner().getCode());
 					mctxt.addData("user", p);
 					mctxt.addData("pirep", afr);
 					mctxt.addData("airline", crEQ.getOwner().getName());
-					mctxt.addData("url", (crEQ.getOwner().getSSL() ? "http" : "https") + "://www." + eq.getOwner().getDomain() + "/");
+					mctxt.addData("url", (eq.getOwner().getSSL() ? "http" : "https") + "://www." + eq.getOwner().getDomain() + "/");
 					
 					// Load the template
 					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
@@ -592,7 +591,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				
 				// Build the message
 				String baseURL = (usrAirline.getSSL() ? "http" : "https") + "://www." + usrLoc.getDomain() + "/";
-				MessageContext mctxt = new MessageContext();
+				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
 				mctxt.addData("user", p);
 				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
 				mctxt.addData("url", baseURL);
