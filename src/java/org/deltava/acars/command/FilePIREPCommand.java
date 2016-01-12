@@ -477,11 +477,11 @@ public class FilePIREPCommand extends ACARSCommand {
 
 				// Check actual SID
 				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, trName, trTrans, rD);
-				if ((aSID != null) && (!aSID.toString().equals(info.getSID()))) {
+				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					awdao.clearSID(flightID);
 					awdao.writeSIDSTAR(flightID, aSID);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID);
+						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 				}
 				
 				// Check what STAR we filed
@@ -498,11 +498,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, trTrans, rA);
 				if (aSTAR == null)
 					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, null, rA); 
-				if ((aSTAR != null) && (!aSTAR.toString().equals(info.getSTAR()))) {
+				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearSTAR(flightID);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR);
+						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
 				}
 			}
 			

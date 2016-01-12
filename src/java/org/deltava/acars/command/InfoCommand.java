@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 5.4
+ * @version 6.4
  * @since 1.0
  */
 
@@ -143,8 +143,12 @@ public class InfoCommand extends ACARSCommand {
 			// Log unknown SID/STAR
 			if ((sid == null) && (!StringUtils.isEmpty(msg.getSID())))
 				log.warn("Unknown SID - " + msg.getSID());
+			else if ((sid != null) && !sid.getCode().equals(msg.getSID()))
+				msg.setSID(sid.getCode());
 			if ((star == null) && (!StringUtils.isEmpty(msg.getSTAR())))
 				log.warn("Unknown STAR - " + msg.getSTAR());
+			else if ((star != null) && !star.getCode().equals(msg.getSTAR()))
+				msg.setSTAR(star.getCode());
 			
 			// Validate the dispatch route
 			if (msg.getRouteID() != 0) {
