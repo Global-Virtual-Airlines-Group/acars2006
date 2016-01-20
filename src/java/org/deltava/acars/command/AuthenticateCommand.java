@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.stats.SystemInformation;
 import org.deltava.beans.system.*;
 
 import org.deltava.acars.ACARSException;
@@ -175,8 +176,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		if ((usr == null) || (con == null) || (ud == null))
 			return;
 
-		// Calculate the difference in system times, assume 500ms latency -
-		// don't allow logins if over 4h off
+		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
 		DateTime now = new DateTime(new java.util.Date());
 		long timeDiff = (msg.getClientUTC().getTime() - now.getUTC().getTime() + 500) / 1000;
 		if (Math.abs(timeDiff) > 14400) {
@@ -219,6 +219,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		 
 		// Save the connection data
+		boolean requestSystemInfo = false;
 		try {
 			Connection c = ctx.getConnection();
 			
@@ -234,6 +235,13 @@ public class AuthenticateCommand extends ACARSCommand {
 					log.warn(usr.getName() + " has " + con.getWarnings() + " warnings, voice disabled");
 					usr.setNoVoice(false);
 				}
+			}
+			
+			// Check if we need to request system data
+			if (con.getProtocolVersion() > 1) {
+				GetSystemInfo sysdao = new GetSystemInfo(c);
+				SystemInformation sysinfo = sysdao.get(usr.getID());
+				requestSystemInfo = (sysinfo == null) || ((now.getUTC().getTime() - sysinfo.getDate().getTime()) > (86400_000 * 14));
 			}
 
 			// Start a transaction
@@ -253,8 +261,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			try {
 				InetAddress addr = InetAddress.getByName(con.getRemoteAddr());
 				if (!addr.isLinkLocalAddress() && !addr.isSiteLocalAddress()) {
-					SetSystemData sysdao = new SetSystemData(c);
-					sysdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
+					SetSystemData swdao = new SetSystemData(c);
+					swdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
 				}
 			} catch (UnknownHostException uhe) {
 				log.warn("Unknown Host " + con.getRemoteAddr());
@@ -308,6 +316,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("airportCode", usr.getAirportCodeType().toString());
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
+		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1))
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
