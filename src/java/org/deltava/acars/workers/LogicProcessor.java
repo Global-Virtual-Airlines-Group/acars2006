@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -73,6 +73,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelCommand());
 		_commands.put(Integer.valueOf(Message.MSG_WARN), new WarnCommand());
 		_commands.put(Integer.valueOf(Message.MSG_COMPRESS), new CompressionCommand());
+		_commands.put(Integer.valueOf(Message.MSG_SYSINFO), new SystemInfoCommand());
 
 		// Initialize data commands
 		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());

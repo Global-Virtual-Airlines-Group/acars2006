@@ -47,13 +47,14 @@ public interface Message {
 	public static final int MSG_POSUPDINT = 26;
 	public static final int MSG_VOICEPINGINT = 27;
 	public static final int MSG_COMPRESS = 28;
+	public static final int MSG_SYSINFO = 29;
 
 	/**
 	 * XML message codes.
 	 */
 	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
 	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping", "compress"};
+	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping", "compress", "sysinfo"};
 	
 	/**
 	 * XML message type descriptions.
@@ -62,7 +63,7 @@ public interface Message {
 			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
 			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
 			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval", "Voice Ping Interval",
-			"Data Compression"};
+			"Data Compression", "System Information"};
 
 	/**
 	 * Returns the message type.
