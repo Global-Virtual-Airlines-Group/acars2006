@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 5.4
+ * @version 6.4
  * @since 2.0
  */
 
@@ -157,7 +157,9 @@ public class ServiceRequestCommand extends DispatchCommand {
 				if (ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden()) {
 					GeoPosition gp = new GeoPosition(ac.getLocation());
 					int distance = gp.distanceTo(msg);
-					if (distance <= ac.getRange()) {
+					if (ac.getUser().getID() == c.getUser().getID())
+						log.warn(c.getUserID() + " attempting self dispatch");
+					else if (distance <= ac.getRange()) {
 						reqsSent++;
 						ctx.push(msg, ac.getID(), true);
 					} else {
