@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import static org.deltava.acars.workers.Worker.MP_UPDATE;
 
 import org.deltava.beans.OnlineNetwork;
+import org.deltava.beans.acars.ClientType;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.beans.*;
@@ -27,7 +28,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 5.4
+ * @version 6.4
  * @since 1.0
  */
 
@@ -54,33 +55,31 @@ public class PositionCommand extends ACARSCommand {
 		if (ac == null) {
 			log.warn("Missing Connection for " + env.getOwnerID());
 			return;
-		} else if (ac.getIsDispatch() || ac.getIsATC()) {
+		} else if (ac.getClientType() != ClientType.PILOT) {
 			log.warn("ATC/Dispatch Client sending Position Report!");
 			return;
 		}
 
 		// Create the ack message and envelope
-		AcknowledgeMessage ackMsg = null;
-		if (SystemData.getBoolean("acars.ack.position"))
-			ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Get the last position report and its age
 		InfoMessage info = ac.getFlightInfo();
 		PositionMessage oldPM = ac.getPosition();
 		if (info == null) {
 			log.warn("No Flight Information for " + ac.getUserID());
-			if (ackMsg == null)
-				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-
 			ackMsg.setEntry("sendInfo", "true");
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
 		
 		// Adjust the message date and calculate the age of the last message
+		// Check if it's really a flood or whether the previous message was just stuck in transit
 		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
 		long pmAge = (oldPM == null) ? Long.MAX_VALUE : TimeUnit.MILLISECONDS.convert(System.nanoTime() - oldPM.getTime(), TimeUnit.NANOSECONDS);
-		
+		if ((pmAge < MIN_INTERVAL) && (oldPM != null))
+			pmAge = oldPM.getDate().getTime() - msg.getDate().getTime();
+
 		// Check for frequency with missing controller
 		OnlineNetwork network = info.getNetwork();
 		boolean noATC1 = ((network != null) && (msg.getATC1() == null) && !StringUtils.isEmpty(msg.getCOM1()));
@@ -89,9 +88,6 @@ public class PositionCommand extends ACARSCommand {
 		// If we're online, have a frequency and no controller, find one
 		if (msg.isLogged() && (noATC1 || noATC2)) {
 			NetworkInfo netInfo = ServInfoHelper.getInfo(network);
-			if (ackMsg == null)
-				ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			
 			if (noATC1) {
 				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
 				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
@@ -133,7 +129,8 @@ public class PositionCommand extends ACARSCommand {
 		}
 		
 		// Log message received
-		ctx.push(ackMsg, env.getConnectionID());
+		if (SystemData.getBoolean("acars.ack.position"))
+			ctx.push(ackMsg, env.getConnectionID());
 		if (log.isDebugEnabled())
 			log.debug("Received position from " + ac.getUserID());
 		
