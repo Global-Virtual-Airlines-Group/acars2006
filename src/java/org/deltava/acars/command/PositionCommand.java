@@ -78,7 +78,7 @@ public class PositionCommand extends ACARSCommand {
 		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
 		long pmAge = (oldPM == null) ? Long.MAX_VALUE : TimeUnit.MILLISECONDS.convert(System.nanoTime() - oldPM.getTime(), TimeUnit.NANOSECONDS);
 		if ((pmAge < MIN_INTERVAL) && (oldPM != null))
-			pmAge = oldPM.getDate().getTime() - msg.getDate().getTime();
+			pmAge = msg.getDate().getTime() - oldPM.getDate().getTime();
 
 		// Check for frequency with missing controller
 		OnlineNetwork network = info.getNetwork();
@@ -116,9 +116,9 @@ public class PositionCommand extends ACARSCommand {
 		}
 
 		// Queue it up
-		if (msg.isReplay())
+		if (msg.isReplay() && msg.isLogged())
 			SetPosition.queue(msg, ac.getFlightID());
-		else if (pmAge < MIN_INTERVAL) {
+		else if (!msg.isReplay() && (pmAge < MIN_INTERVAL)) {
 			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
 			return;
 		} else {
