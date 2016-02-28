@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 6.1
+ * @version 6.4
  * @since 1.0
  */
 
@@ -375,6 +375,10 @@ public class FilePIREPCommand extends ACARSCommand {
 					comments.add("Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
+				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
+					comments.add(a.getName() + " not authorized for soft runway operation on " + r.getName());
+					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
+				}
 			}
 
 			// Load the arrival runway
@@ -387,6 +391,10 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (r.getLength() < a.getLandingRunwayLength()) {
 					comments.add("Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
+				}
+				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
+					comments.add(a.getName() + " not authorized for soft runway operation on " + r.getName());
+					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
 			}
 			

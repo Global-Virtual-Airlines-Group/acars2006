@@ -1,13 +1,11 @@
-// Copyright 2005, 2006, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
-
-import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.NavigationDataMessage;
-
+import org.deltava.beans.Simulator;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
 
@@ -18,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 5.1
+ * @version 6.4
  * @since 1.0
  */
 
@@ -39,16 +37,16 @@ public class NavaidCommand extends DataCommand {
 	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 		
-		// Get the message
+		// Get the message and the current sim
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
+		InfoMessage inf = ctx.getACARSConnection().getFlightInfo();
+		Simulator sim = (inf == null) ? Simulator.FSX : inf.getSimulator();
 
 		boolean isRunway = (msg.getFlag("runway") != null);
 		NavigationDataMessage rspMsg = new NavigationDataMessage(env.getOwner(), msg.getID());
 		try {
-			Connection con = ctx.getConnection();
-
 			// Get the DAO and find the Navaid in the DAFIF database
-			GetNavData dao = new GetNavData(con);
+			GetNavData dao = new GetNavData(ctx.getConnection());
 			if (isRunway) {
 				Airport ap = SystemData.getAirport(msg.getFlag("id"));
 
@@ -60,12 +58,12 @@ public class NavaidCommand extends DataCommand {
 					else if (runway.length() == 1)
 						runway = "0" + runway;
 
-					Runway nav = dao.getRunway(ap, runway);
+					Runway nav = dao.getRunway(ap, runway, sim);
 					if (nav != null) {
 						log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
 						
 						// Adjust for magnetic variation
-						nav.setHeading(nav.getHeading() + (int)ap.getMagVar());
+						nav.setHeading(nav.getHeading() + (int)nav.getMagVar());
 						rspMsg.add(nav);
 					}
 				}
