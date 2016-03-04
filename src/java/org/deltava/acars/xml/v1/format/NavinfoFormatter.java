@@ -1,4 +1,4 @@
-// Copyright 2006, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Navigation Data messages.
  * @author Luke
- * @version 5.0
+ * @version 6.4
  * @since 1.0
  */
 
@@ -48,6 +48,7 @@ class NavinfoFormatter extends ElementFormatter {
 			re.setAttribute("name", r.getName());
 			re.setAttribute("hdg", String.valueOf(r.getHeading()));
 			re.setAttribute("length", String.valueOf(r.getLength()));
+			re.setAttribute("surface", r.getSurface().getName());
 			if ((r.getFrequency() != null) && (!"-".equals(r.getFrequency())))
 				re.addContent(XMLUtils.createElement("freq", r.getFrequency()));
 
