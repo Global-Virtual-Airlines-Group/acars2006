@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2011, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -40,16 +40,10 @@ public class ATCInfoCommand extends DataCommand {
 		
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		OnlineNetwork network = null;
-		try {
-			network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
-			Collection<?> networkNames = (Collection<?>) SystemData.getObject("online.networks");
-			if (!networkNames.contains(network.toString()))
-				return;
-		} catch (IllegalArgumentException iae) {
-			log.warn("Unknown Online network - " + msg.getFlag("network"));
+		OnlineNetwork network = OnlineNetwork.fromName(msg.getFlag("network"));
+		Collection<?> networkNames = (Collection<?>) SystemData.getObject("online.networks");
+		if (!networkNames.contains(network.toString()))
 			return;
-		}
 		
 		// Get the data
 		NetworkInfo info = ServInfoHelper.getInfo(network);

@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Parser for radar scope information messages. 
  * @author Luke
- * @version 4.2
+ * @version 7.0
  * @since 3.0
  */
 
@@ -39,14 +39,10 @@ class ScopeInfoParser extends XMLElementParser<ScopeInfoMessage> {
 		msg.setFrequency(getChildText(e, "freq", null));
 		msg.setCallsign(getChildText(e, "callsign", null));
 		String network = getChildText(e, "network", "");
-		try {
-			if ("ALL".equals(network))
-				msg.setAllTraffic(true);
-			else if (network.length() > 0)
-				msg.setNetwork(OnlineNetwork.valueOf(network));
-		} catch (IllegalArgumentException iae) {
-			// empty
-		}
+		if ("ALL".equals(network))
+			msg.setAllTraffic(true);
+		else if (network.length() > 0)
+			msg.setNetwork(OnlineNetwork.fromName(network));
 		
 		return msg;
 	}
