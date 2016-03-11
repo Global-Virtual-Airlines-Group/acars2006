@@ -1,4 +1,4 @@
-// Copyright 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS command to determine whether a user is connected to an Online Network.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 4.1
  */
 
@@ -36,12 +36,7 @@ public class OnlinePresenceCommand extends DataCommand {
 
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		OnlineNetwork network = null;
-		try {
-			network = OnlineNetwork.valueOf(msg.getFlag("network").toUpperCase());
-		} catch (IllegalArgumentException iae) {
-			log.warn("Unknown Online network - " + msg.getFlag("network"));
-		}
+		OnlineNetwork network = OnlineNetwork.fromName(msg.getFlag("network"));
 
 		// Create the response
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

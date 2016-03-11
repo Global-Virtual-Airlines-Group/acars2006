@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 6.1
+ * @version 7.0
  * @since 1.0
  */
 
@@ -51,6 +51,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setRemarks(e.getChildText("remarks"));
 		afr.setFDE(getChildText(e, "fde", null));
 		afr.setAircraftCode(getChildText(e, "code", null));
+		afr.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a these elements element)
 		afr.setSDK(getChildText(e, "sdk", null));
@@ -64,14 +65,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
-
-		// Get the online network
-		try {
-			String network = getChildText(e, "network", "Offline").toUpperCase();	
-			afr.setNetwork(OnlineNetwork.valueOf(network));
-		} catch (Exception ex) {
-			afr.setNetwork(null);
-		}
 
 		// Set the times
 		try {

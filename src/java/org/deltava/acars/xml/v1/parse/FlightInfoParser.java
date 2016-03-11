@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.text.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -74,11 +74,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "routeID", "0"), 0));
-		try {
-			msg.setNetwork(OnlineNetwork.valueOf(getChildText(e, "network", null)));
-		} catch (Exception ex) {
-			msg.setNetwork(null);
-		}
+		msg.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		
 		// Parse the simulator
 		int ver = StringUtils.parse(getChildText(e, "fs_ver", "2004"), 2004);
