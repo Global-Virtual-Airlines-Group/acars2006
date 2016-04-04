@@ -372,11 +372,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
 				rD = new RunwayDistance(r, dist);
 				if (r.getLength() < a.getTakeoffRunwayLength()) {
-					comments.add("Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
+					comments.add("SYSTEM: Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
-					comments.add(a.getName() + " not authorized for soft runway operation on " + r.getName());
+					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
 			}
@@ -389,11 +389,11 @@ public class FilePIREPCommand extends ACARSCommand {
 				int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
 				rA = new RunwayDistance(r, dist);
 				if (r.getLength() < a.getLandingRunwayLength()) {
-					comments.add("Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
+					comments.add("SYSTEM: Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
-					comments.add(a.getName() + " not authorized for soft runway operation on " + r.getName());
+					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
 			}
