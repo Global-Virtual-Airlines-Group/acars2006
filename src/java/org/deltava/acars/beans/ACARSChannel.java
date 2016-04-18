@@ -1,4 +1,4 @@
-// Copyright 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An abstract class to store common NIO channel information.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 4.0
  */
 
@@ -63,6 +63,7 @@ abstract class ACARSChannel<T> implements Serializable, Closeable {
 	/**
 	 * Closes the channel, clears the write buffer and releases the write selector.
 	 */
+	@Override
 	public void close() {
 		try {
 			if (_wLock.tryLock(750, TimeUnit.MILLISECONDS)) {

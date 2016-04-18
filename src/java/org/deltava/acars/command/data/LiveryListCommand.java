@@ -1,4 +1,4 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available multi-player livery data.
  * @author Luke
- * @version 2.2
+ * @version 7.0
  * @since 2.2
  */
 
@@ -36,11 +36,11 @@ public class LiveryListCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		
 		try {
 			GetACARSLivery dao = new GetACARSLivery(ctx.getConnection());
 			Collection<Livery> results = dao.get(SystemData.getAirline(msg.getFlag("airline")));

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.navdata.*;
@@ -6,7 +6,7 @@ import org.deltava.beans.navdata.*;
 /**
  * A bean to wrap a navaid with a radio name and heading.
  * @author Luke
- * @version 2.2
+ * @version 7.0
  * @since 1.0
  */
 
@@ -51,6 +51,7 @@ public class NavigationRadioBean extends NavigationFrequencyBean {
 	 * Returns the Goole Maps icon color. <i>NOT IMPLEMENTED</i>
 	 * @throws UnsupportedOperationException always
 	 */
+	@Override
 	public String getIconColor() {
 		throw new UnsupportedOperationException();
 	}
@@ -59,6 +60,7 @@ public class NavigationRadioBean extends NavigationFrequencyBean {
 	 * Returns the Goole Maps infobox text. <i>NOT IMPLEMENTED</i>
 	 * @throws UnsupportedOperationException always
 	 */
+	@Override
 	public String getInfoBox() {
 		throw new UnsupportedOperationException();
 	}
@@ -66,6 +68,7 @@ public class NavigationRadioBean extends NavigationFrequencyBean {
 	 * Returns the Google Earth palette code.
 	 * @throws UnsupportedOperationException always
 	 */
+	@Override
 	public int getPaletteCode() {
 		throw new UnsupportedOperationException();
 	}
@@ -74,6 +77,7 @@ public class NavigationRadioBean extends NavigationFrequencyBean {
 	 * Returns the Google Earth icon code.
 	 * @throws UnsupportedOperationException always
 	 */
+	@Override
 	public int getIconCode() {
 		throw new UnsupportedOperationException();
 	}

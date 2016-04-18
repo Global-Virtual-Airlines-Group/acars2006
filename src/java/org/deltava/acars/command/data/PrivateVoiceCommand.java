@@ -1,4 +1,4 @@
-// Copyright 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server data command to return the Private Voice URL.
  * @author Luke
- * @version 1.0
+ * @version 7.0
  * @since 1.0
  */
 
@@ -30,6 +30,7 @@ public class PrivateVoiceCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Get the message
@@ -39,8 +40,6 @@ public class PrivateVoiceCommand extends DataCommand {
 		GenericMessage rspMsg = new GenericMessage(env.getOwner(), DataMessage.REQ_PVTVOX, msg.getID());
 		rspMsg.setLabel("url");
 		rspMsg.add(SystemData.get("airline.voice.url"));
-
-		// Push the response
 		ctx.push(rspMsg, env.getConnectionID());
 	}
 	
@@ -48,6 +47,7 @@ public class PrivateVoiceCommand extends DataCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
+	@Override
 	public final int getMaxExecTime() {
 		return 300;
 	}

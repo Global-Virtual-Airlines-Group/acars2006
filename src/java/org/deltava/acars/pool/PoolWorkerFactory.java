@@ -1,4 +1,4 @@
-// Copyright 2007, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.gvagroup.ipc.WorkerStatus;
  * A factory to generate thread pool worker threads. This thread factory resuses thread IDs
  * to not allow thread IDs to continue incrementing. 
  * @author Luke
- * @version 5.3
+ * @version 7.0
  * @since 2.0
  */
 
@@ -64,6 +64,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 			}
 		}
 		
+		@Override
 		public void uncaughtException(Thread t, Throwable e) {
 			if ((this == t) && (_deathHandler != null))
 				_deathHandler.workerTerminated(this, e);

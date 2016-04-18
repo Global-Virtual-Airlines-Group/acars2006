@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.Date;
@@ -8,7 +8,7 @@ import org.deltava.beans.acars.ClientInfo;
 /**
  * An ACARS authentication message.
  * @author Luke
- * @version 4.1
+ * @version 7.0
  * @since 1.0
  */
 
@@ -62,6 +62,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _isID;
 	}
 	
+	@Override
 	public final boolean isAnonymous() {
 		return true;
 	}

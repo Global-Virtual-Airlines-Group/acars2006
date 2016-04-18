@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
  * continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 3.6
+ * @version 7.0
  * @since 2.0
  */
 
@@ -48,6 +48,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 			return _queuedOn;
 		}
 		
+		@Override
 		public int compareTo(PoolQueueEntry pqe2) {
 			return _queuedOn.compareTo(pqe2._queuedOn);
 		}
@@ -60,6 +61,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		private long _lastEntryTime;
 		private boolean _queueBackup;
 		
+		@Override
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
 			if ((r instanceof PoolWorker) && (!pool.isTerminating())) {
 				long now = System.currentTimeMillis();
@@ -131,8 +133,11 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	}
 	
 	/**
-	 * Assign the ID to the thread
+	 * Assign the ID to the thread.
+	 * @param t the Thread
+	 * @param r the Runnable
 	 */
+	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 		super.beforeExecute(t, r);
 		if ((!(r instanceof PoolWorker)) || (!(t instanceof PoolWorkerFactory.PoolThread)))
@@ -165,6 +170,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 * After a thread has completed execution, if there are queued entries they are removed from
 	 * the queue and executed again.
 	 */
+	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
 		super.afterExecute(r, t);
 		if (r instanceof PoolWorker) {
@@ -187,6 +193,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 * @param pt the worker thread
 	 * @param e the Exception 
 	 */
+	@Override
 	public void workerTerminated(PoolWorkerFactory.PoolThread pt, Throwable e) {
 		_tFactory.removeID(pt.getID());
 		if (e != null)

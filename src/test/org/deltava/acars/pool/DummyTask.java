@@ -11,18 +11,22 @@ public class DummyTask extends PoolWorker {
 		_name = name;
 	}
 	
+	@Override
 	public String getName() {
 		return _name;
 	}
 	
+	@Override
 	public void run() {
 		ThreadUtils.sleep(1000);
 	}
 	
+	@Override
 	public int hashCode() {
 		return _name.hashCode();
 	}
 
+	@Override
 	public String toString() {
 		return _name;
 	}

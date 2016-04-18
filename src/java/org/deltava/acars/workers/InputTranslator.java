@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 3.1
+ * @version 7.0
  * @since 1.0
  */
 
@@ -34,6 +34,7 @@ public final class InputTranslator extends Worker {
 	 * Initializes the Worker.
 	 * @see Worker#open()
 	 */
+	@Override
 	public void open() {
 		super.open();
 		Map<?, ?> versions = (Map<?, ?>) SystemData.getObject("acars.protocols");
@@ -58,6 +59,7 @@ public final class InputTranslator extends Worker {
 	/**
 	 * Executes the thread.
 	 */
+	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerStatus.STATUS_START);

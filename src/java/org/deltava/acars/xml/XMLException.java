@@ -1,10 +1,10 @@
-// Copyright 2004, 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2006, 2009, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 /**
  * An XML parsing exception.
  * @author Luke
- * @version 2.8
+ * @version 7.0
  * @since 1.0
  */
 
@@ -51,6 +51,7 @@ public class XMLException extends Exception {
 	/**
 	 * Displays the exception message and XML snippet (if any).
 	 */
+	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder(getMessage());
 		if (_xml != null) {
