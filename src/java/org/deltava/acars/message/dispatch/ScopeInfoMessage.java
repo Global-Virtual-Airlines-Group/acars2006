@@ -1,4 +1,4 @@
-// Copyright 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.*;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch radar scope parameters.
  * @author Luke
- * @version 3.6
+ * @version 7.0
  * @since 3.0
  */
 
@@ -31,17 +31,13 @@ public class ScopeInfoMessage extends DispatchMessage implements GeoLocation {
 	public ScopeInfoMessage(Pilot msgFrom) {
 		super(DispatchMessage.DSP_SCOPEINFO, msgFrom);
 	}
-	
-	/**
-	 * Returns the scope center latitude.
-	 */
+
+	@Override
 	public double getLatitude() {
 		return _ctr.getLatitude();
 	}
 	
-	/**
-	 * Returns the scope center longitude.
-	 */
+	@Override
 	public double getLongitude() {
 		return _ctr.getLongitude();
 	}

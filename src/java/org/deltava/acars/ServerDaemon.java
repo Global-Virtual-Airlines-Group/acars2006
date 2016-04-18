@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -33,12 +33,18 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 	 */
 	protected static final long MAX_EXEC = 60000;
  	
+	/**
+	 * Task logger.
+	 */
  	protected Logger log = null;
  	
  	// Worker tasks
  	protected final ThreadGroup _workers = new ThreadGroup("ACARS Workers");
  	protected final Map<Thread, Worker> _threads = new LinkedHashMap<Thread, Worker>();
  	
+ 	/**
+ 	 * The connection pool.
+ 	 */
  	protected ACARSConnectionPool _conPool;
  	
  	protected void initLog(Class<?> loggerClass) {
@@ -164,6 +170,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	/**
  	 * Worker thread exception handler.
  	 */
+ 	@Override
  	public void uncaughtException(Thread t, Throwable e) {
  		if (!_threads.containsKey(t)) {
  			log.warn("Unknown worker thread " + t.getName());

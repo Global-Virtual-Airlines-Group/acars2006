@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -7,13 +7,13 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS Server Command to respond to messages.
  * @author Luke
- * @version 1.0
+ * @version 7.0
  * @since 1.0
  */
 
 public class AcknowledgeCommand extends ACARSCommand {
 
-	private boolean _result;
+	private final boolean _result;
 
 	/**
 	 * Initializes the Command.
@@ -29,6 +29,7 @@ public class AcknowledgeCommand extends ACARSCommand {
 	 * @param ctx the Command cContext
 	 * @param env
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		if (!_result)
 			return;

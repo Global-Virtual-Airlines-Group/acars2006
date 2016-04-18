@@ -1,4 +1,4 @@
-// Copyright 2007, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -12,7 +12,7 @@ import org.deltava.beans.mvs.PopulatedChannel;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 4.0
+ * @version 7.0
  * @since 2.0
  */
 
@@ -30,6 +30,7 @@ public class AcceptCommand extends DispatchCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message

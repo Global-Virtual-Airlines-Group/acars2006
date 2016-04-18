@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to display the connected Pilot list.
  * @author Luke
- * @version 2.6
+ * @version 7.0
  * @since 1.0
  */
 
@@ -29,6 +29,7 @@ public class UserListCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public final void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message
@@ -38,8 +39,7 @@ public class UserListCommand extends DataCommand {
 		// Loop through the connection pool
 		ConnectionMessage rspMsg = new ConnectionMessage(env.getOwner(), DataMessage.REQ_USRLIST, msg.getID());
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-			ACARSConnection ac = i.next();
+		for (ACARSConnection ac : cons) {
 			if (ac.isAuthenticated() && (showHidden || !ac.getUserHidden()))
 				rspMsg.add(ac);
 		}
@@ -52,6 +52,7 @@ public class UserListCommand extends DataCommand {
 	 * Returns the maximum execution time of this command before a warning is issued.
 	 * @return the maximum execution time in milliseconds
 	 */
+	@Override
 	public final int getMaxExecTime() {
 		return 250;
 	}

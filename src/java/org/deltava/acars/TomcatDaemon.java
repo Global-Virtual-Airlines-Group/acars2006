@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 3.7
+ * @version 7.0
  * @since 1.0
  */
 
@@ -22,6 +22,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 	/**
 	 * Executes the Thread.
 	 */
+	@Override
 	public void run() {
 
 		// Initialize the logger, connection pool and server tasks
@@ -105,6 +106,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 	 * Returns worker status to the web application.
 	 * @see ACARSWorkerInfo#getWorkers()
 	 */
+	@Override
 	public Collection<WorkerStatus> getWorkers() {
 		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
 		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
@@ -118,6 +120,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 	/**
 	 * Returns the thread name.
 	 */
+	@Override
 	public String toString() {
 		return "ACARS Daemon";
 	}

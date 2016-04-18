@@ -32,6 +32,7 @@ public class TestEcho extends TestCase {
 			_dc = dc;
 		}
 		
+		@Override
 		public void run() {
 			try {
 				Selector s = Selector.open();
@@ -65,6 +66,7 @@ public class TestEcho extends TestCase {
 		}
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
@@ -72,7 +74,8 @@ public class TestEcho extends TestCase {
 		PropertyConfigurator.configure("etc/log4j.test.properties");
 		log = Logger.getLogger(TestEcho.class);
 	}
-	
+
+	@Override
 	protected void tearDown() throws Exception {
 		LogManager.shutdown();
 		super.tearDown();

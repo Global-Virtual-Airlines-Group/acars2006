@@ -11,7 +11,7 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -73,6 +73,7 @@ public class Formatter extends XMLMessageFormatter {
 	 * @return an XML element
 	 * @throws XMLException if a formatting error occurs
 	 */
+	@Override
 	public Element format(Message msg) throws XMLException {
 
 		// Get the element formatter to use

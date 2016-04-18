@@ -13,12 +13,14 @@ public class TestFactory extends PoolWorkerFactory {
 			super(id, r, name);
 		}
 		
+		@Override
 		public void run() {
 			super.run();
 			System.out.println(getName() + " Shut Down");
 		}
 	}
 	
+	@Override
 	public Thread newThread(Runnable r) {
 		int id = getNextID();
 		return new PoolDebugThread(id, r, _name + "-" + String.valueOf(id));

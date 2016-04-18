@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.beans.schedule.RoutePair;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -58,10 +58,12 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return _flightID;
 	}
 	
+	@Override
 	public Airport getAirportA() {
 		return _airportA;
 	}
 	
+	@Override
 	public Airport getAirportD() {
 		return _airportD;
 	}
@@ -70,6 +72,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return _airportL;
 	}
 	
+	@Override
 	public int getDistance() {
 		return _airportD.getPosition().distanceTo(_airportA);
 	}

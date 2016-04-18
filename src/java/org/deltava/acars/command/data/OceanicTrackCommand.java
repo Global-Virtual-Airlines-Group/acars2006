@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An ACARS data command to return available NAT and PACOT data.
  * @author Luke
- * @version 4.0
+ * @version 7.0
  * @since 2.2
  */
 
@@ -35,6 +35,7 @@ public class OceanicTrackCommand extends DataCommand {
 	 * @param ctx the Command context
 	 * @param env the message Envelope
 	 */
+	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
 		// Get the message and the route type
@@ -73,7 +74,6 @@ public class OceanicTrackCommand extends DataCommand {
 			ctx.release();
 		}
 		
-		// Push the message
 		ctx.push(rspMsg, env.getConnectionID());
 	}
 }
