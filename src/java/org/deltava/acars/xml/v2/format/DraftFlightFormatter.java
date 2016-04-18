@@ -46,7 +46,7 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			fe.addContent(XMLUtils.createElement("lf", StringUtils.format(fr.getLoadFactor(), "0.000")));
 			if (fr.getNetwork() != null)
-				fe.setAttribute("network", fr.getNetwork().toString());
+				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
 			if (!StringUtils.isEmpty(fr.getRoute()))
 				fe.addContent(XMLUtils.createElement("route", fr.getRoute(), true));
 			
