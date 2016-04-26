@@ -1,7 +1,7 @@
 // Copyright 2008, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.deltava.beans.*;
 
@@ -17,7 +17,7 @@ import org.gvagroup.acars.ACARSFlags;
 
 public abstract class LocationMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags, Comparable<LocationMessage> {
 	
-	private Date _dt;
+	private Instant _dt = Instant.now();
 	
 	private double latitude;
 	private double longitude;
@@ -42,10 +42,9 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	 */
 	protected LocationMessage(int type, Pilot msgFrom) {
 		super(type, msgFrom);
-		_dt = new Date();
 	}
 	
-	public Date getDate() {
+	public Instant getDate() {
 		return _dt;
 	}
 
@@ -112,7 +111,7 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 		return ((lights & mask) != 0);
 	}
 	
-	public void setDate(Date dt) {
+	public void setDate(Instant dt) {
 		if (dt != null)
 			_dt = dt;
 	}

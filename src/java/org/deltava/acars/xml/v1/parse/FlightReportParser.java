@@ -1,8 +1,8 @@
 // Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
-import java.text.*;
-import java.util.Date;
+import java.time.*;
+import java.time.format.DateTimeFormatterBuilder;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
@@ -43,7 +43,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 		afr.setStatus(FlightReport.SUBMITTED);
 		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
-		afr.setDate(new Date());
+		afr.setDate(Instant.now());
 		afr.setSubmittedOn(afr.getDate());
 		afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
 		afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
@@ -68,13 +68,13 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 
 		// Set the times
 		try {
-			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-			afr.setStartTime(dtf.parse(e.getChildTextTrim("startTime")));
-			afr.setTaxiTime(dtf.parse(e.getChildTextTrim("taxiOutTime")));
-			afr.setTakeoffTime(dtf.parse(e.getChildTextTrim("takeoffTime")));
-			afr.setLandingTime(dtf.parse(e.getChildTextTrim("landingTime")));
-			afr.setEndTime(dtf.parse(e.getChildTextTrim("gateTime")));
-		} catch (ParseException pex) {
+			final DateTimeFormatterBuilder dfb = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss");
+			afr.setStartTime(LocalDateTime.parse(e.getChildTextTrim("startTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			afr.setTaxiTime(LocalDateTime.parse(e.getChildTextTrim("taxiOutTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			afr.setTakeoffTime(LocalDateTime.parse(e.getChildTextTrim("takeoffTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			afr.setLandingTime(LocalDateTime.parse(e.getChildTextTrim("landingTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			afr.setEndTime(LocalDateTime.parse(e.getChildTextTrim("gateTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+		} catch (Exception pex) {
 			throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
 		}
 

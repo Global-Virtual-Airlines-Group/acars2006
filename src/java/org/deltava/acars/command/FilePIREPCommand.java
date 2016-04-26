@@ -3,6 +3,8 @@ package org.deltava.acars.command;
 
 import java.util.*;
 import java.sql.Connection;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 
 import org.apache.log4j.Logger;
 
@@ -37,7 +39,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -72,11 +74,11 @@ public class FilePIREPCommand extends ACARSCommand {
 		AirlineInformation usrAirline = SystemData.getApp(usrLoc.getAirlineCode());
 
 		// Adjust the times
-		afr.setStartTime(CalendarUtils.adjustMS(afr.getStartTime(), ac.getTimeOffset()));
-		afr.setTaxiTime(CalendarUtils.adjustMS(afr.getTaxiTime(), ac.getTimeOffset()));
-		afr.setTakeoffTime(CalendarUtils.adjustMS(afr.getTakeoffTime(), ac.getTimeOffset()));
-		afr.setLandingTime(CalendarUtils.adjustMS(afr.getLandingTime(), ac.getTimeOffset()));
-		afr.setEndTime(CalendarUtils.adjustMS(afr.getEndTime(), ac.getTimeOffset()));
+		afr.setStartTime(afr.getStartTime().plusMillis(ac.getTimeOffset()));
+		afr.setTaxiTime(afr.getTaxiTime().plusMillis(ac.getTimeOffset()));
+		afr.setTakeoffTime(afr.getTakeoffTime().plusMillis(ac.getTimeOffset()));
+		afr.setLandingTime(afr.getLandingTime().plusMillis(ac.getTimeOffset()));
+		afr.setEndTime(afr.getEndTime().plusMillis(ac.getTimeOffset()));
 
 		// If we have no flight info, then push it back
 		if (info == null) {
@@ -179,9 +181,8 @@ public class FilePIREPCommand extends ACARSCommand {
 			afr.setFSVersion(info.getSimulator());
 
 			// Convert the date into the user's local time zone
-			DateTime dt = new DateTime(afr.getDate());
-			dt.convertTo(p.getTZ());
-			afr.setDate(dt.getDate());
+			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone());
+			afr.setDate(zdt.toInstant());
 
 			// Check that the user has an online network ID
 			OnlineNetwork network = afr.getNetwork();
@@ -209,7 +210,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Check that it was submitted in time
 			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
 			if (e != null) {
-				long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().getTime()) / 3600_000;
+				long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().toEpochMilli()) / 3600_000;
 				if (timeSinceEnd > 6) {
 					comments.add("SYSTEM: Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
@@ -434,7 +435,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
-					cr.setSubmittedOn(new Date());
+					cr.setSubmittedOn(Instant.now());
 					cr.setStatus(TestStatus.SUBMITTED);
 					if (cr.getAcademy() && !afr.hasAttribute(FlightReport.ATTR_ACADEMY))
 						afr.setAttribute(FlightReport.ATTR_ACADEMY, true);

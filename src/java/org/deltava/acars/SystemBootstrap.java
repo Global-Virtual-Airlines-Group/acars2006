@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -31,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 6.1
+ * @version 7.0
  * @since 1.0
  */
 
@@ -85,7 +85,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent e) {
-		e.getServletContext().setAttribute("startedOn", new java.util.Date());
+		e.getServletContext().setAttribute("startedOn", java.time.Instant.now());
 		
 		// Initialize system data
 		SystemData.init();

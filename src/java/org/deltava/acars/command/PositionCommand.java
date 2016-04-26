@@ -28,7 +28,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -75,10 +75,10 @@ public class PositionCommand extends ACARSCommand {
 		
 		// Adjust the message date and calculate the age of the last message
 		// Check if it's really a flood or whether the previous message was just stuck in transit
-		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
+		msg.setDate(msg.getDate().plusMillis(ac.getTimeOffset()));
 		long pmAge = (oldPM == null) ? Long.MAX_VALUE : TimeUnit.MILLISECONDS.convert(System.nanoTime() - oldPM.getTime(), TimeUnit.NANOSECONDS);
 		if ((pmAge < MIN_INTERVAL) && (oldPM != null))
-			pmAge = msg.getDate().getTime() - oldPM.getDate().getTime();
+			pmAge = msg.getDate().toEpochMilli() - oldPM.getDate().toEpochMilli();
 
 		// Check for frequency with missing controller
 		OnlineNetwork network = info.getNetwork();

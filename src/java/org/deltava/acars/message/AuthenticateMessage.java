@@ -1,7 +1,7 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.deltava.beans.acars.ClientInfo;
 
@@ -20,7 +20,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 	private boolean _isATC;
 	private boolean _isID;
 	
-	private Date _clientUTC;
+	private Instant _clientUTC;
 	private ClientInfo _info;
 
 	/**
@@ -46,7 +46,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 		return _pwd;
 	}
 	
-	public Date getClientUTC() {
+	public Instant getClientUTC() {
 		return _clientUTC; 
 	}
 	
@@ -79,7 +79,7 @@ public final class AuthenticateMessage extends AbstractMessage {
 		_isHidden = isHidden;
 	}
 	
-	public void setClientUTC(Date dt) {
+	public void setClientUTC(Instant dt) {
 		_clientUTC = dt;
 	}
 	

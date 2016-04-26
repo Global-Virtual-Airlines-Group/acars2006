@@ -1,16 +1,15 @@
-// Copyright 2005, 2006, 2007, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
 import java.net.*;
-import java.util.Date;
 
 import java.nio.channels.SocketChannel;
 
 /**
  * An ACARS Connection that dumps messages to a text file.
  * @author Luke
- * @version 4.0
+ * @version 7.0
  * @since 1.0
  */
 
@@ -32,7 +31,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 		// Log connection info
 		InetAddress addr = sc.socket().getInetAddress();
 		_debugWriter.println("Connection to " + addr.getHostAddress() + "(" + addr.getHostName() + ")");
-		_debugWriter.println("Connected on " + new java.util.Date());
+		_debugWriter.println("Connected on " + java.time.Instant.now());
 		_debugWriter.println("*****");
 	}
 
@@ -45,7 +44,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 
 		// Log connection close
 		_debugWriter.println("*****");
-		_debugWriter.println("Closed on " + new java.util.Date());
+		_debugWriter.println("Closed on " + java.time.Instant.now());
 		_debugWriter.flush();
 		_debugWriter.close();
 	}
@@ -59,7 +58,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 		String msg = super.read();
 
 		// Dump the message
-		_debugWriter.println("-- in " + new Date());
+		_debugWriter.println("-- in " + java.time.Instant.now());
 		_debugWriter.println(msg);
 		_debugWriter.println();
 		_debugWriter.flush();
@@ -72,7 +71,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 	 */
 	@Override
 	public final void write(String msg) {
-		_debugWriter.println("-- out " + new Date());
+		_debugWriter.println("-- out " + java.time.Instant.now());
 		_debugWriter.println(msg);
 		_debugWriter.println();
 		super.write(msg);

@@ -62,7 +62,7 @@ public class SetBandwidth extends DAO {
 	 * @param interval the window size in minutes
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public void aggregate(java.util.Date sd, int interval) throws DAOException {
+	public void aggregate(java.time.Instant sd, int interval) throws DAOException {
 		try {
 			startTransaction();
 			

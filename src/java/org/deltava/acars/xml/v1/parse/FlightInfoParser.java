@@ -1,8 +1,7 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
-import java.text.*;
-import java.util.Date;
+import java.time.Instant;
 
 import org.jdom2.Element;
 
@@ -40,14 +39,13 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 
 		// Parse the start date/time
 		try {
-			final DateFormat dtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-			Date dt = dtf.parse(getChildText(e, "startTime", ""));
-			if (dt.getTime() > (System.currentTimeMillis() + 86400000))
+			Instant dt = StringUtils.parseInstant(getChildText(e, "startTime", ""), "MM/dd/yyyy HH:mm:ss");
+			if (dt.toEpochMilli() > (System.currentTimeMillis() + 86400_000))
 				throw new IllegalArgumentException("Start date/time too far in future - " + dt);
 				
 			msg.setStartTime(dt);
 		} catch (Exception ex) {
-			msg.setStartTime(new Date());
+			msg.setStartTime(Instant.now());
 		}
 
 		// Load the flight code

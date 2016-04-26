@@ -3,6 +3,7 @@ package org.deltava.acars.command.dispatch;
 
 import java.util.*;
 import java.sql.Connection;
+import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
@@ -24,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 2.0
  */
 
@@ -92,7 +93,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// If we're still not valid, check for an event
 			if (!routeValid) {
-				Date now = new Date();
+				Instant now = Instant.now();
 				GetEvent edao = new GetEvent(con); 
 				routeValid |= (edao.getPossibleEvent(msg, OnlineNetwork.VATSIM, now) > 0);
 				routeValid |= (edao.getPossibleEvent(msg, OnlineNetwork.IVAO, now) > 0);

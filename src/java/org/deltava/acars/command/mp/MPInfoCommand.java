@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.List;
@@ -10,14 +10,12 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.*;
 
-import org.deltava.util.CalendarUtils;
-
 import static org.gvagroup.acars.ACARSFlags.*;
 
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 4.1
+ * @version 7.0
  * @since 2.2
  */
 
@@ -59,7 +57,7 @@ public class MPInfoCommand extends ACARSCommand {
 		}
 		
 		// Adjust the message date
-		msg.setDate(CalendarUtils.adjustMS(msg.getDate(), ac.getTimeOffset()));
+		msg.setDate(msg.getDate().plusMillis(ac.getTimeOffset()));
 
 		// Adjust the current position coordinates
 		oldPM.setLatitude(msg.getLatitude());

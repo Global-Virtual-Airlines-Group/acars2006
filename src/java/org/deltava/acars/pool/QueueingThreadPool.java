@@ -3,6 +3,7 @@ package org.deltava.acars.pool;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.time.Instant;
 
 import org.apache.log4j.Logger;
 
@@ -33,7 +34,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	class PoolQueueEntry implements Comparable<PoolQueueEntry> {
 		
 		private PoolWorker _worker;
-		private final Date _queuedOn = new Date();
+		private final Instant _queuedOn = Instant.now();
 		
 		PoolQueueEntry(PoolWorker worker) {
 			super();
@@ -44,7 +45,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 			return _worker;
 		}
 		
-		public Date getQueuedOn() {
+		public Instant getQueuedOn() {
 			return _queuedOn;
 		}
 		
@@ -72,7 +73,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 				boolean queueBackup = (size > 40);
 				if (queueBackup) {
 					PoolQueueEntry qe = _queuedEntries.peek();
-					long wait = now - qe.getQueuedOn().getTime();
+					long wait = now - qe.getQueuedOn().toEpochMilli();
 					queueBackup &= (wait > 1500);
 				}
 				

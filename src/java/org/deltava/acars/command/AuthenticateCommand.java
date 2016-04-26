@@ -1,9 +1,11 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 
 import org.apache.log4j.Logger;
 
@@ -29,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -177,18 +179,17 @@ public class AuthenticateCommand extends ACARSCommand {
 			return;
 
 		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
-		DateTime now = new DateTime(new java.util.Date());
-		long timeDiff = (msg.getClientUTC().getTime() - now.getUTC().getTime() + 500) / 1000;
+		Instant now = Instant.now();
+		long timeDiff = (msg.getClientUTC().toEpochMilli() - now.toEpochMilli() + 500) / 1000;
 		if (Math.abs(timeDiff) > 14400) {
 			log.error("Cannot authenticate " + usr.getName() + " system clock " + timeDiff + " seconds off");
 
 			// Convert times to client date/time
-			DateTime usrTime = new DateTime(msg.getClientUTC(), TZInfo.UTC);
-			usrTime.convertTo(usr.getTZ());
-			now.convertTo(usr.getTZ());
+			ZonedDateTime zdt = ZonedDateTime.ofInstant(msg.getClientUTC(), usr.getTZ().getZone());
+			ZonedDateTime zdn = ZonedDateTime.ofInstant(now, usr.getTZ().getZone());
 
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "It is now " + now.toString() + ". Your system clock is set to " + usrTime.toString() + " ( " + timeDiff + " seconds off)");
+			errMsg.setEntry("error", "It is now " + zdn.toString() + ". Your system clock is set to " + zdt.toString() + " ( " + timeDiff + " seconds off)");
 			ctx.push(errMsg, env.getConnectionID());
 			return;
 		} else if (Math.abs(timeDiff) > 900)
@@ -241,7 +242,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (con.getProtocolVersion() > 1) {
 				GetSystemInfo sysdao = new GetSystemInfo(c);
 				SystemInformation sysinfo = sysdao.get(usr.getID());
-				requestSystemInfo = (sysinfo == null) || ((now.getUTC().getTime() - sysinfo.getDate().getTime()) > (86400_000 * 14));
+				requestSystemInfo = (sysinfo == null) || ((now.toEpochMilli() - sysinfo.getDate().toEpochMilli()) > (86400_000 * 14));
 			}
 
 			// Start a transaction

@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 import java.util.stream.Collectors;
 import java.nio.channels.*;
+import java.time.Instant;
 
 import org.apache.log4j.Logger;
 
@@ -147,7 +148,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				entry.setRemoteHost(ac.getRemoteHost());
 				entry.setAddressInfo(ac.getAddressInfo());
 				entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
-				entry.setStartTime(new Date(ac.getStartTime()));
+				entry.setStartTime(Instant.ofEpochMilli(ac.getStartTime()));
 				entry.setUser(ac.getUser());
 				entry.setUserHidden(ac.getUserHidden());
 				entry.setVoice(ac.isVoiceEnabled());
