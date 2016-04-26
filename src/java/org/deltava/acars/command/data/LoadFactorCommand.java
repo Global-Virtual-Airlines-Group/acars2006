@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -13,7 +13,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight. 
  * @author Luke
- * @version 4.0
+ * @version 7.0
  * @since 4.0
  */
 
@@ -43,7 +43,7 @@ public class LoadFactorCommand extends DataCommand {
 		java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + ac.getUserData().getAirlineCode());
 		if (econ != null) {
 			LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-			loadFactor = lf.generate(new java.util.Date());
+			loadFactor = lf.generate();
 		}
 			
 		// Send the ACK

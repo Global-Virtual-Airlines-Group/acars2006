@@ -1,6 +1,7 @@
 // Copyright 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.time.Instant;
 import java.util.*;
 
 import org.deltava.beans.navdata.*;
@@ -57,14 +58,14 @@ public class OceanicTrackCommand extends DataCommand {
 		}
 		
 		// Get the date
-		Date dt = msg.hasFlag("date") ? StringUtils.parseDate(msg.getFlag("date"), "MM/dd/yyyy") : null;
+		Instant dt = msg.hasFlag("date") ? StringUtils.parseInstant(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
 			GetOceanicRoute dao = new GetOceanicRoute(ctx.getConnection());
 			DailyOceanicTracks tracks = dao.getOceanicTracks(rType, dt);
 			rspMsg.setDate(tracks.getDate());
 			rspMsg.addAll(tracks.getTracks());
 			if (rspMsg.getDate() == null)
-				rspMsg.setDate(new Date());
+				rspMsg.setDate(Instant.now());
 		} catch (DAOException de) {
 			log.error("Error loading " + rType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());

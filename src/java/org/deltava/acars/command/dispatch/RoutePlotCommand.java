@@ -1,7 +1,8 @@
-// Copyright 2010, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
+import java.time.Instant;
 import java.sql.Connection;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -22,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 6.3
+ * @version 7.0
  * @since 3.0
  */
 
@@ -78,7 +79,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			PopulatedRoute rt = new PopulatedRoute();
 			rt.setAirportD(msg.getAirportD());
 			rt.setAirportA(msg.getAirportA());
-			rt.setCreatedOn(new Date());
+			rt.setCreatedOn(Instant.now());
 			rt.setComments("User-Requested Route");
 			rt.setRoute(msg.getRoute());
 			

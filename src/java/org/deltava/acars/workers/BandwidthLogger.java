@@ -2,6 +2,8 @@
 package org.deltava.acars.workers;
 
 import java.util.*;
+import java.time.*;
+import java.time.temporal.ChronoField;
 import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
@@ -18,7 +20,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 2.1
  */
 
@@ -57,9 +59,9 @@ public class BandwidthLogger extends Worker {
 			_status.setMessage("Idle");
 
 			// Wait until we get to the next minute
-			Calendar cld = Calendar.getInstance();
+			ZonedDateTime zdt = ZonedDateTime.now(ZoneOffset.UTC);
 			try {
-				Thread.sleep((61 - cld.get(Calendar.SECOND)) * 1000);
+				Thread.sleep((61 - zdt.get(ChronoField.SECOND_OF_MINUTE)) * 1000);
 				_status.execute();
 				_status.setMessage("Updating statistics");
 				
@@ -89,7 +91,7 @@ public class BandwidthLogger extends Worker {
 				_lastBW.keySet().removeAll(IDs);
 
 				// Init the bean to store period statistics
-				Bandwidth bw = new Bandwidth(new Date());
+				Bandwidth bw = new Bandwidth(Instant.now());
 				bw.setConnections(stats.size());
 				bw.setErrors(errors);
 				bw.setMessages(msgsIn, msgsOut);
@@ -104,11 +106,11 @@ public class BandwidthLogger extends Worker {
 					bwdao.write(bw);
 					
 					// Do aggregation if we need to
-					cld.setTime(bw.getDate());
-					if (cld.get(Calendar.MINUTE) == 0) {
+					zdt = ZonedDateTime.ofInstant(bw.getDate(), zdt.getZone());
+					if (zdt.get(ChronoField.MINUTE_OF_HOUR) == 0) {
 						_status.setMessage("Aggregating data");
-						cld.add(Calendar.HOUR_OF_DAY, -1);
-						bwdao.aggregate(cld.getTime(), 60);
+						zdt.minusHours(1);
+						bwdao.aggregate(zdt.toInstant(), 60);
 					}
 				} catch (DAOException de) {
 					log.error(de.getMessage(), de);

@@ -15,7 +15,7 @@ import org.deltava.acars.message.LocationMessage;
 
 public class MPUpdate extends DatabaseBean {
 
-	private LocationMessage _loc;
+	private final LocationMessage _loc;
 	private int _flightID;
 	
 	private String _callsign;
@@ -127,7 +127,7 @@ public class MPUpdate extends DatabaseBean {
 		StringBuilder buf = new StringBuilder("MP");
 		buf.append(getID());
 		buf.append('-');
-		buf.append(_loc.getDate().getTime());
+		buf.append(_loc.getDate().toEpochMilli());
 		return buf.toString();
 	}
 	

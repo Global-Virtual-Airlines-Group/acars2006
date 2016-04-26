@@ -1,7 +1,7 @@
 // Copyright 2006, 2007, 2016 Global Virtual Airlines Group. All Rights Reseved.
 package org.deltava.acars.security;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.deltava.beans.Person;
 import org.deltava.beans.UserData;
@@ -19,7 +19,7 @@ public class BannedUser implements Comparable<BannedUser> {
 	
 	private final String _remoteAddr;
 	private final String _remoteHost;
-	private Date _expiryTime;
+	private Instant _expiryTime;
 	private final Person _usr;
 	private final UserData _usrData;
 
@@ -56,9 +56,9 @@ public class BannedUser implements Comparable<BannedUser> {
 	/**
 	 * Returns the ban's expiration time.
 	 * @return the date/time the ban expires
-	 * @see BannedUser#setExpiryDate(Date)
+	 * @see BannedUser#setExpiryDate(Instant)
 	 */
-	public Date getExpiryDate() {
+	public Instant getExpiryDate() {
 		return _expiryTime;
 	}
 	
@@ -93,8 +93,8 @@ public class BannedUser implements Comparable<BannedUser> {
 	 * @param dt the date/time the ban expires
 	 * @see BannedUser#getExpiryDate()
 	 */
-	public void setExpiryDate(Date dt) {
-		_expiryTime = (dt == null) ? new Date() : dt;
+	public void setExpiryDate(Instant dt) {
+		_expiryTime = (dt == null) ? Instant.now() : dt;
 	}
 
 	/**

@@ -1,7 +1,7 @@
-// Copyright 2006, 2007, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
-import java.util.*;
+import java.time.*;
 
 import org.jdom2.Element;
 
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML data elements.
  * @author Luke
- * @version 5.1
+ * @version 7.0
  * @since 1.0
  */
 
@@ -40,8 +40,8 @@ abstract class ElementFormatter extends XMLElementFormatter {
 			ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
 
 			// Add UTC offset
-			TimeZone tz = a.getTZ().getTimeZone();
-			long ofs = tz.getOffset(System.currentTimeMillis()) / 1000;
+			ZoneId tz = a.getTZ().getZone();
+			int ofs = tz.getRules().getOffset(Instant.now()).getTotalSeconds();
 			ae.setAttribute("utcOffset", String.valueOf(ofs));
 
 			// Attach airlines

@@ -1,8 +1,9 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
-import java.text.*;
-import java.util.*;
+import java.time.*;
+import java.time.format.*;
+import java.time.temporal.ChronoField;
 
 import org.apache.log4j.Logger;
 
@@ -19,14 +20,24 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
 class PositionParser extends XMLElementParser<PositionMessage> {
 	
 	private static final Logger log = Logger.getLogger(PositionParser.class);
-	private final DateFormat _mdtf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
+	private final DateTimeFormatter _mdtf;
+	
+	/**
+	 * Creates the parser.
+	 */
+	public PositionParser() {
+		super();
+		DateTimeFormatterBuilder dfb = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss.SSS");
+		dfb.parseDefaulting(ChronoField.MILLI_OF_SECOND, 0);
+		_mdtf = dfb.toFormatter();
+	}
 	
 	/**
 	 * Convert an XML position element into a PositionMessage.
@@ -44,17 +55,16 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 		String de = getChildText(e, "date", null);
 		try {
 			if ((de != null) && (!de.contains("."))) {
-				int ms  = Calendar.getInstance().get(Calendar.MILLISECOND);
+				int ms  = Instant.now().get(ChronoField.MILLI_OF_SECOND);
 				de = de + "." + String.valueOf(ms);
 			}
 			
 			if (de != null) {
 				de = de.replace('-', '/');
-				msg.setDate(_mdtf.parse(de));
+				msg.setDate(LocalDateTime.parse(de, _mdtf).toInstant(ZoneOffset.UTC));
 			}
 		} catch (Exception ex) {
 			log.warn("Unparseable date from " + user + " - " + de);
-			msg.setDate(new Date());
 		}
 
 		// Get the basic information

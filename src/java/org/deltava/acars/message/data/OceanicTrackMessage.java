@@ -1,7 +1,7 @@
 // Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.navdata.OceanicTrack;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.*;
 
 public class OceanicTrackMessage extends DataResponseMessage<OceanicTrack> {
 	
-	private Date _dt;
+	private Instant _dt;
 
 	/**
 	 * Instantiates the Message.
@@ -32,7 +32,7 @@ public class OceanicTrackMessage extends DataResponseMessage<OceanicTrack> {
 	 * Returns the effective date of this track data.
 	 * @return the effective date
 	 */
-	public Date getDate() {
+	public Instant getDate() {
 		return _dt;
 	}
 	
@@ -40,7 +40,7 @@ public class OceanicTrackMessage extends DataResponseMessage<OceanicTrack> {
 	 * Sets the effective date of these tracks. The time can be ignored.
 	 * @param dt the track date
 	 */
-	public void setDate(Date dt) {
+	public void setDate(Instant dt) {
 		_dt = dt;
 	}
 }

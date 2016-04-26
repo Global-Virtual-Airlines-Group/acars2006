@@ -2,6 +2,7 @@
 package org.deltava.acars.message;
 
 import java.util.*;
+import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.Airport;
@@ -17,8 +18,8 @@ import org.deltava.beans.schedule.RoutePair;
 public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	private int _flightID;
-	private Date _startTime;
-	private Date _endTime;
+	private Instant _startTime;
+	private Instant _endTime;
 	
 	private String _eqType;
 	private String _livery;
@@ -113,11 +114,11 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return _sim;
 	}
 	
-	public Date getStartTime() {
+	public Instant getStartTime() {
 		return _startTime;
 	}
 	
-	public Date getEndTime() {
+	public Instant getEndTime() {
 	   return _endTime;
 	}
 	
@@ -245,12 +246,12 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		_routeID = Math.max(0, id);
 	}
 	
-	public void setStartTime(Date dt) {
+	public void setStartTime(Instant dt) {
 		_startTime = dt;
 	}
 	
-	public void setEndTime(Date dt) {
-	   _endTime = ((dt != null) && (dt.after(_startTime))) ? dt : _startTime;
+	public void setEndTime(Instant dt) {
+	   _endTime = ((dt != null) && dt.isAfter(_startTime)) ? dt : _startTime;
 	}
 	
 	public void setComplete(boolean isComplete) {

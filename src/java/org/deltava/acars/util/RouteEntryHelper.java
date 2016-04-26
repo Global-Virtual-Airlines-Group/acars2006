@@ -1,7 +1,7 @@
-// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
-import java.util.*;
+import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
@@ -14,7 +14,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -47,7 +47,7 @@ public final class RouteEntryHelper {
 			return null;
 		
 		// Build the MapRouteEntry bean
-		MapRouteEntry result = new MapRouteEntry(new Date(), new GeoPosition(msg), usr, imsg.getEquipmentType());
+		MapRouteEntry result = new MapRouteEntry(Instant.now(), new GeoPosition(msg), usr, imsg.getEquipmentType());
 		result.setClientBuild(con.getClientBuild(), con.getBeta());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
