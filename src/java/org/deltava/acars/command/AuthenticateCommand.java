@@ -217,6 +217,9 @@ public class AuthenticateCommand extends ACARSCommand {
 			case ATC:
 				con.setIsATC(true);
 				break;
+				
+			default:
+				break;
 		}
 		 
 		// Save the connection data
@@ -318,7 +321,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
-		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1))
+		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
 			ackMsg.setEntry("unrestricted", "true");
