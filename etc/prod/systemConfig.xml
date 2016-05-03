@@ -149,7 +149,7 @@
 
 	<!-- ACARS Server Properties -->
 	<acars>
-	    <compress type="Boolean">false</compress>
+	    <compress type="Boolean">true</compress>
 		<daemon>org.deltava.acars.TomcatDaemon</daemon>
 
 		<!-- List of valid protocol revisions -->

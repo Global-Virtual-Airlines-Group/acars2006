@@ -59,6 +59,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setClientInfo(info);
 		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
+		msg.setHasCompression(Boolean.valueOf(getChildText(e, "compress", null)).booleanValue());
 		msg.setDatabaseID(isDBID);
 		
 		// Get the user's local UTC time
