@@ -1,4 +1,4 @@
-// Copyright 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -14,7 +14,7 @@ import org.deltava.util.cache.*;
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 5.1
  */
 
@@ -40,7 +40,6 @@ public class GetACARSIATACodes extends DAO {
 		
 		// Check the cache
 		String dbName = formatDBName(db);
-		@SuppressWarnings("unchecked")
 		CacheableMap<String, IATACodes> results = _cache.get(dbName);
 		if (results != null)
 			return new LinkedHashMap<String, IATACodes>(results);
@@ -50,8 +49,7 @@ public class GetACARSIATACodes extends DAO {
 		sqlBuf.append(dbName);
 		sqlBuf.append(".PIREPS P, ");
 		sqlBuf.append(dbName);
-		sqlBuf.append(".ACARS_PIREPS AP WHERE (P.ID=AP.ID) AND (P.STATUS=?) AND (LENGTH(AP.CODE)>2) GROUP BY P.EQTYPE, "
-				+ "AP.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
+		sqlBuf.append(".ACARS_PIREPS AP WHERE (P.ID=AP.ID) AND (P.STATUS=?) AND (LENGTH(AP.CODE)>2) GROUP BY P.EQTYPE, AP.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
 		
 		try {
 			prepareStatementWithoutLimits(sqlBuf.toString());
