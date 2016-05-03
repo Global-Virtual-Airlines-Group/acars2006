@@ -64,14 +64,14 @@ public class TextMessageCommand extends ACARSCommand {
 				return;
 				
 			case RESTRICT:
-				if (!hasHR) {
-					log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
-					txtRsp = new TextMessage(null, "ACARS text Message blocked");
-					txtRsp.setRecipient(usr.getPilotCode());
-					ctx.push(txtRsp, env.getConnectionID());
-					return;
-				}
-				
+				if (hasHR) break;
+				log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
+				txtRsp = new TextMessage(null, "ACARS text Message blocked");
+				txtRsp.setRecipient(usr.getPilotCode());
+				ctx.push(txtRsp, env.getConnectionID());
+				return;
+			
+			default:
 				break;
 		}
 		
@@ -105,8 +105,7 @@ public class TextMessageCommand extends ACARSCommand {
 				dstC.addAll(ctx.getACARSConnectionPool().getAll());
 
 			// Send the message
-			for (Iterator<ACARSConnection> i = dstC.iterator(); i.hasNext(); ) {
-				ACARSConnection ac = i.next();
+			for (ACARSConnection ac: dstC) {
 				Pilot p = ac.getUser();
 				if (isDBID && ac.isAuthenticated() && (p.getID() == rcptID.getUserID())) {
 					rUsr = p;
