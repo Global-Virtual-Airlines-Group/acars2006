@@ -109,7 +109,7 @@ public class BandwidthLogger extends Worker {
 					zdt = ZonedDateTime.ofInstant(bw.getDate(), zdt.getZone());
 					if (zdt.get(ChronoField.MINUTE_OF_HOUR) == 0) {
 						_status.setMessage("Aggregating data");
-						zdt.minusHours(1);
+						zdt = zdt.minusHours(1).withSecond(0);
 						bwdao.aggregate(zdt.toInstant(), 60);
 					}
 				} catch (DAOException de) {
