@@ -1,13 +1,14 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
-import java.time.Instant;
+import java.time.*;
+import java.time.format.*;
+import java.time.temporal.ChronoField;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.ClientInfo;
-import org.deltava.beans.acars.ClientType;
+import org.deltava.beans.acars.*;
 
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
@@ -69,7 +70,8 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 				utc += ".000";
 			
 			try {
-				Instant utcDate = StringUtils.parseInstant(utc.replace('-', '/'), "MM/dd/yyyy HH:mm:ss.SSS");
+				DateTimeFormatter mdtf = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
+				Instant utcDate = LocalDateTime.parse(utc.replace('-', '/'), mdtf).toInstant(ZoneOffset.UTC);
 				msg.setClientUTC(utcDate);
 			} catch (IllegalArgumentException iae) {
 				log.warn("Unparseable UTC date - " + utc);

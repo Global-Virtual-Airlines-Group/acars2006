@@ -27,17 +27,7 @@ import org.deltava.acars.xml.*;
 class PositionParser extends XMLElementParser<PositionMessage> {
 	
 	private static final Logger log = Logger.getLogger(PositionParser.class);
-	private final DateTimeFormatter _mdtf;
-	
-	/**
-	 * Creates the parser.
-	 */
-	public PositionParser() {
-		super();
-		DateTimeFormatterBuilder dfb = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss.SSS");
-		dfb.parseDefaulting(ChronoField.MILLI_OF_SECOND, 0);
-		_mdtf = dfb.toFormatter();
-	}
+	private final DateTimeFormatter _mdtf = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
 	
 	/**
 	 * Convert an XML position element into a PositionMessage.
