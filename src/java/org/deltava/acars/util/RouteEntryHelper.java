@@ -48,6 +48,7 @@ public final class RouteEntryHelper {
 		
 		// Build the MapRouteEntry bean
 		MapRouteEntry result = new MapRouteEntry(Instant.now(), new GeoPosition(msg), usr, imsg.getEquipmentType());
+		result.setSimulator(imsg.getSimulator());
 		result.setClientBuild(con.getClientBuild(), con.getBeta());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
