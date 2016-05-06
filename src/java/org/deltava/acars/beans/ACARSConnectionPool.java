@@ -27,7 +27,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -163,7 +163,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					info.setAirportA(inf.getAirportA());
 					info.setEquipmentType(inf.getEquipmentType());
 					info.setAuthorID(ac.getUser().getID());
-					info.setFSVersion(inf.getSimulator());
+					info.setSimulator(inf.getSimulator());
 					if (inf.getFlightID() != 0)
 						info.setID(inf.getFlightID());
 				}

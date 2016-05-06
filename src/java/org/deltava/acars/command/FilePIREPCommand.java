@@ -178,7 +178,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Add user data
 			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
 			afr.setRank(p.getRank());
-			afr.setFSVersion(info.getSimulator());
+			afr.setSimulator(info.getSimulator());
 
 			// Convert the date into the user's local time zone
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone());
@@ -367,7 +367,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			// Load the departure runway
 			GetNavAirway navdao = new GetNavAirway(con);
 			Runway rD = null;
-			LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getFSVersion(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
+			LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getSimulator(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
 			Runway r = lr.getBestRunway();
 			if (r != null) {
 				int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
@@ -384,7 +384,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 			// Load the arrival runway
 			Runway rA = null;
-			lr = navdao.getBestRunway(afr.getAirportA(), afr.getFSVersion(), afr.getLandingLocation(), afr.getLandingHeading());
+			lr = navdao.getBestRunway(afr.getAirportA(), afr.getSimulator(), afr.getLandingLocation(), afr.getLandingHeading());
 			r = lr.getBestRunway();
 			if (r != null) {
 				int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
