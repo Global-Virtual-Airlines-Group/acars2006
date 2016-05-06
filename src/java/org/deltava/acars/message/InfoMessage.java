@@ -31,7 +31,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private String _fpAlt;
 	private OnlineNetwork _network;
 	private String _comments;
+	
 	private Simulator _sim = Simulator.UNKNOWN;
+	private int _simMajor;
+	private int _simMinor;
 	
 	private String _sid;
 	private String _star;
@@ -120,6 +123,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public Instant getEndTime() {
 	   return _endTime;
+	}
+	
+	public int getSimMajor() {
+		return _simMajor;
+	}
+	
+	public int getSimMinor() {
+		return _simMinor;
 	}
 	
 	public Collection<String> getWaypoints() {
@@ -220,6 +231,11 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setSimulator(Simulator sim) {
 		_sim = sim;
+	}
+	
+	public void setSimulatorVersion(int major, int minor) {
+		_simMajor = Math.max(1, major);
+		_simMinor = Math.max(0, minor);
 	}
 	
 	public void setCheckRide(boolean isCR) {
