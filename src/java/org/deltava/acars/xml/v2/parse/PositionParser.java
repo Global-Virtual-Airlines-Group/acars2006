@@ -41,20 +41,15 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 		// Create the bean
 		PositionMessage msg = new PositionMessage(user);
 		
-		// Parse the date
-		String de = getChildText(e, "date", null);
+		// Parse the dates
 		try {
-			if ((de != null) && (!de.contains("."))) {
-				int ms  = Instant.now().get(ChronoField.MILLI_OF_SECOND);
-				de = de + "." + String.valueOf(ms);
-			}
-			
-			if (de != null) {
-				de = de.replace('-', '/');
-				msg.setDate(LocalDateTime.parse(de, _mdtf).toInstant(ZoneOffset.UTC));
-			}
+			String msgDE = getChildText(e, "date", null); String simDE = getChildText(e, "simTime", null);
+			if (msgDE != null)
+				msg.setDate(LocalDateTime.parse(msgDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC));
+			if (simDE != null)
+				msg.setSimTime(LocalDateTime.parse(simDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC));
 		} catch (Exception ex) {
-			log.warn("Unparseable date from " + user + " - " + de + ": " + ex.getMessage());
+			log.warn("Unparseable date from " + user + " - " + ex.getMessage());
 		}
 
 		// Get the basic information
@@ -82,6 +77,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")));
 			msg.setCeiling(Integer.parseInt(getChildText(e, "ceiling", "9999")));
 			msg.setTemperature(Integer.parseInt(getChildText(e, "temp", "-100")));
+			msg.setPressure(Integer.parseInt(getChildText(e, "pressure", "0")));
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
