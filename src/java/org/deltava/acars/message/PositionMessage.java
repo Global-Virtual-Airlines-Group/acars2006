@@ -1,5 +1,7 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
+
+import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.servinfo.Controller;
@@ -9,15 +11,14 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
 public class PositionMessage extends LocationMessage {
 
 	// Flight phase constants
-    public static final String[] FLIGHT_PHASES = {"Unknown", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne",
-    	"Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
+    public static final String[] FLIGHT_PHASES = {"Unknown", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne", "Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
 
 	private int r_altitude;
 	private int aspeed;
@@ -47,11 +48,13 @@ public class PositionMessage extends LocationMessage {
 	private double _viz;
 	private int _ceiling;
 	private int _temperature;
+	private int _pressure;
 
-	private int simRate = 1;
+	private int _simRate = 1;
+	private Instant _simTime = getDate();
 
 	// Flight phase
-	private int phase;
+	private int _phase;
 	private boolean _isReplay;
 	private boolean _isLogged;
 
@@ -99,6 +102,10 @@ public class PositionMessage extends LocationMessage {
 		return _temperature;
 	}
 	
+	public int getPressure() {
+		return _pressure;
+	}
+	
 	public int getAspeed() {
 		return aspeed;
 	}
@@ -108,19 +115,19 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public double getN1() {
-		return this.n1;
+		return n1;
 	}
 
 	public double getN2() {
-		return this.n2;
+		return n2;
 	}
 
 	public int getPhase() {
-		return this.phase;
+		return _phase;
 	}
 	
 	public String getPhaseName() {
-		return FLIGHT_PHASES[phase];
+		return FLIGHT_PHASES[_phase];
 	}
 
 	public int getRadarAltitude() {
@@ -128,7 +135,11 @@ public class PositionMessage extends LocationMessage {
 	}
 
 	public int getSimRate() {
-		return this.simRate;
+		return _simRate;
+	}
+	
+	public Instant getSimTime() {
+		return _simTime;
 	}
 
 	public boolean isReplay() {
@@ -216,7 +227,7 @@ public class PositionMessage extends LocationMessage {
 
 	public void setMach(double m) {
 		if (!Double.isNaN(m))
-			this.mach = Math.min(4.2, Math.max(0, m));
+			mach = Math.min(6.5, Math.max(0, m));
 	}
 
 	public void setN1(double nn1) {
@@ -233,22 +244,21 @@ public class PositionMessage extends LocationMessage {
 			this.n2 = Math.min(9999, Math.max(0, nn2));
 	}
 
-	public void setPhase(int newPhase) {
-		if ((newPhase >= 0) && (newPhase < FLIGHT_PHASES.length))
-			this.phase = newPhase;
-	}
-
 	public void setPhase(String newPhase) {
-		setPhase(StringUtils.arrayIndexOf(FLIGHT_PHASES, newPhase));
+		_phase = StringUtils.arrayIndexOf(FLIGHT_PHASES, newPhase, 0);
 	}
 
 	public void setRadarAltitude(int alt) {
-		if ((alt > 0) && (alt <= 120000))
+		if ((alt > 0) && (alt <= 125000))
 			this.r_altitude = alt;
 	}
 
 	public void setSimRate(int newRate) {
-		this.simRate = newRate;
+		_simRate = Math.max(1, newRate);
+	}
+	
+	public void setSimTime(Instant i) {
+		_simTime = i;
 	}
 
 	public void setWindHeading(int i) {
@@ -278,6 +288,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setTemperature(int t) {
 		_temperature = Math.max(-100, Math.min(99, t));
+	}
+	
+	public void setPressure(int p) {
+		_pressure = Math.max(0, p);
 	}
 	
 	public void setCOM1(String freq) {

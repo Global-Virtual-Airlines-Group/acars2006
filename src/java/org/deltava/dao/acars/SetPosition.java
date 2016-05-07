@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -16,7 +16,7 @@ import org.deltava.util.GeoUtils;
  * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
  * since ACARS positions may be written several times a second by the server.
  * @author Luke
- * @version 5.4
+ * @version 7.0
  * @since 1.0
  */
 
@@ -90,10 +90,9 @@ public class SetPosition extends DAO {
 	 */
 	public int flush() throws DAOException {
 		try {
-			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, LAT, LNG, B_ALT, R_ALT, "
-					+ "HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, "
-					+ "WIND_HDG, WIND_SPEED, AOA, GFORCE, FRAMERATE, NAV1, NAV2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-					+ "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, "
+				+ "GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, "
+				+ "VIZ, AOA, GFORCE, FRAMERATE, NAV1, NAV2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Drain the queue
 			Collection<PositionCacheEntry> entries = new ArrayList<PositionCacheEntry>();
@@ -108,32 +107,36 @@ public class SetPosition extends DAO {
 				// Set the prepared statement parameters
 				_ps.setInt(1, entry.getFlightID());
 				_ps.setTimestamp(2, createTimestamp(msg.getDate()));
-				_ps.setDouble(3, msg.getLatitude());
-				_ps.setDouble(4, msg.getLongitude());
-				_ps.setInt(5, msg.getAltitude());
-				_ps.setInt(6, msg.getRadarAltitude());
-				_ps.setInt(7, msg.getHeading());
-				_ps.setInt(8, msg.getAspeed());
-				_ps.setInt(9, msg.getGspeed());
-				_ps.setInt(10, msg.getVspeed());
-				_ps.setDouble(11, msg.getN1());
-				_ps.setDouble(12, msg.getN2());
-				_ps.setDouble(13, msg.getMach());
-				_ps.setInt(14, msg.getFuelRemaining());
-				_ps.setInt(15, msg.getPhase());
-				_ps.setInt(16, msg.getSimRate());
-				_ps.setInt(17, msg.getFlags());
-				_ps.setInt(18, msg.getFlaps());
-				_ps.setDouble(19, msg.getPitch());
-				_ps.setDouble(20, msg.getBank());
-				_ps.setInt(21, msg.getFuelFlow());
-				_ps.setInt(22, msg.getWindHeading());
-				_ps.setInt(23, msg.getWindSpeed());
-				_ps.setDouble(24, msg.getAngleOfAttack());
-				_ps.setDouble(25, msg.getG());
-				_ps.setInt(26, msg.getFrameRate());
-				_ps.setString(27, msg.getNAV1());
-				_ps.setString(28, msg.getNAV2());
+				_ps.setTimestamp(3, createTimestamp(msg.getSimTime()));
+				_ps.setDouble(4, msg.getLatitude());
+				_ps.setDouble(5, msg.getLongitude());
+				_ps.setInt(6, msg.getAltitude());
+				_ps.setInt(7, msg.getRadarAltitude());
+				_ps.setInt(8, msg.getHeading());
+				_ps.setInt(9, msg.getAspeed());
+				_ps.setInt(10, msg.getGspeed());
+				_ps.setInt(11, msg.getVspeed());
+				_ps.setDouble(12, msg.getN1());
+				_ps.setDouble(13, msg.getN2());
+				_ps.setDouble(14, msg.getMach());
+				_ps.setInt(15, msg.getFuelRemaining());
+				_ps.setInt(16, msg.getPhase());
+				_ps.setInt(17, msg.getSimRate());
+				_ps.setInt(18, msg.getFlags());
+				_ps.setInt(19, msg.getFlaps());
+				_ps.setDouble(20, msg.getPitch());
+				_ps.setDouble(21, msg.getBank());
+				_ps.setInt(22, msg.getFuelFlow());
+				_ps.setInt(23, msg.getWindHeading());
+				_ps.setInt(24, msg.getWindSpeed());
+				_ps.setInt(25, msg.getTemperature());
+				_ps.setInt(26, msg.getPressure());
+				_ps.setDouble(27, msg.getVisibility());
+				_ps.setDouble(28, msg.getAngleOfAttack());
+				_ps.setDouble(29, msg.getG());
+				_ps.setInt(30, msg.getFrameRate());
+				_ps.setString(31, msg.getNAV1());
+				_ps.setString(32, msg.getNAV2());
 				_ps.addBatch();
 				
 				// Remove entries with no ATC ID
@@ -145,8 +148,7 @@ public class SetPosition extends DAO {
 			_ps.close();
 			
 			// Write COM/ATC records
-			prepareStatementWithoutLimits("REPLACE INTO acars.POSITION_ATC (FLIGHT_ID, REPORT_TIME, IDX, COM1, CALLSIGN, NETWORK_ID, "
-				+ "LAT, LNG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+			prepareStatementWithoutLimits("REPLACE INTO acars.POSITION_ATC (FLIGHT_ID, REPORT_TIME, IDX, COM1, CALLSIGN, NETWORK_ID, LAT, LNG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 			for (PositionCacheEntry entry : entries) {
 				PositionMessage msg = entry.getMessage();
 				_ps.setInt(1, entry.getFlightID());
