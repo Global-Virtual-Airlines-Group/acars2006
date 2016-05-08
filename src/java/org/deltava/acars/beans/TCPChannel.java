@@ -1,4 +1,4 @@
-// Copyright 2011, 2012, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 4.0
  */
 
@@ -143,6 +143,12 @@ public class TCPChannel extends ACARSChannel<String> {
 				_stats.addBytesSaved(data.length - pkt.length);
 				_msgBuffer.append(new String(data, UTF_8));
 				pkt = _compress.getPacket();
+			}
+			
+			// If we started getting compressed data assume we're switching
+			if (_compress.getCompression() == Compression.NONE) {
+				_compress.setCompression(Compression.GZIP);
+				log.warn(getRemoteAddress() + " auto-switching to GZIP compression");
 			}
 		} else if (!_compress.hasBuffer())
 			_msgBuffer.append(new String(rawData, UTF_8));
