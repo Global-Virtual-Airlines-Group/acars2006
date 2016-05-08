@@ -43,7 +43,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 		
 		// Parse the dates
 		try {
-			String msgDE = getChildText(e, "date", null); String simDE = getChildText(e, "simTime", null);
+			String msgDE = getChildText(e, "date", null); String simDE = getChildText(e, "simDate", null);
 			if (msgDE != null)
 				msg.setDate(LocalDateTime.parse(msgDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC));
 			if (simDE != null)
