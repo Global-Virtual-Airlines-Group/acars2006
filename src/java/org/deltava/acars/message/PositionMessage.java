@@ -258,7 +258,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public void setSimTime(Instant i) {
-		_simTime = i;
+		_simTime = (i == null) ? getDate() : i;
 	}
 
 	public void setWindHeading(int i) {
