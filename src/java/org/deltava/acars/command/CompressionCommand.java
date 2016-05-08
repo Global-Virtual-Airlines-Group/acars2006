@@ -1,4 +1,4 @@
-// Copyright 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS Server Command to enable/disable data compression. 
  * @author Luke
- * @version 6.4
+ * @version 7.0
  * @since 6.4
  */
 
@@ -27,19 +27,20 @@ public class CompressionCommand extends ACARSCommand {
 		
 		// Get the message and the connection
 		ACARSConnection ac = ctx.getACARSConnection();
-		final CompressionMessage msg = (CompressionMessage) env.getMessage();
+		final CompressionMessage msg = (CompressionMessage) env.getMessage(); 
+		String cType = msg.getCompression().name().toLowerCase(); 
 		if (ac.getCompression() == msg.getCompression()) {
-			log.warn(ac.getUserID() + " requesting " + msg.getCompression().name().toLowerCase() + " compression, already set");
+			log.warn(ac.getUserID() + " requesting " + cType + " compression, already set");
 			return;
 		}
 		
 		// Set compression for connection
-		log.info("Setting data compression for " + ac.getUserID() + " to " + msg.getCompression().name().toLowerCase());
+		log.warn("Setting data compression for " + ac.getUserID() + " to " + cType);
 		ac.setCompression(msg.getCompression());
 
 		// Send an ACK
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-		ackMsg.setEntry("type", msg.getCompression().name().toLowerCase());
+		ackMsg.setEntry("type", cType);
 		ctx.push(ackMsg, ac.getID());
 	}
 }
