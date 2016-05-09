@@ -52,6 +52,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			if (de != null) {
 				de = de.replace('-', '/');
 				msg.setDate(LocalDateTime.parse(de, _mdtf).toInstant(ZoneOffset.UTC));
+				msg.setSimTime(msg.getDate());
 			}
 		} catch (Exception ex) {
 			log.warn("Unparseable date from " + user + " - " + de);
