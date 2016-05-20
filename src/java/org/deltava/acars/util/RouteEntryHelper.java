@@ -29,14 +29,24 @@ public final class RouteEntryHelper {
 	/**
 	 * Builds a route Entry from the current connection data.
 	 * @param con the ACARS connection
-	 * @return a MapRouteEntry bean
+	 * @return an ACARSMapEntry bean
 	 */
 	public static ACARSMapEntry build(ACARSConnection con) {
 		if (con.getIsDispatch())
 			return buildDispatch(con);
 		else if (con.getIsATC())
 			return buildATC(con);
+		
+		return buildPilot(con);
+	}
 
+	/**
+	 * Builds an ACARS Map Entry for a Pilot connection.
+	 * @param ac the ACARS connection
+	 * @return a MapRouteEntry bean
+	 */
+	public static MapRouteEntry buildPilot(ACARSConnection con) {
+		
 		// Extract data from the connection
 		Pilot usr = con.getUser();
 		PositionMessage msg = con.getPosition();
@@ -89,7 +99,7 @@ public final class RouteEntryHelper {
 	 * @param ac the ACARS connection
 	 * @return a DispatchMapEntry bean
 	 */
-	public static ACARSMapEntry buildDispatch(ACARSConnection ac) {
+	public static DispatchMapEntry buildDispatch(ACARSConnection ac) {
 		
 		// Get data from the entry
 		Pilot usr = ac.getUser();
@@ -110,7 +120,7 @@ public final class RouteEntryHelper {
 	 * @param ac the ACARS connection
 	 * @return an ATCMapEntry bean
 	 */
-	public static ACARSMapEntry buildATC(ACARSConnection ac) {
+	public static ATCMapEntry buildATC(ACARSConnection ac) {
 		
 		// Get data from the entry
 		Pilot usr = ac.getUser();

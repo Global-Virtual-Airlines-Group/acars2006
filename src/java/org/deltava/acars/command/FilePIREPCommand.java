@@ -2,9 +2,8 @@
 package org.deltava.acars.command;
 
 import java.util.*;
+import java.time.*;
 import java.sql.Connection;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 
 import org.apache.log4j.Logger;
 
@@ -28,6 +27,7 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
 import org.deltava.dao.http.SetFacebookData;
+import org.deltava.dao.mc.SetTrack;
 
 import org.deltava.mail.*;
 import org.deltava.util.*;
@@ -416,6 +416,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			SetInfo idao = new SetInfo(con);
 			idao.logPIREP(flightID);
 			info.setComplete(true);
+
+			// Clean up the memcached track data
+			SetTrack tkwdao = new SetTrack();
+			tkwdao.clear(flightID);
 			
 			// Update the checkride record (don't assume pilots check the box, because they don't)
 			CheckRide cr = null;
@@ -638,6 +642,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 2500;
+		return 2250;
 	}
 }
