@@ -16,9 +16,11 @@ import org.deltava.beans.servinfo.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
+import org.deltava.acars.util.RouteEntryHelper;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
 import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.mc.SetTrack;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -115,6 +117,11 @@ public class PositionCommand extends ACARSCommand {
 			}
 		}
 
+		// Clear temporary track if being saved
+		SetTrack tkdao = new SetTrack(); 
+		if (msg.isLogged())
+			tkdao.clear(info.getFlightID());
+
 		// Queue it up
 		if (msg.isReplay() && msg.isLogged())
 			SetPosition.queue(msg, ac.getFlightID());
@@ -126,6 +133,8 @@ public class PositionCommand extends ACARSCommand {
 			ac.setPosition(msg);
 			if (msg.isLogged() && !isPaused)
 				SetPosition.queue(msg, ac.getFlightID());
+			else if (!isPaused)
+				tkdao.write(RouteEntryHelper.buildPilot(ac));
 		}
 		
 		// Log message received
