@@ -16,7 +16,6 @@ import org.deltava.beans.servinfo.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
-import org.deltava.acars.util.RouteEntryHelper;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
 import org.deltava.dao.acars.SetPosition;
@@ -134,12 +133,11 @@ public class PositionCommand extends ACARSCommand {
 			if (msg.isLogged() && !isPaused)
 				SetPosition.queue(msg, ac.getFlightID());
 			else if (!isPaused)
-				tkdao.write(RouteEntryHelper.buildPilot(ac));
+				tkdao.write(info.getFlightID(), msg);
 		}
 		
 		// Log message received
-		if (SystemData.getBoolean("acars.ack.position"))
-			ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg, env.getConnectionID());
 		if (log.isDebugEnabled())
 			log.debug("Received position from " + ac.getUserID());
 		
