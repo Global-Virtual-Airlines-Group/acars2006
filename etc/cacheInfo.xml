@@ -21,6 +21,9 @@
 
 	<!-- ServInfo caches -->
 	<cache id="ServInfoData" max="3" expires="30" />
+	
+	<!-- Track cache -->
+	<cache id="ACARSTrackCAS" max="128" expires="30" />
 
 	<!-- System caches -->
 	<cache id="AircraftInfo" max="96" expires="3600" />
