@@ -35,7 +35,7 @@ public class CompressionCommand extends ACARSCommand {
 		}
 		
 		// Set compression for connection
-		log.warn("Setting data compression for " + ac.getUserID() + " to " + cType);
+		log.info("Setting data compression for " + ac.getUserID() + " to " + cType);
 		ac.setCompression(msg.getCompression());
 
 		// Send an ACK
