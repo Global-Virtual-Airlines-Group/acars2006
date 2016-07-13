@@ -249,7 +249,8 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 
 				afr.setCaptEQType(promoEQ);
-			}
+			} else
+				log.info(afr.getEquipmentType() + " not in " + p.getEquipmentType() + " program " + eq.getPrimaryRatings());
 			
 			// Check if the user is rated to fly the aircraft
 			afr.setAttribute(FlightReport.ATTR_HISTORIC, a.getHistoric());
