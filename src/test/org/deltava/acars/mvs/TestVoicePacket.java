@@ -21,18 +21,17 @@ public class TestVoicePacket extends TestCase {
 		assertNotNull(_rnd);
 		
 		// Start loading stuff
-		PacketInputStream ds = new PacketInputStream(new FileInputStream(f));
-		while (ds.available() > 0) {
-			int dataLength = ds.readInt32();
-			assertTrue(dataLength >= 0);
-			byte[] pktData = new byte[dataLength];
-			ds.read(pktData);
-			
-			Packet pkt = Packet.parse(pktData);
-			assertNotNull(pkt);
+		try (PacketInputStream ds = new PacketInputStream(new FileInputStream(f))) {
+			while (ds.available() > 0) {
+				int dataLength = ds.readInt32();
+				assertTrue(dataLength >= 0);
+				byte[] pktData = new byte[dataLength];
+				ds.read(pktData);
+				
+				Packet pkt = Packet.parse(pktData);
+				assertNotNull(pkt);
+			}
 		}
-		
-		ds.close();
 	}
 	
 	public void testJavaPackets() throws IOException {
