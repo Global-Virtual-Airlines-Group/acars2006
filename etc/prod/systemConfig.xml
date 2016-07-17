@@ -116,6 +116,7 @@
 		<list name="networks" attr="network" unique="true">
 			<network>VATSIM</network>
 			<network>IVAO</network>
+			<network>PilotEdge</network>
 		</list>
 
 		<vatsim>
@@ -128,6 +129,14 @@
 				<info>/var/cache/servinfo/vatsim.info</info>
 			</local>
 		</vatsim>
+		      
+        <pilotedge>
+            <banner>pilotedge.png</banner>
+            <url>http://www.pilotedge.net/</url>
+            <local>
+                <info>/var/cache/servinfo/pilotedge.info</info>
+            </local>
+        </pilotedge>
 
 		<ivao>
 			<status_url>http://www.ivao.aero/whazzup/status.txt</status_url>
