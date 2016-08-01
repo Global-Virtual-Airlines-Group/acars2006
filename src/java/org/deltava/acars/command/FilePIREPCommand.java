@@ -240,11 +240,13 @@ public class FilePIREPCommand extends ACARSCommand {
 				for (Iterator<String> i = promoEQ.iterator(); i.hasNext();) {
 					String pType = i.next();
 					EquipmentType pEQ = eqdao.get(pType, usrLoc.getDB());
+					if (pEQ == null)
+						log.warn("Cannot find " + pType + " in " + usrLoc.getDB());
+					
 					boolean isOK = helper.canPromote(pEQ);
 					if (!isOK) {
 						i.remove();
-						if (!StringUtils.isEmpty(helper.getLastComment()))
-							comments.add("SYSTEM: Not eligible for promotion: " + helper.getLastComment());
+						comments.add("SYSTEM: Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
 
