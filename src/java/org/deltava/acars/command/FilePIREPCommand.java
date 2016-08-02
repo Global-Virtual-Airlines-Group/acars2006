@@ -12,7 +12,6 @@ import org.deltava.beans.academy.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
 import org.deltava.beans.event.Event;
-import org.deltava.beans.fb.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
@@ -26,8 +25,7 @@ import org.deltava.acars.message.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
-import org.deltava.dao.http.SetFacebookData;
-import org.deltava.dao.mc.SetTrack;
+import org.deltava.dao.redis.SetTrack;
 
 import org.deltava.mail.*;
 import org.deltava.util.*;
@@ -599,34 +597,6 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 			}
 			
-			// Post Facebook notification
-			java.io.Serializable rawCreds = SharedData.get(SharedData.FB_CREDS + usrLoc.getAirlineCode());
-			if ((rawCreds != null) && (p.hasIM(IMAddress.FBTOKEN))) {
-				FacebookCredentials fbCreds = (FacebookCredentials) IPCUtils.reserialize(rawCreds);
-				ctx.setMessage("Posting to Facebook");
-				
-				// Build the message
-				String baseURL = (usrAirline.getSSL() ? "http" : "https") + "://www." + usrLoc.getDomain() + "/";
-				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
-				mctxt.addData("user", p);
-				mctxt.addData("airline", SystemData.getApp(usrLoc.getAirlineCode()).getName());
-				mctxt.addData("url", baseURL);
-				mctxt.addData("pirep", afr);
-				
-				// Load the template and generate the body text
-				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "FBPIREP"));
-				ctx.release();
-				NewsEntry nws = new NewsEntry(mctxt.getBody(), baseURL + "pirep.do?id=" + afr.getHexID());
-				nws.setImageURL(fbCreds.getIconURL());
-				nws.setLinkCaption(afr.getFlightCode());
-				
-				// Post to user's feed
-				SetFacebookData fbwdao = new SetFacebookData();
-				fbwdao.setWarnMode(true);
-				fbwdao.setToken(ac.getUser().getIMHandle(IMAddress.FBTOKEN));
-				fbwdao.write(nws);
-			}
-
 			// Log completion
 			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (DAOException de) {
