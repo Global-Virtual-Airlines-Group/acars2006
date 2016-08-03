@@ -593,7 +593,8 @@ public class FilePIREPCommand extends ACARSCommand {
 					mailer.setContext(mctxt);
 					for (Pilot acp : eqACPs)
 						mailer.setCC(acp);
-					mailer.send(Mailer.makeAddress(crEQ.getCPEmail(), crEQ.getCPName()));
+					
+					mailer.send(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
 				}
 			}
 			
