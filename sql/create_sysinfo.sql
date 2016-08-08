@@ -1,7 +1,7 @@
 CREATE TABLE SYSINFO (
  ID                         INTEGER UNSIGNED NOT NULL,
  CREATED                    DATETIME NOT NULL,
- OS_VERSION                 VARCHAR(48) NOT NULL,
+ OS_VERSION                 VARCHAR(64) NOT NULL,
  CLR_VERSION                VARCHAR(24) NOT NULL,
  NET_VERSION                VARCHAR(24) NOT NULL,
  IS64                       BOOLEAN NOT NULL DEFAULT FALSE,
