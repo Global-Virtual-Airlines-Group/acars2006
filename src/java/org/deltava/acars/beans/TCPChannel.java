@@ -148,7 +148,7 @@ public class TCPChannel extends ACARSChannel<String> {
 			// If we started getting compressed data assume we're switching
 			if (_compress.getCompression() == Compression.NONE) {
 				_compress.setCompression(Compression.GZIP);
-				log.warn(getRemoteAddress() + " auto-switching to GZIP compression");
+				log.info(getRemoteAddress() + " auto-switching to GZIP compression");
 			}
 		} else if (!_compress.hasBuffer())
 			_msgBuffer.append(new String(rawData, UTF_8));
