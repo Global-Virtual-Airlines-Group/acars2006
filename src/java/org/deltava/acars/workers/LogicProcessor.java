@@ -4,6 +4,8 @@ package org.deltava.acars.workers;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.newrelic.api.agent.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
@@ -14,12 +16,13 @@ import org.deltava.acars.pool.*;
 
 import org.gvagroup.ipc.WorkerStatus;
 
+import org.deltava.util.log.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -137,16 +140,28 @@ public class LogicProcessor extends Worker {
 		}
 
 		@Override
+		@Trace(dispatcher=true)
 		public void run() {
 			if ((_env == null) || (_cmd == null)) return;
 
 			// Get the message and start time
-			Message msg = _env.getMessage();
-			if (msg.getType() == Message.MSG_DATAREQ) {
-				DataMessage dmsg = (DataMessage) msg;
-				_status.setMessage("Processing " + DataMessage.REQ_TYPES[dmsg.getRequestType()] + " message from " + _env.getOwnerID());
-			} else
-				_status.setMessage("Processing " + Message.MSG_TYPES[msg.getType()] + " message from " + _env.getOwnerID());
+			Message msg = _env.getMessage(); String reqType;
+			switch (msg.getType()) {
+				case Message.MSG_DATAREQ:
+					DataMessage dmsg = (DataMessage) msg;
+					reqType = DataMessage.REQ_TYPES[dmsg.getRequestType()];
+					break;
+					
+				case Message.MSG_DISPATCH:
+					DispatchMessage dspmsg = (DispatchMessage) msg;
+					reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
+					break;
+					
+				default:
+					reqType = Message.MSG_TYPES[msg.getType()];
+			}
+			
+			_status.setMessage("Processing " + reqType + " message from " + _env.getOwnerID());
 
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
@@ -185,7 +200,14 @@ public class LogicProcessor extends Worker {
 
 			// Calculate and log execution time
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+			NewRelic.recordResponseTimeMetric(_cmd.getClass().getSimpleName(), execTime);
 			if (execTime > _cmd.getMaxExecTime()) log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
+
+			// Instrumentation
+			NewRelic.setRequestAndResponse(new SyntheticRequest(reqType, _env.getOwnerID()), new SyntheticResponse());
+			NewRelic.setTransactionName("ACARS", _cmd.getClass().getSimpleName());
+			if (!msg.isAnonymous())
+				NewRelic.setUserName(msg.getSender().getName());
 		}
 	}
 
