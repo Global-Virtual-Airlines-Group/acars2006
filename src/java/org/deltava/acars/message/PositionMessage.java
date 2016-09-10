@@ -11,7 +11,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -55,6 +55,7 @@ public class PositionMessage extends LocationMessage {
 
 	// Flight phase
 	private int _phase;
+	private int _vasFree;
 	private boolean _isReplay;
 	private boolean _isLogged;
 
@@ -189,6 +190,10 @@ public class PositionMessage extends LocationMessage {
 	public boolean hasATC() {
 		return (_atc1 != null) || (_atc2 != null);
 	}
+	
+	public int getVASFree() {
+		return _vasFree;
+	}
 
 	public void setReplay(boolean isReplay) {
 		_isReplay = isReplay;
@@ -316,5 +321,9 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setATC2(Controller atc) {
 		_atc2 = atc; 
+	}
+	
+	public void setVASFree(int kb) {
+		_vasFree = Math.max(0,  kb);
 	}
 }
