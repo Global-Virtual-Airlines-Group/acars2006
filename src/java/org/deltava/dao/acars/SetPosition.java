@@ -16,7 +16,7 @@ import org.deltava.util.GeoUtils;
  * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
  * since ACARS positions may be written several times a second by the server.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -92,7 +92,7 @@ public class SetPosition extends DAO {
 		try {
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, "
 				+ "GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, "
-				+ "VIZ, AOA, GFORCE, FRAMERATE, NAV1, NAV2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				+ "VIZ, AOA, GFORCE, FRAMERATE, NAV1, NAV2, VAS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Drain the queue
 			Collection<PositionCacheEntry> entries = new ArrayList<PositionCacheEntry>();
@@ -137,6 +137,7 @@ public class SetPosition extends DAO {
 				_ps.setInt(30, msg.getFrameRate());
 				_ps.setString(31, msg.getNAV1());
 				_ps.setString(32, msg.getNAV2());
+				_ps.setInt(33, msg.getVASFree());
 				_ps.addBatch();
 				
 				// Remove entries with no ATC ID

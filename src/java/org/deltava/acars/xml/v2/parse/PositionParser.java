@@ -20,7 +20,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -38,10 +38,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 	@Override
 	public PositionMessage parse(Element e, Pilot user) throws XMLException {
 		
-		// Create the bean
-		PositionMessage msg = new PositionMessage(user);
-		
 		// Parse the dates
+		PositionMessage msg = new PositionMessage(user);
 		try {
 			String msgDE = getChildText(e, "date", null); String simDE = getChildText(e, "simDate", null);
 			if (msgDE != null)
@@ -87,6 +85,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
 			msg.setNAV1(getChildText(e, "nav1", "109.90"));
 			msg.setNAV2(getChildText(e, "nav2", "109.90"));
+			msg.setVASFree(Integer.parseInt(getChildText(e, "vasFree", "0")));
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
