@@ -1,4 +1,4 @@
-// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,7 +7,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS message to store Flight Viewer information.
  * @author Luke
- * @version 4.0
+ * @version 7.2
  * @since 2.8
  */
 
@@ -24,7 +24,7 @@ public abstract class ViewerMessage extends RecipientMessage {
 
 	/**
 	 * Creates the message.
-	 * @param dspType the viewer message type
+	 * @param reqType the viewer message type
 	 * @param msgFrom the originating user
 	 */
 	protected ViewerMessage(int reqType, Pilot msgFrom) {

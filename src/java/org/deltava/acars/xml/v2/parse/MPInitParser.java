@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.beans.Pilot;
@@ -13,7 +13,7 @@ import org.deltava.acars.xml.*;
 /**
  * A message parser for multi-player initialization messages. 
  * @author Luke
- * @version 4.2
+ * @version 7.2
  * @since 3.0
  */
 
@@ -23,7 +23,6 @@ class MPInitParser extends XMLElementParser<InitMessage> {
 	 * Convert an XML MP init element into an MPInitMessage.
 	 * @param e the XML element
 	 * @return an MPInitMessage
-	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
 	public InitMessage parse(org.jdom2.Element e, Pilot usr) {

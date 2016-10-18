@@ -12,7 +12,7 @@ import org.gvagroup.ipc.IPCInfo;
 /**
  * A bean to store voice channel information.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 4.0
  */
 
@@ -67,6 +67,7 @@ public class VoiceChannels implements java.io.Serializable, IPCInfo<PopulatedCha
 
 	/**
 	 * Adds a voice channel to the list.
+	 * @param ac the ACARS Connection to link the voice channel to
 	 * @param c the Channel
 	 * @return the PopulatedChannel which the user was added to, or null
 	 * @throws IllegalStateException if the channel name is not unique

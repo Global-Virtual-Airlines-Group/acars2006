@@ -1,4 +1,4 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to store route plotting requests.
  * @author Luke
- * @version 3.0
+ * @version 7.2
  * @since 3.0
  */
 
@@ -107,7 +107,7 @@ public class RoutePlotMessage extends DispatchMessage {
 	
 	/**
 	 * Updates the Standard Terminal Arrival Route code.
-	 * @param sid the STAR code
+	 * @param star the STAR code
 	 */
 	public void setSTAR(String star) {
 		_star = star;

@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Parser for radar scope information messages. 
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 3.0
  */
 
@@ -24,7 +24,6 @@ class ScopeInfoParser extends XMLElementParser<ScopeInfoMessage> {
 	 * Convert an XML scope info element into a ScopeInfoMessage.
 	 * @param e the XML element
 	 * @return a ScopeInfoMessage
-	 * @throws XMLException if a parse error occurs 
 	 */
 	@Override
 	public ScopeInfoMessage parse(Element e, Pilot usr) {

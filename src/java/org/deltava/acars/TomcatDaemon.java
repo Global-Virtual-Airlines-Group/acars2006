@@ -13,7 +13,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -104,16 +104,11 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 
 	/**
 	 * Returns worker status to the web application.
-	 * @see ACARSWorkerInfo#getWorkers()
 	 */
 	@Override
 	public Collection<WorkerStatus> getWorkers() {
 		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
-		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
-			Worker w = i.next();
-			results.addAll(w.getStatus());
-		}
-
+		_threads.values().forEach(t -> results.addAll(t.getStatus()));
 		return results;
 	}
 	

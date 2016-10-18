@@ -27,7 +27,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -510,8 +510,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * it is recycled and replaced with a new one. This is to get around a bug in the JVM's epoll()
 	 * implementation. 
 	 * @param maxSelects the maxmimum number of selects, or <= 0 for infinite
-	 * @see {@link ACARSConnectionPool#updateSelector()}
-	 * @See {@link ACARSConnectionPool#getSelectCount()}
 	 */
 	public void setMaxSelects(int maxSelects) {
 		_maxSelects = (maxSelects < 1) ? Integer.MAX_VALUE : maxSelects;

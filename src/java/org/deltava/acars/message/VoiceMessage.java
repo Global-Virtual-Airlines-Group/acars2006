@@ -1,4 +1,4 @@
-// Copyright 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014, 2106 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -6,7 +6,7 @@ import org.deltava.beans.*;
 /**
  * An ACARS Voice packet message.
  * @author Luke
- * @version 5.2
+ * @version 7.2
  * @since 4.0
  */
 
@@ -17,7 +17,7 @@ public class VoiceMessage extends AbstractMessage {
 	/**
 	 * Creates the message.
 	 * @param msgFrom the originating Pilot
-	 * @param channel the channel name
+	 * @param data the message data
 	 */
 	public VoiceMessage(Pilot msgFrom, byte[] data) {
 		super(Message.MSG_VOICE, msgFrom);

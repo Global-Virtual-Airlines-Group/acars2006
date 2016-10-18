@@ -1,4 +1,4 @@
-// Copyright 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -8,7 +8,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to log ACARS takeoffs and touchdowns. 
  * @author Luke
- * @version 4.2
+ * @version 7.2
  * @since 2.8
  */
 
@@ -25,7 +25,7 @@ public class SetTakeoff extends DAO {
 	/**
 	 * Logs a takeoff or landing.
 	 * @param id the ACARS flight ID
-	 * @param tmsg the TakeoffMessage
+	 * @param isTakeoff TRUE if taking off, otherwise FALSE
 	 * @return TRUE if a bounce, otherwise FALSE
 	 * @throws DAOException if a JDBC error occurs
 	 */

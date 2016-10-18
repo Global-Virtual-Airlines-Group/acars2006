@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -44,7 +44,6 @@ public class SetInfo extends DAO {
 		boolean isNew = (msg.getFlightID() == 0);
 		try {
 			startTransaction();
-			
 			prepareStatementWithoutLimits(isNew ? ISQL : USQL);
 			_ps.setInt(1, ac.getUser().getID());
 			_ps.setString(2, msg.getFlightCode());
@@ -109,7 +108,6 @@ public class SetInfo extends DAO {
 	/**
 	 * Marks a Flight as complete.
 	 * @param flightID the Flight ID
-	 * @param cid the ACARS Connection ID
 	 * @param force mark the flight closed even if already closed
 	 * @throws DAOException if a JDBC error occurs
 	 */
