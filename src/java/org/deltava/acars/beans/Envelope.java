@@ -7,8 +7,9 @@ import org.deltava.acars.message.Message;
 /**
  * An Envelope is a bean used to link data with sender/addressee information.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
+ * @param <T>  the envelope type
  */
 
 public abstract class Envelope<T> implements Comparable<Envelope<T>> {

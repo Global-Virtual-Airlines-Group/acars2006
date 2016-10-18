@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -164,7 +164,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	/**
 	 * Registers this channel with a Selector.
 	 * @param s the Selector to register with
-	 * @throws IOException if the registration failed
+	 * @throws ClosedChannelException if the registration failed
 	 */
 	void register(Selector s) throws ClosedChannelException {
 		SocketChannel sc = _tcp.getChannel();

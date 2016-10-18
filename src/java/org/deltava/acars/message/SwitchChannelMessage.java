@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,13 +6,13 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to switch voice channels.
  * @author Luke
- * @version 4.0
+ * @version 7.2
  * @since 4.0
  */
 
 public class SwitchChannelMessage extends RecipientMessage {
 
-	private String _name;
+	private final String _name;
 	private String _desc;
 	private String _freq;
 	
@@ -60,7 +60,7 @@ public class SwitchChannelMessage extends RecipientMessage {
 
 	/**
 	 * Sets the channel frequency if creating a new channel.
-	 * @param desc the frequency
+	 * @param freq the frequency
 	 */
 	public void setFrequency(String freq) {
 		_freq = freq;

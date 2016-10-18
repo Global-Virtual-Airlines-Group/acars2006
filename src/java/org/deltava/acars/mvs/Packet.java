@@ -14,7 +14,7 @@ import org.deltava.acars.util.*;
 /**
  * A utility class to parse MVS packets.
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -170,7 +170,6 @@ public class Packet {
 
 	/**
 	 * Parses an MVS voice packet.
-	 * @param ac the ACARSConnection
 	 * @param pkt the packet data
 	 * @return msg the VoiceMessage
 	 * @throws IOException if an error occurs
@@ -220,7 +219,7 @@ public class Packet {
 
 	/**
 	 * Creates a packet.
-	 * @param o the Packet
+	 * @param p the Packet
 	 * @return the packet data
 	 */
 	public static byte[] rewrite(Packet p) {

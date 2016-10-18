@@ -1,4 +1,4 @@
-// Copyright 2004, 2006, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2006, 2009, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import org.jdom2.Element;
@@ -12,8 +12,9 @@ import org.deltava.acars.message.Message;
 /**
  * A parser for XML command elements.
  * @author Luke
- * @version 4.2
+ * @version 7.2
  * @since 1.0
+ * @param <T> the returned message type
  */
 
 public abstract class XMLElementParser<T extends Message> {

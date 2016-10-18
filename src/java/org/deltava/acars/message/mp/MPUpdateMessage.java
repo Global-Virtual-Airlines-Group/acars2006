@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.mp;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.*;
 /**
  * A Multi-Player message to handle batch updates of all aircraft positions.
  * @author Luke
- * @version 3.0
+ * @version 7.2
  * @since 2.2
  */
 
@@ -57,6 +57,7 @@ public class MPUpdateMessage extends AbstractMessage {
 	/**
 	 * Adds a multi-player update to the Message.
 	 * @param upd the MPUpdate bean
+	 * @return TRUE if the update was added, FALSE if already exists
 	 */
 	public boolean add(MPUpdate upd) {
 		return _upds.add(upd);

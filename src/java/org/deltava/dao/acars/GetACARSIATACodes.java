@@ -14,7 +14,7 @@ import org.deltava.util.cache.*;
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 5.1
  */
 
@@ -33,6 +33,7 @@ public class GetACARSIATACodes extends DAO {
 
 	/**
 	 * Returns all IATA codes for all equipment types.
+	 * @param db the database name
 	 * @return a Map of Collections of IATA codes, keyed by equipment type name
 	 * @throws DAOException if a JDBC error occurs
 	 */

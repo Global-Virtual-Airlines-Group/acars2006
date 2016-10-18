@@ -14,7 +14,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -42,7 +42,7 @@ public final class RouteEntryHelper {
 
 	/**
 	 * Builds an ACARS Map Entry for a Pilot connection.
-	 * @param ac the ACARS connection
+	 * @param con the ACARS connection
 	 * @return a MapRouteEntry bean
 	 */
 	public static MapRouteEntry buildPilot(ACARSConnection con) {

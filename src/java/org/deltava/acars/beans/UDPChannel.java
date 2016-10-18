@@ -1,4 +1,4 @@
-// Copyright 2011, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
@@ -11,9 +11,8 @@ import org.deltava.util.NetworkUtils;
 
 /**
  * An object to handle UDP voice connections.
- * 
  * @author Luke
- * @version 5.2
+ * @version 7.2
  * @since 4.0
  */
 
@@ -44,6 +43,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 	/**
 	 * Updates the remote address.
 	 * @param addr the remote SocketAddress
+	 * @param dc the DatagramChannel
 	 */
 	public void setRemoteAddress(InetSocketAddress addr, DatagramChannel dc) {
 		_remoteAddr = addr;
@@ -58,6 +58,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 
 	/**
 	 * Read method to increment counters.
+	 * @param bytes the number of bytes read
 	 */
 	public void read(int bytes) {
 		_stats.addBufferRead();
@@ -68,7 +69,6 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 	@Override
 	public void write(byte[] data) {
 		if (data == null) return;
-
 		int writeCount = 1;
 		try {
 			// Keep writing until the packet is done

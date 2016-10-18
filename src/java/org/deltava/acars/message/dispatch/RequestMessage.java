@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.deltava.acars.message.DispatchMessage;
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 5.1
+ * @version 7.2
  * @since 2.0
  */
 
@@ -287,7 +287,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	
 	/**
 	 * Updates the list of arrival Gates.
-	 * @param g a Collection of Gates
+	 * @param gates a Collection of Gates
 	 */
 	public void setArrivalGates(Collection<Gate> gates) {
 		_arrivalGates.addAll(gates);
