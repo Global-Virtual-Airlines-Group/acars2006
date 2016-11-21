@@ -12,6 +12,7 @@
     <cache id="NavRoute" expires="86400" remote="true" />
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
+	<cache id="ACARSRunways" remote="true" expires="86400" />
 
 	<!-- Weather caches -->
 	<cache id="METAR" max="256" expires="1800" />
