@@ -249,7 +249,9 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 
 				afr.setCaptEQType(promoEQ);
-			} else
+			} else if (promoEQ.isEmpty())
+				log.warn("No equipment program found for " + p.getEquipmentType());
+			else
 				log.info(afr.getEquipmentType() + " not in " + p.getEquipmentType() + " program " + eq.getPrimaryRatings());
 			
 			// Check if the user is rated to fly the aircraft
