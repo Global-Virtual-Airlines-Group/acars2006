@@ -9,13 +9,13 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.NavigationDataMessage;
 
 import org.deltava.beans.navdata.*;
-
+import org.deltava.util.StringUtils;
 import org.deltava.util.XMLUtils;
 
 /**
  * An XML Formatter for Navigation Data messages.
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -44,6 +44,8 @@ class NavinfoFormatter extends ElementFormatter {
 			Element e = initDataResponse(pe, "runways");
 			
 			Element re = new Element("runway");
+			re.setAttribute("lat", StringUtils.format(r.getLatitude(), "##0.0000"));
+			re.setAttribute("lng", StringUtils.format(r.getLongitude(), "##0.0000"));
 			re.setAttribute("icao", r.getCode());
 			re.setAttribute("name", r.getName());
 			re.setAttribute("hdg", String.valueOf(r.getHeading()));
@@ -58,6 +60,8 @@ class NavinfoFormatter extends ElementFormatter {
 			
 			Element e = initDataResponse(pe, "navaid");
 			Element ne = new Element("navaid");
+			ne.setAttribute("lat", StringUtils.format(nrb.getLatitude(), "##0.0000"));
+			ne.setAttribute("lng", StringUtils.format(nrb.getLongitude(), "##0.0000"));
 			ne.addContent(XMLUtils.createElement("radio", nrb.getRadio()));
 			ne.addContent(XMLUtils.createElement("type", navaid.getType().getName()));
 			ne.addContent(XMLUtils.createElement("code", navaid.getCode()));
