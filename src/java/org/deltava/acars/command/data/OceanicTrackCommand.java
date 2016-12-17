@@ -2,7 +2,6 @@
 package org.deltava.acars.command.data;
 
 import java.time.Instant;
-import java.util.*;
 
 import org.deltava.beans.navdata.*;
 
@@ -18,7 +17,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An ACARS data command to return available NAT and PACOT data.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 2.2
  */
 
@@ -50,12 +49,8 @@ public class OceanicTrackCommand extends DataCommand {
 		
 		// Get the response and add the Concorde tracks if pulling down NATs
 		OceanicTrackMessage rspMsg = new OceanicTrackMessage(env.getOwner(), msg.getID());
-		if (rType == OceanicTrackInfo.Type.NAT) {
-			for (Iterator<? extends OceanicTrack> i = OceanicTrack.CONC_ROUTES.iterator(); i.hasNext(); ) {
-				OceanicTrack route = i.next();
-				rspMsg.add(route);
-			}
-		}
+		if (rType == OceanicTrackInfo.Type.NAT)
+			OceanicTrack.CONC_ROUTES.forEach(ot -> rspMsg.add(ot));
 		
 		// Get the date
 		Instant dt = msg.hasFlag("date") ? StringUtils.parseInstant(msg.getFlag("date"), "MM/dd/yyyy") : null;
