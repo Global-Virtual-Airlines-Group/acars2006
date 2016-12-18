@@ -84,6 +84,8 @@ public final class RouteEntryHelper {
 		result.setAOA(msg.getAngleOfAttack());
 		result.setG(msg.getG());
 		result.setFuelRemaining(msg.getFuelRemaining());
+		result.setFrameRate(msg.getFrameRate());
+		result.setVASFree(msg.getVASFree());
 		result.setVisibility(msg.getVisibility());
 		result.setCOM1(msg.getCOM1());
 		result.setCOM2(msg.getCOM2());
