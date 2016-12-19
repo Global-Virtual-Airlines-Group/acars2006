@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -250,7 +250,7 @@ public class FilePIREPCommand extends ACARSCommand {
 
 				afr.setCaptEQType(promoEQ);
 			} else if (promoEQ.isEmpty())
-				log.warn("No equipment program found for " + p.getEquipmentType());
+				log.warn("No equipment program found for " + afr.getEquipmentType() + " in " + usrLoc.getDB());
 			else
 				log.info(afr.getEquipmentType() + " not in " + p.getEquipmentType() + " program " + eq.getPrimaryRatings());
 			
