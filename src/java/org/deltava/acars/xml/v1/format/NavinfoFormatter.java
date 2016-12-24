@@ -9,8 +9,7 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.NavigationDataMessage;
 
 import org.deltava.beans.navdata.*;
-import org.deltava.util.StringUtils;
-import org.deltava.util.XMLUtils;
+import org.deltava.util.*;
 
 /**
  * An XML Formatter for Navigation Data messages.
@@ -29,12 +28,9 @@ class NavinfoFormatter extends ElementFormatter {
 	@Override
 	public Element format(Message msg) {
 		
-		// Cast the message
-		NavigationDataMessage ndmsg = (NavigationDataMessage) msg;
-		if (ndmsg.getResponse().isEmpty())
-			return null;
-		
 		// Get the bean - navdata messages only have one response entry
+		NavigationDataMessage ndmsg = (NavigationDataMessage) msg;
+		if (ndmsg.getResponse().isEmpty()) return null;
 		NavigationDataBean navaid = ndmsg.getResponse().get(0);
 		
 		// Create the element
@@ -42,7 +38,6 @@ class NavinfoFormatter extends ElementFormatter {
 		if (navaid instanceof Runway) {
 			Runway r = (Runway) navaid;
 			Element e = initDataResponse(pe, "runways");
-			
 			Element re = new Element("runway");
 			re.setAttribute("lat", StringUtils.format(r.getLatitude(), "##0.0000"));
 			re.setAttribute("lng", StringUtils.format(r.getLongitude(), "##0.0000"));
@@ -57,7 +52,6 @@ class NavinfoFormatter extends ElementFormatter {
 			e.addContent(re);
 		} else if (navaid instanceof NavigationRadioBean) {
 			NavigationRadioBean nrb = (NavigationRadioBean) navaid;
-			
 			Element e = initDataResponse(pe, "navaid");
 			Element ne = new Element("navaid");
 			ne.setAttribute("lat", StringUtils.format(nrb.getLatitude(), "##0.0000"));
@@ -67,10 +61,10 @@ class NavinfoFormatter extends ElementFormatter {
 			ne.addContent(XMLUtils.createElement("code", navaid.getCode()));
 			if (navaid.getType() == Navaid.VOR) {
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
-				ne.addContent(XMLUtils.createElement("hdg", nrb.getHeading()));
-			} else if (navaid.getType() == Navaid.NDB) {
+				if (!StringUtils.isEmpty(nrb.getHeading()))
+					ne.addContent(XMLUtils.createElement("hdg", nrb.getHeading()));
+			} else if (navaid.getType() == Navaid.NDB)
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
-			}
 
 			e.addContent(ne);
 		}
