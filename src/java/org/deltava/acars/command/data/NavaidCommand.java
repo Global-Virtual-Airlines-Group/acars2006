@@ -1,22 +1,23 @@
 // Copyright 2005, 2006, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import org.deltava.beans.*;
+import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.*;
+
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.NavigationDataMessage;
-import org.deltava.beans.Simulator;
-import org.deltava.beans.navdata.*;
-import org.deltava.beans.schedule.Airport;
 
 import org.deltava.dao.*;
-
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -42,17 +43,16 @@ public class NavaidCommand extends DataCommand {
 		InfoMessage inf = ctx.getACARSConnection().getFlightInfo();
 		Simulator sim = (inf == null) ? Simulator.FSX : inf.getSimulator();
 
-		boolean isRunway = (msg.getFlag("runway") != null);
+		boolean isRunway = (msg.getFlag("runway") != null); String id = msg.getFlag("id"); 
 		NavigationDataMessage rspMsg = new NavigationDataMessage(env.getOwner(), msg.getID());
 		try {
 			// Get the DAO and find the Navaid in the DAFIF database
 			GetNavData dao = new GetNavData(ctx.getConnection());
 			if (isRunway) {
-				Airport ap = SystemData.getAirport(msg.getFlag("id"));
-
-				// Add a leading zero to the runway if required
+				Airport ap = SystemData.getAirport(id);
 				if (ap != null) {
 					String runway = msg.getFlag("runway");
+					// Add a leading zero to the runway if required
 					if (Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2))
 						runway = "0" + runway;
 					else if (runway.length() == 1)
@@ -68,12 +68,13 @@ public class NavaidCommand extends DataCommand {
 					}
 				}
 			} else {
-				NavigationDataMap ndMap = dao.get(msg.getFlag("id"));
+				NavigationDataMap ndMap = dao.get(id);
 				if (!ndMap.isEmpty()) {
 					ACARSConnection ac = ctx.getACARSConnection();
-					NavigationDataBean nav = ndMap.get(msg.getFlag("id"), ac.getPosition());
-					log.info("Loaded Navigation data for " + nav.getCode());
+					GeoLocation loc = ((ac.getPosition() == null) || msg.hasFlag("lat")) ? new GeoPosition(StringUtils.parse(msg.getFlag("lat"), 0d), StringUtils.parse(msg.getFlag("lng"), 0d)) : ac.getPosition();
+					NavigationDataBean nav = ndMap.get(id, GeoUtils.isValid(loc) ? loc : ac.getPosition());
 					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
+					log.info("Loaded Navigation data for " + id);
 				}
 			}
 			
