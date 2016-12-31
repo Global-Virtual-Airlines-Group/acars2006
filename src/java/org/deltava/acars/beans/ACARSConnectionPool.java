@@ -459,9 +459,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		if (_cSelector != null)
 			log.info("Updating Read Selector after " + _selectCount + " selects");
 		
+		Selector s = null;
 		try {
 			_w.lock();
-			Selector s = Selector.open();
+			s = Selector.open();
 			for (ACARSConnection ac : _cons.values())
 				ac.register(s);
 			
@@ -469,6 +470,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				_cSelector.close();
 			_cSelector = s;
 			_selectCount = 0;
+		} catch (Exception e) {
+			if (s != null) s.close();
 		} finally {
 			_w.unlock();
 		}
