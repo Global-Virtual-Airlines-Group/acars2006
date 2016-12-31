@@ -168,7 +168,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	 */
 	void register(Selector s) throws ClosedChannelException {
 		SocketChannel sc = _tcp.getChannel();
-		if (sc.keyFor(s) == null)
+		if (sc.isOpen() && (sc.keyFor(s) == null))
 			sc.register(s, SelectionKey.OP_READ);
 	}
 	
