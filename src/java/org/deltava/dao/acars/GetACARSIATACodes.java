@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -20,8 +20,7 @@ import org.deltava.util.cache.*;
 
 public class GetACARSIATACodes extends DAO {
 	
-	@SuppressWarnings("rawtypes")
-	private static final Cache<CacheableMap> _cache = CacheManager.get(CacheableMap.class, "IATACodes");
+	private static final Cache<CacheableMap<String, IATACodes>> _cache = CacheManager.getMap(String.class, IATACodes.class, "IATACodes");
 	
 	/**
 	 * Initializes the Data Access Object.
