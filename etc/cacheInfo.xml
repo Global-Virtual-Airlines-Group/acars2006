@@ -13,6 +13,10 @@
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
 	<cache id="ACARSRunways" remote="true" expires="86400" />
+	
+	<!-- VATSIM caches -->
+    <cache id="ATORatings" expires="14400" remote="true" />
+    <cache id="ATOInstructors" expires="14400" remote="true" />
 
 	<!-- Weather caches -->
 	<cache id="METAR" max="256" expires="1800" />
