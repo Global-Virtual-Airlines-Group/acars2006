@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 6.1
+ * @version 7.2
  * @since 1.0
  */
 
@@ -91,7 +91,7 @@ public class IPCDaemon implements Runnable {
 							case MVS_RELOAD:
 								log.warn("Reloading persistent Voice channels");
 								GetMVSChannel chdao = new GetMVSChannel(con);
-								Map<String, Channel> channels = CollectionUtils.createMap(chdao.getAll(), "name");
+								Map<String, Channel> channels = CollectionUtils.createMap(chdao.getAll(), Channel::getName);
 								VoiceChannels vc = VoiceChannels.getInstance();
 								
 								// Update existing channels
