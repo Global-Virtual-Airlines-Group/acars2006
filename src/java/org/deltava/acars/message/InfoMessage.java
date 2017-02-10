@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -7,11 +7,12 @@ import java.time.Instant;
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.schedule.RoutePair;
+import org.deltava.util.StringUtils;
 
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 7.0
+ * @version 7.2
  * @since 1.0
  */
 
@@ -47,6 +48,8 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private boolean _dispatchPlan;
 	private int _dispatcherID;
 	private int _routeID;
+	
+	private int _txCode = 2200;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
 	
@@ -138,15 +141,11 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	}
 	
 	public String getRoute() {
-		StringBuilder buf = new StringBuilder();
-		for (Iterator<String> i = _waypoints.iterator(); i.hasNext(); ) {
-			buf.append(i.next());
-			if (i.hasNext())
-				buf.append(' ');
-		}
-		
-		// Return the buffer
-		return buf.toString();
+		return StringUtils.listConcat(_waypoints, " ");
+	}
+	
+	public int getTXCode() {
+		return _txCode;
 	}
 	
 	public boolean isComplete() {
@@ -272,6 +271,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setComplete(boolean isComplete) {
 		_flightComplete = isComplete;
+	}
+	
+	/**
+	 * Updates the transponder code.
+	 * @param txCode the code
+	 */
+	public void setTX(int txCode) {
+		_txCode = txCode;
 	}
 	
 	public void setWaypoints(String wpList) {

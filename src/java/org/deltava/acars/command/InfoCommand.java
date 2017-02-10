@@ -170,6 +170,8 @@ public class InfoCommand extends ACARSCommand {
 				}
 			}
 			
+			// TODO: At some point generate a squawk code
+			
 			// Start a transaction
 			ctx.startTX();
 			
