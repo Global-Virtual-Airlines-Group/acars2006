@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -8,24 +8,24 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.util.SquawkGenerator;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
-import org.deltava.beans.schedule.FlightTime;
-import org.deltava.beans.schedule.ScheduleRoute;
+import org.deltava.beans.schedule.*;
 import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.acars.SetInfo;
+import org.deltava.dao.acars.*;
 
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 6.4
+ * @version 7.2
  * @since 1.0
  */
 
@@ -58,12 +58,10 @@ public class InfoCommand extends ACARSCommand {
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Check for a duplicate Flight ID request
-		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && (!curInfo.isComplete())) {
-			msg.setFlightID(curInfo.getFlightID());
-			log.warn("Duplicate Flight ID request - assigning Flight ID " + msg.getFlightID());
-
-			// Send back the acknowledgement
-			ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && !curInfo.isComplete()) {
+			log.warn("Duplicate Flight ID request - assigning Flight ID " + curInfo.getFlightID());
+			ackMsg.setEntry("flight_id", String.valueOf(curInfo.getFlightID()));
+			ackMsg.setEntry("tx", String.valueOf(curInfo.getTX()));
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
@@ -170,10 +168,20 @@ public class InfoCommand extends ACARSCommand {
 				}
 			}
 			
-			// TODO: At some point generate a squawk code
-			
 			// Start a transaction
 			ctx.startTX();
+			
+			// Generate a squawk code
+			if ((msg.getNetwork() == null) && TXCode.isDefault(msg.getTX())) {
+				GetTXCodes txdao = new GetTXCodes(c);
+				Map<Integer, TXCode> codes = txdao.getCodes();
+				while (TXCode.isDefault(msg.getTX())) {
+					TXCode tx = SquawkGenerator.generate(msg.getAirportD());
+					TXCode tx2 = codes.get(Integer.valueOf(tx.getCode()));
+					if ((tx2 == null) || (tx2.getID() == usrLoc.getID()))
+						msg.setTX(tx.getCode());
+				}
+			}
 			
 			// Write the flight information
 			SetInfo iwdao = new SetInfo(c);
@@ -209,6 +217,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		ackMsg.setEntry("tx", String.valueOf(msg.getTX()));		
 		ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
 		ctx.push(ackMsg, env.getConnectionID(), true);
 

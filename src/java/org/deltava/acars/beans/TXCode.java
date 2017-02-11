@@ -14,9 +14,21 @@ import org.deltava.util.StringUtils;
  */
 
 public class TXCode extends DatabaseBean implements ViewEntry {
+	
+	public static final int DEFAULT_VFR = 1200;
+	public static final int DEFAULT_IFR = 2200;
 
 	private final int _code;
 	private Instant _assignedOn;
+	
+	/**
+	 * Returns whether a transponder code is a default IFR/VFR code.
+	 * @param txCode the transponder code
+	 * @return TRUE if a default code, otherwise FALSE
+	 */
+	public static boolean isDefault(int txCode) {
+		return ((txCode == DEFAULT_IFR) || (txCode == DEFAULT_VFR));
+	}
 	
 	/**
 	 * Creates a new transponder code bean.

@@ -11,7 +11,7 @@ import org.deltava.acars.beans.TXCode;
  * A class to generate random Transponder codes.
  * @author Luke
  * @version 7.2
- * @since 72.
+ * @since 7.2
  */
 
 public class SquawkGenerator {
@@ -41,10 +41,22 @@ public class SquawkGenerator {
 		
 		// Calculate first digit
 		List<Integer> digits = new ArrayList<Integer>(DIGITS);
-		int firstDigit = 5;
-		digits.remove(Integer.valueOf(firstDigit));
+		int firstDigit = 3;
+		if (loc != null) {
+			if ((loc.getLatitude() < 30) && (loc.getLongitude() < -20))
+				firstDigit = 5;
+			else if ((loc.getLongitude() >= -20) && (loc.getLongitude() < 15) && (loc.getLatitude() < 36))
+				firstDigit = 6;
+			else if ((loc.getLongitude() >= -20) && (loc.getLongitude() < 40))
+				firstDigit = 4;
+			else {
+				int pos = _RND.nextInt(4) + 2;
+				firstDigit = digits.get(pos).intValue();
+			}
+		}
 		
 		// Generate the code
+		digits.remove(Integer.valueOf(firstDigit));
 		int txCode = (firstDigit * 1000) + (generateDigit(digits, 2) + generateDigit(digits, 3) + generateDigit(digits, 4));
 		TXCode tx = new TXCode(txCode);
 		tx.setAssignedOn(Instant.now());
