@@ -65,7 +65,7 @@ public class SetInfo extends DAO {
 			_ps.setInt(18, ac.getBeta());
 			_ps.setInt(19, msg.getSimMajor());
 			_ps.setInt(20, msg.getSimMinor());
-			_ps.setInt(21, msg.getTXCode());
+			_ps.setInt(21, msg.getTX());
 			if (msg.getFlightID() != 0)
 				_ps.setInt(22, msg.getFlightID());
 			

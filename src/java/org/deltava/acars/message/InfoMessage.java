@@ -4,6 +4,7 @@ package org.deltava.acars.message;
 import java.util.*;
 import java.time.Instant;
 
+import org.deltava.acars.beans.TXCode;
 import org.deltava.beans.*;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.schedule.RoutePair;
@@ -49,7 +50,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private int _dispatcherID;
 	private int _routeID;
 	
-	private int _txCode = 2200;
+	private int _txCode = TXCode.DEFAULT_IFR;
 	
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
 	
@@ -144,7 +145,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return StringUtils.listConcat(_waypoints, " ");
 	}
 	
-	public int getTXCode() {
+	public int getTX() {
 		return _txCode;
 	}
 	
