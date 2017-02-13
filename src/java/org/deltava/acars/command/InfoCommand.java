@@ -182,6 +182,8 @@ public class InfoCommand extends ACARSCommand {
 					TXCode tx2 = codes.get(Integer.valueOf(tx.getCode()));
 					if ((tx2 == null) || (tx2.getID() == usrLoc.getID()))
 						msg.setTX(tx.getCode());
+					else
+						log.warn("Squawk code " + tx + " already assigned");
 				}
 			}
 			
