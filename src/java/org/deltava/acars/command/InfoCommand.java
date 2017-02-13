@@ -175,7 +175,9 @@ public class InfoCommand extends ACARSCommand {
 			if ((msg.getNetwork() == null) && TXCode.isDefault(msg.getTX())) {
 				GetTXCodes txdao = new GetTXCodes(c);
 				Map<Integer, TXCode> codes = txdao.getCodes();
-				while (TXCode.isDefault(msg.getTX())) {
+				int genCount = 0;
+				while (TXCode.isDefault(msg.getTX()) && (genCount < 20)) {
+					genCount++;
 					TXCode tx = SquawkGenerator.generate(msg.getAirportD());
 					TXCode tx2 = codes.get(Integer.valueOf(tx.getCode()));
 					if ((tx2 == null) || (tx2.getID() == usrLoc.getID()))
