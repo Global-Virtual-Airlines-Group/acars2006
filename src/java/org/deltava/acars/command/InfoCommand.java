@@ -178,7 +178,7 @@ public class InfoCommand extends ACARSCommand {
 				int genCount = 0;
 				while (TXCode.isDefault(msg.getTX()) && (genCount < 20)) {
 					genCount++;
-					TXCode tx = SquawkGenerator.generate(msg.getAirportD());
+					TXCode tx = SquawkGenerator.generate((genCount < 10) ? msg.getAirportD() : null);
 					TXCode tx2 = codes.get(Integer.valueOf(tx.getCode()));
 					if ((tx2 == null) || (tx2.getID() == usrLoc.getID()))
 						msg.setTX(tx.getCode());

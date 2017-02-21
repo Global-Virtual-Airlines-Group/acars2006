@@ -25,9 +25,9 @@ public class SquawkGenerator {
 		super();
 	}
 	
-	private static int generateDigit(List<Integer> choices, int position) {
+	private static int generateDigit(List<Integer> choices) {
 		int pos = _RND.nextInt(choices.size());
-		int digit = (int) (choices.get(pos).intValue() * Math.pow(10, (position - 4)));
+		int digit = choices.get(pos).intValue();
 		choices.remove(pos);
 		return digit;
 	}
@@ -53,11 +53,12 @@ public class SquawkGenerator {
 				int pos = _RND.nextInt(4) + 2;
 				firstDigit = digits.get(pos).intValue();
 			}
-		}
+		} else 
+			firstDigit = digits.get(_RND.nextInt(4) + 2).intValue();
 		
 		// Generate the code
 		digits.remove(Integer.valueOf(firstDigit));
-		int txCode = (firstDigit * 1000) + (generateDigit(digits, 2) + generateDigit(digits, 3) + generateDigit(digits, 4));
+		int txCode = (firstDigit * 1000) + (generateDigit(digits) * 100) + (generateDigit(digits) * 10) + generateDigit(digits);
 		TXCode tx = new TXCode(txCode);
 		tx.setAssignedOn(Instant.now());
 		return tx;
