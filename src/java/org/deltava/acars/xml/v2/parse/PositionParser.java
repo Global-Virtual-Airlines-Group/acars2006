@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -101,7 +101,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			String atcID = getChildText(e, "atc", null);
 			if (!StringUtils.isEmpty(atcID)) {
 				Element ce = e.getChild("atc");
-				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")));
+				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
 				msg.setATC1(ctr);
@@ -110,7 +110,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			atcID = getChildText(e, "atc2", null);
 			if (!StringUtils.isEmpty(atcID)) {
 				Element ce = e.getChild("atc2");
-				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")));
+				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
 				msg.setATC2(ctr);
