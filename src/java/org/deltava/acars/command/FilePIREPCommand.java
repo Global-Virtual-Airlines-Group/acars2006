@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 7.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -249,6 +249,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 
 				afr.setCaptEQType(promoEQ);
+				log.info("Setting Promotion Flags for " + env.getOwner().getName() + " to " + promoEQ);
 			} else if (promoEQ.isEmpty())
 				log.warn("No equipment program found for " + afr.getEquipmentType() + " in " + usrLoc.getDB());
 			else
