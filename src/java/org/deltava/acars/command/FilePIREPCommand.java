@@ -244,6 +244,7 @@ public class FilePIREPCommand extends ACARSCommand {
 					boolean isOK = helper.canPromote(pEQ);
 					if (!isOK) {
 						i.remove();
+						log.info(p.getName() + " leg not eligible for promotion in " + pEQ + ": " + helper.getLastComment());
 						comments.add("SYSTEM: Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
