@@ -11,6 +11,7 @@ import static org.deltava.acars.workers.Worker.MP_UPDATE;
 
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.acars.ClientType;
+import org.deltava.beans.navdata.Airspace;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.beans.*;
@@ -114,7 +115,7 @@ public class PositionCommand extends ACARSCommand {
 				}
 			}
 		}
-
+		
 		// Clear temporary track if being saved
 		SetTrack tkdao = new SetTrack(); 
 		if (msg.isLogged())
@@ -173,6 +174,15 @@ public class PositionCommand extends ACARSCommand {
 				ac.setUpdateInterval(NOATC_INTERVAL);
 				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL), env.getConnectionID());
 				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
+			}
+			
+			// Check for prohibited airspace
+			Airspace a = Airspace.isRestricted(msg);
+			if (a != null) {
+				log.warn(env.getOwnerID() + " breached restricted airspace " + a.getID());
+				SystemTextMessage sysMsg = new SystemTextMessage();
+				sysMsg.addMessage("Entry into restricted airspace " + a.getID());
+				ctx.push(sysMsg, env.getConnectionID(), true);
 			}
 		}
 

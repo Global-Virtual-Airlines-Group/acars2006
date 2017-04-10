@@ -4,6 +4,7 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.time.*;
 import java.sql.Connection;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -274,11 +275,18 @@ public class FilePIREPCommand extends ACARSCommand {
 				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
 			
 			// Check ETOPS
-			List<? extends GeoLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
+			List<? extends GeospaceLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
-				comments.add("SYSTEM: ETOPS classificataion: " + String.valueOf(etopsClass));
+				comments.add("SYSTEM: ETOPS classificataion " + String.valueOf(etopsClass));
+			
+			// Check prohibited airspace
+			Collection<Airspace> rstAirspaces = rtEntries.stream().map(pos -> Airspace.isRestricted(pos)).filter(Objects::nonNull).collect(Collectors.toSet());
+			if (!rstAirspaces.isEmpty()) {
+				afr.setAttribute(FlightReport.ATTR_AIRSPACEWARN, true);
+				comments.add("SYSTEM: Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));
+			}
 			
 			// Calculate gates
 			Gate gD = null; Gate gA = null;
@@ -322,7 +330,7 @@ public class FilePIREPCommand extends ACARSCommand {
 			FuelUse use = fddao.checkRefuel(flightID);
 			afr.setTotalFuel(use.getTotalFuel());
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
-
+			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
 			GetSchedule sdao = new GetSchedule(con);

@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -17,6 +17,7 @@ import org.deltava.acars.ipc.IPCDaemon;
 
 import org.deltava.beans.flight.ETOPSHelper;
 import org.deltava.beans.mvs.Channel;
+import org.deltava.beans.navdata.Airspace;
 import org.deltava.beans.schedule.Airport;
 
 import org.deltava.security.Authenticator;
@@ -31,7 +32,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 7.1
+ * @version 7.3
  * @since 1.0
  */
 
@@ -177,14 +178,17 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			ETOPSHelper.init(airports.values());
 			log.info("Initialized ETOPS helper");
 			
+			// Load prohibited airspace
+			log.info("Loading restricted Airspace");
+			GetAirspace asdao = new GetAirspace(c);
+			Airspace.init(asdao.getRestricted());
+			
 			// Load MVS voice channels if enabled
 			if (SystemData.getBoolean("acars.voice.enabled")) {
 				GetMVSChannel chdao = new GetMVSChannel(c);
-				Collection<Channel> channels = chdao.getAll();
 				VoiceChannels vc = VoiceChannels.getInstance();
-				for (Channel ch : channels)
-					vc.add(null, ch);
-				
+				Collection<Channel> channels = chdao.getAll();
+				channels.forEach(ch -> vc.add(null, ch));
 				log.info("Loaded " + channels.size() + " persistent Voice channels");
 				SharedData.addData(SharedData.MVS_POOL, vc);
 			}
