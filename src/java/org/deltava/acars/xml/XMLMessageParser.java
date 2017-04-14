@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2012, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * An abstract class to parse ACARS XML messages.
  * @author Luke
- * @version 6.4
+ * @version 7.3
  * @since 2.8
  */
 
@@ -23,7 +23,6 @@ public abstract class XMLMessageParser extends MessageParser {
 	
 	protected final Map<Integer, XMLElementParser<? extends Message>> _eParsers =  new HashMap<Integer, XMLElementParser<? extends Message>>();
 	protected final Map<Integer, XMLElementParser<? extends DispatchMessage>> _dspParsers = new HashMap<Integer, XMLElementParser<? extends DispatchMessage>>();
-	protected final Map<Integer, XMLElementParser<? extends ViewerMessage>> _viewParsers = new HashMap<Integer, XMLElementParser<? extends ViewerMessage>>();
 	
 	protected final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
 
@@ -130,17 +129,6 @@ public abstract class XMLMessageParser extends MessageParser {
 								msg = dp.parse(cmdE, env.getOwner());
 							else
 								throw new XMLException("Invalid dispatch message type - " + reqType);
-							
-							break;
-							
-						case Message.MSG_VIEWER:
-							String vreqType = cmdE.getChildTextTrim("reqtype");
-							int viewType = StringUtils.arrayIndexOf(ViewerMessage.REQ_TYPES, vreqType);
-							XMLElementParser<? extends ViewerMessage> vp = _viewParsers.get(Integer.valueOf(viewType));
-							if (vp != null)
-								msg = vp.parse(cmdE, env.getOwner());
-							else
-								throw new XMLException("Invalid viewer message type - " + vreqType);
 							
 							break;
 							
