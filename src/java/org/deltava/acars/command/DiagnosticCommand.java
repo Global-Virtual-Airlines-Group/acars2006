@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 6.4
+ * @version 7.3
  * @since 1.0
  */
 
@@ -67,6 +67,9 @@ public class DiagnosticCommand extends ACARSCommand {
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
 					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+					
+					// Tell the client not to reconnect
+					ctx.push(msg, ac.getID(), true);
 					
 					// Save the QUIT message
 					QuitMessage qmsg = new QuitMessage(ac.getUser());
@@ -137,9 +140,16 @@ public class DiagnosticCommand extends ACARSCommand {
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
 						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
 						
+						// Tell the client not to reconnect
+						ctx.push(msg, ac.getID(), true);
+						
 						// Save the QUIT message
 						QuitMessage qmsg = new QuitMessage(ac.getUser());
 						qmsg.setFlightID(ac.getFlightID());
+						qmsg.setDispatch(ac.getIsDispatch());
+						qmsg.setHidden(ac.getUserHidden());
+						qmsg.setVoice(ac.isVoiceEnabled());
+						qmsg.setMP(ac.getIsMP());
 						MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
 						
 						// Send the ACK
