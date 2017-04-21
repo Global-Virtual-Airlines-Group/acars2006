@@ -1,9 +1,10 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
 
 import org.deltava.beans.*;
+import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.servinfo.Controller;
 
 import org.deltava.util.StringUtils;
@@ -11,7 +12,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 7.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -52,6 +53,8 @@ public class PositionMessage extends LocationMessage {
 
 	private int _simRate = 1;
 	private Instant _simTime = getDate();
+	
+	private AirspaceType _asType = AirspaceType.E;
 
 	// Flight phase
 	private int _phase;
@@ -161,6 +164,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public int getTXCode() {
 		return _txCode;
+	}
+	
+	public AirspaceType getAirspaceType() {
+		return _asType;
 	}
 	
 	public String getCOM1() {
@@ -321,6 +328,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setATC2(Controller atc) {
 		_atc2 = atc; 
+	}
+	
+	public void setAirspaceType(AirspaceType at) {
+		_asType = (at == null) ? AirspaceType.E : at;
 	}
 	
 	public void setVASFree(int kb) {

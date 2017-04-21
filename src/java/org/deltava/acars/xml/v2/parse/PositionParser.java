@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.*;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.servinfo.Controller;
 
 import org.deltava.util.StringUtils;
@@ -20,7 +21,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 7.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -79,7 +80,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
-			msg.setReplay(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
+			msg.setReplay(Boolean.valueOf(getChildText(e, "isReplay", "false")).booleanValue());
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
@@ -90,6 +91,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
+			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing v2 Position data - " + ex.getMessage(), ex);
 		}

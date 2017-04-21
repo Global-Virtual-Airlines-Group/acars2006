@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.servinfo.Controller;
 
 import org.deltava.util.StringUtils;
@@ -20,7 +21,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 7.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -90,6 +91,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
+			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing Position data - " + ex.getMessage(), ex);
 		}
