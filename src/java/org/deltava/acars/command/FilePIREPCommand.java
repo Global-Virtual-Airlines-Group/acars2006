@@ -4,7 +4,6 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.time.*;
 import java.sql.Connection;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -282,7 +281,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				comments.add("SYSTEM: ETOPS classificataion " + String.valueOf(etopsClass));
 			
 			// Check prohibited airspace
-			Collection<Airspace> rstAirspaces = rtEntries.stream().map(pos -> Airspace.isRestricted(pos)).filter(Objects::nonNull).collect(Collectors.toSet());
+			Collection<Airspace> rstAirspaces = AirspaceHelper.classify(rtEntries, true); 
 			if (!rstAirspaces.isEmpty()) {
 				afr.setAttribute(FlightReport.ATTR_AIRSPACEWARN, true);
 				comments.add("SYSTEM: Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));

@@ -1,7 +1,5 @@
-// Copyright 2005, 2006, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
-
-import java.util.Iterator;
 
 import org.jdom2.Element;
 
@@ -12,7 +10,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for System messages.
  * @author Luke
- * @version 4.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -31,13 +29,9 @@ class SystemMessageFormatter extends ElementFormatter {
 		
 		// Create the element 
 		Element e = initResponse(msg.getType());
-		e.setAttribute("msgtype", "text");
+		e.setAttribute("msgtype", smsg.isWarning() ? "warning" : "text");
 		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
-		for (Iterator<String> i = smsg.getMsgs().iterator(); i.hasNext();) {
-			String msgText = i.next();
-			e.addContent(XMLUtils.createElement("text", msgText, true));
-		}
-
+		smsg.getMessages().forEach(msgText -> e.addContent(XMLUtils.createElement("text", msgText, true)));
 		return e;
 	}
 }

@@ -29,7 +29,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 7.0
+ * @version 7.3
  * @since 1.0
  */
 
@@ -96,7 +96,6 @@ public class PositionCommand extends ACARSCommand {
 					if (distance < (ctr.getFacility().getRange() * 2)) {
 						msg.setATC1(ctr);
 						log.warn("No ATC1 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
-						
 						ackMsg.setEntry("reqATC", "true");
 					}
 				}
@@ -109,7 +108,6 @@ public class PositionCommand extends ACARSCommand {
 					if (distance < (ctr.getFacility().getRange() * 2)) {
 						msg.setATC2(ctr);
 						log.warn("No ATC2 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
-						
 						ackMsg.setEntry("reqATC", "true");
 					}
 				}
@@ -124,7 +122,7 @@ public class PositionCommand extends ACARSCommand {
 		// Queue it up
 		if (msg.isReplay() && msg.isLogged())
 			SetPosition.queue(msg, ac.getFlightID());
-		else if (!msg.isReplay() && (pmAge < MIN_INTERVAL)) {
+		else if (!msg.isReplay() && !msg.isLogged() && (pmAge < MIN_INTERVAL)) {
 			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
 			return;
 		} else {
@@ -179,16 +177,29 @@ public class PositionCommand extends ACARSCommand {
 			// Check for prohibited airspace
 			Airspace a = Airspace.isRestricted(msg);
 			if (a != null) {
-				log.warn(env.getOwnerID() + " breached restricted airspace " + a.getID());
+				log.info(env.getOwnerID() + " in airspace " + a.getID());
+				msg.setAirspaceType(a.getType());
+				if (!msg.isLogged())
+					SetPosition.queue(msg, ac.getFlightID());
+
+				if ((oldPM == null) || !oldPM.getAirspaceType().isRestricted()) {
+					msg.setAirspaceType(a.getType());
+					log.warn(env.getOwnerID() + " breached restricted airspace " + a.getID());
+					SystemTextMessage sysMsg = new SystemTextMessage();
+					sysMsg.addMessage("Entry into restricted airspace " + a.getID());
+					sysMsg.setWarning(true);
+					ctx.push(sysMsg, env.getConnectionID(), true);
+				}
+			} else if ((oldPM != null) && (oldPM.getAirspaceType().isRestricted())) {
 				SystemTextMessage sysMsg = new SystemTextMessage();
-				sysMsg.addMessage("Entry into restricted airspace " + a.getID());
-				ctx.push(sysMsg, env.getConnectionID(), true);
+				sysMsg.addMessage("Exit from restricted airspace");
+				ctx.push(sysMsg, env.getConnectionID());
 			}
 		}
 
 		// Check if the cache needs to be flushed
 		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 20500) {
+			if (SetPosition.getMaxAge() > 20250) {
 				try {
 					SetPosition dao = new SetPosition(ctx.getConnection());
 					int entries = dao.flush();
