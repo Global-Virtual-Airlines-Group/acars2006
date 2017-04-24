@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.navdata.AirspaceType;
+import org.deltava.beans.schedule.Country;
 import org.deltava.beans.servinfo.Controller;
 
 import org.deltava.util.StringUtils;
@@ -55,6 +56,7 @@ public class PositionMessage extends LocationMessage {
 	private Instant _simTime = getDate();
 	
 	private AirspaceType _asType = AirspaceType.E;
+	private Country _c;
 
 	// Flight phase
 	private int _phase;
@@ -168,6 +170,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public AirspaceType getAirspaceType() {
 		return _asType;
+	}
+	
+	public Country getCountry() {
+		return _c;
 	}
 	
 	public String getCOM1() {
@@ -332,6 +338,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setAirspaceType(AirspaceType at) {
 		_asType = (at == null) ? AirspaceType.E : at;
+	}
+	
+	public void setCountry(Country c) {
+		_c = c;
 	}
 	
 	public void setVASFree(int kb) {
