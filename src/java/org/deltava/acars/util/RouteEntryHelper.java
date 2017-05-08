@@ -66,7 +66,7 @@ public final class RouteEntryHelper {
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
 		result.setID(imsg.getFlightID());
-		result.setPhaseName(msg.getPhaseName());
+		result.setPhaseName(msg.getPhase().getName());
 		result.setFlightNumber(imsg.getFlightCode());
 		result.setAirSpeed(msg.getAspeed());
 		result.setGroundSpeed(msg.getGspeed());
