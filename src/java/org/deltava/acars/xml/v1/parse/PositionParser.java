@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.FlightPhase;
 import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.servinfo.Controller;
 
@@ -84,7 +85,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")) * 2.56);	// Fix because ACARS2 multiplied by 100 instead of 256
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
-			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
+			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setReplay(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
