@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.jdom2.*;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.FlightPhase;
 import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.servinfo.Controller;
 
@@ -77,7 +78,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setTemperature(Integer.parseInt(getChildText(e, "temp", "-100")));
 			msg.setPressure(Integer.parseInt(getChildText(e, "pressure", "0")));
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
-			msg.setPhase(getChildText(e, "phase", PositionMessage.FLIGHT_PHASES[0]));
+			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setReplay(Boolean.valueOf(getChildText(e, "isReplay", "false")).booleanValue());
