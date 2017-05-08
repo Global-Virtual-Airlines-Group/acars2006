@@ -4,11 +4,10 @@ package org.deltava.acars.message;
 import java.time.Instant;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.FlightPhase;
 import org.deltava.beans.navdata.AirspaceType;
 import org.deltava.beans.schedule.Country;
 import org.deltava.beans.servinfo.Controller;
-
-import org.deltava.util.StringUtils;
 
 /**
  * An ACARS position report message.
@@ -18,9 +17,6 @@ import org.deltava.util.StringUtils;
  */
 
 public class PositionMessage extends LocationMessage {
-
-	// Flight phase constants
-    public static final String[] FLIGHT_PHASES = {"Unknown", "Pre-Flight", "Pushback", "Taxi Out", "Takeoff", "Airborne", "Landed", "Taxi In", "At Gate", "Shutdown", "Complete", "Aborted", "Error", "PIREP File"};
 
 	private int r_altitude;
 	private int aspeed;
@@ -55,14 +51,15 @@ public class PositionMessage extends LocationMessage {
 	private int _simRate = 1;
 	private Instant _simTime = getDate();
 	
-	private AirspaceType _asType = AirspaceType.E;
-	private Country _c;
-
-	// Flight phase
-	private int _phase;
 	private int _vasFree;
 	private boolean _isReplay;
 	private boolean _isLogged;
+	
+	private AirspaceType _asType = AirspaceType.E;
+	private Country _c;
+
+	private FlightPhase _phase;
+	private int _flightID;
 
 	/**
 	 * Creates a new Position Message.
@@ -128,14 +125,14 @@ public class PositionMessage extends LocationMessage {
 		return n2;
 	}
 
-	public int getPhase() {
+	public FlightPhase getPhase() {
 		return _phase;
 	}
 	
-	public String getPhaseName() {
-		return FLIGHT_PHASES[_phase];
+	public int getFlightID() {
+		return _flightID;
 	}
-
+	
 	public int getRadarAltitude() {
 		return this.r_altitude;
 	}
@@ -262,8 +259,12 @@ public class PositionMessage extends LocationMessage {
 			this.n2 = Math.min(9999, Math.max(0, nn2));
 	}
 
-	public void setPhase(String newPhase) {
-		_phase = StringUtils.arrayIndexOf(FLIGHT_PHASES, newPhase, 0);
+	public void setPhase(FlightPhase fp) {
+		_phase = fp;
+	}
+	
+	public void setFlightID(int id) {
+		_flightID = id;
 	}
 
 	public void setRadarAltitude(int alt) {
