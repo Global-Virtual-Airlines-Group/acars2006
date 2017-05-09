@@ -22,28 +22,9 @@ import org.deltava.util.GeoUtils;
 
 public class SetPosition extends DAO {
 	
-	private static final BlockingQueue<PositionCacheEntry> _queue = new LinkedBlockingQueue<PositionCacheEntry>();
+	private static final BlockingQueue<PositionMessage> _queue = new LinkedBlockingQueue<PositionMessage>();
 	private static long _maxAge = -1; 
 
-	private static class PositionCacheEntry {
-		private final PositionMessage _msg;
-		private final int _flightID;
-		
-		PositionCacheEntry(PositionMessage msg, int flightID) {
-			super();
-			_msg = msg;
-			_flightID = flightID;
-		}
-		
-		public PositionMessage getMessage() {
-			return _msg;
-		}
-		
-		public int getFlightID() {
-			return _flightID;
-		}
-	}
-	
 	/**
 	 * Initializes the Data Access Object.
 	 * @param c the JDBC connection to use
@@ -64,7 +45,7 @@ public class SetPosition extends DAO {
 		
 		// Don't add 0/0 pairs
 		if (GeoUtils.isValid(msg))
-			_queue.add(new PositionCacheEntry(msg, flightID));
+			_queue.add(msg);
 	}
 	
 	/**
@@ -95,17 +76,16 @@ public class SetPosition extends DAO {
 				+ "AOA, GFORCE, FRAMERATE, NAV1, NAV2, VAS, ASTYPE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Drain the queue
-			Collection<PositionCacheEntry> entries = new ArrayList<PositionCacheEntry>();
+			Collection<PositionMessage> entries = new ArrayList<PositionMessage>();
 			int results = _queue.drainTo(entries);
 			
 			// Write core entries
 			startTransaction();
-			for (Iterator<PositionCacheEntry> i = entries.iterator(); i.hasNext(); ) {
-				PositionCacheEntry entry = i.next();
-				PositionMessage msg = entry.getMessage();
+			for (Iterator<PositionMessage> i = entries.iterator(); i.hasNext(); ) {
+				PositionMessage msg = i.next();
 				
 				// Set the prepared statement parameters
-				_ps.setInt(1, entry.getFlightID());
+				_ps.setInt(1, msg.getFlightID());
 				_ps.setTimestamp(2, createTimestamp(msg.getDate()));
 				_ps.setTimestamp(3, createTimestamp(msg.getSimTime()));
 				_ps.setDouble(4, msg.getLatitude());
@@ -120,7 +100,7 @@ public class SetPosition extends DAO {
 				_ps.setDouble(13, msg.getN2());
 				_ps.setDouble(14, msg.getMach());
 				_ps.setInt(15, msg.getFuelRemaining());
-				_ps.setInt(16, msg.getPhase());
+				_ps.setInt(16, msg.getPhase().ordinal());
 				_ps.setInt(17, msg.getSimRate());
 				_ps.setInt(18, msg.getFlags());
 				_ps.setInt(19, msg.getFlaps());
@@ -151,9 +131,8 @@ public class SetPosition extends DAO {
 			
 			// Write COM/ATC records
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITION_ATC (FLIGHT_ID, REPORT_TIME, IDX, COM1, CALLSIGN, NETWORK_ID, LAT, LNG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-			for (PositionCacheEntry entry : entries) {
-				PositionMessage msg = entry.getMessage();
-				_ps.setInt(1, entry.getFlightID());
+			for (PositionMessage msg : entries) {
+				_ps.setInt(1, msg.getFlightID());
 				_ps.setTimestamp(2, createTimestamp(msg.getDate()));
 				if (msg.getATC1() != null) {
 					_ps.setInt(3, 1);
