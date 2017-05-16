@@ -2,6 +2,7 @@
 package org.deltava.acars.ipc;
 
 import java.util.*;
+import java.io.Serializable;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -13,7 +14,7 @@ import org.deltava.acars.beans.*;
 import org.deltava.dao.*;
 
 import org.deltava.util.CollectionUtils;
-import org.deltava.util.cache.CacheManager;
+import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
@@ -22,7 +23,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 7.2
+ * @version 7.3
  * @since 1.0
  */
 
@@ -158,6 +159,11 @@ public class IPCDaemon implements Runnable {
 									ac.setUser(usr);
 								}
 								
+								break;
+								
+							case CACHE_STATS:
+								Collection<CacheInfo> info = CacheManager.getCacheInfo();
+								SharedData.addData(SharedData.ACARS_CACHEINFO, (Serializable) info);
 								break;
 								
 							case CACHE_FLUSH:
