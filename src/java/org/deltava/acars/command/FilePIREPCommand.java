@@ -41,7 +41,7 @@ import org.gvagroup.common.*;
  * @since 1.0
  */
 
-public class FilePIREPCommand extends ACARSCommand {
+public class FilePIREPCommand extends PositionCacheCommand {
 
 	private static final Logger log = Logger.getLogger(FilePIREPCommand.class);
 
@@ -145,12 +145,10 @@ public class FilePIREPCommand extends ACARSCommand {
 			}
 
 			// Flush the position queue
-			if (SetPosition.size() > 0) {
-				ctx.setMessage("Flushing Position Queue");
-				SetPosition pwdao = new SetPosition(con);
-				int flushed = pwdao.flush();
+			ctx.setMessage("Flushing Position Queue");
+			int flushed = flush(true, ctx);
+			if (flushed > 0)
 				log.info("Flushed " + flushed + " Position records from queue");
-			}
 			
 			// Create comments field
 			Collection<String> comments = new LinkedHashSet<String>();
@@ -250,7 +248,7 @@ public class FilePIREPCommand extends ACARSCommand {
 				}
 
 				afr.setCaptEQType(promoEQ);
-				log.info("Setting Promotion Flags for " + env.getOwner().getName() + " to " + promoEQ);
+				log.info("Setting Promotion Flags for " + env.getOwner().getName() + " to " + afr.getCaptEQType());
 			} else if (promoEQ.isEmpty())
 				log.warn("No equipment program found for " + afr.getEquipmentType() + " in " + usrLoc.getDB());
 			else
@@ -627,6 +625,6 @@ public class FilePIREPCommand extends ACARSCommand {
 	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 2250;
+		return 2500;
 	}
 }
