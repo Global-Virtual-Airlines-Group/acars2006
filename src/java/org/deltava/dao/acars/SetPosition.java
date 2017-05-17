@@ -3,18 +3,13 @@ package org.deltava.dao.acars;
 
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.deltava.dao.*;
 
 import org.deltava.acars.message.PositionMessage;
 
-import org.deltava.util.GeoUtils;
-
 /**
- * A Data Access Object to write ACARS Position Messages. This DAO is unique in that it maintains an internal queue of messages,
- * and only flushes this queue upon request. This behavior is designed to avoid making large number of connection pool requests,
- * since ACARS positions may be written several times a second by the server.
+ * A Data Access Object to write ACARS Position Messages.
  * @author Luke
  * @version 7.3
  * @since 1.0
@@ -22,9 +17,6 @@ import org.deltava.util.GeoUtils;
 
 public class SetPosition extends DAO {
 	
-	private static final BlockingQueue<PositionMessage> _queue = new LinkedBlockingQueue<PositionMessage>();
-	private static long _maxAge = -1; 
-
 	/**
 	 * Initializes the Data Access Object.
 	 * @param c the JDBC connection to use
@@ -34,50 +26,15 @@ public class SetPosition extends DAO {
 	}
 	
 	/**
-	 * Adds a Position report to the queue.
-	 * @param msg the PositionMessage bean
-	 * @param flightID the flight ID
-	 * @see SetPosition#flush()
-	 */
-	public static void queue(PositionMessage msg, int flightID) {
-		if (_queue.isEmpty())
-			_maxAge = System.currentTimeMillis();
-		
-		// Don't add 0/0 pairs
-		if (GeoUtils.isValid(msg))
-			_queue.add(msg);
-	}
-	
-	/**
-	 * Returns the number of entries in the queue.
-	 * @return the size of the queue
-	 */
-	public static int size() {
-		return _queue.size();
-	}
-	
-	/**
-	 * Returns the age of the oldest entry in the queue.
-	 * @return the age in millseconds
-	 */
-	public static long getMaxAge() {
-		return (_queue.isEmpty()) ? 0 : (System.currentTimeMillis() - _maxAge);
-	}
-	
-	/**
 	 * Flushes the queue to the database.
-	 * @return the number of entries written
+	 * @param entries the entries to write
 	 * @throws DAOException if a JDBC error occurs
 	 */
-	public int flush() throws DAOException {
+	public void flush(Collection<PositionMessage> entries) throws DAOException {
 		try {
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, "
 				+ "GSPEED, VSPEED, N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, "
 				+ "AOA, GFORCE, FRAMERATE, NAV1, NAV2, VAS, ASTYPE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			
-			// Drain the queue
-			Collection<PositionMessage> entries = new ArrayList<PositionMessage>();
-			int results = _queue.drainTo(entries);
 			
 			// Write core entries
 			startTransaction();
@@ -157,9 +114,7 @@ public class SetPosition extends DAO {
 			
 			_ps.executeBatch();
 			_ps.close();
-
 			commitTransaction();
-			return results;
 		} catch (SQLException se) {
 			rollbackTransaction();
 			throw new DAOException(se);

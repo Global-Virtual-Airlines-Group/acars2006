@@ -2,8 +2,7 @@
 package org.deltava.acars.command;
 
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.*;
+import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
@@ -19,8 +18,8 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.MPUpdateMessage;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
-import org.deltava.dao.acars.SetPosition;
 import org.deltava.dao.redis.SetTrack;
+
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
@@ -33,15 +32,14 @@ import org.gvagroup.acars.ACARSFlags;
  * @since 1.0
  */
 
-public class PositionCommand extends ACARSCommand {
+public class PositionCommand extends PositionCacheCommand {
 
 	private static final Logger log = Logger.getLogger(PositionCommand.class);
-	private static final Lock w = new ReentrantLock();
 	
 	private final int MIN_INTERVAL = SystemData.getInt("acars.position.min", 2000);
 	private final int ATC_INTERVAL = SystemData.getInt("acars.position.atc", 2000);
 	private final int NOATC_INTERVAL = SystemData.getInt("acars.position.std", 2000);
-
+	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
@@ -73,6 +71,9 @@ public class PositionCommand extends ACARSCommand {
 			ctx.push(ackMsg, env.getConnectionID());
 			return;
 		}
+		
+		// Set flight ID
+		msg.setFlightID(info.getFlightID());
 		
 		// Adjust the message date and calculate the age of the last message
 		// Check if it's really a flood or whether the previous message was just stuck in transit
@@ -114,6 +115,11 @@ public class PositionCommand extends ACARSCommand {
 			}
 		}
 		
+		// Check what country we are in
+		lookup(msg);
+		if (msg.getCountry() == null)
+			msg.setCountry((oldPM == null) ? info.getAirportD().getCountry() : oldPM.getCountry());
+		
 		// Clear temporary track if being saved
 		SetTrack tkdao = new SetTrack(); 
 		if (msg.isLogged())
@@ -121,7 +127,7 @@ public class PositionCommand extends ACARSCommand {
 
 		// Queue it up
 		if (msg.isReplay() && msg.isLogged())
-			SetPosition.queue(msg, ac.getFlightID());
+			queue(msg);
 		else if (!msg.isReplay() && !msg.isLogged() && (pmAge < MIN_INTERVAL)) {
 			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
 			return;
@@ -129,7 +135,7 @@ public class PositionCommand extends ACARSCommand {
 			boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED);
 			ac.setPosition(msg);
 			if (msg.isLogged() && !isPaused)
-				SetPosition.queue(msg, ac.getFlightID());
+				queue(msg);
 			else if (!isPaused)
 				tkdao.write(info.getFlightID(), msg);
 		}
@@ -180,7 +186,7 @@ public class PositionCommand extends ACARSCommand {
 				log.info(env.getOwnerID() + " in airspace " + a.getID());
 				msg.setAirspaceType(a.getType());
 				if (!msg.isLogged())
-					SetPosition.queue(msg, ac.getFlightID());
+					queue(msg);
 
 				if ((oldPM == null) || !oldPM.getAirspaceType().isRestricted()) {
 					msg.setAirspaceType(a.getType());
@@ -198,20 +204,10 @@ public class PositionCommand extends ACARSCommand {
 		}
 
 		// Check if the cache needs to be flushed
-		if (w.tryLock()) {
-			if (SetPosition.getMaxAge() > 20250) {
-				try {
-					SetPosition dao = new SetPosition(ctx.getConnection());
-					int entries = dao.flush();
-					log.info("Flushed " + entries + " cached position entries");
-				} catch (Exception e) {
-					log.error("Error flushing positions - " + e.getMessage(), e);
-				} finally {
-					ctx.release();
-				}
-			}
-			
-			w.unlock();
+		try {
+			flush(false, ctx);
+		} catch (Exception e) {
+			log.error("Error flushing positions - " + e.getMessage(), e);
 		}
 	}
 }
