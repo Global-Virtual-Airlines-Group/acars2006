@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <caches>
 	<!-- Pilot data caches -->
-	<cache id="UserData" remote="true" />
+	<cache id="UserData" remote="true" expires="864000" />
 	<cache id="Pilots" remote="true" expires="14400" />
 
 	<!-- Navigation Data caches -->
@@ -14,7 +14,8 @@
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
 	<cache id="ACARSRunways" remote="true" expires="86400" />
-	<cache id="GeoCountry" remote="true" geo="true" expires="864000" maxSize="2" />
+	<cache id="GeoCountryL1" geo="true" expires="86400" max="1024" precision="2" />
+	<cache id="GeoCountry" remote="true" geo="true" expires="864000" precision="2" />
 	
 	<!-- VATSIM caches -->
     <cache id="ATORatings" expires="14400" remote="true" />
