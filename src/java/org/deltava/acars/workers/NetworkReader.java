@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -12,17 +12,19 @@ import org.deltava.dao.acars.SetConnection;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.WorkerState;
 import org.gvagroup.jdbc.ConnectionPool;
 
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 6.0
+ * @version 7.4
  * @since 1.0
  */
 
 public class NetworkReader extends Worker {
+	
+	private static final int MIN_EXEC_INTERVAL = 40; // 40ms between intervals
 	
 	private ConnectionPool _cPool;
 
@@ -73,7 +75,7 @@ public class NetworkReader extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 		long lastExecTime = 0; int sleepTime = SystemData.getInt("acars.sleep", 30000);
 
 		while (!Thread.currentThread().isInterrupted()) {
@@ -82,8 +84,8 @@ public class NetworkReader extends Worker {
 			int consWaiting = 0;
 			try {
 				long runInterval = System.currentTimeMillis() - lastExecTime;
-				if (runInterval < 50)
-					Thread.sleep(50 - runInterval);
+				if (runInterval < MIN_EXEC_INTERVAL)
+					Thread.sleep(MIN_EXEC_INTERVAL - runInterval);
 				
 				consWaiting = _pool.select(sleepTime);
 			} catch (InterruptedException ie) {

@@ -1,4 +1,4 @@
-// Copyright 2011, 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.net.*;
@@ -11,15 +11,16 @@ import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
 import org.deltava.acars.message.VoicePingIntervalMessage;
+
 import org.deltava.util.NetworkUtils;
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.*;
 
 /**
  * An ACARS worker thread to read voice packets.
  * @author Luke
- * @version 6.2
+ * @version 7.4
  * @since 4.0
  */
 
@@ -113,7 +114,7 @@ public class VoiceReader extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 		long lastExecTime = 0;
 		final int maxSelect = SystemData.getInt("acars.pool.maxSelect", 15000); final int sleepTime = SystemData.getInt("acars.sleep", 30000);
 		while (!Thread.currentThread().isInterrupted()) {

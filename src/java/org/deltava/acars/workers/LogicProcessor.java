@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.deltava.acars.command.mp.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.*;
 
 import org.deltava.util.log.*;
 import org.deltava.util.system.SystemData;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 7.2
+ * @version 7.4
  * @since 1.0
  */
 
@@ -247,7 +247,7 @@ public class LogicProcessor extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 
 		// Keep running until we're interrupted
 		while (!Thread.currentThread().isInterrupted()) {

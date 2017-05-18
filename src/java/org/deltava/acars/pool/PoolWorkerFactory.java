@@ -1,16 +1,15 @@
-// Copyright 2007, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.*;
 
 /**
- * A factory to generate thread pool worker threads. This thread factory resuses thread IDs
- * to not allow thread IDs to continue incrementing. 
+ * A factory to generate thread pool worker threads. This thread factory resuses thread IDs to not allow thread IDs to continue incrementing. 
  * @author Luke
- * @version 7.0
+ * @version 7.4
  * @since 2.0
  */
 
@@ -52,7 +51,7 @@ public class PoolWorkerFactory implements ThreadFactory {
 			try {
 				super.run();
 				if (_status != null) {
-					_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+					_status.setStatus(WorkerState.SHUTDOWN);
 					_status.setAlive(false);
 				}
 			} catch (IllegalMonitorStateException ime) {
@@ -104,11 +103,8 @@ public class PoolWorkerFactory implements ThreadFactory {
 	 */
 	synchronized int getNextID() {
 		int expectedID = 1;
-		for (Iterator<Integer> i = _IDs.iterator(); i.hasNext(); ) {
-			Integer id = i.next();
-			if (id.intValue() > expectedID)
-				break;
-				
+		for (Integer id :_IDs) {
+			if (id.intValue() > expectedID) break;
 			expectedID++;
 		}
 		
