@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -13,12 +13,12 @@ import org.deltava.acars.xml.*;
 import org.deltava.beans.Pilot;
 
 import org.deltava.util.system.SystemData;
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.WorkerState;
 
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 6.4
+ * @version 7.4
  * @since 1.0
  */
 
@@ -102,7 +102,7 @@ public final class OutputDispatcher extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 
 		final Map<Long, Pilot> users = new HashMap<Long, Pilot>();
 		final Map<Long, DatedDocument> docs = new HashMap<Long, DatedDocument>();

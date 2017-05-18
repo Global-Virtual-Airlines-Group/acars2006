@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -9,12 +9,12 @@ import org.deltava.acars.pool.*;
 
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.*;
 
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 7.0
+ * @version 7.4
  * @since 1.0
  */
 
@@ -82,7 +82,7 @@ public class NetworkWriter extends Worker {
 	 */
 	@Override
 	public final void close() {
-		_status.setStatus(WorkerStatus.STATUS_SHUTDOWN);
+		_status.setStatus(WorkerState.SHUTDOWN);
 		
 		// Wait for the pool to shut down
 		try {
@@ -114,7 +114,7 @@ public class NetworkWriter extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				_status.setMessage("Idle - " + _ioPool.getPoolSize() + " threads");
@@ -129,7 +129,6 @@ public class NetworkWriter extends Worker {
 					env = RAW_OUTPUT.poll();
 				}
 
-				// Log execution
 				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();

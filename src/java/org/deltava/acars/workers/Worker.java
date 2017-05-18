@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -8,12 +8,12 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.*;
 
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
- * @version 6.4
+ * @version 7.4
  * @since 1.0
  */
 
@@ -24,6 +24,7 @@ public abstract class Worker implements Runnable {
 	public static final BlockingQueue<MessageEnvelope> MSG_OUTPUT = new PriorityBlockingQueue<MessageEnvelope>();
 	public static final BlockingQueue<OutputEnvelope> RAW_OUTPUT = new PriorityBlockingQueue<OutputEnvelope>();
 	public static final BlockingQueue<MessageEnvelope> MP_UPDATE = new LinkedBlockingQueue<MessageEnvelope>();
+	public static final BlockingQueue<MessageEnvelope> GEO_INPUT = new LinkedBlockingQueue<MessageEnvelope>();
 	
 	protected final Logger log;
 	private final String _name;
@@ -73,7 +74,7 @@ public abstract class Worker implements Runnable {
 	 * Initializes the Worker and grabs the ACARS Connection Pool.
 	 */
 	public void open() {
-		_status.setStatus(WorkerStatus.STATUS_INIT);
+		_status.setStatus(WorkerState.INIT);
 		_status.setMessage("Initializing");
 	}
 
@@ -81,7 +82,7 @@ public abstract class Worker implements Runnable {
 	 * Closes the Worker.
 	 */
 	public void close() {
-		_status.setStatus(WorkerStatus.STATUS_UNKNOWN);
+		_status.setStatus(WorkerState.SHUTDOWN);
 		_status.setMessage("Shut Down");
 		log.warn("Shut Down");
 	}

@@ -1,4 +1,4 @@
-// Copyright 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -7,12 +7,12 @@ import java.util.concurrent.TimeUnit;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.mp.*;
 
-import org.gvagroup.ipc.WorkerStatus;
+import org.gvagroup.ipc.WorkerState;
 
 /**
  * An ACARS worker thread to aggregate multi-player update messages.
  * @author Luke
- * @version 6.4
+ * @version 7.4
  * @since 3.0
  */
 
@@ -31,7 +31,7 @@ public class MPAggregator extends Worker {
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 		
 		final Map<Long, MPUpdateMessage> upds = new HashMap<Long, MPUpdateMessage>();
 		while (!Thread.currentThread().isInterrupted()) {

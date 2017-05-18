@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
@@ -8,21 +8,21 @@ import java.time.Instant;
 import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
-
+import org.gvagroup.ipc.WorkerState;
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
  * continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 7.0
+ * @version 7.4
  * @since 2.0
  */
 
 public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker.PoolWorkerDeathHandler {
 	
-	protected Logger log;
-	private PoolWorkerFactory _tFactory;
+	protected final Logger log;
+	private final PoolWorkerFactory _tFactory;
 	private int _sortOrderBase;
 	
 	protected final Map<Integer, LatencyWorkerStatus> _status = new ConcurrentHashMap<Integer, LatencyWorkerStatus>();
@@ -33,7 +33,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 */
 	class PoolQueueEntry implements Comparable<PoolQueueEntry> {
 		
-		private PoolWorker _worker;
+		private final PoolWorker _worker;
 		private final Instant _queuedOn = Instant.now();
 		
 		PoolQueueEntry(PoolWorker worker) {
@@ -160,7 +160,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		}
 		
 		// Inject the worker status
-		ws.setStatus(WorkerStatus.STATUS_START);
+		ws.setStatus(WorkerState.RUNNING);
 		ws.execute();
 		PoolWorker pw = (PoolWorker) r;
 		pw.setStatus(ws);

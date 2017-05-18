@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -11,12 +11,13 @@ import org.deltava.acars.beans.*;
 import org.deltava.beans.system.VersionInfo;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
-import org.gvagroup.ipc.WorkerStatus;
+
+import org.gvagroup.ipc.WorkerState;
 
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 5.4
+ * @version 7.4
  * @since 2.1
  */
 
@@ -86,7 +87,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 			// Get the socket and set various socket options
 			try {
-				_sc.setOption(StandardSocketOptions.SO_LINGER, Integer.valueOf(1));
 				_sc.setOption(StandardSocketOptions.TCP_NODELAY, Boolean.TRUE);
 				_sc.setOption(StandardSocketOptions.SO_KEEPALIVE, Boolean.TRUE);
 				_sc.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send")));
@@ -156,7 +156,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			log.error(ie.getMessage());
 		}
 
-		// Call the superclass close
 		super.close();
 	}
 	
@@ -187,7 +186,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	@Override
 	public void run() {
 		log.info("Started");
-		_status.setStatus(WorkerStatus.STATUS_START);
+		_status.setStatus(WorkerState.RUNNING);
 		final int maxSelect = SystemData.getInt("acars.pool.maxSelect", 15000); final int sleepTime = SystemData.getInt("acars.sleep", 30000);
 		
 		while (!Thread.currentThread().isInterrupted()) {
@@ -220,7 +219,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 					// empty
 				} catch (IOException ie) {
 					log.error("Cannot accept connection - " + ie.getMessage(), ie);
-					_status.setStatus(WorkerStatus.STATUS_ERROR);
+					_status.setStatus(WorkerState.ERROR);
 					_status.complete();
 					throw new RuntimeException("NetworkReader failure");
 				}
