@@ -18,7 +18,7 @@ import org.deltava.jdbc.ConnectionContext;
 /**
  * An abstract class for ACARS commands to interact with the Position cache.
  * @author Luke
- * @version 7.3
+ * @version 7.4
  * @since 7.3
  */
 
@@ -27,7 +27,8 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	private static final Lock w = new ReentrantLock();
 	private static final PositionCache _posCache = new PositionCache(50, 12500);
 	
-	private static final GeoCache<CacheableString> _cache = CacheManager.getGeo(CacheableString.class, "GeoCountry");
+	private static final GeoCache<CacheableString> _cacheL1 = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
+	private static final GeoCache<CacheableString> _cacheL2 = CacheManager.getGeo(CacheableString.class, "GeoCountry");
 
 	/**
 	 * Places a PositionMessage in the cache.
@@ -38,11 +39,14 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	}
 	
 	/**
-	 * Looks
-	 * @param msg
+	 * Performs a position lookup.
+	 * @param msg the PositionMessage
 	 */
 	protected static void lookup(PositionMessage msg) {
-		CacheableString id = _cache.get(msg);
+		CacheableString id = _cacheL1.get(msg);
+		if (id == null)
+			id = _cacheL2.get(msg);
+			
 		msg.setCountry((id == null) ? null : Country.get(id.getValue()));
 	}
 	

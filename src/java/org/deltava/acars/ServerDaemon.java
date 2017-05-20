@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 7.0
+ * @version 7.4
  * @since 1.0
  */
 
@@ -126,6 +126,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		SharedData.addData(SharedData.ACARS_POOL, _conPool);
  	}
  	
+ 	/**
+ 	 * Initializes the worker threads.
+ 	 */
  	protected void initTasks() {
  		if (_conPool == null)
  			throw new IllegalStateException("No ACARS Connection Pool");
@@ -139,6 +142,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new InputTranslator());
 		tasks.add(new LogicProcessor());
 		tasks.add(new MPAggregator());
+		tasks.add(new GeoLocator());
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
@@ -146,19 +150,15 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 			tasks.add(new VoiceReader());
 
 		// Try to init all of the worker threads
-		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
-			Worker w = i.next();
+		for (Worker w : tasks) {
 			log.debug("Initializing " + w.getName());
 			w.setConnectionPool(_conPool);
 			w.open();
 		}
 		
- 		// Set common priority for worker threads
- 		_workers.setDaemon(true);
-
  		// Turn the workers into threads
- 		for (Iterator<Worker> i = tasks.iterator(); i.hasNext(); ) {
- 			Worker w = i.next();
+		_workers.setDaemon(true);
+ 		for (Worker w : tasks) {
  			Thread t = new Thread(_workers, w, w.getName());
  			t.setUncaughtExceptionHandler(this);
  			_threads.put(t, w);
