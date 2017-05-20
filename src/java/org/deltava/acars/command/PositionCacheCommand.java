@@ -7,12 +7,14 @@ import java.util.concurrent.locks.*;
 
 import org.deltava.acars.message.PositionMessage;
 import org.deltava.acars.util.PositionCache;
+
 import org.deltava.beans.schedule.Country;
 
 import org.deltava.dao.*;
 import org.deltava.util.cache.*;
 
 import org.deltava.dao.acars.SetPosition;
+
 import org.deltava.jdbc.ConnectionContext;
 
 /**
@@ -44,10 +46,14 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	 */
 	protected static void lookup(PositionMessage msg) {
 		CacheableString id = _cacheL1.get(msg);
-		if (id == null)
+		if (id == null) {
 			id = _cacheL2.get(msg);
+			if (id != null)
+				_cacheL1.add(msg, id);
+		}
 			
-		msg.setCountry((id == null) ? null : Country.get(id.getValue()));
+		if (id != null)
+			msg.setCountry(Country.get(id.getValue()));
 	}
 	
 	/**
