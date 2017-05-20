@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 
 import org.apache.log4j.Logger;
 
-import static org.deltava.acars.workers.Worker.MP_UPDATE;
+import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.acars.ClientType;
@@ -28,7 +28,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 7.3
+ * @version 7.4
  * @since 1.0
  */
 
@@ -117,8 +117,10 @@ public class PositionCommand extends PositionCacheCommand {
 		
 		// Check what country we are in
 		lookup(msg);
-		if (msg.getCountry() == null)
+		if (msg.getCountry() == null) {
 			msg.setCountry((oldPM == null) ? info.getAirportD().getCountry() : oldPM.getCountry());
+			GEO_INPUT.add(env);
+		}
 		
 		// Clear temporary track if being saved
 		SetTrack tkdao = new SetTrack(); 
