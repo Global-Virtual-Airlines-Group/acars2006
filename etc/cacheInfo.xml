@@ -14,7 +14,7 @@
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
 	<cache id="ACARSRunways" remote="true" expires="86400" />
-	<cache id="GeoCountryL1" geo="true" expires="86400" max="1024" precision="2" />
+	<cache id="GeoCountryL1" geo="true" expires="86400" max="2048" precision="2" />
 	<cache id="GeoCountry" remote="true" geo="true" expires="864000" precision="2" />
 	
 	<!-- VATSIM caches -->
