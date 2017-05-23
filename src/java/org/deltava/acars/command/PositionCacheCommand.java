@@ -74,8 +74,8 @@ abstract class PositionCacheCommand extends ACARSCommand {
 				// Geolocation
 				GetCountry cdao = new GetCountry(con);
 				for (PositionMessage pmsg : msgs) {
-					if (pmsg.getCountry() != null)
-						pmsg.setCountry(cdao.find(pmsg));
+					if (pmsg.getCountry() == null)
+						pmsg.setCountry(cdao.find(pmsg, true));
 				}
 				
 				// Write the entries
