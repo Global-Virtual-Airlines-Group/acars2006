@@ -420,6 +420,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 
 			// Start the transaction
+			String promoLegs = afr.getCaptEQType().toString();
 			ctx.startTX();
 
 			// Mark the PIREP as filed
@@ -540,9 +541,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			wdao.writeACARS(afr, usrLoc.getDB());
 			if (wdao.updatePaxCount(afr.getID(), usrLoc.getDB()))
 				log.warn("Update Passnger count for PIREP #" + afr.getID());
-
+			
 			// Commit the transaction
 			ctx.commitTX();
+			
+			// FIXME: Check promoEQ stayed the same
+			String promoLegs2 = afr.getCaptEQType().toString();
+			if (!promoLegs.equals(promoLegs2))
+				log.warn("PromotionEQ was " + promoLegs + ", now " + promoLegs2);
 
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
