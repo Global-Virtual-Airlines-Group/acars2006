@@ -62,6 +62,10 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 
 		// Get the basic information
 		try {
+			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
+			if (msg.getPhase() == FlightPhase.UNKNOWN)
+				log.warn("Unknown flight phase from " + user.getPilotCode() + "- " + getChildText(e, "phase", "?"));
+
 			msg.setHeading(Integer.parseInt(getChildText(e, "hdg", "0")));
 			msg.setPitch(Double.parseDouble(getChildText(e, "pitch", "0")));
 			msg.setBank(Double.parseDouble(getChildText(e, "bank", "0")));
@@ -85,7 +89,6 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")) * 2.56);	// Fix because ACARS2 multiplied by 100 instead of 256
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
-			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setReplay(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
