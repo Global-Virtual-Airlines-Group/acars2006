@@ -16,14 +16,14 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 7.2
+ * @version 7.4
  * @since 1.0
  */
 
 class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	
 	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP
-	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008};
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017};
 
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
