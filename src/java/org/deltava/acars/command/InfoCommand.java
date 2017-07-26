@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 7.2
+ * @version 7.5
  * @since 1.0
  */
 
@@ -97,7 +97,7 @@ public class InfoCommand extends ACARSCommand {
 				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
 				GetSchedule sdao = new GetSchedule(c);
 				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
-				msg.setScheduleValidated(avgTime.hasHistoric() || avgTime.hasCurrent());
+				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
 				// If we're not valid, check against draft PIREPs
 				if (!msg.isScheduleValidated()) {

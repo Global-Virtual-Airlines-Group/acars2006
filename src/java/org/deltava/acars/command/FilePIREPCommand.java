@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 7.3
+ * @version 7.5
  * @since 1.0
  */
 
@@ -354,7 +354,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
 			boolean isEvent = (afr.getDatabaseID(DatabaseID.EVENT) != 0);
 			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
-			if (!avgHours.hasCurrent() && !avgHours.hasHistoric() && !isAcademy && !isAssignment && !isEvent) {
+			if ((avgHours.getType() == RoutePairType.UNKNOWN) && !isAcademy && !isAssignment && !isEvent) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
 				if (!wasValid)
