@@ -16,13 +16,13 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 7.4
+ * @version 7.5
  * @since 1.0
  */
 
 class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	
-	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP
+	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP, 2017=Prepar3Dv4
 	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017};
 
 	/**
@@ -61,6 +61,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
 		msg.setFlightCode(fCode);
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
+		msg.setTailCode(getChildText(e, "tailCode", null));
 		msg.setComments(getChildText(e, "remarks", null));
 		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));

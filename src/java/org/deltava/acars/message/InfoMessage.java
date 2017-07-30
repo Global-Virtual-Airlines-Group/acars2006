@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 7.2
+ * @version 7.5
  * @since 1.0
  */
 
@@ -25,6 +25,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	private String _eqType;
 	private String _livery;
+	private String _tailCode;
 	
 	private String _flightCode;
 	private Airport _airportA;
@@ -103,6 +104,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public String getLivery() {
 		return _livery;
+	}
+	
+	public String getTailCode() {
+		return _tailCode;
 	}
 	
 	public String getFlightCode() {
@@ -219,6 +224,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setLivery(String code) {
 		_livery = code;
+	}
+	
+	public void setTailCode(String code) {
+		_tailCode = code;
 	}
 	
 	public void setFlightCode(String newCode) {
