@@ -14,7 +14,7 @@ import org.gvagroup.acars.ACARSFlags;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 7.3
+ * @version 7.5
  * @since 1.0
  */
 
@@ -62,6 +62,7 @@ public final class RouteEntryHelper {
 		result.setClientBuild(con.getClientBuild(), con.getBeta());
 		result.setAirspace(msg.getAirspaceType());
 		result.setCountry(msg.getCountry());
+		result.setTailCode(imsg.getTailCode());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
