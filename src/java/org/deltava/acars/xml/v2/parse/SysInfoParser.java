@@ -4,6 +4,7 @@ package org.deltava.acars.xml.v2.parse;
 import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.Simulator;
 import org.deltava.util.StringUtils;
 
 import org.deltava.acars.message.SystemInfoMessage;
@@ -40,6 +41,8 @@ public class SysInfoParser extends XMLElementParser<SystemInfoMessage> {
 		msg.setThreads(StringUtils.parse(getChildText(e, "procs", "1"), msg.getCores()));
 		msg.setLocale(getChildText(e, "locale", "en-us"));
 		msg.setTimeZone(getChildText(e, "tz", "?"));
+		msg.setSimulator(Simulator.fromName(getChildText(e, "simulator", ""), Simulator.UNKNOWN));
+		msg.setBridgeInfo(getChildText(e, "bridge", null));
 
 		Element ce = e.getChild("cpu");
 		msg.setCPU(getChildText(e, "cpu", "?"));

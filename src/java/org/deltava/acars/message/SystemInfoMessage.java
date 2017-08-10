@@ -1,12 +1,12 @@
-// Copyright 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 
 /**
  * An ACARS System Information message bean.
  * @author Luke
- * @version 6.4
+ * @version 7.5
  * @since 6.4
  */
 
@@ -19,6 +19,9 @@ public class SystemInfoMessage extends AbstractMessage {
 	
 	private String _locale;
 	private String _tz;
+	
+	private Simulator _sim = Simulator.UNKNOWN;
+	private String _bridgeInfo;
 	
 	private String _cpu;
 	private int _cpuSpeed;
@@ -58,6 +61,14 @@ public class SystemInfoMessage extends AbstractMessage {
 	
 	public String getLocale() {
 		return _locale;
+	}
+	
+	public Simulator getSimulator() {
+		return _sim;
+	}
+	
+	public String getBridgeInfo() {
+		return _bridgeInfo;
 	}
 	
 	public String getTimeZone() {
@@ -142,6 +153,14 @@ public class SystemInfoMessage extends AbstractMessage {
 	
 	public void setTimeZone(String tz) {
 		_tz = tz;
+	}
+	
+	public void setSimulator(Simulator s) {
+		_sim = s;
+	}
+	
+	public void setBridgeInfo(String info) {
+		_bridgeInfo = info;
 	}
 	
 	public void setMemorySize(int kb) {
