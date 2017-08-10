@@ -4,8 +4,9 @@ package org.deltava.dao.acars;
 import java.sql.*;
 
 import org.deltava.acars.message.SystemInfoMessage;
-
+import org.deltava.beans.Simulator;
 import org.deltava.dao.*;
+import org.deltava.util.StringUtils;
 
 /**
  * A Data Access Object to write user system data to the database.
@@ -31,9 +32,11 @@ public class SetSystemInfo extends DAO {
 	 */
 	public void write(SystemInfoMessage msg) throws DAOException {
 		try {
-			prepareStatementWithoutLimits("REPLACE INTO acars.SYSINFO (ID, CREATED, OS_VERSION, CLR_VERSION, NET_VERSION, IS64, SLI, "
-				+ "LOCALE, TZ, MEMORY, CPU, CPU_SPEED, CPU_SOCK, CPU_CORE, CPU_PROC, GPU, GPU_DRIVER, VRAM, X, Y, BPP, SCREENS) "
-				+ "VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			startTransaction();
+			
+			// Write core data
+			prepareStatementWithoutLimits("REPLACE INTO acars.SYSINFO (ID, CREATED, OS_VERSION, CLR_VERSION, NET_VERSION, IS64, SLI, LOCALE, TZ, MEMORY, CPU, CPU_SPEED, CPU_SOCK, "
+				+ "CPU_CORE, CPU_PROC, GPU, GPU_DRIVER, VRAM, X, Y, BPP, SCREENS) VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			_ps.setInt(1,  msg.getSender().getID());
 			_ps.setString(2, msg.getOSVersion());
 			_ps.setString(3, msg.getCLRVersion());
@@ -56,7 +59,19 @@ public class SetSystemInfo extends DAO {
 			_ps.setInt(20, msg.getColorDepth());
 			_ps.setInt(21, msg.getScreenCount());
 			executeUpdate(1);
+			
+			// Write sim data
+			if ((msg.getSimulator() != Simulator.UNKNOWN) && (!StringUtils.isEmpty(msg.getBridgeInfo()))) {
+				prepareStatementWithoutLimits("REPLACE INTO acars.SIMINFO (ID, CREATED, SIM, BRIDGE) VALUES (?, NOW(), ?, ?)");
+				_ps.setInt(1,  msg.getSender().getID());	
+				_ps.setInt(2, msg.getSimulator().ordinal());
+				_ps.setString(3, msg.getBridgeInfo());
+				executeUpdate(1);	
+			}
+			
+			commitTransaction();
 		} catch (SQLException se) {
+			rollbackTransaction();
 			throw new DAOException(se);
 		}
 	}
