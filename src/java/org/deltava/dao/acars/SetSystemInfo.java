@@ -62,7 +62,7 @@ public class SetSystemInfo extends DAO {
 			
 			// Write sim data
 			if ((msg.getSimulator() != Simulator.UNKNOWN) && (!StringUtils.isEmpty(msg.getBridgeInfo()))) {
-				prepareStatementWithoutLimits("REPLACE INTO acars.SIMINFO (ID, CREATED, SIM, BRIDGE) VALUES (?, NOW(), ?, ?)");
+				prepareStatementWithoutLimits("INSERT INTO acars.SIMINFO (ID, CREATED, SIM, BRIDGE) VALUES (?, NOW(), ?, ?)");
 				_ps.setInt(1,  msg.getSender().getID());	
 				_ps.setInt(2, msg.getSimulator().ordinal());
 				_ps.setString(3, msg.getBridgeInfo());
