@@ -63,6 +63,8 @@ public final class RouteEntryHelper {
 		result.setAirspace(msg.getAirspaceType());
 		result.setCountry(msg.getCountry());
 		result.setTailCode(imsg.getTailCode());
+		result.setLoadFactor(imsg.getLoadFactor());
+		result.setPassengers(imsg.getPassengers());
 		result.setBusy(con.getUserBusy());
 		result.setDispatchPlan(imsg.isDispatchPlan());
 		result.setCheckRide(imsg.isCheckRide());
