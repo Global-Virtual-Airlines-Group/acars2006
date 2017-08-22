@@ -93,6 +93,10 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		else if (msg.getSimulator() == Simulator.FS2002)
 			msg.setSimulatorVersion(8, 0);
 		
+		// Read load factors if present (121+)
+		msg.setLoadFactor(StringUtils.parse(getChildText(e, "loadFactor", "-1"), -1.0));
+		msg.setLoadFactorDelta(StringUtils.parse(getChildText(e, "loadFactorDelta", "0.0"), 0d));
+		
 		// Load SID data
 		Element sid = e.getChild("sid");
 		if (sid != null)
