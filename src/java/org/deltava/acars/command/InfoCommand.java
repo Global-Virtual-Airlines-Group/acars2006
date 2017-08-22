@@ -133,6 +133,16 @@ public class InfoCommand extends ACARSCommand {
 			} else if (properCRHandling && msg.isCheckRide())
 				ackMsg.setEntry("checkRide", "true");
 			
+			// Load passenger count for 121+ that submits load factor
+			if (msg.getLoadFactor() > 0) {
+				GetAircraft acdao = new GetAircraft(c);
+				Aircraft ac = acdao.get(msg.getEquipmentType());
+				if (ac != null)
+					msg.setPassengers((int) (ac.getSeats() * msg.getLoadFactor()));
+				else
+					log.warn("Unknown aircraft type - " + msg.getEquipmentType());
+			}
+			
 			// Get the SID/STAR data
 			GetNavAirway navdao = new GetNavAirway(c);
 			TerminalRoute sid = navdao.getRoute(msg.getAirportD(), TerminalRoute.Type.SID, msg.getSID(), true);
