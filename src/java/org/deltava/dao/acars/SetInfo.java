@@ -11,20 +11,19 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 7.2
+ * @version 7.5
  * @since 1.0
  */
 
 public class SetInfo extends DAO {
 
-	// SQL statements
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, "
-		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX) VALUES "
-		+ "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?)";
+		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX, LOADFACTOR) "
+		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, "
 		+ "AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, "
-		+ "CLIENT_BUILD=?, BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
+		+ "CLIENT_BUILD=?, BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, LOADFACTOR=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -66,8 +65,9 @@ public class SetInfo extends DAO {
 			_ps.setInt(19, msg.getSimMajor());
 			_ps.setInt(20, msg.getSimMinor());
 			_ps.setInt(21, msg.getTX());
-			if (msg.getFlightID() != 0)
-				_ps.setInt(22, msg.getFlightID());
+			_ps.setDouble(22, msg.getLoadFactor());
+			if (!isNew)
+				_ps.setInt(23, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(1);
