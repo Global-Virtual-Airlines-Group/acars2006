@@ -279,7 +279,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				comments.add("SYSTEM: ETOPS classificataion " + String.valueOf(etopsClass));
 			
 			// Check prohibited airspace
-			Collection<Airspace> rstAirspaces = AirspaceHelper.classify(rtEntries, true); 
+			Collection<Airspace> rstAirspaces = AirspaceHelper.classify(rtEntries, false); 
 			if (!rstAirspaces.isEmpty()) {
 				afr.setAttribute(FlightReport.ATTR_AIRSPACEWARN, true);
 				comments.add("SYSTEM: Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));
