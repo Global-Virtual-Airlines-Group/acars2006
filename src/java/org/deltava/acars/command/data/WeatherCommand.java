@@ -1,4 +1,4 @@
-// Copyright 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -14,14 +14,13 @@ import org.deltava.acars.message.data.WXMessage;
 import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
-import org.deltava.dao.wsdl.GetFAWeather;
-
+import org.deltava.dao.http.GetFAWeather;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 4.2
+ * @version 8.0
  * @since 2.3
  */
 
@@ -69,8 +68,9 @@ public class WeatherCommand extends DataCommand {
 			
 			if (isFA) {
 				GetFAWeather dao = new GetFAWeather();
-				dao.setUser(SystemData.get("schedule.flightaware.download.user"));
-				dao.setPassword(SystemData.get("schedule.flightaware.download.pwd"));
+				dao.setUser(SystemData.get("schedule.flightaware.flightXML.user"));
+				dao.setPassword(SystemData.get("schedule.flightaware.flightXML.v3"));
+				dao.setReadTimeout(5000);
 				WeatherDataBean wx = dao.get(wt, ap);
 				wxMsg.add(wx);
 			} else {
