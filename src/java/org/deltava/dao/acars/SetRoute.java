@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * A Data Access Object to write routes into the database.
  * @author Luke
- * @version 5.0
+ * @version 8.0
  * @since 2.0
  */
 
@@ -37,9 +37,8 @@ public class SetRoute extends DAO {
 			startTransaction();
 
 			// Write the data
-			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRLINE, AIRPORT_D, "
-					+ "AIRPORT_A, AIRPORT_L, CREATEDON, LASTUSED, USED, ALTITUDE, SID, STAR, BUILD, "
-					+ "REMARKS, ROUTE) VALUES (?, ?, ?, ?, ?, NOW(), NOW(), 1, ?, ?, ?, ?, ?, ?)");
+			prepareStatementWithoutLimits("INSERT INTO acars.ROUTES (AUTHOR, AIRLINE, AIRPORT_D, AIRPORT_A, AIRPORT_L, CREATEDON, LASTUSED, USED, ALTITUDE, SID, STAR, BUILD, "
+				+ "REMARKS, ROUTE) VALUES (?, ?, ?, ?, ?, NOW(), NOW(), 1, ?, ?, ?, ?, ?, ?)");
 			_ps.setInt(1, msg.getSender().getID());
 			_ps.setString(2, msg.getAirline().getCode());
 			_ps.setString(3, msg.getAirportD().getIATA());
@@ -53,14 +52,13 @@ public class SetRoute extends DAO {
 			_ps.setString(11, msg.getRoute());
 
 			// Save the data
-			_ps.executeUpdate();
+			executeUpdate(1);
 			if (msg.getRouteID() == 0)
 				msg.setRouteID(getNewID());
 
 			// Save the waypoints
 			int seq = -1;
-			prepareStatementWithoutLimits("INSERT INTO acars.ROUTE_WP (ID, SEQ, CODE, ITEMTYPE, LATITUDE, "
-					+ "LONGITUDE, AIRWAY, REGION) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+			prepareStatementWithoutLimits("INSERT INTO acars.ROUTE_WP (ID, SEQ, CODE, ITEMTYPE, LATITUDE, LONGITUDE, AIRWAY, REGION) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 			_ps.setInt(1, msg.getRouteID());
 			for (Iterator<NavigationDataBean> i = msg.getWaypoints().iterator(); i.hasNext();) {
 				NavigationDataBean nd = i.next();
@@ -77,7 +75,7 @@ public class SetRoute extends DAO {
 			}
 
 			// Write and commit
-			_ps.executeBatch();
+			executeBatchUpdate(1, msg.getWaypoints().size());
 			commitTransaction();
 		} catch (SQLException se) {
 			rollbackTransaction();

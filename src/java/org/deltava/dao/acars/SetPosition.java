@@ -83,8 +83,7 @@ public class SetPosition extends DAO {
 					i.remove();
 			}
 
-			_ps.executeBatch();
-			_ps.close();
+			executeBatchUpdate(1, entries.size());
 			
 			// Write COM/ATC records
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITION_ATC (FLIGHT_ID, REPORT_TIME, IDX, COM1, CALLSIGN, NETWORK_ID, LAT, LNG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -112,8 +111,7 @@ public class SetPosition extends DAO {
 				}
 			}
 			
-			_ps.executeBatch();
-			_ps.close();
+			executeBatchUpdate(1, entries.size());
 			commitTransaction();
 		} catch (SQLException se) {
 			rollbackTransaction();

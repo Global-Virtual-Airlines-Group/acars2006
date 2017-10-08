@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 6.0
+ * @version 8.0
  * @since 1.0
  */
 
@@ -71,8 +71,7 @@ public final class SetConnection extends DAO {
 				_ps.addBatch();
 			}
 			
-			_ps.executeBatch();
-			_ps.close();
+			executeBatchUpdate(1, ids.size());
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
