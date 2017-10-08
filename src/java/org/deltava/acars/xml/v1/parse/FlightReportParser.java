@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 7.0
+ * @version 8.0
  * @since 1.0
  */
 
@@ -40,6 +40,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		ACARSFlightReport afr = ACARSHelper.create(getChildText(e, "flightcode", "001"));
 		afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
+		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.valueOf(getChildText(e, "isDivert", "false")).booleanValue());
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 		afr.setStatus(FlightReport.SUBMITTED);
 		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
