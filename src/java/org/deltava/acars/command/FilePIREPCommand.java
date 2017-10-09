@@ -162,6 +162,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setDatabaseID(DatabaseID.ASSIGN, fr.getDatabaseID(DatabaseID.ASSIGN));
 				afr.setDatabaseID(DatabaseID.EVENT, fr.getDatabaseID(DatabaseID.EVENT));
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
+				afr.setAttribute(FlightReport.ATTR_DIVERT, fr.hasAttribute(FlightReport.ATTR_DIVERT));
 				if (!StringUtils.isEmpty(fr.getComments()))
 					comments.add(fr.getComments());
 			}
@@ -261,9 +262,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
 			}
 
-			// Check for excessive distance
-			if (afr.getDistance() > a.getRange())
-				afr.setAttribute(FlightReport.ATTR_RANGEWARN, true);
+			// Check for excessive distance and diversion
+			afr.setAttribute(FlightReport.ATTR_RANGEWARN, (afr.getDistance() > a.getRange()));
+			afr.setAttribute(FlightReport.ATTR_DIVERT, afr.hasAttribute(FlightReport.ATTR_DIVERT) || !afr.getAirportA().equals(info.getAirportA()));
 
 			// Check for excessive weight
 			if ((a.getMaxTakeoffWeight() != 0) && (afr.getTakeoffWeight() > a.getMaxTakeoffWeight()))
