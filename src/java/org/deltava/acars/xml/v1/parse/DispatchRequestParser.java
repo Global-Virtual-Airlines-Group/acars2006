@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for DispatchRequest elements.
  * @author Luke
- * @version 5.1
+ * @version 8.0
  * @since 2.0
  */
 
@@ -49,7 +49,7 @@ class DispatchRequestParser extends XMLElementParser<RequestMessage> {
 		msg.setAirportA(SystemData.getAirport(getChildText(ie, "airportA", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText(ie, "airportL", null)));
 		msg.setEquipmentType(getChildText(ie, "eqtype", user.getEquipmentType()));
-		msg.setSimulator(Simulator.fromName(getChildText(ie, "sim", "FS9")));
+		msg.setSimulator(Simulator.fromName(getChildText(ie, "sim", Simulator.FSX.name()), Simulator.FSX));
 		
 		// Get the fuel tanks
 		Element tse = e.getChild("tanks");

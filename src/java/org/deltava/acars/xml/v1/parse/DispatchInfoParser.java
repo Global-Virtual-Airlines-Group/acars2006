@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom2.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 5.1
+ * @version 8.0
  * @since 2.1
  */
 
@@ -43,7 +43,7 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 		msg.setLeg(StringUtils.parse(getChildText(fe, "leg", "1"), 1));
 		msg.setCruiseAltitude(getChildText(fe, "cruiseAlt", "31000"));
 		msg.setEquipmentType(getChildText(fe, "eqType", user.getEquipmentType()));
-		msg.setSimulator(Simulator.fromName(getChildText(e, "sim", Simulator.FS9.name())));
+		msg.setSimulator(Simulator.fromName(getChildText(e, "sim", Simulator.FSX.name()), Simulator.FSX));
 		msg.setAirportD(SystemData.getAirport(getChildText(fe, "airportD", null)));
 		msg.setAirportA(SystemData.getAirport(getChildText(fe, "airportA", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText(fe, "airportL", null)));
