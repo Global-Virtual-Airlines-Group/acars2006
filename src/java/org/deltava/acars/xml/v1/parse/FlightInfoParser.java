@@ -4,6 +4,7 @@ package org.deltava.acars.xml.v1.parse;
 import java.time.Instant;
 
 import org.jdom2.Element;
+import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.acars.beans.TXCode;
@@ -16,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 7.5
+ * @version 8.0
  * @since 1.0
  */
 
@@ -24,6 +25,8 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	
 	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP, 2017=Prepar3Dv4
 	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017};
+	
+	private static final Logger log = Logger.getLogger(FlightInfoParser.class);
 
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
@@ -77,11 +80,16 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setTX(StringUtils.parse(getChildText(e, "tx", String.valueOf(TXCode.DEFAULT_IFR)), TXCode.DEFAULT_IFR));
 		
 		// Parse the simulator
-		int ver = StringUtils.parse(getChildText(e, "fs_ver", "2004"), 2004);
+		String sim = getChildText(e, "fs_ver", "2004");
+		int ver = StringUtils.parse(sim, 2004);
 		if ((ver > 0) && (ver < FSUIPC_FS_VERSIONS.length))
-			msg.setSimulator(Simulator.fromVersion(FSUIPC_FS_VERSIONS[ver], Simulator.FS9));
+			msg.setSimulator(Simulator.fromVersion(FSUIPC_FS_VERSIONS[ver], Simulator.UNKNOWN));
 		else
-			msg.setSimulator(Simulator.fromVersion(ver, Simulator.FSX));
+			msg.setSimulator(Simulator.fromVersion(ver, Simulator.UNKNOWN));
+		
+		// Warn if unknown simulator
+		if (msg.getSimulator() == Simulator.UNKNOWN)
+			log.warn("Unknown simulator version from " + msg.getSender().getPilotCode() + " - " + sim);
 		
 		// Load sim major/minor
 		String simVersion = getChildText(e, "simVersion", "0.0"); int pos = simVersion.indexOf('.');
