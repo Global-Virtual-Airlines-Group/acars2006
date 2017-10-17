@@ -34,8 +34,7 @@ public final class SetConnection extends DAO {
 			return;
 		
 		try {
-			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, " +
-					"CLIENT_BUILD, BETA_BUILD) VALUES (CONV(?,10,16), ?, ?, INET6_ATON(?), ?, ?, ?)");
+			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (CONV(?,10,16), ?, ?, INET6_ATON(?), ?, ?, ?)");
 			_ps.setLong(1, c.getID());
 			_ps.setInt(2, c.getUser().getID());
 			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
@@ -71,7 +70,7 @@ public final class SetConnection extends DAO {
 				_ps.addBatch();
 			}
 			
-			executeBatchUpdate(1, ids.size());
+			executeBatchUpdate(0, ids.size());
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
@@ -84,8 +83,7 @@ public final class SetConnection extends DAO {
 	 */
 	public int closeAll() throws DAOException {
 		try {
-			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND "
-				+ "(DATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
+			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND (DATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
 			_ps.setInt(1, 24);
 			return executeUpdate(0);
 		} catch (SQLException se) {
