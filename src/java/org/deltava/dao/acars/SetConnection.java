@@ -70,7 +70,7 @@ public final class SetConnection extends DAO {
 				_ps.addBatch();
 			}
 			
-			executeBatchUpdate(0, ids.size());
+			executeBatchUpdate(0, 0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
