@@ -4,12 +4,13 @@ package org.deltava.acars.xml.v1.parse;
 import java.time.*;
 import java.time.format.DateTimeFormatterBuilder;
 
+import org.apache.log4j.Logger;
+
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.util.*;
-
 import org.deltava.acars.message.*;
 
 import org.deltava.acars.util.ACARSHelper;
@@ -23,6 +24,8 @@ import org.deltava.acars.xml.*;
  */
 
 class FlightReportParser extends XMLElementParser<FlightReportMessage> {
+	
+	private static final Logger log = Logger.getLogger(FlightReportParser.class);
 	
 	/**
 	 * Convert an XML flight report element into a FlightReportMessage.
@@ -54,11 +57,14 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setAircraftCode(getChildText(e, "code", null));
 		afr.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		
-		// Check for SDK and load data (this is really v2, but no sense making a new parser for a these elements element)
+		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", null));
-		afr.setLoadFactor(StringUtils.parse(getChildText(e, "loadFactor", "0"), 0.0));
-		if (Double.isNaN(afr.getLoadFactor()))
+		String lf = getChildText(e, "loadFactor", "0");
+		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
+		if (Double.isNaN(afr.getLoadFactor())) {
+			log.warn("Invalid load factor from " + user.getPilotCode() + " - " + lf);
 			afr.setLoadFactor(0);
+		}
 			
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
@@ -80,6 +86,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		}
 
 		// Set the weights/speeds
+		afr.setPaxWeight(StringUtils.parse(getChildText(e, "paxWeight", "0"), 0));
+		afr.setCargoWeight(StringUtils.parse(getChildText(e, "cargoWeight", "0"), 0));
 		afr.setTaxiFuel(StringUtils.parse(getChildText(e, "taxiFuel", "0"), 0));
 		afr.setTaxiWeight(StringUtils.parse(getChildText(e, "taxiWeight", "1"), 0));
 		afr.setTakeoffFuel(StringUtils.parse(getChildText(e, "takeoffFuel", "0"), 0));
