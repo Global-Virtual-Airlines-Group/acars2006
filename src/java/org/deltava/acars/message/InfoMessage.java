@@ -43,7 +43,6 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private String _star;
 	
 	private double _loadFactor = -1;
-	private double _lfDelta;
 	private int _pax;
 	
 	private boolean _flightComplete;
@@ -120,10 +119,6 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public double getLoadFactor() {
 		return _loadFactor;
-	}
-	
-	public double getLoadFactorDelta() {
-		return _lfDelta;
 	}
 	
 	public int getPassengers() {
@@ -301,10 +296,6 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setLoadFactor(double lf) {
 		_loadFactor = Math.max(-1, Math.min(1, lf));
-	}
-	
-	public void setLoadFactorDelta(double delta) {
-		_lfDelta = Math.max(-1, Math.min(1, delta));
 	}
 	
 	public void setPassengers(int pax) {

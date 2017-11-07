@@ -88,8 +88,10 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 			msg.setSimulator(Simulator.fromVersion(ver, Simulator.UNKNOWN));
 		
 		// Warn if unknown simulator
-		if (msg.getSimulator() == Simulator.UNKNOWN)
+		if (msg.getSimulator() == Simulator.UNKNOWN) {
 			log.warn("Unknown simulator version from " + msg.getSender().getPilotCode() + " - " + sim);
+			msg.setSimulator(Simulator.XP10); // FIXME: Hack for Build 120/121 not detecting XP all the time
+		}
 		
 		// Load sim major/minor
 		String simVersion = getChildText(e, "simVersion", "0.0"); int pos = simVersion.indexOf('.');
@@ -101,9 +103,14 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		else if (msg.getSimulator() == Simulator.FS2002)
 			msg.setSimulatorVersion(8, 0);
 		
-		// Read load factors if present (121+)
-		msg.setLoadFactor(StringUtils.parse(getChildText(e, "loadFactor", "-1"), -1.0));
-		msg.setLoadFactorDelta(StringUtils.parse(getChildText(e, "loadFactorDelta", "0.0"), 0d));
+		// Read pax (122+) / load factors (121+) if present
+		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
+		if (msg.getPassengers() == 0) {
+			String lf = getChildText(e, "loadFactor", "0.0");
+			msg.setLoadFactor(StringUtils.parse(lf, 0d));
+			if (Double.isNaN(msg.getLoadFactor()))
+				log.warn("Invalid (NaN) load factor from " + user.getPilotCode() + " - " + lf);
+		}
 		
 		// Load SID data
 		Element sid = e.getChild("sid");
