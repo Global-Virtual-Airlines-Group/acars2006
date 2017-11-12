@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 7.5
+ * @version 8.0
  * @since 1.0
  */
 
@@ -308,11 +308,18 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				if (afr.getLoadFactor() == 0) {
+				if (afr.getLoadFactor() != info.getLoadFactor())
+					log.warn("Load factor mismatch! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
+				
+				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
 					ctx.setMessage("Calculating flight load factor");
 					LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
 					double loadFactor = lf.generate(afr.getDate());
+					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor());
 					afr.setLoadFactor(loadFactor);
+				} else if (info.getLoadFactor() > 0) {
+					afr.setLoadFactor(info.getLoadFactor());
+					log.info("Using flight data load factor of " + info.getLoadFactor());
 				}
 				
 				if ((a.getSeats() > 0) && (afr.getPassengers() == 0)) {
@@ -322,7 +329,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 						log.warn("Invalid passenger count - pax=" + paxCount + ", seats=" + a.getSeats());
 				}
 			}
-
+			
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
 			FuelUse use = fddao.checkRefuel(flightID);
