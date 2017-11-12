@@ -455,6 +455,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				if (cr == null)
 					cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), TestStatus.NEW);
 				
+				afr.setAttribute(FlightReport.ATTR_CHECKRIDE, (cr != null));
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
@@ -466,8 +467,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
 					wdao.write(cr);
-				} else
-					afr.setAttribute(FlightReport.ATTR_CHECKRIDE, false);
+				}
 			}
 
 			// Write the runway/gate data
@@ -554,7 +554,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ctx.commitTX();
 			
 			// FIXME: Check promoEQ stayed the same
-			String promoLegs2 = afr.getCaptEQType().toString();
+			FlightReport afr2 = prdao.get(afr.getID()); 
+			String promoLegs2 = afr2.getCaptEQType().toString();
 			if (!promoLegs.equals(promoLegs2))
 				log.warn("PromotionEQ was " + promoLegs + ", now " + promoLegs2);
 
