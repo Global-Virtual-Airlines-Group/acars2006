@@ -1,7 +1,5 @@
-// Copyright 2005, 2006, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2011, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
-
-import java.util.Iterator;
 
 import org.jdom2.Element;
 
@@ -14,7 +12,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Airline data messages.
  * @author Luke
- * @version 4.2
+ * @version 8.0
  * @since 1.0
  */
 
@@ -34,16 +32,13 @@ class AirlineFormatter extends ElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "airlines");
-		for (Iterator<Airline> i = amsg.getResponse().iterator(); i.hasNext(); ) {
-			Airline al = i.next();
-			
-			// Build the airline element
+		for (Airline al : amsg.getResponse()) {
 			Element ae = new Element("airline");
 			ae.setAttribute("code", al.getCode());
 			ae.setAttribute("name", al.getName());
-			for (String appCode : al.getApplications())
-				ae.addContent(XMLUtils.createElement("app", appCode));
-				
+			ae.setAttribute("historic", String.valueOf(al.getHistoric()));
+			al.getApplications().forEach(c -> ae.addContent(XMLUtils.createElement("app", c)));
+			al.getCodes().forEach(c -> ae.addContent(XMLUtils.createElement("altCode", c)));
 			e.addContent(ae);
 		}
 		
