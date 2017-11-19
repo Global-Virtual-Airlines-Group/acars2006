@@ -557,7 +557,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			FlightReport afr2 = prdao.get(afr.getID()); 
 			String promoLegs2 = afr2.getCaptEQType().toString();
 			if (!promoLegs.equals(promoLegs2))
-				log.warn("PromotionEQ was " + promoLegs + ", now " + promoLegs2);
+				log.warn("PromotionEQ was " + promoLegs + " on #" + afr.getID() + ", now " + promoLegs2 + " on #" + afr2.getID());
 
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
