@@ -554,7 +554,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ctx.commitTX();
 			
 			// FIXME: Check promoEQ stayed the same
-			FlightReport afr2 = prdao.get(afr.getID()); 
+			FlightReport afr2 = prdao.get(afr.getID(), usrLoc.getDB()); 
 			String promoLegs2 = afr2.getCaptEQType().toString();
 			if (!promoLegs.equals(promoLegs2))
 				log.warn("PromotionEQ was " + promoLegs + " on #" + afr.getID() + ", now " + promoLegs2 + " on #" + afr2.getID());
