@@ -308,7 +308,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				if (afr.getLoadFactor() != info.getLoadFactor())
+				if (Math.abs(afr.getLoadFactor() -info.getLoadFactor()) > 0.01)
 					log.warn("Load factor mismatch! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
 				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
