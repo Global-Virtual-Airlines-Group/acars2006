@@ -18,7 +18,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 7.4
+ * @version 8.1
  * @since 1.0
  */
 
@@ -87,7 +87,7 @@ public final class OutputDispatcher extends Worker {
 			String pkg = (String) versions.get(version);
 			try {
 				Class<?> pClass = Class.forName(pkg + ".format.Formatter");
-				_formatters.put(Integer.valueOf(version.substring(1)), (MessageFormatter) pClass.newInstance());
+				_formatters.put(Integer.valueOf(version.substring(1)), (MessageFormatter) pClass.getDeclaredConstructor().newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Formatter", e);
 			}

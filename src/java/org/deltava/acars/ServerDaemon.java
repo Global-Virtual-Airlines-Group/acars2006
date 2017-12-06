@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 7.4
+ * @version 8.1
  * @since 1.0
  */
 
@@ -58,8 +58,8 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
         String authClass = SystemData.get("security.auth");
         try {
            Class<?> c = Class.forName(authClass);
-           log.debug("Loaded class " + authClass);
-           Authenticator auth = (Authenticator) c.newInstance();
+           Authenticator auth = (Authenticator) c.getDeclaredConstructor().newInstance();
+       	   log.debug("Loaded class " + authClass);
            
            // Initialize and store in the servlet context
            auth.init(Authenticator.DEFAULT_PROPS_FILE);

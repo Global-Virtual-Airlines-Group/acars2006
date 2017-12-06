@@ -15,7 +15,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 7.4
+ * @version 8.1
  * @since 1.0
  */
 
@@ -49,7 +49,7 @@ public final class InputTranslator extends Worker {
 			String pkg = (String) versions.get(version);
 			try {
 				Class<?> pClass = Class.forName(pkg + ".parse.Parser");
-				_parsers.put(Integer.valueOf(version.substring(1)), (MessageParser) pClass.newInstance());
+				_parsers.put(Integer.valueOf(version.substring(1)), (MessageParser) pClass.getDeclaredConstructor().newInstance());
 			} catch (Exception e) {
 				log.error("Error loading " + version + " Message Parser", e);
 			}
