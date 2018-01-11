@@ -1,4 +1,4 @@
-// Copyright 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -7,7 +7,7 @@ import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.AcknowledgeMessage;
 
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.ScheduleSearchCriteria;
 
 import org.deltava.dao.*;
@@ -15,7 +15,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS Data Command to return the last airport flown into.
  * @author Luke
- * @version 4.1
+ * @version 8.1
  * @since 4.1
  */
 
@@ -47,9 +47,8 @@ public class LastAirportCommand extends DataCommand {
 			
 			// Load all PIREPs and save the latest PIREP as a separate bean in the request
 			List<FlightReport> results = frdao.getByPilot(ctx.getUser().getID(), ssc);
-			for (Iterator<FlightReport> i = results.iterator(); i.hasNext();) {
-				FlightReport fr = i.next();
-				if ((fr.getStatus() != FlightReport.DRAFT) && (fr.getStatus() != FlightReport.REJECTED)) {
+			for (FlightReport fr : results) {
+				if ((fr.getStatus() != FlightStatus.DRAFT) && (fr.getStatus() != FlightStatus.REJECTED)) {
 					ackMsg.setEntry("lastAirport", fr.getAirportA().getICAO());
 					break;
 				}

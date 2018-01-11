@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -6,15 +6,16 @@ import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.acars.IATACodes;
-import org.deltava.beans.flight.FlightReport;
-import org.deltava.dao.DAO;
-import org.deltava.dao.DAOException;
+import org.deltava.beans.flight.*;
+
+import org.deltava.dao.*;
+
 import org.deltava.util.cache.*;
 
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 7.2
+ * @version 8.1
  * @since 5.1
  */
 
@@ -53,7 +54,7 @@ public class GetACARSIATACodes extends DAO {
 		
 		try {
 			prepareStatementWithoutLimits(sqlBuf.toString());
-			_ps.setInt(1, FlightReport.OK);
+			_ps.setInt(1, FlightStatus.OK.ordinal());
 			
 			results = new CacheableMap<String, IATACodes>(dbName);
 			try (ResultSet rs = _ps.executeQuery()) {

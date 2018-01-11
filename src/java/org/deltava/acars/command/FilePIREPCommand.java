@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.0
+ * @version 8.1
  * @since 1.0
  */
 
@@ -379,7 +379,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
 			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
 				comments.add("SYSTEM: Automatically Held due to " + heldPIREPs + " held Flight Reports");
-				afr.setStatus(FlightReport.HOLD);
+				afr.setStatus(FlightStatus.HOLD);
 			}
 
 			// Load the departure runway
