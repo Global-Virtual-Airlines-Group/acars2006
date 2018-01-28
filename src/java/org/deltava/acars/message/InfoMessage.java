@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -6,14 +6,16 @@ import java.time.Instant;
 
 import org.deltava.acars.beans.TXCode;
 import org.deltava.beans.*;
+import org.deltava.beans.acars.AutopilotType;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.schedule.RoutePair;
+import org.deltava.beans.system.OperatingSystem;
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 7.5
+ * @version 8.2
  * @since 1.0
  */
 
@@ -36,8 +38,11 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private String _comments;
 	
 	private Simulator _sim = Simulator.UNKNOWN;
+	private AutopilotType _ap = AutopilotType.DEFAULT;
 	private int _simMajor;
 	private int _simMinor;
+	private OperatingSystem _os = OperatingSystem.WINDOWS;
+	private boolean _is64Bit;
 	
 	private String _sid;
 	private String _star;
@@ -125,6 +130,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		return _pax;
 	}
 	
+	public OperatingSystem getPlatform() {
+		return _os;
+	}
+	
+	public boolean getIs64Bit() {
+		return _is64Bit;
+	}
+	
 	public String getSID() {
 		return _sid;
 	}
@@ -135,6 +148,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public Simulator getSimulator() {
 		return _sim;
+	}
+	
+	public AutopilotType getAutopilotType() {
+		return _ap;
 	}
 	
 	public Instant getStartTime() {
@@ -253,6 +270,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		_sim = sim;
 	}
 	
+	public void setAutopilotType(AutopilotType ap) {
+		_ap = ap;
+	}
+	
 	public void setSimulatorVersion(int major, int minor) {
 		_simMajor = Math.max(1, major);
 		_simMinor = Math.max(0, minor);
@@ -300,6 +321,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setPassengers(int pax) {
 		_pax = Math.max(-1, pax);
+	}
+	
+	public void setPlatform(OperatingSystem os) {
+		_os = os;
+	}
+	
+	public void setIs64Bit(boolean is64) {
+		_is64Bit = is64;
 	}
 	
 	/**
