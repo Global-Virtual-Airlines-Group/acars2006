@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.List;
@@ -10,12 +10,12 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.mp.*;
 
-import static org.gvagroup.acars.ACARSFlags.*;
+import org.deltava.beans.acars.ACARSFlags;
 
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 7.0
+ * @version 8.2
  * @since 2.2
  */
 
@@ -67,9 +67,9 @@ public class MPInfoCommand extends ACARSCommand {
 		oldPM.setGspeed(msg.getGspeed());
 		oldPM.setBank(msg.getBank());
 		oldPM.setPitch(msg.getPitch());
-		oldPM.setFlag(FLAG_AFTERBURNER, msg.isFlagSet(FLAG_AFTERBURNER));
-		oldPM.setFlag(FLAG_GEARDOWN, msg.isFlagSet(FLAG_GEARDOWN));
-		oldPM.setFlag(FLAG_SPARMED, msg.isFlagSet(FLAG_SPARMED));
+		oldPM.setFlag(ACARSFlags.AFTERBURNER, msg.isFlagSet(ACARSFlags.AFTERBURNER));
+		oldPM.setFlag(ACARSFlags.GEARDOWN, msg.isFlagSet(ACARSFlags.GEARDOWN));
+		oldPM.setFlag(ACARSFlags.SP_ARMED, msg.isFlagSet(ACARSFlags.SP_ARMED));
 		oldPM.setFlaps(msg.getFlaps());
 		oldPM.setLights(msg.getLights());
 
@@ -83,7 +83,6 @@ public class MPInfoCommand extends ACARSCommand {
 		// Get the connections to notify
 		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 		cons.remove(ac);
-		for (ACARSConnection c : cons)
-			ctx.push(updmsg, c.getID());
+		cons.forEach(c -> ctx.push(updmsg, c.getID()));
 	}
 }

@@ -1,21 +1,20 @@
-// Copyright 2008, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
 
 import org.deltava.beans.*;
-
-import org.gvagroup.acars.ACARSFlags;
+import org.deltava.beans.acars.ACARSFlags;
 
 /**
  * An abstract message class used to support messages that store basic aircraft information. This
  * type of message is used for standard position reporting and/or multiplayer data transfer. 
  * @author Luke
- * @version 7.0
+ * @version 8.2
  * @since 2.2
  */
 
-public abstract class LocationMessage extends AbstractMessage implements GeospaceLocation, ACARSFlags, Comparable<LocationMessage> {
+public abstract class LocationMessage extends AbstractMessage implements GeospaceLocation, Comparable<LocationMessage> {
 	
 	private Instant _dt = Instant.now();
 	
@@ -103,8 +102,8 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 		return flags;
 	}
 
-	public boolean isFlagSet(int mask) {
-		return ((flags & mask) != 0);
+	public boolean isFlagSet(ACARSFlags flag) {
+		return flag.has(flags);
 	}
 	
 	public boolean isLightSet(int mask) {
@@ -156,8 +155,8 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 			longitude = l;
 	}
 	
-	public void setFlag(int mask, boolean isSet) {
-		flags = (isSet) ? (flags | mask) : (flags & (~mask));
+	public void setFlag(ACARSFlags flag, boolean isSet) {
+		flags = (isSet) ? flag.add(flags) : (flags & (~flag.getMask()));
 	}
 
 	public void setFlags(int flg) {

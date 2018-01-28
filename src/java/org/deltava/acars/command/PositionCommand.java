@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.beans.OnlineNetwork;
-import org.deltava.beans.acars.ClientType;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.navdata.Airspace;
 import org.deltava.beans.servinfo.*;
 
@@ -23,12 +23,10 @@ import org.deltava.dao.redis.SetTrack;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.acars.ACARSFlags;
-
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 7.4
+ * @version 8.2
  * @since 1.0
  */
 
@@ -134,7 +132,7 @@ public class PositionCommand extends PositionCacheCommand {
 			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
 			return;
 		} else {
-			boolean isPaused = msg.isFlagSet(ACARSFlags.FLAG_PAUSED);
+			boolean isPaused = msg.isFlagSet(ACARSFlags.PAUSED);
 			ac.setPosition(msg);
 			if (msg.isLogged() && !isPaused)
 				queue(msg);
