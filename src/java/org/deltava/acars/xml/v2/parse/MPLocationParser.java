@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.Instant;
@@ -6,16 +6,15 @@ import java.time.Instant;
 import org.jdom2.Element;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.ACARSFlags;
 
 import org.deltava.acars.message.mp.MPMessage;
 import org.deltava.acars.xml.*;
 
-import static org.gvagroup.acars.ACARSFlags.*;
-
 /**
  * A parser for multi-player location elements.
  * @author Luke
- * @version 7.0
+ * @version 8.2
  * @since 2.2
  */
 
@@ -48,10 +47,10 @@ class MPLocationParser extends XMLElementParser<MPMessage> {
 			
 			// Load attributes
 			String attr = e.getAttributeValue("attr", "");
-			msg.setFlag(FLAG_AFTERBURNER, (attr.indexOf('A') > 0));
-			msg.setFlag(FLAG_GEARDOWN, (attr.indexOf('G') > 0));
-			msg.setFlag(FLAG_SPARMED, (attr.indexOf('S') > 0));
-			msg.setFlag(FLAG_ONGROUND, (attr.indexOf('O') > 0));
+			msg.setFlag(ACARSFlags.AFTERBURNER, (attr.indexOf('A') > 0));
+			msg.setFlag(ACARSFlags.GEARDOWN, (attr.indexOf('G') > 0));
+			msg.setFlag(ACARSFlags.SP_ARMED, (attr.indexOf('S') > 0));
+			msg.setFlag(ACARSFlags.ONGROUND, (attr.indexOf('O') > 0));
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing MP Position data - " + ex.getMessage(), ex);
 		}

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.Instant;
@@ -7,6 +7,8 @@ import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.AutopilotType;
+import org.deltava.beans.system.OperatingSystem;
 import org.deltava.acars.beans.TXCode;
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
@@ -17,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 8.0
+ * @version 8.2
  * @since 1.0
  */
 
@@ -78,6 +80,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setRouteID(StringUtils.parse(getChildText(e, "routeID", "0"), 0));
 		msg.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		msg.setTX(StringUtils.parse(getChildText(e, "tx", String.valueOf(TXCode.DEFAULT_IFR)), TXCode.DEFAULT_IFR));
+		msg.setAutopilotType(AutopilotType.from(getChildText(e, "autopilotType", "DEFAULT")));
 		
 		// Parse the simulator
 		String sim = getChildText(e, "fs_ver", "2004");
@@ -102,14 +105,21 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 			msg.setSimulatorVersion(9, 1);
 		else if (msg.getSimulator() == Simulator.FS2002)
 			msg.setSimulatorVersion(8, 0);
+
+		// Read operating system info
+		int osCode = StringUtils.parse(getChildText(e, "platform", "0"), OperatingSystem.UNKNOWN.ordinal());
+		msg.setPlatform(OperatingSystem.values()[osCode]);
+		msg.setIs64Bit(Boolean.valueOf(getChildText(e, "is64Bit", "false")).booleanValue() || (msg.getSimulator() == Simulator.P3Dv4));
 		
 		// Read pax (122+) / load factors (121+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
 		if (msg.getPassengers() == 0) {
 			String lf = getChildText(e, "loadFactor", "0.0");
 			msg.setLoadFactor(StringUtils.parse(lf, 0d));
-			if (Double.isNaN(msg.getLoadFactor()))
+			if (Double.isNaN(msg.getLoadFactor())) {
 				log.warn("Invalid (NaN) load factor from " + user.getPilotCode() + " - " + lf);
+				msg.setLoadFactor(0);
+			}
 		}
 		
 		// Load SID data
