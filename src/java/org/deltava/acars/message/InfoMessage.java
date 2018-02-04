@@ -7,6 +7,7 @@ import java.time.Instant;
 import org.deltava.acars.beans.TXCode;
 import org.deltava.beans.*;
 import org.deltava.beans.acars.AutopilotType;
+import org.deltava.beans.acars.LoadType;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.schedule.RoutePair;
 import org.deltava.beans.system.OperatingSystem;
@@ -49,6 +50,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	private double _loadFactor = -1;
 	private int _pax;
+	private LoadType _loadType = LoadType.RANDOM;
 	
 	private boolean _flightComplete;
 	private boolean _checkRide;
@@ -128,6 +130,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public int getPassengers() {
 		return _pax;
+	}
+	
+	public LoadType getLoadType() {
+		return _loadType;
 	}
 	
 	public OperatingSystem getPlatform() {
@@ -321,6 +327,10 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setPassengers(int pax) {
 		_pax = Math.max(-1, pax);
+	}
+	
+	public void setLoadType(LoadType lt) {
+		_loadType = lt;
 	}
 	
 	public void setPlatform(OperatingSystem os) {

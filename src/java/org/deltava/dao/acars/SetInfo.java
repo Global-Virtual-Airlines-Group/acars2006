@@ -19,11 +19,11 @@ public class SetInfo extends DAO {
 
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, "
 		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX, LOADFACTOR, "
-		+ "APTYPE, PLATFORM, IS64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "APTYPE, PLATFORM, IS64, LOADTYPE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, "
-		+ "AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, "
-		+ "CLIENT_BUILD=?, BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, LOADFACTOR=?, APTYPE=?, PLATFORM=?, IS64=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
+		+ "AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, "
+		+ "BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, LOADFACTOR=?, APTYPE=?, PLATFORM=?, IS64=?, LOADTYPE=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -69,8 +69,9 @@ public class SetInfo extends DAO {
 			_ps.setInt(23, msg.getAutopilotType().ordinal());
 			_ps.setInt(24, msg.getPlatform().ordinal());
 			_ps.setBoolean(25, msg.getIs64Bit());
+			_ps.setInt(26, msg.getLoadType().ordinal());
 			if (!isNew)
-				_ps.setInt(26, msg.getFlightID());
+				_ps.setInt(27, msg.getFlightID());
 			
 			// Write to the database
 			executeUpdate(1);
