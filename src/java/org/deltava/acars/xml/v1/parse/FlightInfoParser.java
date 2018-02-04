@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.AutopilotType;
+import org.deltava.beans.acars.LoadType;
 import org.deltava.beans.system.OperatingSystem;
 import org.deltava.acars.beans.TXCode;
 import org.deltava.acars.message.*;
@@ -113,6 +114,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		
 		// Read pax (122+) / load factors (121+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
+		msg.setLoadType(LoadType.values()[StringUtils.parse(getChildText(e, "loadType", String.valueOf(LoadType.RANDOM.ordinal())), 0)]);
 		if (msg.getPassengers() == 0) {
 			String lf = getChildText(e, "loadFactor", "0.0");
 			msg.setLoadFactor(StringUtils.parse(lf, 0d));
