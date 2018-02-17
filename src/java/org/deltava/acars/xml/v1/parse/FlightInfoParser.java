@@ -91,12 +91,6 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		else
 			msg.setSimulator(Simulator.fromVersion(ver, Simulator.UNKNOWN));
 		
-		// Warn if unknown simulator
-		if (msg.getSimulator() == Simulator.UNKNOWN) {
-			log.warn("Unknown simulator version from " + msg.getSender().getPilotCode() + " - " + sim);
-			msg.setSimulator(Simulator.XP10); // FIXME: Hack for Build 120/121 not detecting XP all the time
-		}
-		
 		// Load sim major/minor
 		String simVersion = getChildText(e, "simVersion", "0.0"); int pos = simVersion.indexOf('.');
 		int major = StringUtils.parse(simVersion.substring(0, pos), 0); int minor = StringUtils.parse(simVersion.substring(pos + 1), 0);
