@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.1
+ * @version 8.2
  * @since 1.0
  */
 
@@ -335,6 +335,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			FuelUse use = fddao.checkRefuel(flightID);
 			afr.setTotalFuel(use.getTotalFuel());
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
+			use.getMessages().forEach(fuelMsg -> comments.add("SYSTEM: " + fuelMsg));
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
