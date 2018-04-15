@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to load flight routes.
  * @author Luke
- * @version 7.0
+ * @version 8.3
  * @since 2.0
  */
 
@@ -66,13 +66,11 @@ public class RouteRequestCommand extends DispatchCommand {
 				helper.loadFlightAwareRoutes(true);
 				
 			// If we still got nothing, load from existing PIREPs in our database
-			if (!helper.hasRoutes()) {
-				Collection<AirlineInformation> apps = SystemData.getApps();
-				for (Iterator<AirlineInformation> i = apps.iterator(); !helper.hasRoutes() && i.hasNext(); ) {
-					AirlineInformation ai = i.next();
-					if (ai != null)
-						helper.loadPIREPRoutes(ai.getDB());
-				}
+			Collection<AirlineInformation> apps = SystemData.getApps();
+			for (Iterator<AirlineInformation> i = apps.iterator(); !helper.hasRoutes() && i.hasNext(); ) {
+				AirlineInformation ai = i.next();
+				if (ai != null)
+					helper.loadPIREPRoutes(ai.getDB());
 			}
 				
 			// Get the departure and arrival weather and calculate the best terminal routes
@@ -99,7 +97,7 @@ public class RouteRequestCommand extends DispatchCommand {
 		} catch (DAOException de) {
 			log.error("Cannot load route data - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot load route data");
+			errorMsg.setEntry("error", "Cannot load route data - " + de.getMessage());
 			ctx.push(errorMsg, env.getConnectionID());
 		} finally {
 			ctx.release();
