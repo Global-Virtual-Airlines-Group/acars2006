@@ -65,12 +65,12 @@
 		<!-- FlightAware download data -->
 		<flightaware>
 			<enabled type="Boolean">true</enabled>
-			<download>
+			<flightXML>
 				<user>gvagroup</user>			
-				<pwd>***REMOVED***</pwd>			
-			</download>
+				<v2>***REMOVED***</v2>
+				<v3>***REMOVED***</v3>			
+			</flightXML>
 		</flightaware>
-		<cache>/var/cache/sched</cache>
 	</schedule>
 	
 	<!-- Weather download locations -->
