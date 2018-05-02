@@ -109,10 +109,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Validate the password
 			org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
 			if (auth instanceof SQLAuthenticator) {
-				SQLAuthenticator sqlAuth = (SQLAuthenticator) auth;
-				sqlAuth.setConnection(c);
-				sqlAuth.authenticate(usr, msg.getPassword());
-				sqlAuth.clearConnection();
+				try (SQLAuthenticator sqlAuth = (SQLAuthenticator) auth) {
+					sqlAuth.setConnection(c);
+					sqlAuth.authenticate(usr, msg.getPassword());
+				}
 			} else
 				auth.authenticate(usr, msg.getPassword());
 			
@@ -237,7 +237,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				con.setWarnings(wdao.getCount(usr.getID()));
 				if (con.getWarnings() >= SystemData.getInt("acars.voice.maxWarnings", 3)) {
 					log.warn(usr.getName() + " has " + con.getWarnings() + " warnings, voice disabled");
-					usr.setNoVoice(false);
+					usr.setNoVoice(true);
 				}
 			}
 			
@@ -245,7 +245,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (con.getProtocolVersion() > 1) {
 				GetSystemInfo sysdao = new GetSystemInfo(c);
 				SystemInformation sysinfo = sysdao.get(usr.getID());
-				requestSystemInfo = (sysinfo == null) || ((now.toEpochMilli() - sysinfo.getDate().toEpochMilli()) > (86400_000 * 14));
+				requestSystemInfo = (sysinfo == null) || ((now.toEpochMilli() - sysinfo.getDate().toEpochMilli()) > (86400_000 * 6));
 			}
 
 			// Start a transaction
