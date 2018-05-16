@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 8.2
+ * @version 8.3
  * @since 1.0
  */
 
@@ -88,6 +88,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
 			msg.setNAV1(getChildText(e, "nav1", "109.90"));
 			msg.setNAV2(getChildText(e, "nav2", "109.90"));
+			msg.setADF1(getChildText(e, "adf1", null));
+			msg.setADF2(getChildText(e, "adf2", null));
 			msg.setVASFree(Integer.parseInt(getChildText(e, "vasFree", "0")));
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
