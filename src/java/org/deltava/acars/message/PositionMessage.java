@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 8.2
+ * @version 8.3
  * @since 1.0
  */
 
@@ -37,6 +37,8 @@ public class PositionMessage extends LocationMessage {
 	private String _com2;
 	private String _nav1;
 	private String _nav2;
+	private String _adf1;
+	private String _adf2;
 	
 	private Controller _atc1;
 	private Controller _atc2;
@@ -194,6 +196,14 @@ public class PositionMessage extends LocationMessage {
 		return _nav2;
 	}
 	
+	public String getADF1() {
+		return _adf1;
+	}
+	
+	public String getADF2() {
+		return _adf2;
+	}
+	
 	public Controller getATC1() { 
 		return _atc1;
 	}
@@ -336,6 +346,14 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setNAV2(String freq) {
 		_nav2 = freq;
+	}
+	
+	public void setADF1(String freq) {
+		_adf1 = freq;
+	}
+	
+	public void setADF2(String freq) {
+		_adf2 = freq;
 	}
 	
 	public void setATC1(Controller atc) {
