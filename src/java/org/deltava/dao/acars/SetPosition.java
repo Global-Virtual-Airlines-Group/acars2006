@@ -34,7 +34,7 @@ public class SetPosition extends DAO {
 		try {
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, GSPEED, VSPEED, "
 				+ "N1, N2, MACH, FUEL, PHASE, SIM_RATE, FLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, GFORCE, FRAMERATE, "
-				+ "NAV1, NAV2, VAS, WEIGHT, ASTYPE, ADF1, ADF2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				+ "NAV1, NAV2, VAS, WEIGHT, ASTYPE, ADF1) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Write core entries
 			startTransaction();
@@ -78,7 +78,6 @@ public class SetPosition extends DAO {
 				_ps.setInt(34, msg.getWeight());
 				_ps.setInt(35, msg.getAirspaceType().ordinal());
 				_ps.setString(36, msg.getADF1());
-				_ps.setString(37, msg.getADF2());
 				_ps.addBatch();
 				
 				// Remove entries with no ATC ID
