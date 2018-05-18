@@ -38,7 +38,6 @@ public class PositionMessage extends LocationMessage {
 	private String _nav1;
 	private String _nav2;
 	private String _adf1;
-	private String _adf2;
 	
 	private Controller _atc1;
 	private Controller _atc2;
@@ -200,10 +199,6 @@ public class PositionMessage extends LocationMessage {
 		return _adf1;
 	}
 	
-	public String getADF2() {
-		return _adf2;
-	}
-	
 	public Controller getATC1() { 
 		return _atc1;
 	}
@@ -350,10 +345,6 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setADF1(String freq) {
 		_adf1 = freq;
-	}
-	
-	public void setADF2(String freq) {
-		_adf2 = freq;
 	}
 	
 	public void setATC1(Controller atc) {
