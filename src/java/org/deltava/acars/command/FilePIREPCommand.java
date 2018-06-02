@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.2
+ * @version 8.3
  * @since 1.0
  */
 
@@ -439,7 +439,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 			// Clean up the memcached track data
 			SetTrack tkwdao = new SetTrack();
-			tkwdao.clear(flightID);
+			tkwdao.clear(true, String.valueOf(flightID));
 			
 			// Update the checkride record (don't assume pilots check the box, because they don't)
 			CheckRide cr = null;
