@@ -26,7 +26,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 8.2
+ * @version 8.3
  * @since 1.0
  */
 
@@ -123,7 +123,7 @@ public class PositionCommand extends PositionCacheCommand {
 		// Clear temporary track if being saved
 		SetTrack tkdao = new SetTrack(); 
 		if (msg.isLogged())
-			tkdao.clear(info.getFlightID());
+			tkdao.clear(true, String.valueOf(info.getFlightID()));
 
 		// Queue it up
 		if (msg.isReplay() && msg.isLogged())
@@ -137,7 +137,7 @@ public class PositionCommand extends PositionCacheCommand {
 			if (msg.isLogged() && !isPaused)
 				queue(msg);
 			else if (!isPaused)
-				tkdao.write(info.getFlightID(), msg);
+				tkdao.write(true, String.valueOf(info.getFlightID()), msg);
 		}
 		
 		// Log message received
