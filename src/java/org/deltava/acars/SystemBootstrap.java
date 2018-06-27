@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -32,7 +32,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 8.1
+ * @version 8.3
  * @since 1.0
  */
 
@@ -118,7 +118,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		SharedData.addData(SharedData.JDBC_POOL + SystemData.get("airline.code"), _jdbcPool);
 		
 		// Init Redis
-		RedisUtils.init("localhost");
+		RedisUtils.init("localhost", 0, code);
 		
 		// Initialize caches
 		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
