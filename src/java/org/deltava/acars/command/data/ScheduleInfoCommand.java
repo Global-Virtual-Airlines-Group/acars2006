@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 4.1
+ * @version 8.3
  * @since 1.0
  */
 
@@ -53,6 +53,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
 		sc.setDBName(ctx.getACARSConnection().getUserData().getDB());
 		sc.setCheckDispatchRoutes(true);
+		sc.setExcludeHistoric(Boolean.valueOf(msg.getFlag("excludeHistoric")).booleanValue());
 		sc.setFlightsPerRoute(3);
 		sc.setSortBy("RAND()");
 		sc.setDispatchOnly(Boolean.valueOf(msg.getFlag("dispatchOnly")).booleanValue());
