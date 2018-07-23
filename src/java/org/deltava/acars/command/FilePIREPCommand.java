@@ -624,7 +624,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			}
 			
 			// Log completion
-			log.info("PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
+			log.info("PIREP " + afr.getID() + " from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			log.error(ac.getUserID() + " - " + de.getMessage(), de);
