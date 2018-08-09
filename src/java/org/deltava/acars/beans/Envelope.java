@@ -1,13 +1,14 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.Pilot;
+import org.deltava.util.StringUtils;
 import org.deltava.acars.message.Message;
 
 /**
  * An Envelope is a bean used to link data with sender/addressee information.
  * @author Luke
- * @version 8.0
+ * @version 8.3
  * @since 1.0
  * @param <T>  the envelope type
  */
@@ -69,7 +70,11 @@ public abstract class Envelope<T> implements Comparable<Envelope<T>> {
 	 * @return the Owner's Pilot Code
 	 */
 	public String getOwnerID() {
-		return (_owner == null) ? Message.SYSTEM_NAME : _owner.getPilotCode();
+		if (_owner == null)
+			return Message.SYSTEM_NAME;
+		
+		String pCode = _owner.getPilotCode();
+		return StringUtils.isEmpty(pCode) ? String.valueOf(_owner.getID()) : pCode;
 	}
 	
 	/**
