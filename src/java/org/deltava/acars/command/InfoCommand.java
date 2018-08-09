@@ -81,7 +81,7 @@ public class InfoCommand extends ACARSCommand {
 					assignID = true;
 					msg.setFlightID(0);
 				} else if (info.getAuthorID() != env.getOwner().getID()) {
-					log.warn(env.getOwnerID() + " requesting owned Flight " + msg.getFlightID());
+					log.warn(env.getOwnerID() + " requesting Flight " + msg.getFlightID() + " - owned by ID " + info.getAuthorID());
 					assignID = true;
 					msg.setFlightID(0);
 				} else if (info.getArchived() || info.getHasPIREP()) {
