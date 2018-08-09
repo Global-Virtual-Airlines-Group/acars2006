@@ -52,7 +52,8 @@ public class InfoCommand extends ACARSCommand {
 		if (con.getIsDispatch()) {
 			log.warn("Dispatch Client requesting flight ID!");
 			return;
-		}
+		} else if (!con.getUserID().equals(env.getOwnerID()))
+			log.warn("Connection owned by " + con.getUserID() + " Envelope owned by " + env.getOwnerID());
 
 		// Build the acknowledge message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
