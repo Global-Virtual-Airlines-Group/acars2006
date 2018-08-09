@@ -152,6 +152,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (flushed > 0)
 				log.info("Flushed " + flushed + " Position records from queue");
 			
+			// Log number of positions
+			int positionCount = fddao.getRouteEntries(info.getFlightID(), false).size();
+			if (positionCount == 0)
+				log.warn("No position records for Flight " + info.getFlightID());
+			
 			// Create comments field
 			Collection<String> comments = new LinkedHashSet<String>();
 
