@@ -61,9 +61,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		ACARSConnection ac = ctx.getACARSConnection();
 		if ((ac == null) || ac.getIsDispatch())
 			return;
-
+		
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
+		if (!ac.getUserID().equals(env.getOwnerID()))
+			log.warn("Connection owned by " + ac.getUserID() + " Envelope owned by " + env.getOwnerID());
 
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
