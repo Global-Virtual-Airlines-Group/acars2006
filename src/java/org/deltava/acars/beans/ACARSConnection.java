@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -15,13 +15,13 @@ import org.deltava.beans.system.IPBlock;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
-import org.deltava.util.NetworkUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 8.0
+ * @version 8.3
  * @since 1.0
  */
 
@@ -323,7 +323,11 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	}
 
 	public String getUserID() {
-		return isAuthenticated() ? _userInfo.getPilotCode() : getRemoteAddr();
+		if (!isAuthenticated())
+			return getRemoteAddr();
+		
+		String pCode = _userInfo.getPilotCode();
+		return StringUtils.isEmpty(pCode) ? String.valueOf(_userInfo.getID()) : pCode;
 	}
 
 	public boolean isAuthenticated() {
