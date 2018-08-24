@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 8.2
+ * @version 8.3
  * @since 1.0
  */
 
@@ -223,7 +223,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 		 
 		// Save the connection data
-		boolean requestSystemInfo = false;
+		boolean requestSystemInfo = false; int heldFlights = 0;
 		try {
 			Connection c = ctx.getConnection();
 			
@@ -247,6 +247,10 @@ public class AuthenticateCommand extends ACARSCommand {
 				SystemInformation sysinfo = sysdao.get(usr.getID());
 				requestSystemInfo = (sysinfo == null) || ((now.toEpochMilli() - sysinfo.getDate().toEpochMilli()) > (86400_000 * 6));
 			}
+			
+			// Check for held flights
+			GetFlightReports frdao = new GetFlightReports(c);
+			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 
 			// Start a transaction
 			ctx.startTX();
@@ -320,6 +324,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("distanceUnits", String.valueOf(usr.getDistanceType().ordinal()));
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
+		ackMsg.setEntry("heldFlights", String.valueOf(heldFlights));
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
