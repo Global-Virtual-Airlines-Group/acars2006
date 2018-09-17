@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An interface to store common ACARS message data.
  * @author Luke
- * @version 6.4
+ * @version 8.3
  * @since 1.0
  */
 
@@ -17,59 +17,11 @@ public interface Message {
 	 */
 	public static final String SYSTEM_NAME = "SYSTEM";
 
-	// Message type constants
-	public static final int MSG_POSITION = 0;
-	public static final int MSG_TEXT = 1;
-	public static final int MSG_DATAREQ = 2;
-	public static final int MSG_INFO = 3;
-	public static final int MSG_ACK = 4;
-	public static final int MSG_DIAG = 5;
-	public static final int MSG_AUTH = 6;
-	public static final int MSG_VIEWER = 7;
-	public static final int MSG_DATARSP = 8;
-	public static final int MSG_PING = 9;
-	public static final int MSG_QUIT = 10;
-	public static final int MSG_ENDFLIGHT = 11;
-	public static final int MSG_SYSTEM = 12;
-	public static final int MSG_PIREP = 13;
-	public static final int MSG_ERROR = 14;
-	public static final int MSG_DISPATCH = 15;
-	public static final int MSG_TOTD = 16;
-	public static final int MSG_MPUPDATE = 17;
-	public static final int MSG_MPINIT = 18;
-	public static final int MSG_MPREMOVE = 19;
-	public static final int MSG_SWCHAN = 20;
-	public static final int MSG_MUTE = 21;
-	public static final int MSG_VOICETOGGLE = 22;
-	public static final int MSG_VOICE = 23;
-	public static final int MSG_WARN = 24;
-	public static final int MSG_WARNRESET = 25;
-	public static final int MSG_POSUPDINT = 26;
-	public static final int MSG_VOICEPINGINT = 27;
-	public static final int MSG_COMPRESS = 28;
-	public static final int MSG_SYSINFO = 29;
-
-	/**
-	 * XML message codes.
-	 */
-	public static final String[] MSG_CODES = {"position", "text", "datareq", "flight_info", "ack", "diag", "auth", "view", "datarsp",
-	      "ping", "quit", "end_flight", "smsg", "pirep", "error", "dispatch", "totd", "mp", "mpinit", "mpquit", "voxswchan", "mute",
-	      "voxtoggle", "vox", "warn", "warnreset", "updint", "voxping", "compress", "sysinfo"};
-	
-	/**
-	 * XML message type descriptions.
-	 */
-	public static final String[] MSG_TYPES = {"Position Report", "Text Message", "Data Request", "Flight Information",
-			"Acknowledgement", "Diagnostic", "Authentication", "Raw Text", "Data Response", "Ping", "Disconnect", "End Flight",
-			"System Message", "Flight Report", "Error", "Dispatch Data", "Takeoff Touchdown", "MP Update", "MP Init", "MP Remove",
-			"Switch Channel", "Mute", "Voice Toggle", "Voice", "Warning", "Warning Reset", "Update Interval", "Voice Ping Interval",
-			"Data Compression", "System Information"};
-
 	/**
 	 * Returns the message type.
-	 * @return the type code
+	 * @return the MessageType
 	 */
-	public int getType();
+	public MessageType getType();
 	
 	/**
 	 * Returns if the message can be sent by an unauthenticated user.

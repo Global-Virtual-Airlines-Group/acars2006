@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,14 +6,14 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to toggle voice.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 4.0
  */
 
 public class VoiceToggleMessage extends AbstractMessage {
 	
-	private boolean _enabled;
-	private boolean _echo;
+	private final boolean _enabled;
+	private final boolean _echo;
 
 	/**
 	 * Creates the message.
@@ -22,7 +22,7 @@ public class VoiceToggleMessage extends AbstractMessage {
 	 * @param isEcho TRUE if voice echo, otherwise FALSE
 	 */
 	public VoiceToggleMessage(Pilot msgFrom, boolean isEnabled, boolean isEcho) {
-		super(Message.MSG_VOICETOGGLE, msgFrom);
+		super(MessageType.VOICETOGGLE, msgFrom);
 		_enabled = isEnabled;
 		_echo = isEcho;
 	}

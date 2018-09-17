@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 8.3
+ * @version 8.4
  * @since 1.0
  */
 
@@ -68,7 +68,7 @@ public class PositionMessage extends LocationMessage {
 	 * @param msgFrom the originating Pilot
 	 */
 	public PositionMessage(Pilot msgFrom) {
-		super(Message.MSG_POSITION, msgFrom);
+		super(MessageType.POSITION, msgFrom);
 	}
 	
 	public double getAngleOfAttack() {

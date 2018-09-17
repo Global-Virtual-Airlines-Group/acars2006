@@ -1,7 +1,5 @@
-// Copyright 2006, 2007, 2008, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
-
-import java.util.Iterator;
 
 import org.jdom2.Element;
 
@@ -9,13 +7,13 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.PilotMessage;
 
 import org.deltava.beans.Pilot;
-import org.deltava.util.StringUtils;
-import org.deltava.util.XMLUtils;
+
+import org.deltava.util.*;
 
 /**
  * An XML Formatter for Pilot data messages.
  * @author Luke
- * @version 4.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -34,11 +32,8 @@ class PilotFormatter extends ElementFormatter {
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, (pmsg.getRequestType() == DataMessage.REQ_ADDUSER) ? "addpilots" : "delpilots");
-		for (Iterator<Pilot> i = pmsg.getResponse().iterator(); i.hasNext(); ) {
-			Pilot p = i.next();
-			
-			// Create the elemnet
+		Element e = initDataResponse(pe, (pmsg.getRequestType() == DataRequest.ADDUSER) ? "addpilots" : "delpilots");
+		for (Pilot p : pmsg.getResponse()) {
 			Element ue = new Element("Pilot");
 			ue.setAttribute("id", p.getPilotCode());
 			ue.setAttribute("dbID", p.getHexID());

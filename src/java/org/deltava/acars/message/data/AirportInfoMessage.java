@@ -1,4 +1,4 @@
-// Copyright 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
@@ -6,12 +6,12 @@ import org.deltava.beans.wx.METAR;
 import org.deltava.beans.navdata.Runway;
 import org.deltava.beans.schedule.Airport;
 
-import org.deltava.acars.message.DataResponseMessage;
+import org.deltava.acars.message.*;
 
 /**
  * A message to store airport weather and runway preferences.
  * @author Luke
- * @version 2.6
+ * @version 8.4
  * @since 2.6
  */
 
@@ -26,7 +26,7 @@ public class AirportInfoMessage extends DataResponseMessage<Runway> {
 	 * @param parentID the parent messge ID
 	 */
 	public AirportInfoMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, REQ_APINFO, parentID);
+		super(msgFrom, DataRequest.APINFO, parentID);
 	}
 	
 	/**

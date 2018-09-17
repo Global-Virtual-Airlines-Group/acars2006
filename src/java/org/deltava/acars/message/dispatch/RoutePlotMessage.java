@@ -1,15 +1,16 @@
-// Copyright 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message to store route plotting requests.
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 3.0
  */
 
@@ -30,7 +31,7 @@ public class RoutePlotMessage extends DispatchMessage {
 	 * @param msgFrom the originating Pilot
 	 */
 	public RoutePlotMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_ROUTEPLOT, msgFrom);
+		super(DispatchRequest.ROUTEPLOT, msgFrom);
 	}
 	
 	/**

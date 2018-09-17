@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 8.3
+ * @version 8.4
  * @since 1.0
  */
 
@@ -297,7 +297,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		}
 
 		// Tell everybody else that someone has logged on
-		ConnectionMessage drMsg = new ConnectionMessage(usr, DataMessage.REQ_ADDUSER, 0); // Set this to zero since the message ID is from another user
+		ConnectionMessage drMsg = new ConnectionMessage(usr, DataRequest.ADDUSER, 0); // Set this to zero since the message ID is from another user
 		drMsg.add(con);
 		if (con.getUserHidden()) {
 			for (ACARSConnection ac : ctx.getACARSConnectionPool().getAll()) {

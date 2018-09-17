@@ -1,4 +1,4 @@
-// Copyright 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -6,7 +6,7 @@ import org.deltava.beans.*;
 /**
  * An ACARS System Information message bean.
  * @author Luke
- * @version 7.5
+ * @version 8.4
  * @since 6.4
  */
 
@@ -44,7 +44,7 @@ public class SystemInfoMessage extends AbstractMessage {
 	 * @param msgFrom the originating Pilot
 	 */
 	public SystemInfoMessage(Pilot msgFrom) {
-		super(Message.MSG_SYSINFO, msgFrom);
+		super(MessageType.SYSINFO, msgFrom);
 	}
 
 	public String getOSVersion() {

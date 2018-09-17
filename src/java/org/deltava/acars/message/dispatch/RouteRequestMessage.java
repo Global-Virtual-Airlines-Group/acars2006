@@ -1,15 +1,16 @@
-// Copyright 2007, 2008, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * A message to transmit route information requests.
  * @author Luke
- * @version 7.0
+ * @version 8.4
  * @since 2.0
  */
 
@@ -24,7 +25,7 @@ public class RouteRequestMessage extends DispatchMessage implements RoutePair {
 	 * @param msgFrom the originating Pilot
 	 */
 	public RouteRequestMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_ROUTEREQ, msgFrom);
+		super(DispatchRequest.ROUTEREQ, msgFrom);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2011, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 5.1
+ * @version 8.4
  * @since 1.0
  */
 
@@ -35,7 +35,7 @@ class DispatchInfoFormatter extends ElementFormatter {
 
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, dmsg.getRequestTypeName());
+		Element e = initDataResponse(pe, dmsg.getRequestType().getCode());
 		e.setAttribute("routeValid", String.valueOf(dmsg.isRouteValid()));
 		e.setAttribute("id", String.valueOf(dmsg.getRouteID()));
 		e.addContent(XMLUtils.createElement("airline", dmsg.getAirline().getCode()));

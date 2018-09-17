@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,13 +6,13 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to mute/unmute a user.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 4.0
  */
 
 public class MuteMessage extends AbstractMessage {
 	
-	private String _recipient;
+	private final String _recipient;
 
 	/**
 	 * Creates the message.
@@ -20,7 +20,7 @@ public class MuteMessage extends AbstractMessage {
 	 * @param recipient the user ID to mute
 	 */
 	public MuteMessage(Pilot msgFrom, String recipient) {
-		super(Message.MSG_MUTE, msgFrom);
+		super(MessageType.MUTE, msgFrom);
 		_recipient = recipient;
 	}
 

@@ -1,4 +1,4 @@
-// Copyright 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to switch voice channels.
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 4.0
  */
 
@@ -18,11 +18,11 @@ public class SwitchChannelMessage extends RecipientMessage {
 	
 	/**
 	 * Creates the message.
-	 * @param msgFrom the originating pilot.
+	 * @param msgFrom the originating pilot
 	 * @param channel the channel name to switch to
 	 */
 	public SwitchChannelMessage(Pilot msgFrom, String channel) {
-		super(Message.MSG_SWCHAN, msgFrom);
+		super(MessageType.SWCHAN, msgFrom);
 		_name = channel;
 	}
 

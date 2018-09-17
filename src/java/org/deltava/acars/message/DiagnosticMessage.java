@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2007, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -8,7 +8,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS super user message.
  * @author Luke
- * @version 1.0
+ * @version 8.4
  * @since 1.0
  */
 
@@ -26,7 +26,7 @@ public class DiagnosticMessage extends AbstractMessage {
 	private String _reqData;
 
 	public DiagnosticMessage(Pilot msgFrom) {
-		super(Message.MSG_DIAG, msgFrom);
+		super(MessageType.DIAG, msgFrom);
 	}
 	
 	public String getRequestData() {

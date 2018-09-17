@@ -10,7 +10,7 @@ import org.deltava.beans.acars.ACARSFlags;
  * An abstract message class used to support messages that store basic aircraft information. This
  * type of message is used for standard position reporting and/or multiplayer data transfer. 
  * @author Luke
- * @version 8.2
+ * @version 8.4
  * @since 2.2
  */
 
@@ -35,11 +35,11 @@ public abstract class LocationMessage extends AbstractMessage implements Geospac
 	private int lights;
 
 	/**
-	 * Initializes the Message
-	 * @param type the message type
+	 * Initializes the Message.
+	 * @param type the MessageType
 	 * @param msgFrom the originating Pilot
 	 */
-	protected LocationMessage(int type, Pilot msgFrom) {
+	protected LocationMessage(MessageType type, Pilot msgFrom) {
 		super(type, msgFrom);
 	}
 	

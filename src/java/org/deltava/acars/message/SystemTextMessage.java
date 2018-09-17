@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * A class to store ACARS server messages.
  * @author Luke
- * @version 7.3
+ * @version 8.4
  * @since 1.0
  */
 
@@ -20,7 +20,7 @@ public class SystemTextMessage extends AbstractMessage {
 	 * Creates the message.
 	 */
 	public SystemTextMessage() {
-		super(Message.MSG_SYSTEM, null);
+		super(MessageType.SYSTEM, null);
 	}
 
 	/**

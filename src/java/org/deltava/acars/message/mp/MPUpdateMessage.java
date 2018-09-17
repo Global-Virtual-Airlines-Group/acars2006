@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.mp;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.*;
 /**
  * A Multi-Player message to handle batch updates of all aircraft positions.
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 2.2
  */
 
@@ -18,14 +18,14 @@ public class MPUpdateMessage extends AbstractMessage {
 	
 	private final Collection<MPUpdate> _upds = new LinkedHashSet<MPUpdate>();
 	private boolean _showLivery;
-	private boolean _doClear;
+	private final boolean _doClear;
 
 	/**
 	 * Initializes the Message.
 	 * @param doClear TRUE if the MP list should be cleared, otherwise FALSE
 	 */
 	public MPUpdateMessage(boolean doClear) {
-		super(Message.MSG_MPUPDATE, null);
+		super(MessageType.MPUPDATE, null);
 		setProtocolVersion(2);
 		_doClear = doClear;
 	}

@@ -1,13 +1,14 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message to request progress information about a flight.
  * @author Luke
- * @version 2.1
+ * @version 8.4
  * @since 2.1
  */
 
@@ -19,7 +20,7 @@ public class ProgressRequestMessage extends DispatchMessage {
 	 * @param userID the Pilot ID of the requested Pilot
 	 */
 	public ProgressRequestMessage(Pilot msgFrom, String userID) {
-		super(DispatchMessage.DSP_PROGRESS, msgFrom);
+		super(DispatchRequest.PROGRESS, msgFrom);
 		setRecipient(userID);
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store Dispatch data.
  * @author Luke
- * @version 5.4
+ * @version 8.4
  * @since 1.1
  */
 
@@ -54,7 +54,7 @@ public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	 * @param msgFrom the originator
 	 */
 	public FlightDataMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_INFO, msgFrom);
+		super(DispatchRequest.INFO, msgFrom);
 	}
 	
 	public Airline getAirline() {

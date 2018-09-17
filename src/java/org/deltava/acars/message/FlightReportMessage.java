@@ -1,4 +1,4 @@
-// Copyright 2005, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2009, 2010, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,7 +7,7 @@ import org.deltava.beans.flight.ACARSFlightReport;
 /**
  * An ACARS Message used to pass PIREP data.
  * @author Luke
- * @version 2.8
+ * @version 8.4
  * @since 1.0
  */
 
@@ -22,7 +22,7 @@ public class FlightReportMessage extends AbstractMessage {
     * @param msgFrom the Pilot sending the message
     */
    public FlightReportMessage(Pilot msgFrom) {
-      super(MSG_PIREP, msgFrom);
+      super(MessageType.PIREP, msgFrom);
    }
    
    /**

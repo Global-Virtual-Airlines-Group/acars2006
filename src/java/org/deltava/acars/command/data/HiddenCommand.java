@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's hidden status.
  * @author Luke
- * @version 7.0
+ * @version 8.4
  * @since 2.2
  */
 
@@ -45,23 +45,18 @@ public class HiddenCommand extends DataCommand {
 		ac.setUserHidden(isNowHidden);
 		
 		// Send the update message
-		int msgType = isNowHidden ? DataMessage.REQ_REMOVEUSER : DataMessage.REQ_ADDUSER;
+		DataRequest msgType = isNowHidden ? DataRequest.REMOVEUSER : DataRequest.ADDUSER;
 		ConnectionMessage dmsg = new ConnectionMessage(env.getOwner(), msgType, msg.getID());
 		dmsg.add(ac);
 		
 		// Get a list of authenticated connections
 		Collection<ACARSConnection> authCons = ctx.getACARSConnectionPool().getAll();
-		for (Iterator<ACARSConnection> i = authCons.iterator(); i.hasNext(); ) {
-			ACARSConnection con = i.next();
-			if (!con.isAuthenticated())
-				i.remove();
-		}
+		authCons.removeIf(ACARSConnection::isAuthenticated);
 		
 		// Push the login announcement to everyone not in HR; send a userlist to HR
-		for (Iterator<ACARSConnection> i = authCons.iterator(); i.hasNext(); ) {
-			ACARSConnection con = i.next();
+		for (ACARSConnection con : authCons) {
 			if (con.getUser().isInRole("HR")) {
-				ConnectionMessage rspMsg = new ConnectionMessage(con.getUser(), DataMessage.REQ_USRLIST, msg.getID());
+				ConnectionMessage rspMsg = new ConnectionMessage(con.getUser(), DataRequest.USERLIST, msg.getID());
 				rspMsg.addAll(authCons);
 				ctx.push(rspMsg, con.getID());
 			} else
@@ -75,6 +70,6 @@ public class HiddenCommand extends DataCommand {
 	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 275;
+		return 225;
 	}
 }

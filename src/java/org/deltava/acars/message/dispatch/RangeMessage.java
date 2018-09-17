@@ -1,14 +1,15 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.*;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message to set a Dispatcher's service range.
  * @author Luke
- * @version 2.2
+ * @version 8.4
  * @since 2.2
  */
 
@@ -22,7 +23,7 @@ public class RangeMessage extends DispatchMessage {
 	 * @param msgFrom the originating Dispatcher
 	 */
 	public RangeMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_RANGE, msgFrom);
+		super(DispatchRequest.RANGE, msgFrom);
 	}
 
 	/**
