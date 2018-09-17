@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2011, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2011, 2015, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.acars.message.*;
@@ -6,7 +6,7 @@ import org.deltava.acars.message.*;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 6.4
+ * @version 8.4
  * @since 2.7
  */
 
@@ -27,20 +27,20 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		super.init();
 		
 		// Core parsers
-		_eParsers.put(Integer.valueOf(Message.MSG_TOTD), new TakeoffParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPLocationParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_MPINIT), new MPInitParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_VOICETOGGLE), new VoiceToggleParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_MUTE), new MuteParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_WARN), new WarnParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_WARNRESET), new WarnResetParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_POSITION), new PositionParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_COMPRESS), new CompressionParser());
-		_eParsers.put(Integer.valueOf(Message.MSG_SYSINFO), new SysInfoParser());
+		_eParsers.put(MessageType.TOTD, new TakeoffParser());
+		_eParsers.put(MessageType.MPUPDATE, new MPLocationParser());
+		_eParsers.put(MessageType.MPINIT, new MPInitParser());
+		_eParsers.put(MessageType.VOICETOGGLE, new VoiceToggleParser());
+		_eParsers.put(MessageType.MUTE, new MuteParser());
+		_eParsers.put(MessageType.SWCHAN, new SwitchChannelParser());
+		_eParsers.put(MessageType.WARN, new WarnParser());
+		_eParsers.put(MessageType.WARNRESET, new WarnResetParser());
+		_eParsers.put(MessageType.POSITION, new PositionParser());
+		_eParsers.put(MessageType.COMPRESS, new CompressionParser());
+		_eParsers.put(MessageType.SYSINFO, new SysInfoParser());
 		
 		// Dispatch parsers
-		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoParser());
-		_dspParsers.put(Integer.valueOf(DispatchMessage.DSP_ROUTEPLOT), new RoutePlotParser());
+		_dspParsers.put(DispatchRequest.SCOPEINFO, new ScopeInfoParser());
+		_dspParsers.put(DispatchRequest.ROUTEPLOT, new RoutePlotParser());
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2011, 2012 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2011, 2012, 2018 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 4.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -90,21 +90,19 @@ public class QuitCommand extends ACARSCommand {
 		}
 
 		// Create a deletepilots message
-		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataMessage.REQ_REMOVEUSER, msg.getID());
+		PilotMessage drmsg = new PilotMessage(env.getOwner(), DataRequest.REMOVEUSER, msg.getID());
 		drmsg.add(env.getOwner());
 		drmsg.setDispatch(msg.isDispatch());
 
 		// Get all connections
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
 		if (msg.isHidden()) {
-			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-				ACARSConnection ac = i.next();
+			for (ACARSConnection ac : cons) {
 				if ((ac.getID() != env.getConnectionID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drmsg, ac.getID());
 			}
 		} else {
-			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
-				ACARSConnection ac = i.next();
+			for (ACARSConnection ac : cons) {
 				if (ac.getID() != env.getConnectionID()) ctx.push(drmsg, ac.getID());
 				if (msg.isDispatch() && (ac.getDispatcherID() == env.getConnectionID()))
 					ctx.push(new CancelMessage(env.getOwner()), ac.getID());

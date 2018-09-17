@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -51,14 +51,12 @@ public class NavaidCommand extends DataCommand {
 			if (isRunway) {
 				Airport ap = SystemData.getAirport(id);
 				if (ap != null) {
-					String runway = msg.getFlag("runway");
+					StringBuilder runway = new StringBuilder(msg.getFlag("runway"));
 					// Add a leading zero to the runway if required
-					if (Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2))
-						runway = "0" + runway;
-					else if (runway.length() == 1)
-						runway = "0" + runway;
+					if ((Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2)) || (runway.length() == 1)) 
+						runway.insert(0, '0');
 
-					Runway nav = dao.getRunway(ap, runway, sim);
+					Runway nav = dao.getRunway(ap, runway.toString(), sim);
 					if (nav != null) {
 						log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
 						
@@ -81,7 +79,7 @@ public class NavaidCommand extends DataCommand {
 			// Push the response
 			ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
-			log.error("Error loading navaid " + msg.getFlag("id") + " - " + de.getMessage(), de);
+			log.error("Error loading navaid " + id + " - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
 			ctx.push(errorMsg, env.getConnectionID());

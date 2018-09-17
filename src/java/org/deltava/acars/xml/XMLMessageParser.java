@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2012, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2012, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -15,14 +15,14 @@ import org.deltava.util.StringUtils;
 /**
  * An abstract class to parse ACARS XML messages.
  * @author Luke
- * @version 7.3
+ * @version 8.4
  * @since 2.8
  */
 
 public abstract class XMLMessageParser extends MessageParser {
 	
-	protected final Map<Integer, XMLElementParser<? extends Message>> _eParsers =  new HashMap<Integer, XMLElementParser<? extends Message>>();
-	protected final Map<Integer, XMLElementParser<? extends DispatchMessage>> _dspParsers = new HashMap<Integer, XMLElementParser<? extends DispatchMessage>>();
+	protected final Map<MessageType, XMLElementParser<? extends Message>> _eParsers =  new HashMap<MessageType, XMLElementParser<? extends Message>>();
+	protected final Map<DispatchRequest, XMLElementParser<? extends DispatchMessage>> _dspParsers = new HashMap<DispatchRequest, XMLElementParser<? extends DispatchMessage>>();
 	
 	protected final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
 
@@ -105,26 +105,26 @@ public abstract class XMLMessageParser extends MessageParser {
 			// Get the commands
 			for (Element cmdE: root.getChildren(ProtocolInfo.CMD_ELEMENT_NAME)) {
 				Message msg = null;
-				int msgType = StringUtils.arrayIndexOf(Message.MSG_CODES, cmdE.getAttributeValue("type"));
+				MessageType msgType = MessageType.fromType(cmdE.getAttributeValue("type"));
 				try {
 					// Depending on the message type, either generate a message or lookup the parser in a map
 					switch (msgType) {
-						case Message.MSG_ENDFLIGHT:
+						case ENDFLIGHT:
 							msg = new EndFlightMessage(env.getOwner()); 
 							break;
 
-						case Message.MSG_PING:
+						case PING:
 							msg = new PINGMessage(env.getOwner());
 							break;
 
-						case Message.MSG_QUIT:
+						case QUIT:
 							msg = new QuitMessage(env.getOwner());
 							break;
 							
-						case Message.MSG_DISPATCH:
+						case DISPATCH:
 							String reqType = cmdE.getChildTextTrim("reqtype"); 
-							int dspType = StringUtils.arrayIndexOf(DispatchMessage.REQ_TYPES, reqType);
-							XMLElementParser<? extends DispatchMessage> dp = _dspParsers.get(Integer.valueOf(dspType));
+							DispatchRequest dspType = DispatchRequest.fromType(reqType);
+							XMLElementParser<? extends DispatchMessage> dp = _dspParsers.get(dspType);
 							if (dp != null)
 								msg = dp.parse(cmdE, env.getOwner());
 							else
@@ -133,12 +133,12 @@ public abstract class XMLMessageParser extends MessageParser {
 							break;
 							
 						default:
-							XMLElementParser<? extends Message> ep = _eParsers.get(Integer.valueOf(msgType));
+							XMLElementParser<? extends Message> ep = _eParsers.get(msgType);
 							if (ep != null) {
 								msg = ep.parse(cmdE, env.getOwner());
 								
 								// Get the protocol version
-								if (msgType == Message.MSG_AUTH) {
+								if (msgType == MessageType.AUTH) {
 									int version = StringUtils.parse(root.getAttributeValue("version"), getProtocolVersion());
 									AuthenticateMessage amsg = (AuthenticateMessage) msg;
 									amsg.setRequestedProtocolVersion(version);

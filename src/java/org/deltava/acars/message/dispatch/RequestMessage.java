@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2010, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -10,11 +10,12 @@ import org.deltava.beans.schedule.*;
 import org.deltava.util.GeoUtils;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 2.0
  */
 
@@ -45,7 +46,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * @param msgFrom the originating Pilot
 	 */
 	public RequestMessage(Pilot msgFrom) {
-		super(DSP_SVCREQ, msgFrom);
+		super(DispatchRequest.SVCREQ, msgFrom);
 	}
 	
 	/**

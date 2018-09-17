@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message with an optional recipeint.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 2.8
  */
 
@@ -14,7 +14,12 @@ public abstract class RecipientMessage extends AbstractMessage {
 	
 	private String _recipient;
 
-	protected RecipientMessage(int type, Pilot msgFrom) {
+	/**
+	 * Creates the message.
+	 * @param type the MessageType
+	 * @param msgFrom the originating Pilot
+	 */
+	protected RecipientMessage(MessageType type, Pilot msgFrom) {
 		super(type, msgFrom);
 	}
 	

@@ -1,4 +1,4 @@
-// Copyright 2005 Luke J. Kolin. All Rights Reserved.
+// Copyright 2005, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS Flight End message bean.
  * @author Luke
- * @version 1.0
+ * @version 8.4
  * @since 1.0
  */
 
@@ -17,6 +17,6 @@ public class EndFlightMessage extends AbstractMessage {
     * @param msgFrom the originating Pilot
     */
    public EndFlightMessage(Pilot msgFrom) {
-      super(Message.MSG_ENDFLIGHT, msgFrom);
+      super(MessageType.ENDFLIGHT, msgFrom);
    }
 }

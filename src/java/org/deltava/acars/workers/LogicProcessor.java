@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 7.4
+ * @version 8.4
  * @since 1.0
  */
 
@@ -30,9 +30,9 @@ public class LogicProcessor extends Worker {
 
 	private QueueingThreadPool _cmdPool;
 
-	private final Map<Integer, ACARSCommand> _commands = new HashMap<Integer, ACARSCommand>();
-	private final Map<Integer, DataCommand> _dataCommands = new HashMap<Integer, DataCommand>();
-	private final Map<Integer, DispatchCommand> _dspCommands = new HashMap<Integer, DispatchCommand>();
+	private final Map<MessageType, ACARSCommand> _commands = new HashMap<MessageType, ACARSCommand>();
+	private final Map<DataRequest, DataCommand> _dataCommands = new HashMap<DataRequest, DataCommand>();
+	private final Map<DispatchRequest, DispatchCommand> _dspCommands = new HashMap<DispatchRequest, DispatchCommand>();
 
 	/**
 	 * Initializes the Worker.
@@ -55,69 +55,70 @@ public class LogicProcessor extends Worker {
 		_cmdPool.setSortBase(_status.getSortOrder());
 
 		// Initialize commands
-		_commands.put(Integer.valueOf(Message.MSG_ACK), new DummyCommand());
-		_commands.put(Integer.valueOf(Message.MSG_PING), new AcknowledgeCommand(true));
-		_commands.put(Integer.valueOf(Message.MSG_POSITION), new PositionCommand());
-		_commands.put(Integer.valueOf(Message.MSG_TEXT), new TextMessageCommand());
-		_commands.put(Integer.valueOf(Message.MSG_AUTH), new AuthenticateCommand());
-		_commands.put(Integer.valueOf(Message.MSG_INFO), new InfoCommand());
-		_commands.put(Integer.valueOf(Message.MSG_ENDFLIGHT), new EndFlightCommand());
-		_commands.put(Integer.valueOf(Message.MSG_QUIT), new QuitCommand());
-		_commands.put(Integer.valueOf(Message.MSG_PIREP), new FilePIREPCommand());
-		_commands.put(Integer.valueOf(Message.MSG_ERROR), new ErrorCommand());
-		_commands.put(Integer.valueOf(Message.MSG_DIAG), new DiagnosticCommand());
-		_commands.put(Integer.valueOf(Message.MSG_TOTD), new TakeoffCommand());
-		_commands.put(Integer.valueOf(Message.MSG_MPUPDATE), new MPInfoCommand());
-		_commands.put(Integer.valueOf(Message.MSG_MPINIT), new InitCommand());
-		_commands.put(Integer.valueOf(Message.MSG_MPREMOVE), new RemoveCommand());
-		_commands.put(Integer.valueOf(Message.MSG_VOICETOGGLE), new VoiceToggleCommand());
-		_commands.put(Integer.valueOf(Message.MSG_VOICE), new VoiceMixCommand());
-		_commands.put(Integer.valueOf(Message.MSG_MUTE), new MuteCommand());
-		_commands.put(Integer.valueOf(Message.MSG_SWCHAN), new SwitchChannelCommand());
-		_commands.put(Integer.valueOf(Message.MSG_WARN), new WarnCommand());
-		_commands.put(Integer.valueOf(Message.MSG_COMPRESS), new CompressionCommand());
-		_commands.put(Integer.valueOf(Message.MSG_SYSINFO), new SystemInfoCommand());
+		_commands.put(MessageType.ACK, new DummyCommand());
+		_commands.put(MessageType.PING, new AcknowledgeCommand(true));
+		_commands.put(MessageType.POSITION, new PositionCommand());
+		_commands.put(MessageType.TEXT, new TextMessageCommand());
+		_commands.put(MessageType.AUTH, new AuthenticateCommand());
+		_commands.put(MessageType.INFO, new InfoCommand());
+		_commands.put(MessageType.ENDFLIGHT, new EndFlightCommand());
+		_commands.put(MessageType.QUIT, new QuitCommand());
+		_commands.put(MessageType.PIREP, new FilePIREPCommand());
+		_commands.put(MessageType.ERROR, new ErrorCommand());
+		_commands.put(MessageType.DIAG, new DiagnosticCommand());
+		_commands.put(MessageType.TOTD, new TakeoffCommand());
+		_commands.put(MessageType.MPUPDATE, new MPInfoCommand());
+		_commands.put(MessageType.MPINIT, new InitCommand());
+		_commands.put(MessageType.MPREMOVE, new RemoveCommand());
+		_commands.put(MessageType.VOICETOGGLE, new VoiceToggleCommand());
+		_commands.put(MessageType.VOICE, new VoiceMixCommand());
+		_commands.put(MessageType.MUTE, new MuteCommand());
+		_commands.put(MessageType.SWCHAN, new SwitchChannelCommand());
+		_commands.put(MessageType.WARN, new WarnCommand());
+		_commands.put(MessageType.COMPRESS, new CompressionCommand());
+		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
 
 		// Initialize data commands
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_BUSY), new BusyCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_HIDE), new HiddenCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_CHARTS), new ChartsCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_DRAFTPIREP), new DraftFlightCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_USRLIST), new UserListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_VALIDATE), new FlightValidationCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ALLIST), new AirlineListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APLIST), new AirportListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_EQLIST), new EquipmentListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_SCHED), new ScheduleInfoCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_NAVAIDINFO), new NavaidCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_TS2SERVERS), new TS2ServerListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_PVTVOX), new PrivateVoiceCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ATCINFO), new ATCInfoCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_NATS), new OceanicTrackCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LIVERIES), new LiveryListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_WX), new WeatherCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APINFO), new AirportInfoCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_APPINFO), new AppInfoCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_CHLIST), new VoiceChannelListCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LOAD), new LoadFactorCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ONLINE), new OnlinePresenceCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_LASTAP), new LastAirportCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_ALT), new AlternateAirportCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_IATA), new IATACodeCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_FLIGHTNUM), new FlightNumberCommand());
-		_dataCommands.put(Integer.valueOf(DataMessage.REQ_FIR), new FIRSearchCommand());
+		_dataCommands.put(DataRequest.BUSY, new BusyCommand());
+		_dataCommands.put(DataRequest.HIDE, new HiddenCommand());
+		_dataCommands.put(DataRequest.CHARTS, new ChartsCommand());
+		_dataCommands.put(DataRequest.DRAFTPIREP, new DraftFlightCommand());
+		_dataCommands.put(DataRequest.USERLIST, new UserListCommand());
+		_dataCommands.put(DataRequest.VALIDATE, new FlightValidationCommand());
+		_dataCommands.put(DataRequest.ALLIST, new AirlineListCommand());
+		_dataCommands.put(DataRequest.APLIST, new AirportListCommand());
+		_dataCommands.put(DataRequest.EQLIST, new EquipmentListCommand());
+		_dataCommands.put(DataRequest.SCHED, new ScheduleInfoCommand());
+		_dataCommands.put(DataRequest.NAVAIDINFO, new NavaidCommand());
+		_dataCommands.put(DataRequest.TS2SERVERS, new TS2ServerListCommand());
+		_dataCommands.put(DataRequest.PVTVOX, new PrivateVoiceCommand());
+		_dataCommands.put(DataRequest.ATCINFO, new ATCInfoCommand());
+		_dataCommands.put(DataRequest.NATS, new OceanicTrackCommand());
+		_dataCommands.put(DataRequest.LIVERIES, new LiveryListCommand());
+		_dataCommands.put(DataRequest.WX, new WeatherCommand());
+		_dataCommands.put(DataRequest.APINFO, new AirportInfoCommand());
+		_dataCommands.put(DataRequest.APPINFO, new AppInfoCommand());
+		_dataCommands.put(DataRequest.CHLIST, new VoiceChannelListCommand());
+		_dataCommands.put(DataRequest.LOAD, new LoadFactorCommand());
+		_dataCommands.put(DataRequest.ONLINE, new OnlinePresenceCommand());
+		_dataCommands.put(DataRequest.LASTAP, new LastAirportCommand());
+		_dataCommands.put(DataRequest.ALT, new AlternateAirportCommand());
+		_dataCommands.put(DataRequest.IATA, new IATACodeCommand());
+		_dataCommands.put(DataRequest.FLIGHTNUM, new FlightNumberCommand());
+		_dataCommands.put(DataRequest.FIR, new FIRSearchCommand());
+		_dataCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());
 
 		// Initialize dispatch commands
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SVCREQ), new ServiceRequestCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_CANCEL), new org.deltava.acars.command.dispatch.CancelCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ACCEPT), new org.deltava.acars.command.dispatch.AcceptCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_INFO), new FlightDataCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEREQ), new RouteRequestCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_COMPLETE), new ServiceCompleteCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_PROGRESS), new ProgressCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_RANGE), new ServiceRangeCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_SCOPEINFO), new ScopeInfoCommand());
-		_dspCommands.put(Integer.valueOf(DispatchMessage.DSP_ROUTEPLOT), new RoutePlotCommand());
+		_dspCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
+		_dspCommands.put(DispatchRequest.CANCEL, new org.deltava.acars.command.dispatch.CancelCommand());
+		_dspCommands.put(DispatchRequest.ACCEPT, new org.deltava.acars.command.dispatch.AcceptCommand());
+		_dspCommands.put(DispatchRequest.INFO, new FlightDataCommand());
+		_dspCommands.put(DispatchRequest.ROUTEREQ, new RouteRequestCommand());
+		_dspCommands.put(DispatchRequest.COMPLETE, new ServiceCompleteCommand());
+		_dspCommands.put(DispatchRequest.PROGRESS, new ProgressCommand());
+		_dspCommands.put(DispatchRequest.RANGE, new ServiceRangeCommand());
+		_dspCommands.put(DispatchRequest.SCOPEINFO, new ScopeInfoCommand());
+		_dspCommands.put(DispatchRequest.ROUTEPLOT, new RoutePlotCommand());
 
 		int size = _commands.size() + _dataCommands.size() + _dspCommands.size();
 		log.info("Loaded " + size + " commands");
@@ -127,11 +128,13 @@ public class LogicProcessor extends Worker {
 
 		private final MessageEnvelope _env;
 		private final ACARSCommand _cmd;
+		private final String _reqType;
 
-		CommandWorker(MessageEnvelope env, ACARSCommand cmd) {
+		CommandWorker(MessageEnvelope env, ACARSCommand cmd, String reqType) {
 			super();
 			_env = env;
 			_cmd = cmd;
+			_reqType = reqType;
 		}
 
 		@Override
@@ -145,28 +148,13 @@ public class LogicProcessor extends Worker {
 			if ((_env == null) || (_cmd == null)) return;
 
 			// Get the message and start time
-			Message msg = _env.getMessage(); String reqType;
-			switch (msg.getType()) {
-				case Message.MSG_DATAREQ:
-					DataMessage dmsg = (DataMessage) msg;
-					reqType = DataMessage.REQ_TYPES[dmsg.getRequestType()];
-					break;
-					
-				case Message.MSG_DISPATCH:
-					DispatchMessage dspmsg = (DispatchMessage) msg;
-					reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
-					break;
-					
-				default:
-					reqType = Message.MSG_TYPES[msg.getType()];
-			}
-			
-			_status.setMessage("Processing " + reqType + " message from " + _env.getOwnerID());
+			Message msg = _env.getMessage();
+			_status.setMessage("Processing " + _reqType + " message from " + _env.getOwnerID());
 
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
 			if (isAuthenticated == msg.isAnonymous()) {
-				String errorMsg = Message.MSG_TYPES[msg.getType()] + " Security Exception from " + _env.getOwnerID();
+				String errorMsg = _reqType + " Security Exception from " + _env.getOwnerID();
 				ACARSConnection ac = _pool.get(_env.getConnectionID());
 				if (ac != null)
 					errorMsg += " (" + ac.getRemoteAddr() + ")";
@@ -192,7 +180,7 @@ public class LogicProcessor extends Worker {
 			_status.add(msgLatency);
 			msgLatency = TimeUnit.MILLISECONDS.convert(msgLatency, TimeUnit.NANOSECONDS);
 			if (msgLatency > 500)
-				log.warn(Message.MSG_TYPES[msg.getType()] + " from " + _env.getOwnerID() + " has " + msgLatency + "ms latency");
+				log.warn(_reqType + " from " + _env.getOwnerID() + " has " + msgLatency + "ms latency");
 
 			// Initialize the command context and execute the command
 			CommandContext ctx = new CommandContext(_pool, _env, _status);
@@ -204,7 +192,7 @@ public class LogicProcessor extends Worker {
 			if (execTime > _cmd.getMaxExecTime()) log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
 
 			// Instrumentation
-			NewRelic.setRequestAndResponse(new SyntheticRequest(reqType, _env.getOwnerID()), new SyntheticResponse());
+			NewRelic.setRequestAndResponse(new SyntheticRequest(_reqType, _env.getOwnerID()), new SyntheticResponse());
 			NewRelic.setTransactionName("ACARS", _cmd.getClass().getSimpleName());
 			if (!msg.isAnonymous())
 				NewRelic.setUserName(msg.getSender().getName());
@@ -259,45 +247,43 @@ public class LogicProcessor extends Worker {
 				// Log the received message and get the command to process it
 				while (env != null) {
 					_status.setMessage("Processing Message");
-					Message msg = env.getMessage();
+					Message msg = env.getMessage(); String reqType = msg.getType().getType();
 					if (log.isDebugEnabled())
-						log.debug(Message.MSG_TYPES[msg.getType()] + " message from " + env.getOwnerID());
+						log.debug(reqType + " message from " + env.getOwnerID());
 
 					ACARSCommand cmd = null;
-					if (msg.getType() == Message.MSG_DATAREQ) {
+					if (msg.getType() == MessageType.DATAREQ) {
 						DataRequestMessage reqmsg = (DataRequestMessage) msg;
-						cmd = _dataCommands.get(Integer.valueOf(reqmsg.getRequestType()));
-						String reqType = DataMessage.REQ_TYPES[reqmsg.getRequestType()];
+						cmd = _dataCommands.get(reqmsg.getRequestType());
+						reqType = reqmsg.getRequestType().getType();
 						if (cmd == null)
 							log.warn("No Data Command for " + reqType + " request");
 						else
 							log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
-					} else if (msg.getType() == Message.MSG_DISPATCH) {
+					} else if (msg.getType() == MessageType.DISPATCH) {
 						DispatchMessage dspmsg = (DispatchMessage) msg;
-						cmd = _dspCommands.get(Integer.valueOf(dspmsg.getRequestType()));
-						String reqType = DispatchMessage.REQ_TYPES[dspmsg.getRequestType()];
+						cmd = _dspCommands.get(dspmsg.getRequestType());
+						reqType = dspmsg.getRequestType().getCode();
 						if (cmd == null)
 							log.warn("No Dispatch Command for " + reqType + " request");
 						else
 							log.info("Dispatch Request (" + reqType + ") from " + env.getOwnerID());
 					} else {
-						cmd = _commands.get(Integer.valueOf(msg.getType()));
+						cmd = _commands.get(msg.getType());
 						if (cmd == null)
-							log.warn("No command for " + Message.MSG_TYPES[msg.getType()] + " message");
+							log.warn("No command for " + reqType + " message");
 					}
 
 					// Send the envelope to the thread pool for processing
-					if (cmd != null)
-						_cmdPool.execute(new CommandWorker(env, cmd));
-
+					if (cmd != null) _cmdPool.execute(new CommandWorker(env, cmd, reqType));
 					env = MSG_INPUT.poll();
 				}
-
-				_status.complete();
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				log.error("Error Processing Message - " + e.getMessage(), e);
+			} finally {
+				_status.complete();				
 			}
 		}
 	}

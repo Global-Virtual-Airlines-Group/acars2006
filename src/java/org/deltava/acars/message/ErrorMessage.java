@@ -1,4 +1,4 @@
-// Copyright 2004, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,13 +6,13 @@ import org.deltava.beans.Pilot;
 /**
  * Error message. This is an internally generated message and not part of the ACARS wire protocol.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 1.0
  */
 
 public class ErrorMessage extends AbstractMessage {
 
-	private String _errMsg;
+	private final String _errMsg;
 
 	/**
 	 * Creates a new error message.
@@ -21,7 +21,7 @@ public class ErrorMessage extends AbstractMessage {
 	 * @param id the message ID
 	 */
 	public ErrorMessage(Pilot msgTo, String msg, long id) {
-		super(Message.MSG_ERROR, msgTo);
+		super(MessageType.ERROR, msgTo);
 		_errMsg = msg;
 		setID(id);
 	}

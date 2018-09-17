@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -22,10 +22,10 @@ public class QuitMessage extends AbstractMessage {
 
 	/**
 	 * Creates a new Quit Message.
-	 * @param msgFrom
+	 * @param msgFrom the originating Pilot
 	 */
 	public QuitMessage(Pilot msgFrom) {
-		super(Message.MSG_QUIT, msgFrom);
+		super(MessageType.QUIT, msgFrom);
 	}
 	
 	public boolean isHidden() {

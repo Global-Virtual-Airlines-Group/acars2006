@@ -1,4 +1,4 @@
-// Copyright 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.schedule.Airport;
 /**
  * An ACARS message to track takeoffs and landings.
  * @author Luke
- * @version 4.1
+ * @version 8.4
  * @since 2.8
  */
 
@@ -30,7 +30,7 @@ public class TakeoffMessage extends AbstractMessage {
 	 * @param msgFrom the originating Pilot
 	 */
 	public TakeoffMessage(Pilot msgFrom) {
-		super(Message.MSG_TOTD, msgFrom);
+		super(MessageType.TOTD, msgFrom);
 		setProtocolVersion(2);
 	}
 	

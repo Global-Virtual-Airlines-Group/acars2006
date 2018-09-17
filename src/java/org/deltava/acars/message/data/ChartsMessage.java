@@ -1,4 +1,4 @@
-// Copyright 2006, 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.acars.message.*;
@@ -9,7 +9,7 @@ import org.deltava.beans.schedule.*;
 /**
  * An ACARS data response message to store chart data. 
  * @author Luke
- * @version 2.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -23,7 +23,7 @@ public class ChartsMessage extends DataResponseMessage<Chart> {
 	 * @param parentID the request message ID
 	 */
 	public ChartsMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, REQ_CHARTS, parentID);
+		super(msgFrom, DataRequest.CHARTS, parentID);
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -8,11 +8,12 @@ import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.PopulatedRoute;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * A message to store route search results.
  * @author Luke
- * @version 5.1
+ * @version 8.4
  * @since 2.0
  */
 
@@ -21,7 +22,7 @@ public class RouteInfoMessage extends DispatchMessage {
 	private final Collection<PopulatedRoute> _plans = new ArrayList<PopulatedRoute>();
 	private final Collection<Gate> _arrivalGates = new LinkedHashSet<Gate>();
 	
-	private long _parent;
+	private final long _parent;
 	private Flight _schedInfo;
 	private Gate _gateD;
 	
@@ -33,9 +34,8 @@ public class RouteInfoMessage extends DispatchMessage {
 	 * @param parentID the request message ID
 	 */
 	public RouteInfoMessage(Pilot msgFrom, long parentID) {
-		super(DispatchMessage.DSP_ROUTEDATA, msgFrom);
-		if (parentID > 0)
-			_parent = parentID;
+		super(DispatchRequest.ROUTEDATA, msgFrom);
+		_parent = Math.max(0, parentID);
 	}
 
 	/**

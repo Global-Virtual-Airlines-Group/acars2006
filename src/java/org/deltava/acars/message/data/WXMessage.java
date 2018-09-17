@@ -1,16 +1,16 @@
-// Copyright 2008 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.schedule.Airport;
 import org.deltava.beans.wx.*;
 
-import org.deltava.acars.message.DataResponseMessage;
+import org.deltava.acars.message.*;
 
 /**
  * An ACARS data response message to store weather information.
  * @author Luke
- * @version 2.2
+ * @version 8.4
  * @since 2.2
  */
 
@@ -24,7 +24,7 @@ public class WXMessage extends DataResponseMessage<WeatherDataBean> {
 	 * @param parentID the request message ID
 	 */
 	public WXMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, REQ_WX, parentID);
+		super(msgFrom, DataRequest.WX, parentID);
 	}
 	
 	/**

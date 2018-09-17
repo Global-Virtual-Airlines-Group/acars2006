@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.beans.mvs.PopulatedChannel;
 /**
  * A message to request voice channels.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 4.0
  */
 
@@ -27,7 +27,7 @@ public class ChannelListMessage extends DataResponseMessage<PopulatedChannel> {
 	 * @param parentID the parent message ID
 	 */
 	public ChannelListMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, DataMessage.REQ_CHLIST, parentID);
+		super(msgFrom, DataRequest.CHLIST, parentID);
 	}
 
 	/**
@@ -44,8 +44,7 @@ public class ChannelListMessage extends DataResponseMessage<PopulatedChannel> {
 	 * @return the warning level
 	 */
 	public int getWarning(Long conID) {
-		Integer w = _warnings.get(conID);
-		return (w == null) ? 0 : w.intValue();
+		return _warnings.getOrDefault(conID, Integer.valueOf(0)).intValue();
 	}
 	
 	/**

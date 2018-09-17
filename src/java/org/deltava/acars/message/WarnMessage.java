@@ -1,4 +1,4 @@
-// Copyright 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,13 +6,13 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS Message to send a Warning to another user.
  * @author Luke
- * @version 4.0
+ * @version 8.4
  * @since 4.0
  */
 
 public class WarnMessage extends RecipientMessage {
 	
-	private boolean _reset;
+	private final boolean _reset;
 	
 	/**
 	 * Creates the Message.
@@ -20,7 +20,7 @@ public class WarnMessage extends RecipientMessage {
 	 * @param resetLevel TRUE if the level should be reset, otherwise FALSE
 	 */
 	public WarnMessage(Pilot sender, boolean resetLevel) {
-		super(Message.MSG_WARN, sender);
+		super(MessageType.WARN, sender);
 		_reset = resetLevel;
 	}
 	

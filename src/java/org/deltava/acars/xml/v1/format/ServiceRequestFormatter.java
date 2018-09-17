@@ -1,11 +1,10 @@
-// Copyright 2007, 2008, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
 
 import org.jdom2.Element;
 
-import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.FuelTank;
 
 import org.deltava.acars.message.Message;
@@ -16,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 5.1
+ * @version 8.4
  * @since 2.0
  */
 
@@ -35,7 +34,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, reqmsg.getRequestTypeName());
+		Element e = initDataResponse(pe, reqmsg.getRequestType().getCode());
 		e.setAttribute("id", String.valueOf(reqmsg.getID()));
 		e.addContent(XMLUtils.createElement("originator", msg.getSenderID()));
 		e.addContent(XMLUtils.createElement("id", Long.toHexString(msg.getID())));
@@ -62,8 +61,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		// Add tank capacity data
 		Element tse = new Element("tanks");
 		e.addContent(tse);
-		Map<FuelTank, Integer> tankSizes = reqmsg.getTankSizes();
-		for (Map.Entry<FuelTank, Integer> fte : tankSizes.entrySet()) {
+		for (Map.Entry<FuelTank, Integer> fte : reqmsg.getTankSizes().entrySet()) {
 			Element te = new Element("tank");
 			te.setAttribute("name", fte.getKey().getName());
 			te.setAttribute("size", String.valueOf(fte.getValue()));
@@ -72,10 +70,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 		
 		// Add arrival gates
 		Element age = new Element("gates");
-		e.addContent(age);
-		for (Gate g : reqmsg.getArrivalGates())
-			age.addContent(formatGate(g, "gate"));
-		
+		reqmsg.getArrivalGates().forEach(g -> age.addContent(formatGate(g, "gate")));
 		return pe;
 	}
 }

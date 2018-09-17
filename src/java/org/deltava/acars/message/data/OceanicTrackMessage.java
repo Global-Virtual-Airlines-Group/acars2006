@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import java.time.Instant;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS data response message to store Oceanic track data.
  * @author Luke
- * @version 3.4
+ * @version 8.4
  * @since 2.2
  */
 
@@ -25,7 +25,7 @@ public class OceanicTrackMessage extends DataResponseMessage<OceanicTrack> {
 	 * @param parentID the parent message ID
 	 */
 	public OceanicTrackMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, DataMessage.REQ_NATS, parentID);
+		super(msgFrom, DataRequest.NATS, parentID);
 	}
 	
 	/**

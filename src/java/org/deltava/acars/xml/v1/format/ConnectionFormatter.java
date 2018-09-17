@@ -1,7 +1,5 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
-
-import java.util.Iterator;
 
 import org.jdom2.Element;
 
@@ -17,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 4.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -39,11 +37,8 @@ class ConnectionFormatter extends ElementFormatter {
 
 		// Create the parent elements
 		Element pe = initResponse(msg.getType());
-		Element e = initDataResponse(pe, (cmsg.getRequestType() == DataMessage.REQ_USRLIST) ? "pilotlist" : "addpilots");
-		for (Iterator<ACARSConnection> i = cmsg.getResponse().iterator(); i.hasNext(); ) {
-			ACARSConnection con = i.next();
-			
-			// Create the element
+		Element e = initDataResponse(pe, (cmsg.getRequestType() == DataRequest.USERLIST ) ? "pilotlist" : "addpilots");
+		for (ACARSConnection con : cmsg.getResponse()) {
 			Element ce = new Element("Pilot");
 			ce.setAttribute("isVoice", String.valueOf(con.isVoiceEnabled()));
 			if (con.isAuthenticated()) {

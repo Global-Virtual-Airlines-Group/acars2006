@@ -16,7 +16,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 8.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -66,7 +66,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	private final Collection<String> _waypoints = new LinkedHashSet<String>();
 	
 	public InfoMessage(Pilot msgFrom) {
-		super(Message.MSG_INFO, msgFrom);
+		super(MessageType.INFO, msgFrom);
 	}
 	
 	public void addWaypoint(String newWP) {

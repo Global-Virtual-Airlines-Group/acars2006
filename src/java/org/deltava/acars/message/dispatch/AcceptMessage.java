@@ -1,7 +1,8 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
-import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.*;
+
 import org.deltava.beans.Pilot;
 
 /**
@@ -13,7 +14,7 @@ import org.deltava.beans.Pilot;
 
 public class AcceptMessage extends DispatchMessage {
 	
-	private long _parentID;
+	private final long _parentID;
 	
 	/**
 	 * Creates the message.
@@ -21,7 +22,7 @@ public class AcceptMessage extends DispatchMessage {
 	 * @param parentID the message ID of the DispatchRequest message
 	 */
 	public AcceptMessage(Pilot msgFrom, long parentID) {
-		super(DSP_ACCEPT, msgFrom);
+		super(DispatchRequest.ACCEPT, msgFrom);
 		_parentID = parentID;
 	}
 	

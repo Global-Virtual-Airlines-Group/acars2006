@@ -1,4 +1,4 @@
-// Copyright 2007, 2012, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2012, 2015, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -8,11 +8,12 @@ import org.deltava.beans.navdata.FIR;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message for Dispatcher progress responses.
  * @author Luke
- * @version 6.1
+ * @version 8.4
  * @since 2.1
  */
 
@@ -37,7 +38,7 @@ public class ProgressResponseMessage extends DispatchMessage {
 	 * @param msgFrom the originating Dispatcher
 	 */
 	public ProgressResponseMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_PROGRESS, msgFrom);
+		super(DispatchRequest.PROGRESS, msgFrom);
 	}
 
 	/**

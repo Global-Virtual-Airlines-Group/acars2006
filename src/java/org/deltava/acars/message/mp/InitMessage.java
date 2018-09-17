@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.mp;
 
 import org.deltava.acars.message.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.*;
 /**
  * An ACARS multi-player position initialization message.
  * @author Luke
- * @version 4.1
+ * @version 8.4
  * @since 2.2
  */
 
@@ -23,7 +23,7 @@ public class InitMessage extends AbstractMessage {
 	 * @param msgFrom the originating Pilot
 	 */
 	public InitMessage(Pilot msgFrom) {
-		super(Message.MSG_MPINIT, msgFrom);
+		super(MessageType.MPINIT, msgFrom);
 		setProtocolVersion(2);
 	}
 	

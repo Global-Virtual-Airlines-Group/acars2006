@@ -1,14 +1,14 @@
-// Copyright 2007 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
 
-import org.deltava.acars.message.DispatchMessage;
+import org.deltava.acars.message.*;
 
 /**
  * A message to transmit dispatch completion acknowledgement.
  * @author luke
- * @version 2.0
+ * @version 8.4
  * @since 2.0
  */
 
@@ -16,9 +16,9 @@ public class CompleteMessage extends DispatchMessage {
 
 	/**
 	 * Initializes the Message.
-	 * @param msgFrom
+	 * @param msgFrom the originating Pilot
 	 */
 	public CompleteMessage(Pilot msgFrom) {
-		super(DispatchMessage.DSP_COMPLETE, msgFrom);
+		super(DispatchRequest.COMPLETE, msgFrom);
 	}
 }

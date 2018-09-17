@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS data response message bean.
  * @author Luke
- * @version 7.2
+ * @version 8.4
  * @since 1.0
  * @param <E> the response message type
  */
@@ -25,8 +25,8 @@ public abstract class DataResponseMessage<E> extends DataMessage {
 	 * @param msgFrom the Data Response type
 	 * @param parentID the parent message ID
 	 */
-	public DataResponseMessage(Pilot msgFrom, int rType, long parentID) {
-		super(Message.MSG_DATARSP, msgFrom);
+	public DataResponseMessage(Pilot msgFrom, DataRequest rType, long parentID) {
+		super(MessageType.DATARSP, msgFrom);
 		setRequestType(rType);
 		_parent = Math.max(0, parentID);
 	}

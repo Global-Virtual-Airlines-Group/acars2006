@@ -1,4 +1,4 @@
-// Copyright 2013 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS data response message to store IATA aircraft codes.
  * @author Luke
- * @version 5.1
+ * @version 8.4
  * @since 5.1
  */
 
@@ -21,6 +21,6 @@ public class IATACodeMessage extends DataResponseMessage<IATACodes> {
 	 * @param parentID the request message ID
 	 */
 	public IATACodeMessage(Pilot msgFrom, long parentID) {
-		super(msgFrom, DataMessage.REQ_IATA, parentID);
+		super(msgFrom, DataRequest.IATA, parentID);
 	}
 }

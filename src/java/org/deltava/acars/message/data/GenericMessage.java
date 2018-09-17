@@ -1,14 +1,15 @@
-// Copyright 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
-import org.deltava.acars.message.DataResponseMessage;
+
+import org.deltava.acars.message.*;
 
 /**
  * An ACARS data response message to store generic name/multiple value pairs. This allows the sending of multiple
  * values associated with a single label type; it is not a complete name/value map.
  * @author Luke
- * @version 1.0
+ * @version 8.4
  * @since 1.0
  */
 
@@ -22,7 +23,7 @@ public class GenericMessage extends DataResponseMessage<String> {
 	 * @param rType the request message type
 	 * @param parentID the request message ID
 	 */
-	public GenericMessage(Pilot msgFrom, int rType, long parentID) {
+	public GenericMessage(Pilot msgFrom, DataRequest rType, long parentID) {
 		super(msgFrom, rType, parentID);
 	}
 	
