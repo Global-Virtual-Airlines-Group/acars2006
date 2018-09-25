@@ -50,6 +50,8 @@ class RunwayListFormatter extends ElementFormatter {
 			re.setAttribute("hdg", String.valueOf(r.getHeading()));
 			re.setAttribute("length", String.valueOf(r.getLength()));
 			re.setAttribute("surface", r.getSurface().getName());
+			if (r.getNewCode() != null)
+				re.setAttribute("oldCode", r.getNewCode());
 			if ((r.getFrequency() != null) && (!"-".equals(r.getFrequency())))
 				re.addContent(XMLUtils.createElement("freq", r.getFrequency()));
 			if (r instanceof UseCount)
