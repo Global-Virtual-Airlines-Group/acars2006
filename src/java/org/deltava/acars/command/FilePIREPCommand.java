@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.3
+ * @version 8.4
  * @since 1.0
  */
 
@@ -346,7 +346,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
-			GetSchedule sdao = new GetSchedule(con);
+			GetScheduleSearch sdao = new GetScheduleSearch(con);
 			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
 			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
 			
@@ -369,7 +369,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
 			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
 			boolean isEvent = (afr.getDatabaseID(DatabaseID.EVENT) != 0);
-			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB());
+			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB()); ScheduleEntry onTimeEntry = null;
 			if ((avgHours.getType() == RoutePairType.UNKNOWN) && !isAcademy && !isAssignment && !isEvent) {
 				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
 				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
@@ -380,6 +380,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				int maxHours = (int) ((avgHours.getFlightTime() * 1.15) + 5);
 				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
 					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
+				
+				// Calculate timeliness of flight
+				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
+				ssc.setAirportD(afr.getAirportD()); ssc.setAirportA(afr.getAirportA());
+				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
+				afr.setOnTime(oth.validate(afr));
+				onTimeEntry = oth.getScheduleEntry();
 			}
 
 			// Load held PIREP count
@@ -556,7 +563,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
 			if (wdao.updatePaxCount(afr.getID(), usrLoc.getDB()))
-				log.warn("Update Passnger count for PIREP #" + afr.getID());
+				log.warn("Updated Passnger count for PIREP #" + afr.getID());
+			
+			// Write ontime data if there is any
+			if (afr.getOnTime() != OnTime.UNKNOWN) {
+				SetACARSOnTime aowdao = new SetACARSOnTime(con);
+				aowdao.write(afr, onTimeEntry);
+				ackMsg.setEntry("onTime", afr.getOnTime().toString());
+			}
 			
 			// Commit the transaction
 			ctx.commitTX();
@@ -569,7 +583,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
-			ackMsg.setEntry("protocol", usrAirline.getSSL() ? "https" : "http");
+			ackMsg.setEntry("protocol", "https");
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 			ctx.push(ackMsg, ac.getID(), true);
 			
@@ -581,7 +595,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				mctxt.addData("user", p);
 				mctxt.addData("pirep", afr);
 				mctxt.addData("airline", usrAirline.getName());
-				mctxt.addData("url", (usrAirline.getSSL() ? "http" : "https") + "://www." + usrLoc.getDomain() + "/");
+				mctxt.addData("url", "https://www." + usrLoc.getDomain() + "/");
 					
 				// Load the template
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "CRSUBMIT"));
@@ -612,7 +626,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					mctxt.addData("user", p);
 					mctxt.addData("pirep", afr);
 					mctxt.addData("airline", crEQ.getOwner().getName());
-					mctxt.addData("url", (eq.getOwner().getSSL() ? "http" : "https") + "://www." + eq.getOwner().getDomain() + "/");
+					mctxt.addData("url", "https://www." + eq.getOwner().getDomain() + "/");
 					
 					// Load the template
 					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
