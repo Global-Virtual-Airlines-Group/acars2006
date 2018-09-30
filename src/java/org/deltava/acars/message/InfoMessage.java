@@ -24,6 +24,8 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	private int _flightID;
 	private Instant _startTime;
+	private Instant _simStartTime;
+	private Instant _simGateTime;
 	private Instant _endTime;
 	
 	private String _eqType;
@@ -162,6 +164,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public Instant getStartTime() {
 		return _startTime;
+	}
+	
+	public Instant getSimStartTime() {
+		return _simStartTime;
+	}
+	
+	public Instant getSimGateTime() {
+		return _simGateTime;
 	}
 	
 	public Instant getEndTime() {
@@ -311,6 +321,14 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public void setStartTime(Instant dt) {
 		_startTime = dt;
+	}
+	
+	public void setSimStartTime(Instant dt) {
+		_simStartTime = dt;
+	}
+	
+	public void setSimGateTime(Instant dt) {
+		_simGateTime = ((dt != null) && dt.isAfter(_simStartTime)) ? dt : _simStartTime;
 	}
 	
 	public void setEndTime(Instant dt) {

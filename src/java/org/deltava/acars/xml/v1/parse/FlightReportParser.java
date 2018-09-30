@@ -19,7 +19,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 8.1
+ * @version 8.4
  * @since 1.0
  */
 

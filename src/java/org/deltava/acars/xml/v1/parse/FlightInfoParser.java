@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 8.2
+ * @version 8.4
  * @since 1.0
  */
 
@@ -50,6 +50,9 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 				throw new IllegalArgumentException("Start date/time too far in future - " + dt);
 				
 			msg.setStartTime(dt);
+			String sst = getChildText(e, "startSimTime", "");
+			if (!StringUtils.isEmpty(sst))
+				msg.setSimStartTime(StringUtils.parseInstant(sst, "MM/dd/yyyy HH:mm:ss"));
 		} catch (Exception ex) {
 			msg.setStartTime(Instant.now());
 		}

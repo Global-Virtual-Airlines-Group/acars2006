@@ -325,16 +325,13 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
 		ackMsg.setEntry("heldFlights", String.valueOf(heldFlights));
+		ackMsg.setEntry("useSSL", "true");
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Restriction.NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
-		
-		// Check if airline uses SSL
-		AirlineInformation ai = SystemData.getApp(ud.getAirlineCode());
-		ackMsg.setEntry("useSSL", String.valueOf(ai.getSSL()));
 		
 		// Get max time acceleration rate
 		if (!con.getIsDispatch()) {
