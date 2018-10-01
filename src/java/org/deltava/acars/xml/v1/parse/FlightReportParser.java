@@ -84,6 +84,16 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		} catch (Exception pex) {
 			throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
 		}
+		
+		// Check for sim times
+		if (e.getChild("startSimTime") != null) {
+			try {
+				afr.setDepartureTime(StringUtils.parseInstant(e.getChildTextTrim("startSimTime"), "MM/dd/yyyy HH:mm:ss"));
+				afr.setArrivalTime(StringUtils.parseInstant(e.getChildTextTrim("gateSimTime"), "MM/dd/yyyy HH:mm:ss"));
+			} catch (Exception ex) {
+				log.warn("Error parsing sim time - " + ex.getMessage());
+			}
+		}
 
 		// Set the weights/speeds
 		afr.setPaxWeight(StringUtils.parse(getChildText(e, "paxWeight", "0"), 0));

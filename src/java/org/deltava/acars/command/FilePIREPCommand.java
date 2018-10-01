@@ -568,7 +568,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Write ontime data if there is any
 			if (afr.getOnTime() != OnTime.UNKNOWN) {
 				SetACARSOnTime aowdao = new SetACARSOnTime(con);
-				aowdao.write(afr, onTimeEntry);
+				aowdao.write(usrLoc.getDB(), afr, onTimeEntry);
 				ackMsg.setEntry("onTime", afr.getOnTime().toString());
 			}
 			
