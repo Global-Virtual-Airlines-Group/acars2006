@@ -2,15 +2,15 @@
 package org.deltava.acars.message;
 
 import java.util.*;
-import java.time.Instant;
+import java.time.*;
 
 import org.deltava.acars.beans.TXCode;
+
 import org.deltava.beans.*;
-import org.deltava.beans.acars.AutopilotType;
-import org.deltava.beans.acars.LoadType;
-import org.deltava.beans.schedule.Airport;
-import org.deltava.beans.schedule.RoutePair;
+import org.deltava.beans.acars.*;
+import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.OperatingSystem;
+
 import org.deltava.util.StringUtils;
 
 /**
@@ -20,7 +20,7 @@ import org.deltava.util.StringUtils;
  * @since 1.0
  */
 
-public class InfoMessage extends AbstractMessage implements RoutePair {
+public class InfoMessage extends AbstractMessage implements RoutePair, FlightTimes {
 	
 	private int _flightID;
 	private Instant _startTime;
@@ -172,6 +172,16 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 	
 	public Instant getSimGateTime() {
 		return _simGateTime;
+	}
+	
+	@Override
+	public ZonedDateTime getTimeD() {
+		return (_simStartTime == null) ? null : ZonedDateTime.ofInstant(_simStartTime, _airportD.getTZ().getZone());
+	}
+	
+	@Override
+	public ZonedDateTime getTimeA() {
+		return (_simGateTime == null) ? null : ZonedDateTime.ofInstant(_simGateTime, _airportA.getTZ().getZone());
 	}
 	
 	public Instant getEndTime() {
@@ -373,10 +383,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair {
 		StringBuilder buf = new StringBuilder();
 		for (int x = 0; x < wpList.length(); x++) {
 			char c = wpList.charAt(x);
-			if (Character.isLetterOrDigit(c))
-				buf.append(c);
-			else
-				buf.append(' ');
+			buf.append(Character.isLetterOrDigit(c) ? c : ' ');
 		}
 		
 		// Split into a tokenizer - replace periods with the waypoint spacer
