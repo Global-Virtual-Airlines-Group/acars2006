@@ -8,7 +8,7 @@ import org.deltava.beans.schedule.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
-import org.deltava.acars.message.data.NavigationDataMessage;
+import org.deltava.acars.message.data.*;
 
 import org.deltava.dao.*;
 import org.deltava.util.*;
@@ -44,13 +44,14 @@ public class NavaidCommand extends DataCommand {
 		Simulator sim = (inf == null) ? Simulator.FSX : inf.getSimulator();
 
 		boolean isRunway = (msg.getFlag("runway") != null); String id = msg.getFlag("id"); 
-		NavigationDataMessage rspMsg = new NavigationDataMessage(env.getOwner(), msg.getID());
 		try {
 			// Get the DAO and find the Navaid in the DAFIF database
 			GetNavData dao = new GetNavData(ctx.getConnection());
 			if (isRunway) {
+				RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID());
 				Airport ap = SystemData.getAirport(id);
 				if (ap != null) {
+					rspMsg.setAirportD(ap);
 					StringBuilder runway = new StringBuilder(msg.getFlag("runway"));
 					// Add a leading zero to the runway if required
 					if ((Character.isLetter(runway.charAt(runway.length() - 1)) && (runway.length() == 2)) || (runway.length() == 1)) 
@@ -64,8 +65,11 @@ public class NavaidCommand extends DataCommand {
 						nav.setHeading(nav.getHeading() + (int)nav.getMagVar());
 						rspMsg.add(nav);
 					}
+					
+					ctx.push(rspMsg, env.getConnectionID());
 				}
 			} else {
+				NavigationDataMessage rspMsg = new NavigationDataMessage(env.getOwner(), msg.getID());
 				NavigationDataMap ndMap = dao.get(id);
 				if (!ndMap.isEmpty()) {
 					ACARSConnection ac = ctx.getACARSConnection();
@@ -74,10 +78,9 @@ public class NavaidCommand extends DataCommand {
 					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
 					log.info("Loaded Navigation data for " + id);
 				}
+				
+				ctx.push(rspMsg, env.getConnectionID());
 			}
-			
-			// Push the response
-			ctx.push(rspMsg, env.getConnectionID());
 		} catch (DAOException de) {
 			log.error("Error loading navaid " + id + " - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
