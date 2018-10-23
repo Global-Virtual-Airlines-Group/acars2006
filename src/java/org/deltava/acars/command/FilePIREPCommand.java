@@ -570,6 +570,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				SetACARSOnTime aowdao = new SetACARSOnTime(con);
 				aowdao.write(usrLoc.getDB(), afr, onTimeEntry);
 				ackMsg.setEntry("onTime", afr.getOnTime().toString());
+				if (onTimeEntry != null)
+					ackMsg.setEntry("onTimeFlight", onTimeEntry.getFlightCode());
 			}
 			
 			// Commit the transaction
