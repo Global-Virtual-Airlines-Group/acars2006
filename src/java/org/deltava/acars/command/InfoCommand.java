@@ -122,7 +122,7 @@ public class InfoCommand extends ACARSCommand {
 				}
 			} else
 				msg.setScheduleValidated(true);
-
+			
 			// Look for a check ride record - Builds prior to 103 send no check ride flag, but submit on PIREP
 			boolean properCRHandling = (con.getClientBuild() > 103);
 			if (!msg.isNoRideCheck()) {
@@ -133,6 +133,17 @@ public class InfoCommand extends ACARSCommand {
 					msg.setCheckRide(cr != null);
 			} else if (properCRHandling && msg.isCheckRide())
 				ackMsg.setEntry("checkRide", "true");
+			
+			// Check for ontime
+			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
+				GetScheduleSearch sdao = new GetScheduleSearch(c);
+				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
+				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
+				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
+				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
+				if (oth.getScheduleEntry() != null)
+					ackMsg.setEntry("onTimeFlight", oth.getScheduleEntry().getFlightCode());
+			}
 			
 			// Load passenger count for 121+ that submits load factor
 			GetAircraft acdao = new GetAircraft(c);
