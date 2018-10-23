@@ -96,6 +96,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("msgoutput", String.valueOf(cs.getMsgsOut())));
 				ce.addContent(XMLUtils.createElement("remoteaddr", con.getRemoteAddr()));
 				ce.addContent(XMLUtils.createElement("remotehost", con.getRemoteHost()));
+				ce.addContent(XMLUtils.createElement("bytesSaved", String.valueOf(cs.getBytesSaved())));
 			}
 
 			e.addContent(ce);
