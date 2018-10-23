@@ -35,11 +35,9 @@ class RunwayListFormatter extends ElementFormatter {
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "runways");
 		e.setAttribute("count", String.valueOf(rmsg.getResponse().size()));
-		if (rmsg.getAirportA() != null) {
-			e.setAttribute("airportD", rmsg.getAirportD().getICAO());
+		e.setAttribute("airportD", rmsg.getAirportD().getICAO());
+		if (rmsg.getAirportA() != null)
 			e.setAttribute("airportA", rmsg.getAirportA().getICAO());
-		} else
-			e.setAttribute("airport", rmsg.getAirportD().getICAO());
 		
 		for (Runway r : rmsg.getResponse()) {
 			Element re = new Element("runway");
