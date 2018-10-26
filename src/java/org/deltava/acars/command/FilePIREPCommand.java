@@ -355,12 +355,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (isAcademy) {
 				GetAcademyCourses crsdao = new GetAcademyCourses(con);
 				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
-				for (Iterator<Course> i = courses.iterator(); (c == null) && i.hasNext(); ) {
-					Course crs = i.next();
-					if (crs.getStatus() == Status.STARTED)
-						c = crs;
-				}
-				
+				c = courses.stream().filter(crs -> (crs.getStatus() == Status.STARTED)).findFirst().orElse(null);
 				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") || p.isInRole("Examiner");
 				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
 			}
@@ -384,6 +379,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Calculate timeliness of flight
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(afr.getAirportD()); ssc.setAirportA(afr.getAirportA());
+				ssc.setExcludeHistoric(!afr.getAirline().getHistoric());
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				afr.setOnTime(oth.validate(afr));
 				onTimeEntry = oth.getScheduleEntry();

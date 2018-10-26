@@ -19,7 +19,7 @@ import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
-
+import org.deltava.util.FlightCodeParser;
 import org.deltava.util.StringUtils;
 
 /**
@@ -136,9 +136,11 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Check for ontime
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
+				ScheduleEntry fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
 				GetScheduleSearch sdao = new GetScheduleSearch(c);
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
+				ssc.setExcludeHistoric((fe ==null) || !fe.getAirline().getHistoric());
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null)
