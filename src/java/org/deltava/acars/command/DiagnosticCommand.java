@@ -50,7 +50,7 @@ public class DiagnosticCommand extends ACARSCommand {
 
 		switch (msg.getRequestType()) {
 			// Kick a user based on connection ID
-			case DiagnosticMessage.REQ_KICK:
+			case KICK:
 				if (!usr.isInRole("HR")) {
 					ctx.push(ackMsg, env.getConnectionID());
 					return;
@@ -127,7 +127,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				break;
 
 			// Block an IP address or Hostname
-			case DiagnosticMessage.REQ_BLOCK:
+			case BLOCK:
 				if (!usr.isInRole("HR")) {
 					ctx.push(ackMsg, env.getConnectionID());
 					return;
@@ -199,7 +199,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				break;
 
 			// FIXME: Refector this into warn command!
-			case DiagnosticMessage.CONTENT_WARN:
+			case WARN:
 				boolean isSC = (usr.getRank() == Rank.SC) || (usr.getRank().isCP());
 				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !usr.isInRole("Instructor") && !isSC) {
 					ctx.push(ackMsg, env.getConnectionID());

@@ -29,7 +29,7 @@ class DiagnosticFormatter extends ElementFormatter {
 		
 		// Create the element and the type
 		Element e = initResponse(msg.getType());
-		e.addContent(XMLUtils.createElement("reqtype", DiagnosticMessage.REQ_TYPES[dmsg.getRequestType()]));
+		e.addContent(XMLUtils.createElement("reqtype", dmsg.getRequestType().getDescription()));
 		e.addContent(XMLUtils.createElement("reqData", dmsg.getRequestData()));
 		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 		return e;
