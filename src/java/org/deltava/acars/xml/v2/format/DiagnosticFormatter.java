@@ -1,4 +1,4 @@
-// Copyright 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -8,7 +8,7 @@ import org.deltava.acars.message.*;
 /**
  * An XML formatter for diagnostic messages.
  * @author Luke
- * @version 7.3
+ * @version 8.4
  * @since 7.3
  */
 
@@ -27,7 +27,7 @@ public class DiagnosticFormatter extends ElementFormatter {
 		
 		// Build the ResponseElement
 		Element pe = initResponse(msg.getType());
-		pe.setAttribute("autoReconnect", String.valueOf(dmsg.getRequestType() != DiagnosticMessage.CONTENT_WARN));
+		pe.setAttribute("autoReconnect", String.valueOf(dmsg.getRequestType() != DiagRequest.WARN));
 		return pe;
 	}
 }

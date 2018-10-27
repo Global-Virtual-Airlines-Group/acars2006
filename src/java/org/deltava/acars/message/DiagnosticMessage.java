@@ -3,8 +3,6 @@ package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
 
-import org.deltava.util.StringUtils;
-
 /**
  * An ACARS super user message.
  * @author Luke
@@ -14,15 +12,8 @@ import org.deltava.util.StringUtils;
 
 public class DiagnosticMessage extends AbstractMessage {
 
-	// Request type constants
-	public static final int REQ_UNKNOWN = 0;
-	public static final int REQ_KICK = 1;
-	public static final int REQ_BLOCK = 2;
-	public static final int CONTENT_WARN = 3;
-	public static final String[] REQ_TYPES = {"?", "KickUser", "BlockIP", "ContentWarn"};
-
 	// Request type
-	private int _reqType;
+	private DiagRequest _reqType;
 	private String _reqData;
 
 	public DiagnosticMessage(Pilot msgFrom) {
@@ -33,7 +24,7 @@ public class DiagnosticMessage extends AbstractMessage {
 		return _reqData;
 	}
 	
-	public int getRequestType() {
+	public DiagRequest getRequestType() {
 		return _reqType;
 	}
 	
@@ -41,13 +32,7 @@ public class DiagnosticMessage extends AbstractMessage {
 		_reqData = newRD;
 	}
 	
-	public void setRequestType(int newRT) {
-		if ((newRT >= 0) && (newRT < REQ_TYPES.length))
-			_reqType = newRT;
-	}
-	
-	public void setRequestType(String newRT) {
-		int rType = StringUtils.arrayIndexOf(REQ_TYPES, newRT);
-		setRequestType((rType == -1) ? 0 : rType);
+	public void setRequestType(DiagRequest newRT) {
+		_reqType = newRT;
 	}
 }
