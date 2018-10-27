@@ -13,7 +13,7 @@ public enum DataRequest {
 	NAVAIDINFO("navaid"), PVTVOX("pvtvox"), EQLIST("eqList"), APLIST("apList"), ALLIST("aList"), CHARTS("charts"), ATCINFO("atc"), BUSY("busy"),
 	DRAFTPIREP("draftpirep"), TS2SERVERS("ts2servers"), SCHED("sched"), NATS("nat"), HIDE("hide"), LIVERIES("liveries"), WX("wx"), APINFO("airportinfo"),
 	APPINFO("appInfo"), CHLIST("vchannels"), LOAD("load"), LASTAP("lastairport"), ALT("alternate"), IATA("iataCodes"), FLIGHTNUM("flightnum"), 
-	FIR("fir"), RUNWAYS("runways");
+	FIR("fir"), RUNWAYS("runways"), GATES("gates");
 	
 	private final String _type;
 	
@@ -33,6 +33,11 @@ public enum DataRequest {
 		return _type;
 	}
 	
+	/**
+	 * Exception-safe enumeration parser.
+	 * @param type a request type
+	 * @return a DataRequest, or UNKNOWN
+	 */
 	public static DataRequest fromType(String type) {
 		for (DataRequest req : values()) {
 			if (req.getType().equalsIgnoreCase(type))
