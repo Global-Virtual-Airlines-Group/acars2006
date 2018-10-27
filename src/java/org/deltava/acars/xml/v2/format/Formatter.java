@@ -9,7 +9,7 @@ import org.deltava.acars.message.mp.*;
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 8.3
+ * @version 8.4
  * @since 2.8
  */
 
@@ -43,6 +43,7 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		_eFormatters.put(AirportMessage.class, new AirportFormatter());
 		_eFormatters.put(IATACodeMessage.class, new IATACodeFormatter());
 		_eFormatters.put(RunwayListMessage.class, new RunwayListFormatter());
+		_eFormatters.put(GateMessage.class, new GateFormatter());
 		
 		// Dispatch formatters
 		_eFormatters.put(RoutePlotMessage.class, new RoutePlotFormatter());
