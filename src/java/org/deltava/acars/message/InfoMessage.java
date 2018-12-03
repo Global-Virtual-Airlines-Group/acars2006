@@ -45,7 +45,8 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 	private int _simMajor;
 	private int _simMinor;
 	private OperatingSystem _os = OperatingSystem.WINDOWS;
-	private boolean _is64Bit;
+	private boolean _isSim64Bit;
+	private boolean _isACARS64Bit;
 	
 	private String _sid;
 	private String _star;
@@ -142,8 +143,12 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 		return _os;
 	}
 	
-	public boolean getIs64Bit() {
-		return _is64Bit;
+	public boolean getIsSim64Bit() {
+		return _isSim64Bit;
+	}
+	
+	public boolean getIsACARS64Bit() {
+		return _isACARS64Bit;
 	}
 	
 	public String getSID() {
@@ -365,8 +370,12 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 		_os = os;
 	}
 	
-	public void setIs64Bit(boolean is64) {
-		_is64Bit = is64;
+	public void setIsSim64Bit(boolean is64) {
+		_isSim64Bit = is64;
+	}
+	
+	public void setIsACARS64Bit(boolean is64) {
+		_isACARS64Bit = is64;
 	}
 	
 	/**
