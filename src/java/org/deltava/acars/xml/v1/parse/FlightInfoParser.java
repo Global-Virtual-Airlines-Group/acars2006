@@ -107,7 +107,8 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		// Read operating system info
 		int osCode = StringUtils.parse(getChildText(e, "platform", "0"), OperatingSystem.UNKNOWN.ordinal());
 		msg.setPlatform(OperatingSystem.values()[osCode]);
-		msg.setIs64Bit(Boolean.valueOf(getChildText(e, "is64Bit", "false")).booleanValue() || (msg.getSimulator() == Simulator.P3Dv4));
+		msg.setIsSim64Bit(Boolean.valueOf(getChildText(e, "is64Bit", "false")).booleanValue() || (msg.getSimulator() == Simulator.P3Dv4));
+		msg.setIsACARS64Bit(Boolean.valueOf(getChildText(e, "isACARS64Bit", "false")).booleanValue());
 		
 		// Read pax (122+) / load factors (121+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
