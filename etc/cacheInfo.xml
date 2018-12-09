@@ -39,7 +39,7 @@
 	<cache id="Accomplishments" max="24" expires="3600" />
 	<cache id="IATACodes" max="4" expires="7200" />
 
-	<cache id="IPInfo" max="512" expires="345600" />
-	<cache id="IPBlock" max="1024" expires="345600" />
+	<cache id="IPInfo" remote="true" expires="345600" />
+	<cache id="IPBlock" remote="true" expires="345600" />
 	<cache id="MessageTemplate" max="16" />
 </caches>
