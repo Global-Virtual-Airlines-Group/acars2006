@@ -339,7 +339,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
-			FuelUse use = fddao.checkRefuel(flightID);
+			GetRefuelCheck rfdao = new GetRefuelCheck(con);
+			FuelUse use = FuelUse.validate(rfdao.checkRefuel(flightID));
 			afr.setTotalFuel(use.getTotalFuel());
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
 			use.getMessages().forEach(fuelMsg -> comments.add("SYSTEM: " + fuelMsg));
