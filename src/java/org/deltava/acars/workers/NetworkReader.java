@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -18,13 +18,13 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 7.4
+ * @version 8.6
  * @since 1.0
  */
 
 public class NetworkReader extends Worker {
 	
-	private static final int MIN_EXEC_INTERVAL = 40; // 40ms between intervals
+	private static final int MIN_EXEC_INTERVAL = 25; // 25ms between intervals
 	
 	private ConnectionPool _cPool;
 
