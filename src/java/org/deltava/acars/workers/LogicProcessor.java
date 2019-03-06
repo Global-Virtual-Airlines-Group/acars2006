@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -108,6 +108,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(DataRequest.FIR, new FIRSearchCommand());
 		_dataCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());
 		_dataCommands.put(DataRequest.GATES, new GateListCommand());
+		_dataCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
@@ -216,8 +217,6 @@ public class LogicProcessor extends Worker {
 	 */
 	@Override
 	public final void close() {
-
-		// Wait for the pool to shut down
 		try {
 			_cmdPool.shutdown();
 			_cmdPool.awaitTermination(5, TimeUnit.SECONDS);

@@ -1,4 +1,4 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -14,7 +14,7 @@ import org.deltava.acars.message.data.RunwayListMessage;
 /**
  * A formatter for Runway List messages.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 8.4
  */
 
@@ -35,6 +35,7 @@ class RunwayListFormatter extends ElementFormatter {
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "runways");
 		e.setAttribute("count", String.valueOf(rmsg.getResponse().size()));
+		e.setAttribute("isPopular", String.valueOf(rmsg.isPopular()));
 		e.setAttribute("airportD", rmsg.getAirportD().getICAO());
 		if (rmsg.getAirportA() != null)
 			e.setAttribute("airportA", rmsg.getAirportA().getICAO());

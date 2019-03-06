@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -48,7 +48,7 @@ public class NavaidCommand extends DataCommand {
 			// Get the DAO and find the Navaid in the DAFIF database
 			GetNavData dao = new GetNavData(ctx.getConnection());
 			if (isRunway) {
-				RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID());
+				RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID(), false);
 				Airport ap = SystemData.getAirport(id);
 				if (ap != null) {
 					rspMsg.setAirportD(ap);

@@ -1,4 +1,4 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return popular runways for an Airport.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 8.4
  */
 
@@ -58,7 +58,7 @@ public class PopularRunwaysCommand extends DataCommand {
 		Map<String, Surface> sfcs = new HashMap<String, Surface>();
 		
 		// Create the response
-		RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID());
+		RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID(), true);
 		rspMsg.setAirportD(aD); rspMsg.setAirportA(aA);
 		
 		try {
