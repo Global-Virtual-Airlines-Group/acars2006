@@ -48,6 +48,7 @@ class RunwayListFormatter extends ElementFormatter {
 			re.setAttribute("name", r.getName());
 			re.setAttribute("hdg", String.valueOf(r.getHeading()));
 			re.setAttribute("length", String.valueOf(r.getLength()));
+			re.setAttribute("magVar", StringUtils.format(r.getMagVar(), "#0.000"));
 			re.setAttribute("surface", r.getSurface().getName());
 			if (r.getNewCode() != null)
 				re.setAttribute("oldCode", r.getNewCode());
