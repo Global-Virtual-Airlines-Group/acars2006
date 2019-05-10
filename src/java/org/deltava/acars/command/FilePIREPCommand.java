@@ -380,7 +380,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Calculate timeliness of flight
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(afr.getAirportD()); ssc.setAirportA(afr.getAirportA());
-				ssc.setExcludeHistoric(!afr.getAirline().getHistoric());
+				ssc.setExcludeHistoric(afr.getAirline().getHistoric() ? Inclusion.INCLUDE : Inclusion.EXCLUDE);
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				afr.setOnTime(oth.validate(afr));
 				onTimeEntry = oth.getScheduleEntry();
