@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -16,11 +16,11 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
-public class InfoMessage extends AbstractMessage implements RoutePair, FlightTimes {
+public class InfoMessage extends AbstractMessage implements FlightNumber, RoutePair, FlightTimes {
 	
 	private int _flightID;
 	private Instant _startTime;
@@ -32,7 +32,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 	private String _livery;
 	private String _tailCode;
 	
-	private String _flightCode;
+	private Flight _f;
 	private Airport _airportA;
 	private Airport _airportD;
 	private Airport _airportL;
@@ -95,6 +95,21 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 	}
 	
 	@Override
+	public Airline getAirline() {
+		return _f.getAirline();
+	}
+	
+	@Override
+	public int getFlightNumber() {
+		return _f.getFlightNumber();
+	}
+	
+	@Override
+	public int getLeg() {
+		return _f.getLeg();
+	}
+	
+	@Override
 	public int getDistance() {
 		return _airportD.getPosition().distanceTo(_airportA);
 	}
@@ -124,7 +139,7 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 	}
 	
 	public String getFlightCode() {
-		return _flightCode;
+		return _f.getShortCode();
 	}
 	
 	public double getLoadFactor() {
@@ -289,8 +304,8 @@ public class InfoMessage extends AbstractMessage implements RoutePair, FlightTim
 		_tailCode = code;
 	}
 	
-	public void setFlightCode(String newCode) {
-		_flightCode = newCode;
+	public void setFlight(Flight f) {
+		_f = f;
 	}
 	
 	public void setFlightID(int id) {
