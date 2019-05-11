@@ -7,14 +7,14 @@ import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.AutopilotType;
-import org.deltava.beans.acars.LoadType;
+import org.deltava.beans.acars.*;
 import org.deltava.beans.system.OperatingSystem;
 import org.deltava.acars.beans.TXCode;
+
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -57,18 +57,10 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 			msg.setStartTime(Instant.now());
 		}
 
-		// Load the flight code
-		String fCode = getChildText(e, "flight_num", SystemData.get("airline.code") + "001");
-		if (!Character.isLetter(fCode.charAt(0)))
-			fCode = SystemData.get("airline.code") + fCode;
-		int ofs = fCode.indexOf(" LEG");
-		if (ofs > 0)
-			fCode = fCode.substring(0, ofs).trim(); 
-
 		// Load the bean
 		msg.setFlightID(StringUtils.parse(getChildText(e, "flight_id", "0"), 0));
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
-		msg.setFlightCode(fCode);
+		msg.setFlight(FlightCodeParser.parse(getChildText(e, "flight_num", "001"), user.getAirlineCode()));
 		msg.setAltitude(getChildText(e, "cruise_alt", null));
 		msg.setTailCode(getChildText(e, "tailCode", null));
 		msg.setComments(getChildText(e, "remarks", null));

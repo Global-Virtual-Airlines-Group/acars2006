@@ -136,7 +136,7 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Check for ontime
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
-				ScheduleEntry fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
+				Flight fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
 				GetScheduleSearch sdao = new GetScheduleSearch(c);
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
