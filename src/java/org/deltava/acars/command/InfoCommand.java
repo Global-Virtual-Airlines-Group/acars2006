@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 7.5
+ * @version 8.6
  * @since 1.0
  */
 
@@ -140,11 +140,16 @@ public class InfoCommand extends ACARSCommand {
 				GetScheduleSearch sdao = new GetScheduleSearch(c);
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
-				ssc.setExcludeHistoric((fe ==null) || !fe.getAirline().getHistoric());
+				ssc.setExcludeHistoric((fe == null) || !fe.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
-				if (oth.getScheduleEntry() != null)
-					ackMsg.setEntry("onTimeFlight", oth.getScheduleEntry().getFlightCode());
+				if (oth.getScheduleEntry() != null) {
+					ScheduleEntry se = oth.getScheduleEntry();
+					ackMsg.setEntry("onTimeFlight", se.getFlightCode());
+					ackMsg.setEntry("onTimeLeg", String.valueOf(se.getLeg()));
+					ackMsg.setEntry("onTimeDeparture", StringUtils.format(se.getTimeD(), "HH:mm"));
+					ackMsg.setEntry("onTimeArrival", StringUtils.format(se.getTimeA(), "HH:mm"));
+				}
 			}
 			
 			// Load passenger count for 121+ that submits load factor
