@@ -26,6 +26,7 @@ public class CommandContext extends ConnectionContext {
 	
 	private final WorkerStatus _status;
 	private final long _msgTime;
+	private long _backEndTime;
 
 	/**
 	 * Initializes the Command Context.
@@ -47,6 +48,14 @@ public class CommandContext extends ConnectionContext {
 	 */
 	public ACARSConnection getACARSConnection() {
 		return _ac;
+	}
+	
+	/**
+	 * Returns back-end usage time from the parent {@link ConnectionContext}
+	 * @return the usage time in milliseconds
+	 */
+	public long getBackEndTime() {
+		return _backEndTime;
 	}
 
 	/**
@@ -165,5 +174,11 @@ public class CommandContext extends ConnectionContext {
 	 */
 	public void setMessage(String msg) {
 		_status.setMessage(msg);
+	}
+	
+	@Override
+	public long release() {
+		_backEndTime = super.release();
+		return _backEndTime;
 	}
 }
