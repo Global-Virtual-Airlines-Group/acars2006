@@ -109,6 +109,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());
 		_dataCommands.put(DataRequest.GATES, new GateListCommand());
 		_dataCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
+		_dataCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
 
 		// Initialize dispatch commands
 		_dspCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
