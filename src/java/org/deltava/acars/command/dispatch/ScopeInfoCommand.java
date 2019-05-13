@@ -1,4 +1,4 @@
-// Copyright 2010 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -11,7 +11,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Dispatch Command for radar scope information messages. 
  * @author Luke
- * @version 3.0
+ * @version 8.6
  * @since 3.0
  */
 
@@ -52,7 +52,6 @@ public class ScopeInfoCommand extends DispatchCommand {
 			ac.setScope(msg);
 		
 		// Send an ACK
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-		ctx.push(ackMsg, ac.getID());
+		ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID()));
 	}
 }

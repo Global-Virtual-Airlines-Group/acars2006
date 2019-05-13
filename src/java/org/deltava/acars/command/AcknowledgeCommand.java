@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -7,7 +7,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS Server Command to respond to messages.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 1.0
  */
 
@@ -36,6 +36,6 @@ public class AcknowledgeCommand extends ACARSCommand {
 
 		// Send an ACK
 		AcknowledgeMessage aMsg = new AcknowledgeMessage(env.getOwner(), env.getMessage().getID());
-		ctx.push(aMsg, env.getConnectionID());
+		ctx.push(aMsg);
 	}
 }

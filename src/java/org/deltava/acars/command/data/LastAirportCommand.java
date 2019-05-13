@@ -1,4 +1,4 @@
-// Copyright 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS Data Command to return the last airport flown into.
  * @author Luke
- * @version 8.1
+ * @version 8.6
  * @since 4.1
  */
 
@@ -60,6 +60,6 @@ public class LastAirportCommand extends DataCommand {
 			ctx.release();
 		}
 		
-		ctx.push(ackMsg, ctx.getACARSConnection().getID());
+		ctx.push(ackMsg);
 	}
 }

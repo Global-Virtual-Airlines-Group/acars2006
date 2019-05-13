@@ -43,7 +43,7 @@ public class RunwayInfoCommand extends DataCommand {
 		if (a == null) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Unknown airport - " + msg.getFlag("airport"));
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 			return;
 		}
 		
@@ -58,12 +58,12 @@ public class RunwayInfoCommand extends DataCommand {
 		try {
 			GetNavData navdao = new GetNavData(ctx.getConnection());
 			rspMsg.addAll(navdao.getRunways(a, sim));
-			ctx.push(rspMsg, ctx.getACARSConnection().getID());
+			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading runway info - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot load runway list");
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}

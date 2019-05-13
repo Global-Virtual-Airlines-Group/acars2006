@@ -1,4 +1,4 @@
-// Copyright 2010, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2015, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 3.0
  */
 
@@ -124,15 +124,14 @@ public class RoutePlotCommand extends DispatchCommand {
 			}
 			
 			msg.setResults(rt);
+			ctx.push(msg);
 		} catch (DAOException de) {
 			log.error("Cannot plot route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot plot route");
-			ctx.push(errorMsg, env.getConnectionID());
+			ctx.push(errorMsg);
 		} finally {
 			ctx.release();
 		}
-		
-		ctx.push(msg, ctx.getACARSConnection().getID());
 	}
 }

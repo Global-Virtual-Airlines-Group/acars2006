@@ -63,7 +63,7 @@ public class InfoCommand extends ACARSCommand {
 			log.warn("Duplicate Flight ID request - assigning Flight ID " + curInfo.getFlightID());
 			ackMsg.setEntry("flight_id", String.valueOf(curInfo.getFlightID()));
 			ackMsg.setEntry("tx", String.valueOf(curInfo.getTX()));
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		}
 

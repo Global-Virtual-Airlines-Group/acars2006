@@ -1,4 +1,4 @@
-// Copyright 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2014, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS command to determine whether a user is connected to an Online Network.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 4.1
  */
 
@@ -53,6 +53,6 @@ public class OnlinePresenceCommand extends DataCommand {
 			}
 		}
 
-		ctx.push(ackMsg, ctx.getACARSConnection().getID());
+		ctx.push(ackMsg);
 	}
 }

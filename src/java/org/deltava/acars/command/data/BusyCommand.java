@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's busy status.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -42,7 +42,7 @@ public class BusyCommand extends DataCommand {
 		ConnectionMessage rspMsg = new ConnectionMessage(env.getOwner(), DataRequest.BUSY, msg.getID());
 		rspMsg.add(ac);
 		if (ac.getUserHidden())
-			ctx.push(rspMsg, env.getConnectionID());
+			ctx.push(rspMsg);
 		else
 			ctx.pushAll(rspMsg, 0);
 	}

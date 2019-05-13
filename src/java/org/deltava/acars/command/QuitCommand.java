@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2011, 2012, 2018 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2011, 2012, 2018, 2019 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -99,13 +99,13 @@ public class QuitCommand extends ACARSCommand {
 		if (msg.isHidden()) {
 			for (ACARSConnection ac : cons) {
 				if ((ac.getID() != env.getConnectionID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
-					ctx.push(drmsg, ac.getID());
+					ctx.push(drmsg, ac.getID(), false);
 			}
 		} else {
 			for (ACARSConnection ac : cons) {
-				if (ac.getID() != env.getConnectionID()) ctx.push(drmsg, ac.getID());
+				if (ac.getID() != env.getConnectionID()) ctx.push(drmsg, ac.getID(), false);
 				if (msg.isDispatch() && (ac.getDispatcherID() == env.getConnectionID()))
-					ctx.push(new CancelMessage(env.getOwner()), ac.getID());
+					ctx.push(new CancelMessage(env.getOwner()), ac.getID(), false);
 			}
 		}
 	}

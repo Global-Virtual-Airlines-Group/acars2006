@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -6,14 +6,12 @@ import org.deltava.acars.message.data.AppInfoMessage;
 
 import org.deltava.acars.command.*;
 
-import org.deltava.beans.system.AirlineInformation;
-
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to display cross-application information. 
  * @author Luke
- * @version 3.6
+ * @version 8.6
  * @since 3.6
  */
 
@@ -36,11 +34,7 @@ public class AppInfoCommand extends DataCommand {
 		
 		// Build the response
 		AppInfoMessage rspMsg = new AppInfoMessage(env.getOwner(), env.getMessage().getID());
-		for (AirlineInformation ai : SystemData.getApps()) {
-			if (ai != null)
-				rspMsg.add(ai);
-		}
-		
-		ctx.push(rspMsg, env.getConnectionID());
+		SystemData.getApps().forEach(rspMsg::add);
+		ctx.push(rspMsg);
 	}
 }

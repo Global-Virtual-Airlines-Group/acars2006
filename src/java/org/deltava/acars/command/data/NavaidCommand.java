@@ -66,7 +66,7 @@ public class NavaidCommand extends DataCommand {
 						rspMsg.add(nav);
 					}
 					
-					ctx.push(rspMsg, env.getConnectionID());
+					ctx.push(rspMsg);
 				}
 			} else {
 				NavigationDataMessage rspMsg = new NavigationDataMessage(env.getOwner(), msg.getID());
@@ -79,13 +79,13 @@ public class NavaidCommand extends DataCommand {
 					log.info("Loaded Navigation data for " + id);
 				}
 				
-				ctx.push(rspMsg, env.getConnectionID());
+				ctx.push(rspMsg);
 			}
 		} catch (DAOException de) {
 			log.error("Error loading navaid " + id + " - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
-			ctx.push(errorMsg, env.getConnectionID());
+			ctx.push(errorMsg);
 		} finally {
 			ctx.release();
 		}

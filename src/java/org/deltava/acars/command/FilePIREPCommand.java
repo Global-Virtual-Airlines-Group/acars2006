@@ -84,7 +84,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		if (info == null) {
 			log.warn("No Flight Information for Connection " + StringUtils.formatHex(ac.getID()));
 			ackMsg.setEntry("sendInfo", "true");
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		}
 
@@ -108,7 +108,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					
 					// Log warning and return an ACK
 					log.warn("Flight " + flightID + " already has PIREP");
-					ctx.push(ackMsg, ac.getID());
+					ctx.push(ackMsg);
 					return;
 				}
 				
@@ -127,7 +127,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 					// Log warning and return an ACK
 					log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID() + ", ID = " + dupeID);
-					ctx.push(ackMsg, ac.getID());
+					ctx.push(ackMsg);
 					return;
 				}
 				
@@ -141,7 +141,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 					// Log warning and return an ACK
 					log.warn("Ignoring possible duplicate PIREP from " + ac.getUserID());
-					ctx.push(ackMsg, ac.getID());
+					ctx.push(ackMsg);
 					return;
 				}
 			}

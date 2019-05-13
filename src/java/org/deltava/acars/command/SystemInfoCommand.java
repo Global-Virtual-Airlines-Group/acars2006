@@ -1,4 +1,4 @@
-// Copyright 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -12,7 +12,7 @@ import org.deltava.dao.acars.SetSystemInfo;
 /**
  * An ACARS server command to log client system data.
  * @author Luke
- * @version 6.4
+ * @version 8.6
  * @since 6.4
  */
 
@@ -28,14 +28,12 @@ public class SystemInfoCommand extends ACARSCommand {
 	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
-		// Get the message and create the ack
+		// Get the message
 		SystemInfoMessage msg = (SystemInfoMessage) env.getMessage();
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID()); 
-		
 		try {
 			SetSystemInfo dao = new SetSystemInfo(ctx.getConnection());
 			dao.write(msg);
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID()));
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
 		} finally {

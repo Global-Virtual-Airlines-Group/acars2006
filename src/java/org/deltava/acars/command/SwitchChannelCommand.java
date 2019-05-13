@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to handle switchng voice channels.
  * @author Luke
- * @version 4.0
+ * @version 8.6
  * @since 4.0
  */
 
@@ -104,7 +104,7 @@ public class SwitchChannelCommand extends ACARSCommand {
 			ctx.pushVoice(clmsg, -1);
 		} catch (SecurityException se) {
 			log.warn("Cannot join/create channel " + chName + " - " + se.getMessage());
-			ctx.push(new ErrorMessage(ac.getUser(), se.getMessage(), msg.getID()), ac.getID());
+			ctx.push(new ErrorMessage(ac.getUser(), se.getMessage(), msg.getID()));
 		}
 	}
 }

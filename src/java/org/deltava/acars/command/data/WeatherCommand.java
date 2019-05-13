@@ -1,4 +1,4 @@
-// Copyright 2009, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 8.0
+ * @version 8.6
  * @since 2.3
  */
 
@@ -85,13 +85,12 @@ public class WeatherCommand extends DataCommand {
 				wxMsg.add(wx);
 			}
 			
-			// Send the respose
-			ctx.push(wxMsg, env.getConnectionID());
+			ctx.push(wxMsg);
 		} catch (DAOException de) {
 			log.error("Error loading weather data - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot load " + wt.toString() + " data for " + code);
-			ctx.push(errorMsg, ctx.getACARSConnection().getID());
+			errorMsg.setEntry("error", "Cannot load " + wt + " data for " + code);
+			ctx.push(errorMsg);
 		} finally {
 			ctx.release();
 		}

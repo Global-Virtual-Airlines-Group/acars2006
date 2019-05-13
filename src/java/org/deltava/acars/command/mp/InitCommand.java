@@ -77,6 +77,6 @@ public class InitCommand extends ACARSCommand {
 			}
 		}
 		
-		ctx.push(mpmsg, ac.getID());
+		ctx.push(mpmsg);
 	}
 }

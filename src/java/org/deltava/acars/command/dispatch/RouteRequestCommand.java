@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -20,9 +20,9 @@ import org.deltava.dao.*;
 import org.deltava.util.system.SystemData;
 
 /**
- * An ACARS Command to load flight routes.
+ * An ACARS Dispatch Command to load flight routes.
  * @author Luke
- * @version 8.3
+ * @version 8.6
  * @since 2.0
  */
 
@@ -93,12 +93,12 @@ public class RouteRequestCommand extends DispatchCommand {
 			// Send the response
 			if (!ac.getIsDispatch())
 				rmsg.setMessage("Loaded " + rmsg.getPlans().size() + " Dispatch routes from database");
-			ctx.push(rmsg, env.getConnectionID());
+			ctx.push(rmsg);
 		} catch (DAOException de) {
 			log.error("Cannot load route data - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot load route data - " + de.getMessage());
-			ctx.push(errorMsg, env.getConnectionID());
+			ctx.push(errorMsg);
 		} finally {
 			ctx.release();
 		}

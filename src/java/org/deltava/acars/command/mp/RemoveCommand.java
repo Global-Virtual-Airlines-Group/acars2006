@@ -1,4 +1,4 @@
-// Copyright 2008, 2010, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import org.deltava.acars.message.mp.RemoveMessage;
 /**
  * An ACARS Server command to remove an aircraft from a multi-player session.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 2.2
  */
 
@@ -42,7 +42,6 @@ public class RemoveCommand extends ACARSCommand {
 		// Push message to connections within a set distance
 		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 		cons.remove(ac);
-		for (ACARSConnection c : cons)
-			ctx.push(msg, c.getID());
+		cons.forEach(c -> ctx.push(msg, c.getID(), false));
 	}
 }

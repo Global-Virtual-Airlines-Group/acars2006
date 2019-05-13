@@ -1,4 +1,4 @@
-// Copyright 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to calculate an alternate airport.
  * @author Luke
- * @version 4.2
+ * @version 8.6
  * @since 4.2
  */
 
@@ -66,17 +66,17 @@ public class AlternateAirportCommand extends DataCommand {
 					aaMsg.setEntry("iata", ap.getIATA());
 				}
 				
-				ctx.push(aaMsg, ctx.getACARSConnection().getID());
+				ctx.push(aaMsg);
 			} else {
 				AlternateAirportMessage aamsg = new AlternateAirportMessage(env.getOwner(), msg.getID());
 				aamsg.addAll(alts);
-				ctx.push(aamsg, ctx.getACARSConnection().getID());
+				ctx.push(aamsg);
 			}
 		} catch (DAOException de) {
 			log.error("Error calculating Alternate - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot calculate Alternate - " + de.getMessage());
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}
