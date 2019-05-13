@@ -16,6 +16,7 @@
 	<cache id="ACARSRunways" remote="true" expires="86400" />
 	<cache id="GeoCountryL1" geo="true" expires="86400" max="2048" precision="0.05" />
 	<cache id="GeoCountry" remote="true" geo="true" expires="864000" precision="0.01" />
+	<cache id="TaxiTime" remote="true" expires="86400" />
 	
 	<!-- VATSIM caches -->
     <cache id="ATORatings" expires="14400" remote="true" />
