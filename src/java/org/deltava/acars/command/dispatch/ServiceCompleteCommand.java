@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -10,7 +10,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to handle Dispatch service completion notifications.
  * @author Luke
- * @version 4.1
+ * @version 8.6
  * @since 2.0
  */
 
@@ -59,6 +59,6 @@ public class ServiceCompleteCommand extends DispatchCommand {
 		else
 			log.info("Sending Accept to " + dc.getUserID());
 
-		ctx.push(msg, dspID);
+		ctx.push(msg);
 	}
 }

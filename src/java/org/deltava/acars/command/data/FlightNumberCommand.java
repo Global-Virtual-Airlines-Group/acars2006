@@ -1,4 +1,4 @@
-// Copyright 2014, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2015, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 6.2
+ * @version 8.6
  * @since 5.4
  */
 
@@ -50,7 +50,7 @@ public class FlightNumberCommand extends DataCommand {
 		Airport airportA = SystemData.getAirport(msg.getFlag("airportA"));
 		if ((airportD == null) || (airportA == null)) {
 			rspMsg.setEntry("error", "Unknown Airports");
-			ctx.push(rspMsg, env.getConnectionID());
+			ctx.push(rspMsg);
 			return;
 		}
 		
@@ -87,6 +87,6 @@ public class FlightNumberCommand extends DataCommand {
 			ctx.release();
 		}
 		
-		ctx.push(rspMsg, env.getConnectionID());
+		ctx.push(rspMsg);
 	}
 }

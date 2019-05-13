@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to display approach charts.
  * @author Luke
- * @version 4.2
+ * @version 8.6
  * @since 1.0
  */
 
@@ -46,7 +46,7 @@ public class ChartsCommand extends DataCommand {
 		if (a == null) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Unknown Airport " + msg.getFlag("id"));
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 			return;
 		}
 		
@@ -60,24 +60,20 @@ public class ChartsCommand extends DataCommand {
 			Collection<Chart> charts = dao.getCharts(a);
 			ChartsMessage rspMsg = new ChartsMessage(env.getOwner(), msg.getID());
 			rspMsg.setAirport(a);
-			for (Iterator<Chart> ci = charts.iterator(); ci.hasNext(); ) {
-				Chart ch = ci.next();
-				if ((ch.getImgType() != Chart.ImageType.PDF) || !noPDF)
-					rspMsg.add(ch);
-			}
+			charts.stream().filter(ch -> !noPDF || ch.getImgType() != Chart.ImageType.PDF).forEach(rspMsg::add);
 			
 			// Push the response
 			if (rspMsg.getResponse().size() == 0) {
 				SystemTextMessage txtMsg = new SystemTextMessage();
 				txtMsg.addMessage("No charts available for " + a);
-				ctx.push(txtMsg, env.getConnectionID());
+				ctx.push(txtMsg);
 			} else
-				ctx.push(rspMsg, env.getConnectionID());
+				ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot load " + msg.getFlag("id") + " charts");
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}

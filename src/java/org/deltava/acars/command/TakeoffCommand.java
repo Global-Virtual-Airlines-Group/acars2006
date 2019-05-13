@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -19,7 +19,7 @@ import org.deltava.util.GeoUtils;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 5.1
+ * @version 8.6
  * @since 2.8
  */
 
@@ -70,7 +70,7 @@ public class TakeoffCommand extends ACARSCommand {
 				ackMsg.setEntry("rwy", r.getName());
 				ackMsg.setEntry("distance", String.valueOf(dist));
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
-				ctx.push(ackMsg, ac.getID());
+				ctx.push(ackMsg);
 			}
 		} catch (DAOException de) {
 			log.error("Cannnot log takeoff/landing - " + de.getMessage(), de);

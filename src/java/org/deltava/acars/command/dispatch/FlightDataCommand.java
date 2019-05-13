@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 5.1
+ * @version 8.6
  * @since 1.1
  */
 
@@ -101,11 +101,11 @@ public class FlightDataCommand extends DispatchCommand {
 		if (!isPlot) {
 			for (ACARSConnection ac : dstC) {
 				log.info("Dispatch info from " + usr.getPilotCode() + " to " + ac.getUserID());
-				ctx.push(msg, ac.getID());
+				ctx.push(msg, ac.getID(), false);
 			}
 		}
 
 		// Send out the ack
-		ctx.push(ackMsg, ctx.getACARSConnection().getID());
+		ctx.push(ackMsg);
 	}
 }

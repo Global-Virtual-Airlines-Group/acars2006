@@ -1,4 +1,4 @@
-// Copyright 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2015, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS Server Command to enable/disable data compression. 
  * @author Luke
- * @version 7.1
+ * @version 8.6
  * @since 6.4
  */
 
@@ -41,6 +41,6 @@ public class CompressionCommand extends ACARSCommand {
 		// Send an ACK
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		ackMsg.setEntry("type", cType);
-		ctx.push(ackMsg, ac.getID());
+		ctx.push(ackMsg);
 	}
 }

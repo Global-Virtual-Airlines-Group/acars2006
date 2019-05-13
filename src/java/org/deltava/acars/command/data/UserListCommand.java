@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to display the connected Pilot list.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -39,12 +39,8 @@ public class UserListCommand extends DataCommand {
 		// Loop through the connection pool
 		ConnectionMessage rspMsg = new ConnectionMessage(env.getOwner(), DataRequest.USERLIST, msg.getID());
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
-		for (ACARSConnection ac : cons) {
-			if (ac.isAuthenticated() && (showHidden || !ac.getUserHidden()))
-				rspMsg.add(ac);
-		}
-		
-		ctx.push(rspMsg, env.getConnectionID());
+		cons.stream().filter(ac -> ac.isAuthenticated() && (showHidden || !ac.getUserHidden())).forEach(rspMsg::add);
+		ctx.push(rspMsg);
 	}
 	
 	/**

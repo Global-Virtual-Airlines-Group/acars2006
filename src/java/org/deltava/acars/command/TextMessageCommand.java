@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 1.0
  */
 
@@ -60,7 +60,7 @@ public class TextMessageCommand extends ACARSCommand {
 				log.warn(usr.getName() + " attempted to send message!");
 				txtRsp = new TextMessage(null, "ACARS text Message blocked");
 				txtRsp.setRecipient(usr.getPilotCode());
-				ctx.push(txtRsp, env.getConnectionID());
+				ctx.push(txtRsp);
 				return;
 				
 			case RESTRICT:
@@ -68,7 +68,7 @@ public class TextMessageCommand extends ACARSCommand {
 				log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
 				txtRsp = new TextMessage(null, "ACARS text Message blocked");
 				txtRsp.setRecipient(usr.getPilotCode());
-				ctx.push(txtRsp, env.getConnectionID());
+				ctx.push(txtRsp);
 				return;
 			
 			default:
@@ -82,7 +82,7 @@ public class TextMessageCommand extends ACARSCommand {
 		// Send an ACK on the message
 		if (SystemData.getBoolean("acars.ack.text")) {
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 		}
 		
 		// Check if the recipient has a databsae ID
@@ -109,12 +109,12 @@ public class TextMessageCommand extends ACARSCommand {
 				Pilot p = ac.getUser();
 				if (isDBID && ac.isAuthenticated() && (p.getID() == rcptID.getUserID())) {
 					rUsr = p;
-					ctx.push(txtRsp, ac.getID());
+					ctx.push(txtRsp, ac.getID(), false);
 				} else if (ac.getUserID().equalsIgnoreCase(msg.getRecipient()))  {
 					rUsr = p;
-					ctx.push(txtRsp, ac.getID());
+					ctx.push(txtRsp, ac.getID(), false);
 				} else if (ac.getUserHidden() && !ac.getUserBusy())
-					ctx.push(txtRsp, ac.getID());
+					ctx.push(txtRsp, ac.getID(), false);
 			}
 		}
 		

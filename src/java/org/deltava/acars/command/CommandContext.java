@@ -1,7 +1,5 @@
-// Copyright 2005, 2006, 2007, 2009, 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2009, 2010, 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
-
-import java.util.*;
 
 import org.deltava.beans.Pilot;
 
@@ -17,17 +15,17 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 4.0
+ * @version 8.6
  * @since 1.0
  */
 
 public class CommandContext extends ConnectionContext {
 
-	private ACARSConnectionPool _pool;
-	private ACARSConnection _ac;
+	private final ACARSConnectionPool _pool;
+	private final ACARSConnection _ac;
 	
-	private WorkerStatus _status;
-	private long _msgTime;
+	private final WorkerStatus _status;
+	private final long _msgTime;
 
 	/**
 	 * Initializes the Command Context.
@@ -98,8 +96,7 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
+		for (ACARSConnection c : _pool.getAll()) {
 			if (c.isAuthenticated() && (c.getID() != skipThisConID) && (c.getProtocolVersion() >= msg.getProtocolVersion()))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
@@ -116,8 +113,7 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
+		for (ACARSConnection c : _pool.getAll()) {
 			if (c.getIsDispatch() && (c.getID() != skipThisConID) && (c.getProtocolVersion() >= msg.getProtocolVersion()))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
@@ -134,22 +130,20 @@ public class CommandContext extends ConnectionContext {
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
-		for (Iterator<ACARSConnection> i = _pool.getAll().iterator(); i.hasNext(); ) {
-			ACARSConnection c = i.next();
+		for (ACARSConnection c : _pool.getAll()) {
 			if (c.isVoiceEnabled() && (c.getID() != skipThisConID))
 				MSG_OUTPUT.add(new MessageEnvelope(msg, c.getID()));
 		}
 	}
 	
 	/**
-	 * Sends a message.
-	 * @param msg the Message bean to push
-	 * @param conID the ID of the Connection to send to
+	 * Pushes a message back to this context's ACARS Connection. 
+	 * @param msg a Message
 	 */
-	public void push(Message msg, long conID) {
-		push(msg, conID, false);
+	public void push(Message msg) {
+		push(msg, _ac.getID(), false);
 	}
-
+	
 	/**
 	 * Sends a message.
 	 * @param msg the Message bean to push

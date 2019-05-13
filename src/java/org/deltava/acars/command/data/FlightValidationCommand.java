@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
  * valid flight assignment or charter request, and if any dispatch routes currently exist.
  * @author Luke
- * @version 7.5
+ * @version 8.6
  * @since 2.3
  */
 
@@ -50,7 +50,7 @@ public class FlightValidationCommand extends DataCommand {
 		Airport airportA = SystemData.getAirport(msg.getFlag("airportA"));
 		if ((airportD == null) || (airportA == null)) {
 			rspMsg.setEntry("error", "Unknown Airports");
-			ctx.push(rspMsg, env.getConnectionID());
+			ctx.push(rspMsg);
 			return;
 		}
 		
@@ -100,6 +100,6 @@ public class FlightValidationCommand extends DataCommand {
 			ctx.release();
 		}
 
-		ctx.push(rspMsg, env.getConnectionID());
+		ctx.push(rspMsg);
 	}
 }

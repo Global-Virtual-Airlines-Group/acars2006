@@ -67,12 +67,12 @@ public class ScheduleInfoCommand extends DataCommand {
 			GetScheduleSearch sdao = new GetScheduleSearch(ctx.getConnection());
 			sdao.setQueryMax(sc.getMaxResults());
 			rspMsg.addAll(sdao.search(sc));
-			ctx.push(rspMsg, env.getConnectionID());
+			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}

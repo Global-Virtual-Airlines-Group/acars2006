@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.time.Instant;
@@ -17,7 +17,7 @@ import org.deltava.dao.DAOException;
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 1.0
  */
 
@@ -47,13 +47,13 @@ public class EndFlightCommand extends ACARSCommand {
 		if (iMsg == null) {
 			log.warn("No Flight Information for " + con.getUserID());
 			ackMsg.setEntry("sendInfo", "true");
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		}
 		
 		// If the flight was already ended, then just send the ACK and abort
 		if ((iMsg.getEndTime() != null) && (iMsg.getLivery() == null)) {
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		}
 		
@@ -79,6 +79,6 @@ public class EndFlightCommand extends ACARSCommand {
 		// Clear flight info and log
 		log.info("Flight Completed by " + con.getUserID());
 		con.setPosition(null);
-		ctx.push(ackMsg, env.getConnectionID(), true);
+		ctx.push(ackMsg);
 	}
 }

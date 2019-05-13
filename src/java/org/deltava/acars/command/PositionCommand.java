@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 8.3
+ * @version 8.6
  * @since 1.0
  */
 
@@ -66,7 +66,7 @@ public class PositionCommand extends PositionCacheCommand {
 		if (info == null) {
 			log.warn("No Flight Information for " + ac.getUserID());
 			ackMsg.setEntry("sendInfo", "true");
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		}
 		
@@ -141,7 +141,7 @@ public class PositionCommand extends PositionCacheCommand {
 		}
 		
 		// Log message received
-		ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg);
 		if (log.isDebugEnabled())
 			log.debug("Received position from " + ac.getUserID());
 		
@@ -171,12 +171,12 @@ public class PositionCommand extends PositionCacheCommand {
 				// If we have ATC around, decrease position interval
 				if ((ac.getUpdateInterval() > ATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
 					ac.setUpdateInterval(ATC_INTERVAL);
-					ctx.push(new UpdateIntervalMessage(ac.getUser(), ATC_INTERVAL), env.getConnectionID());
+					ctx.push(new UpdateIntervalMessage(ac.getUser(), ATC_INTERVAL));
 					log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
 				}
 			} else if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
 				ac.setUpdateInterval(NOATC_INTERVAL);
-				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL), env.getConnectionID());
+				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL));
 				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
 			}
 			
@@ -199,7 +199,7 @@ public class PositionCommand extends PositionCacheCommand {
 			} else if ((oldPM != null) && (oldPM.getAirspaceType().isRestricted())) {
 				SystemTextMessage sysMsg = new SystemTextMessage();
 				sysMsg.addMessage("Exit from restricted airspace");
-				ctx.push(sysMsg, env.getConnectionID());
+				ctx.push(sysMsg);
 			}
 		}
 

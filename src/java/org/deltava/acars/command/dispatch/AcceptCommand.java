@@ -1,4 +1,4 @@
-// Copyright 2007, 2009, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010, 2011, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -12,7 +12,7 @@ import org.deltava.beans.mvs.PopulatedChannel;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 2.0
  */
 
@@ -73,7 +73,7 @@ public class AcceptCommand extends DispatchCommand {
 			// Send the ACK
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
 			ackMsg.setEntry("dispatcher", env.getOwnerID());
-			ctx.push(ackMsg, ac.getID());
+			ctx.push(ackMsg);
 		} else if (ac.getDispatcherID() != 0)
 			log.info(ac.getUserID() + " already has dispatch service");
 		

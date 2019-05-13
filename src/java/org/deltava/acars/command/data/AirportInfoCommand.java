@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2015 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2015, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 6.3
+ * @version 8.6
  * @since 2.6
  */
 
@@ -73,7 +73,7 @@ public class AirportInfoCommand extends DataCommand {
 			msgD.setAirport(aD);
 			msgD.setMETAR(wxD);
 			msgD.addAll(rwyD);
-			ctx.push(msgD, ctx.getACARSConnection().getID());
+			ctx.push(msgD);
 			
 			// Build the arrival airport response
 			if (aA != null) {
@@ -81,13 +81,13 @@ public class AirportInfoCommand extends DataCommand {
 				msgA.setAirport(aA);
 				msgA.setMETAR(wxA);
 				msgA.addAll(rwyA);	
-				ctx.push(msgA, ctx.getACARSConnection().getID());
+				ctx.push(msgA);
 			}
 		} catch (DAOException de) {
 			log.error("Error getting Airport information - " + de.getMessage(), de);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errMsg.setEntry("error", "Cannot fetch Airport info - " + de.getMessage());
-			ctx.push(errMsg, ctx.getACARSConnection().getID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}

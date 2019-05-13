@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import org.deltava.beans.acars.ACARSFlags;
 /**
  * An ACARS server command to process multi-player position updates.
  * @author Luke
- * @version 8.2
+ * @version 8.6
  * @since 2.2
  */
 
@@ -49,7 +49,7 @@ public class MPInfoCommand extends ACARSCommand {
 			log.warn("No Flight Information for " + ac.getUserID());
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			ackMsg.setEntry("sendInfo", "true");
-			ctx.push(ackMsg, env.getConnectionID());
+			ctx.push(ackMsg);
 			return;
 		} else if (oldPM == null) {
 			log.info("No position data for " + ac.getUserID());
@@ -83,6 +83,6 @@ public class MPInfoCommand extends ACARSCommand {
 		// Get the connections to notify
 		List<ACARSConnection> cons = ctx.getACARSConnectionPool().getMP(ac.getMPLocation());
 		cons.remove(ac);
-		cons.forEach(c -> ctx.push(updmsg, c.getID()));
+		cons.forEach(c -> ctx.push(updmsg, c.getID(), false));
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -52,7 +52,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (StringUtils.isEmpty(msg.getUserID())) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "No User ID specified");
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 			return;
 		}
 
@@ -145,13 +145,13 @@ public class AuthenticateCommand extends ACARSCommand {
 			else
 				errMsg.setEntry("error", "Authentication Failed");
 
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 			usr = null;
 		} catch (ACARSException ae) {
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", ae.getMessage());
 			log.warn(msg.getUserID() + " - " + ae.getMessage());	
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 		} catch (DAOException de) {
 			usr = null;
 			String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
@@ -162,13 +162,13 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed - " + de.getMessage());
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 		} catch (Exception e) {
 			usr = null;
 			log.error("Error loading " + msg.getUserID() + " - " + e.getMessage(), e);
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "Authentication Failed - " + e.getMessage());
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 		} finally {
 			ctx.release();
 		}
@@ -190,7 +190,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			errMsg.setEntry("error", "It is now " + zdn.toString() + ". Your system clock is set to " + zdt.toString() + " ( " + timeDiff + " seconds off)");
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 			return;
 		} else if (Math.abs(timeDiff) > 900)
 			log.warn(usr.getName() + " system clock " + timeDiff + " seconds off");
@@ -302,7 +302,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (con.getUserHidden()) {
 			for (ACARSConnection ac : ctx.getACARSConnectionPool().getAll()) {
 				if ((ac.getID() != con.getID()) && ac.getUser().isInRole("HR"))
-					ctx.push(drMsg, ac.getID());
+					ctx.push(drMsg, ac.getID(), false);
 			}
 		} else
 			ctx.pushAll(drMsg, con.getID());
@@ -380,7 +380,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			sysMsg.addMessage("You are currently operating as an Air Traffic Controller.");
 
 		// Send the message and log
-		ctx.push(sysMsg, env.getConnectionID());
+		ctx.push(sysMsg);
 		log.info("New Connection from " + usr.getName() + " (" + con.getVersion() + ")");
 	}
 

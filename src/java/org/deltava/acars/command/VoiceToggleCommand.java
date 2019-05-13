@@ -1,4 +1,4 @@
-// Copyright 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ChannelListMessage;
 /**
  * An ACARS command to toggle voice support.
  * @author Luke
- * @version 4.0
+ * @version 8.6
  * @since 4.0
  */
 
@@ -39,7 +39,7 @@ public class VoiceToggleCommand extends ACARSCommand {
 		if (ac.getUser().getNoVoice()) {
 			log.warn(ac.getUserID() + " voice access DISABLED");
 			ErrorMessage errMsg = new ErrorMessage(ac.getUser(), "Voice Access Disabled", vtmsg.getID());
-			ctx.push(errMsg, env.getConnectionID());
+			ctx.push(errMsg);
 			return;
 		}
 		
@@ -70,7 +70,7 @@ public class VoiceToggleCommand extends ACARSCommand {
 		// Send an ACK message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), vtmsg.getID());
 		ackMsg.setEntry("echo", String.valueOf(ac.isVoiceEcho()));
-		ctx.push(ackMsg, env.getConnectionID());
+		ctx.push(ackMsg);
 		ctx.pushVoice(clmsg, ac.getID());
 	}
 }

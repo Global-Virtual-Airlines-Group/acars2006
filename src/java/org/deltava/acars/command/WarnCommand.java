@@ -1,4 +1,4 @@
-// Copyright 2010, 2011 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to modify a user's warning level. 
  * @author Luke
- * @version 4.0
+ * @version 8.6
  * @since 4.0
  */
 
@@ -40,7 +40,6 @@ public class WarnCommand extends ACARSCommand {
 
 		// Get the message
 		WarnMessage msg = (WarnMessage) env.getMessage();
-		ACARSConnection ac = ctx.getACARSConnection();
 		
 		// Load the user
 		ACARSConnection avc = ctx.getACARSConnection(msg.getRecipient());
@@ -48,7 +47,7 @@ public class WarnCommand extends ACARSCommand {
 			log.warn("Unknown user - " + msg.getRecipient());
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(ctx.getUser(), msg.getID());
 			ackMsg.setEntry("error", "Unknown user - " + msg.getRecipient());
-			ctx.push(ackMsg, ac.getID());
+			ctx.push(ackMsg);
 			return;
 		}
 		

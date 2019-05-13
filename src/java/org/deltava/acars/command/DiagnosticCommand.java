@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 7.3
+ * @version 8.6
  * @since 1.0
  */
 
@@ -52,7 +52,7 @@ public class DiagnosticCommand extends ACARSCommand {
 			// Kick a user based on connection ID
 			case KICK:
 				if (!usr.isInRole("HR")) {
-					ctx.push(ackMsg, env.getConnectionID());
+					ctx.push(ackMsg);
 					return;
 				}
 
@@ -85,7 +85,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
 					daMsg.setEntry("user", ac.getUserID());
 					daMsg.setEntry("addr", ac.getRemoteAddr());
-					ctx.push(daMsg, env.getConnectionID());
+					ctx.push(daMsg);
 					
 					// Log the KICK
 					StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
@@ -129,7 +129,7 @@ public class DiagnosticCommand extends ACARSCommand {
 			// Block an IP address or Hostname
 			case BLOCK:
 				if (!usr.isInRole("HR")) {
-					ctx.push(ackMsg, env.getConnectionID());
+					ctx.push(ackMsg);
 					return;
 				}
 				
@@ -157,7 +157,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						daMsg.setEntry("cid", StringUtils.formatHex(ac.getID()));
 						daMsg.setEntry("user", ac.getUserID());
 						daMsg.setEntry("addr", ac.getRemoteAddr());
-						ctx.push(daMsg, env.getConnectionID());
+						ctx.push(daMsg);
 						
 						// Log the BLOCK
 						StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
@@ -202,7 +202,7 @@ public class DiagnosticCommand extends ACARSCommand {
 			case WARN:
 				boolean isSC = (usr.getRank() == Rank.SC) || (usr.getRank().isCP());
 				if (!usr.isInRole("HR") && !usr.isInRole("Examination") && !usr.isInRole("PIREP") && !usr.isInRole("Instructor") && !isSC) {
-					ctx.push(ackMsg, env.getConnectionID());
+					ctx.push(ackMsg);
 					return;
 				}
 				
@@ -210,13 +210,12 @@ public class DiagnosticCommand extends ACARSCommand {
 				
 				// Search for logged-in HR role members
 				boolean sentMessage = false;
-				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext(); ) {
-					ACARSConnection ac = i.next();
+				for (ACARSConnection ac : cPool.getAll()) {
 					if (ac.getUser().isInRole("HR") && (ac.getUser().getID() != usr.getID())) {
 						sentMessage = true;
 						TextMessage txtmsg = new TextMessage(usr, "ACARS Chat Content Warning - " + msg.getRequestData());
 						txtmsg.setRecipient(ac.getUserID());
-						ctx.push(txtmsg, ac.getID());
+						ctx.push(txtmsg, ac.getID(), false);
 					}
 				}
 				
@@ -235,8 +234,7 @@ public class DiagnosticCommand extends ACARSCommand {
 							
 							// Get pilots
 							Collection<Pilot> pilots = pdao.getByRole("HR", ai.getDB());
-							for (Iterator<Pilot> pi = pilots.iterator(); pi.hasNext();) {
-								Pilot p = pi.next();
+							for (Pilot p : pilots) {
 								MessageContext mctxt = new MessageContext(ai.getCode());
 								mctxt.addData("user", usr);
 								mctxt.setSubject("ACARS Content Warning");

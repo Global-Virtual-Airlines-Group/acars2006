@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 7.0
+ * @version 8.6
  * @since 2.0
  */
 
@@ -66,7 +66,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				// Send response
 				SystemTextMessage txtMsg = new SystemTextMessage();
 				txtMsg.addMessage("ACARS Client Build " + c.getClientBuild() + " cannot request Dispatch service");
-				ctx.push(txtMsg, env.getConnectionID());
+				ctx.push(txtMsg);
 				return;
 			}
 			
@@ -144,7 +144,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			log.error("Cannot validate/load route - " + de.getMessage(), de);
 			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 			errorMsg.setEntry("error", "Cannot validate route");
-			ctx.push(errorMsg, env.getConnectionID());
+			ctx.push(errorMsg);
 		} finally {
 			ctx.release();
 		}
@@ -180,7 +180,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			if (!msg.isRouteValid())
 				txtMsg.addMessage("You are requesting an Invalid Route, and are unlikely to receive Service!");
 			
-			ctx.push(txtMsg, env.getConnectionID());
+			ctx.push(txtMsg);
 			return;
 		}
 
@@ -211,14 +211,14 @@ public class ServiceRequestCommand extends DispatchCommand {
 
 			buf.append(", loaded " + plans.size() + " Dispatch routes from database");
 			rmsg.setMessage(buf.toString());
-			ctx.push(rmsg, env.getConnectionID());
+			ctx.push(rmsg);
 		} else {
 			SystemTextMessage txtMsg = new SystemTextMessage();
 			if (outOfRange > 0)
 				txtMsg.addMessage(outOfRange + " Dispatchers online, but out of range");
 			txtMsg.addMessage("No available Dispatchers within range, and no Dispatch routes found.");
-			ctx.push(txtMsg, env.getConnectionID());
-			ctx.push(new CancelMessage(env.getOwner()), env.getConnectionID());
+			ctx.push(txtMsg);
+			ctx.push(new CancelMessage(env.getOwner()));
 		}
 	}
 }
