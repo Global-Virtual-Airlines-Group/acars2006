@@ -14,6 +14,9 @@ import org.deltava.acars.command.mp.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
+import org.deltava.beans.acars.CommandStats;
+
+import org.gvagroup.common.SharedData;
 import org.gvagroup.ipc.*;
 
 import org.deltava.util.log.*;
@@ -30,7 +33,7 @@ public class LogicProcessor extends Worker {
 
 	private QueueingThreadPool _cmdPool;
 	
-	private final Map<Class<? extends ACARSCommand>, CommandStats> _cmdStats = new HashMap<Class<? extends ACARSCommand>, CommandStats>();
+	private final HashMap<String, CommandStats> _cmdStats = new HashMap<String, CommandStats>();
 
 	private final Map<MessageType, ACARSCommand> _commands = new HashMap<MessageType, ACARSCommand>();
 	private final Map<DataRequest, DataCommand> _dataCommands = new HashMap<DataRequest, DataCommand>();
@@ -79,7 +82,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.WARN, new WarnCommand());
 		_commands.put(MessageType.COMPRESS, new CompressionCommand());
 		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
-		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass(), new CommandStats(cmd.getClass().getSimpleName())));
+		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize data commands
 		_dataCommands.put(DataRequest.BUSY, new BusyCommand());
@@ -113,7 +116,7 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(DataRequest.GATES, new GateListCommand());
 		_dataCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 		_dataCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
-		_dataCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass(), new CommandStats(cmd.getClass().getSimpleName())));
+		_dataCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize dispatch commands
 		_dspCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
@@ -126,7 +129,7 @@ public class LogicProcessor extends Worker {
 		_dspCommands.put(DispatchRequest.RANGE, new ServiceRangeCommand());
 		_dspCommands.put(DispatchRequest.SCOPEINFO, new ScopeInfoCommand());
 		_dspCommands.put(DispatchRequest.ROUTEPLOT, new RoutePlotCommand());
-		_dspCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass(), new CommandStats(cmd.getClass().getSimpleName())));
+		_dspCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		int size = _commands.size() + _dataCommands.size() + _dspCommands.size();
 		log.info("Loaded " + size + " commands");
@@ -183,7 +186,7 @@ public class LogicProcessor extends Worker {
 			}
 			
 			// Get stats entry
-			CommandStats stats = _cmdStats.get(_cmd.getClass());
+			CommandStats stats = _cmdStats.get(_cmd.getClass().getName());
 			stats.increment();
 
 			// If the message has high latency, warn
@@ -203,7 +206,6 @@ public class LogicProcessor extends Worker {
 			stats.success(execTime, ctx.getBackEndTime());
 			NewRelic.recordResponseTimeMetric(_cmd.getClass().getSimpleName(), execTime);
 			if (execTime > _cmd.getMaxExecTime()) log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
-			// TODO: Persist the ACARS Command stats
 
 			// Instrumentation
 			NewRelic.setRequestAndResponse(new SyntheticRequest(_reqType, _env.getOwnerID()), new SyntheticResponse());
@@ -253,6 +255,7 @@ public class LogicProcessor extends Worker {
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Idle - " + _cmdPool.getPoolSize() + " threads");
 			try {
+				SharedData.addData(SharedData.ACARS_CMDSTATS, _cmdStats);
 				MessageEnvelope env = MSG_INPUT.poll(30, TimeUnit.SECONDS);
 				_status.execute();
 
