@@ -51,9 +51,7 @@ public class LiveryListCommand extends DataCommand {
 			ctx.push(lmsg);
 		} catch (DAOException de) {
 			log.error("Error loading MP liveries - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load liveries");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load liveries - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

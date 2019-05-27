@@ -127,9 +127,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			ctx.push(msg);
 		} catch (DAOException de) {
 			log.error("Cannot plot route - " + de.getMessage(), de);
-			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot plot route");
-			ctx.push(errorMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot plot route"));
 		} finally {
 			ctx.release();
 		}

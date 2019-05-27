@@ -21,13 +21,8 @@ public class ErrorCommand extends ACARSCommand {
 	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
-		// Get the Message and the ACARS connection
-		ErrorMessage msg = (ErrorMessage) env.getMessage();
-		ACARSConnection ac = ctx.getACARSConnection();
-		
 		// Return an acknowledgement with the error message text
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
-		ackMsg.setEntry("error", msg.getText());
-		ctx.push(ackMsg);
+		ErrorMessage msg = (ErrorMessage) env.getMessage();
+		ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), msg.getText()));
 	}
 }

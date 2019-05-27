@@ -45,9 +45,7 @@ public class WarnCommand extends ACARSCommand {
 		ACARSConnection avc = ctx.getACARSConnection(msg.getRecipient());
 		if (avc == null) {
 			log.warn("Unknown user - " + msg.getRecipient());
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(ctx.getUser(), msg.getID());
-			ackMsg.setEntry("error", "Unknown user - " + msg.getRecipient());
-			ctx.push(ackMsg);
+			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), "Unknown user - " + msg.getRecipient()));
 			return;
 		}
 		

@@ -43,9 +43,7 @@ public class DraftFlightCommand extends DataCommand {
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load draft Flight Report");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load draft Flight Report - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

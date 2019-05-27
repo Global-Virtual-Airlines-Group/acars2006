@@ -88,9 +88,7 @@ public class WeatherCommand extends DataCommand {
 			ctx.push(wxMsg);
 		} catch (DAOException de) {
 			log.error("Error loading weather data - " + de.getMessage(), de);
-			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot load " + wt + " data for " + code);
-			ctx.push(errorMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load " + wt + " data for " + code + " - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

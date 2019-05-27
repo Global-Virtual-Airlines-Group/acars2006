@@ -48,9 +48,7 @@ public class EquipmentListCommand extends DataCommand {
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading equipment types", de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load equipment types");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load equipment - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

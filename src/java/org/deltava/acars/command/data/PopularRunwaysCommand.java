@@ -46,9 +46,7 @@ public class PopularRunwaysCommand extends DataCommand {
 		Airport aD = SystemData.getAirport(msg.getFlag("airportD"));
 		Airport aA = SystemData.getAirport(msg.getFlag("airportA"));
 		if ((aD == null) || (aA == null)) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Unknown airports " + msg.getFlag("airportD") + " / " + msg.getFlag("airportA"));
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown airports " + msg.getFlag("airportD") + " / " + msg.getFlag("airportA")));
 			return;
 		}
 		
@@ -79,9 +77,7 @@ public class PopularRunwaysCommand extends DataCommand {
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading runway popularity - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load runway list");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load runway list"));
 		} finally {
 			ctx.release();
 		}

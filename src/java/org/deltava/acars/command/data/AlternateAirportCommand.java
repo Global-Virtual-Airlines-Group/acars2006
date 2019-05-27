@@ -74,9 +74,7 @@ public class AlternateAirportCommand extends DataCommand {
 			}
 		} catch (DAOException de) {
 			log.error("Error calculating Alternate - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot calculate Alternate - " + de.getMessage());
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot calculate Alternate - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}
