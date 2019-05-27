@@ -83,9 +83,7 @@ public class NavaidCommand extends DataCommand {
 			}
 		} catch (DAOException de) {
 			log.error("Error loading navaid " + id + " - " + de.getMessage(), de);
-			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot load navaid " + msg.getFlag("id"));
-			ctx.push(errorMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load navaid " + msg.getFlag("id") + " - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

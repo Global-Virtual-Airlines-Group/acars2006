@@ -44,9 +44,7 @@ public class ChartsCommand extends DataCommand {
 		// Check the airport
 		Airport a = SystemData.getAirport(msg.getFlag("id"));
 		if (a == null) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Unknown Airport " + msg.getFlag("id"));
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown Airport " + msg.getFlag("id")));
 			return;
 		}
 		
@@ -63,7 +61,7 @@ public class ChartsCommand extends DataCommand {
 			charts.stream().filter(ch -> !noPDF || ch.getImgType() != Chart.ImageType.PDF).forEach(rspMsg::add);
 			
 			// Push the response
-			if (rspMsg.getResponse().size() == 0) {
+			if (rspMsg.getResponse().isEmpty()) {
 				SystemTextMessage txtMsg = new SystemTextMessage();
 				txtMsg.addMessage("No charts available for " + a);
 				ctx.push(txtMsg);
@@ -71,9 +69,7 @@ public class ChartsCommand extends DataCommand {
 				ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load " + msg.getFlag("id") + " charts");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load " + msg.getFlag("id") + " charts"));
 		} finally {
 			ctx.release();
 		}

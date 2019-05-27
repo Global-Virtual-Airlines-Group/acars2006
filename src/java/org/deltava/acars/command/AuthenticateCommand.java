@@ -148,10 +148,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.push(errMsg);
 			usr = null;
 		} catch (ACARSException ae) {
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", ae.getMessage());
 			log.warn(msg.getUserID() + " - " + ae.getMessage());	
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), ae.getMessage()));
 		} catch (DAOException de) {
 			usr = null;
 			String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
@@ -160,15 +158,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			else
 				log.error(errorMsg, de.getLogStackDump() ? de : null);
 
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "Authentication Failed - " + de.getMessage());
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), "Authentication Failed - " + de.getMessage()));
 		} catch (Exception e) {
 			usr = null;
 			log.error("Error loading " + msg.getUserID() + " - " + e.getMessage(), e);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "Authentication Failed - " + e.getMessage());
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), "Authentication Failed - " + e.getMessage()));
 		} finally {
 			ctx.release();
 		}
@@ -187,10 +181,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Convert times to client date/time
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(msg.getClientUTC(), usr.getTZ().getZone());
 			ZonedDateTime zdn = ZonedDateTime.ofInstant(now, usr.getTZ().getZone());
-
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
-			errMsg.setEntry("error", "It is now " + zdn.toString() + ". Your system clock is set to " + zdt.toString() + " ( " + timeDiff + " seconds off)");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), "It is now " + zdn.toString() + ". Your system clock is set to " + zdt.toString() + " ( " + timeDiff + " seconds off)"));
 			return;
 		} else if (Math.abs(timeDiff) > 900)
 			log.warn(usr.getName() + " system clock " + timeDiff + " seconds off");

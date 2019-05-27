@@ -37,13 +37,11 @@ public class TaxiTimeCommand extends DataCommand {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		
 		boolean isTakeoff = Boolean.valueOf(msg.getFlag("isTakeoff")).booleanValue();
 		Airport a = SystemData.getAirport(msg.getFlag("airport"));
 		if (a == null) {
-			ackMsg.setEntry("error", "Unknown Airport - " + msg.getFlag("airport"));
-			ctx.push(ackMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown Airport - " + msg.getFlag("airport")));
 			return;
 		}
 		
@@ -51,6 +49,7 @@ public class TaxiTimeCommand extends DataCommand {
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
 			int taxiTime = isTakeoff ? ttdao.getTaxiOutTime(a, db) : ttdao.getTaxiInTime(a, db);
+			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
 			ackMsg.setEntry("taxiTime", String.valueOf(taxiTime));
 			ctx.push(ackMsg);
 		} catch (DAOException de) {

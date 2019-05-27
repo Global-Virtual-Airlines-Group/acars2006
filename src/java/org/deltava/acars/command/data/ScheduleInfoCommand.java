@@ -70,9 +70,7 @@ public class ScheduleInfoCommand extends DataCommand {
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error searching Schedule - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot search Flight Schedule - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

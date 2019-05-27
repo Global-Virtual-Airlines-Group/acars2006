@@ -31,11 +31,7 @@ public class AcknowledgeCommand extends ACARSCommand {
 	 */
 	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
-		if (!_result)
-			return;
-
-		// Send an ACK
-		AcknowledgeMessage aMsg = new AcknowledgeMessage(env.getOwner(), env.getMessage().getID());
-		ctx.push(aMsg);
+		if (_result)
+			ctx.push(new AcknowledgeMessage(env.getOwner(), env.getMessage().getID()));
 	}
 }

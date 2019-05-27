@@ -45,8 +45,7 @@ public class DiagnosticCommand extends ACARSCommand {
 		
 		// Get user and create error message
 		Pilot usr = env.getOwner();
-		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-		ackMsg.setEntry("error", "Insufficient Access");
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID(), "Insufficient Access");
 
 		switch (msg.getRequestType()) {
 			// Kick a user based on connection ID

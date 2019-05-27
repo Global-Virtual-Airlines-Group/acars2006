@@ -142,9 +142,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			}
 		} catch (DAOException de) {
 			log.error("Cannot validate/load route - " + de.getMessage(), de);
-			AcknowledgeMessage errorMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errorMsg.setEntry("error", "Cannot validate route");
-			ctx.push(errorMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot validate route - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}

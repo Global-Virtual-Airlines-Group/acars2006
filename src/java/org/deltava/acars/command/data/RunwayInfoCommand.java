@@ -61,9 +61,7 @@ public class RunwayInfoCommand extends DataCommand {
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading runway info - " + de.getMessage(), de);
-			AcknowledgeMessage errMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-			errMsg.setEntry("error", "Cannot load runway list");
-			ctx.push(errMsg);
+			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load runway list - " + de.getMessage()));
 		} finally {
 			ctx.release();
 		}
