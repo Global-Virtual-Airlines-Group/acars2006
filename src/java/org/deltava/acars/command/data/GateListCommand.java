@@ -59,7 +59,7 @@ public class GateListCommand extends DataCommand {
 			gdao.setQueryMax(20);
 			if ((rspMsg.getAirport() == null) && (inf != null)) {
 				gates.addAll(gdao.getPopularGates(inf, sim, isDeparture));
-				rspMsg.setAirport(inf.getAirportA());
+				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
 			}
 				
 			if (gates.isEmpty())
