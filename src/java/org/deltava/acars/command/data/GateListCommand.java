@@ -49,6 +49,7 @@ public class GateListCommand extends DataCommand {
 		// Get the airport / airline / isDeparture
 		boolean isDeparture = Boolean.valueOf(msg.getFlag("isDeparture")).booleanValue();
 		rspMsg.setAirport(SystemData.getAirport(msg.getFlag("airport")));
+		Airport aA = SystemData.getAirport(msg.getFlag("airportA"));
 		Airline al = SystemData.getAirline(msg.getFlag("airline"));
 		if (al == null)
 			al = SystemData.getAirline(ctx.getACARSConnection().getUserData().getAirlineCode());
@@ -60,9 +61,13 @@ public class GateListCommand extends DataCommand {
 			if ((rspMsg.getAirport() == null) && (inf != null)) {
 				gates.addAll(gdao.getPopularGates(inf, sim, isDeparture));
 				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
+			} else if ((rspMsg.getAirport() != null) && (aA != null)) {
+				RoutePair rp = new ScheduleRoute(rspMsg.getAirport(), aA);
+				gates.addAll(gdao.getPopularGates(rp, sim, isDeparture));
+				rspMsg.setAirport(isDeparture ? rp.getAirportD() : rp.getAirportA());
 			}
 				
-			if (gates.isEmpty())
+			if (gates.isEmpty() && (rspMsg.getAirport() != null))
 				gates = gdao.getGates(rspMsg.getAirport(), sim);
 		} catch (DAOException de) {
 			log.error("Error loading Gates - " + de.getMessage(), de);
@@ -73,6 +78,9 @@ public class GateListCommand extends DataCommand {
 		// Filter based on airline
 		final Airline a = al;
 		gates.stream().filter(g -> g.getAirlines().contains(a)).forEach(rspMsg::add);
+		if (rspMsg.getResponse().isEmpty())
+			rspMsg.addAll(gates);
+		
 		ctx.push(rspMsg);
 	}
 }
