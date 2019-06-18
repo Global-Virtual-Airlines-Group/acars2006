@@ -610,6 +610,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				Mailer mailer = new Mailer(p);
 				mailer.setContext(mctxt);
 				mailer.send(insList);
+				log.info("Sending Academy Check Ride notification to " + insList);
 			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
@@ -623,20 +624,18 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					// Load the template
 					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
 
-					// Load the equipment type ACPs
-					Collection<Pilot> eqACPs = pdao.getPilotsByEQ(crEQ, null, true, Rank.ACP);
+					// Load the equipment type CP/ACPs
+					Collection<Pilot> eqCPs = pdao.getPilotsByEQ(crEQ, null, true, Rank.ACP);
+					eqCPs.addAll(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
 
 					// Send the message to the CP
 					Mailer mailer = new Mailer(p);
 					mailer.setContext(mctxt);
-					for (Pilot acp : eqACPs)
-						mailer.setCC(acp);
-					
-					mailer.send(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
+					mailer.send(eqCPs);
+					log.info("Sending Check Ride notification to " + eqCPs);
 				}
 			}
 			
-			// Log completion
 			log.info("PIREP " + afr.getID() + " from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (DAOException de) {
 			ctx.rollbackTX();
