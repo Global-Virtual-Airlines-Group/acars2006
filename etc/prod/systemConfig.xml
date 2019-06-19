@@ -144,8 +144,11 @@
 
 	<!-- SMTP server data -->
 	<smtp>
-		<server>mail.gva.aws</server>
-		<tls type="Boolean">false</tls>
+		<server>email-smtp.us-east-1.amazonaws.com</server>
+		<tls type="Boolean">true</tls>
+		<user>***REMOVED***</user>
+		<pwd>***REMOVED***</pwd>
+	
 		<errors-to>acars@gvagroup.org</errors-to>
 		<testMode type="Boolean">false</testMode>
 	</smtp>
