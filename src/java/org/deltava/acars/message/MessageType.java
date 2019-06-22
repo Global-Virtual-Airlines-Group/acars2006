@@ -1,10 +1,10 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 /**
  * An enumeration of ACARS message types.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 8.4
  */
 
@@ -16,7 +16,8 @@ public enum MessageType {
 	TOTD("totd", "Takeoff Touchdown"), MPUPDATE("mp", "MP Update"), MPINIT("mpinit", "MP Init"), MPREMOVE("mpquit", "MP Remove"),
 	SWCHAN("voxswchan", "Switch Channel"), MUTE("mute", "Mute"), VOICETOGGLE("voxtoggle", "Voice Toggle"), VOICE("vox", "Voice"),
 	WARN("warn", "Warning"), WARNRESET("warnreset", "Warning Reset"), POSUPDINT("updint", "Update Interval"),
-	VOICEPINGINT("voxping", "Voice Ping Interval"), COMPRESS("compress", "Data Compression"), SYSINFO("sysinfo", "System Information");
+	VOICEPINGINT("voxping", "Voice Ping Interval"), COMPRESS("compress", "Data Compression"), SYSINFO("sysinfo", "System Information"),
+	PERFORMANCE("performance", "Client Performance");
 	
 	private final String _code;
 	private final String _type;
@@ -42,6 +43,11 @@ public enum MessageType {
 		return _type;
 	}
 	
+	/**
+	 * Case-sensitive enum parser.
+	 * @param type the type name
+	 * @return a MessageType, or null if unknown
+	 */
 	public static MessageType fromType(String type) {
 		for (MessageType mt : values()) {
 			if (mt.getCode().equalsIgnoreCase(type))

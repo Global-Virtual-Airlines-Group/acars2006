@@ -1,17 +1,21 @@
-// Copyright 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
 
-import org.deltava.acars.message.SystemInfoMessage;
+import org.deltava.acars.message.*;
+
 import org.deltava.beans.Simulator;
+import org.deltava.beans.acars.TaskTimerData;
+
 import org.deltava.dao.*;
+
 import org.deltava.util.StringUtils;
 
 /**
  * A Data Access Object to write user system data to the database.
  * @author Luke
- * @version 6.4
+ * @version 8.6
  * @since 6.4
  */
 
@@ -69,6 +73,41 @@ public class SetSystemInfo extends DAO {
 				executeUpdate(1);	
 			}
 			
+			commitTransaction();
+		} catch (SQLException se) {
+			rollbackTransaction();
+			throw new DAOException(se);
+		}
+	}
+	
+	/**
+	 * Writes a PerformanceMessage to the database.
+	 * @param pm a PerformanceMessage
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void write(PerformanceMessage pm) throws DAOException {
+		try {
+			startTransaction();
+			
+			// Clean up, since this is flight ID related
+			prepareStatementWithoutLimits("DELETE FROM acars.PERFINFO WHERE (ID=?)");
+			_ps.setInt(1, pm.getFlightID());
+			executeUpdate(0);
+			
+			// Write the timers
+			prepareStatement("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN) VALUES (?, ?, ?, ?, ?, ?, ?)");
+			_ps.setInt(1, pm.getFlightID());
+			for (TaskTimerData ttd : pm.getTimers()) {
+				_ps.setString(2, ttd.getName());
+				_ps.setInt(3, ttd.getTickSize());
+				_ps.setLong(4, ttd.getCount());
+				_ps.setLong(5, ttd.getTotal());
+				_ps.setInt(6, ttd.getMax());
+				_ps.setInt(7, ttd.getMin());
+				_ps.addBatch();
+			}
+			
+			executeBatchUpdate(1, pm.getTimers().size());
 			commitTransaction();
 		} catch (SQLException se) {
 			rollbackTransaction();
