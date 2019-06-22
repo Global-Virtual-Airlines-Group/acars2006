@@ -82,6 +82,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.WARN, new WarnCommand());
 		_commands.put(MessageType.COMPRESS, new CompressionCommand());
 		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
+		_commands.put(MessageType.PERFORMANCE, new PerformanceCommand());
 		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize data commands
