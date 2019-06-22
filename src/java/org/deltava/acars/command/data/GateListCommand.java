@@ -67,8 +67,10 @@ public class GateListCommand extends DataCommand {
 				rspMsg.setAirport(isDeparture ? rp.getAirportD() : rp.getAirportA());
 			}
 				
-			if (gates.isEmpty() && (rspMsg.getAirport() != null))
-				gates = gdao.getGates(rspMsg.getAirport(), sim);
+			if ((gates.size() < 3) && (rspMsg.getAirport() != null)) {
+				Collection<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
+				allGates.forEach(g -> {g.setUseCount(0); gates.add(g); });
+			}
 		} catch (DAOException de) {
 			log.error("Error loading Gates - " + de.getMessage(), de);
 		} finally {
