@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 1.0
  */
 
@@ -29,6 +29,7 @@ public class PositionMessage extends LocationMessage {
 	private double _gForce;
 	private double _angleOfAttack;
 	private int _frameRate;
+	private int _groundOps;
 	
 	private int _txCode;
 	private boolean _txActive;
@@ -169,6 +170,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public int getTXCode() {
 		return _txCode;
+	}
+	
+	public int getGroundOperations() {
+		return _groundOps;
 	}
 	
 	public AirspaceType getAirspaceType() {
@@ -325,6 +330,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setPressure(int p) {
 		_pressure = Math.max(0, p);
+	}
+	
+	public void setGroundOperations(int flags) {
+		_groundOps = flags;
 	}
 	
 	public void setCOM1(String freq) {
