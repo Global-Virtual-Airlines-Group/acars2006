@@ -54,7 +54,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
 		afr.setRemarks(e.getChildText("remarks"));
 		afr.setFDE(getChildText(e, "fde", null));
-		afr.setCapabilities(Long.parseUnsignedLong(getChildText(e, "capabilities", "0")));
+		afr.setCapabilities(StringUtils.parse(getChildText(e, "capabilities", "0"), 0, true));
 		afr.setAircraftCode(getChildText(e, "code", null));
 		afr.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		
