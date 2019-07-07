@@ -37,8 +37,8 @@ public class PerformanceParser extends XMLElementParser<PerformanceMessage> {
 			TaskTimerData ttd = new TaskTimerData(te.getChildTextTrim("name"), tickSize);
 			ttd.setMax(StringUtils.parse(getChildText(te, "max", "0"), 0));
 			ttd.setMin(StringUtils.parse(getChildText(te, "min", "0"), 0));
-			ttd.setCount(Long.parseLong(getChildText(te, "count", "0")));
-			ttd.setTotal(Long.parseLong(getChildText(te, "total", "0")));
+			ttd.setCount(StringUtils.parse(getChildText(te, "count", "0"), 0, false));
+			ttd.setTotal(StringUtils.parse(getChildText(te, "total", "0"), 0, false));
 			msg.addTimerData(ttd);
 		}
 		

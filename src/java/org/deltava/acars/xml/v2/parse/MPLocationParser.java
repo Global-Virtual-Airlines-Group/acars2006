@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2011, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.Instant;
@@ -11,10 +11,12 @@ import org.deltava.beans.acars.ACARSFlags;
 import org.deltava.acars.message.mp.MPMessage;
 import org.deltava.acars.xml.*;
 
+import org.deltava.util.StringUtils;
+
 /**
  * A parser for multi-player location elements.
  * @author Luke
- * @version 8.2
+ * @version 8.6
  * @since 2.2
  */
 
@@ -31,8 +33,9 @@ class MPLocationParser extends XMLElementParser<MPMessage> {
 
 		// Create the bean
 		MPMessage msg = new MPMessage(user);
+		long now = System.currentTimeMillis();
 		try {
-			msg.setDate(Instant.ofEpochMilli(Long.parseLong(getChildText(e, "dt", String.valueOf(System.currentTimeMillis())))));
+			msg.setDate(Instant.ofEpochMilli(StringUtils.parse(getChildText(e, "dt", String.valueOf(now)), now, false)));
 			msg.setLatitude(Double.parseDouble(e.getAttributeValue("lat", "0")));
 			msg.setLongitude(Double.parseDouble(e.getAttributeValue("lon", "0")));
 			msg.setHeading(Integer.parseInt(getChildText(e, "h", "0")));
