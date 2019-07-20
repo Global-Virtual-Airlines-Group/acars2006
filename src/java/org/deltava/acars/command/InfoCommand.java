@@ -224,11 +224,11 @@ public class InfoCommand extends ACARSCommand {
 			// Write the SID/STAR data
 			SetACARSData dwdao = new SetACARSData(c);
 			if (sid != null) {
-				dwdao.clearSID(msg.getFlightID());
+				dwdao.clearTerminalRoutes(msg.getFlightID(), TerminalRoute.Type.SID);
 				dwdao.writeSIDSTAR(msg.getFlightID(), sid);
 			}
 			if (star != null) {
-				dwdao.clearSTAR(msg.getFlightID());
+				dwdao.clearTerminalRoutes(msg.getFlightID(), TerminalRoute.Type.STAR);
 				dwdao.writeSIDSTAR(msg.getFlightID(), star);
 			}
 			
