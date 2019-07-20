@@ -523,7 +523,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Check actual SID
 				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, trName, trTrans, rD);
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
-					awdao.clearSID(flightID);
+					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.SID);
 					awdao.writeSIDSTAR(flightID, aSID);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
 						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
@@ -544,7 +544,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				if (aSTAR == null)
 					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, null, rA); 
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
-					awdao.clearSTAR(flightID);
+					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.STAR);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
 						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
