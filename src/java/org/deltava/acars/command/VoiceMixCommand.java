@@ -1,25 +1,23 @@
-// Copyright 2011, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2014, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.deltava.acars.beans.ACARSConnection;
-import org.deltava.acars.beans.ACARSConnectionPool;
-import org.deltava.acars.beans.BinaryEnvelope;
-import org.deltava.acars.beans.MessageEnvelope;
-import org.deltava.acars.beans.VoiceChannels;
+
+import org.deltava.beans.mvs.*;
+import org.deltava.acars.beans.*;
 import org.deltava.acars.message.VoiceMessage;
+
 import org.deltava.acars.mvs.*;
 import org.deltava.acars.workers.Worker;
-import org.deltava.beans.mvs.*;
-import org.deltava.beans.schedule.GeoPosition;
+
 import org.deltava.util.RoleUtils;
 
 /**
  * An ACARS command to mix voice messages.
  * @author Luke
- * @version 5.4
+ * @version 8.6
  * @since 4.0
  */
 
@@ -86,9 +84,6 @@ public class VoiceMixCommand extends ACARSCommand {
 		
 		// Check if we're in range of the channel
 		int maxRange = pc.getChannel().getRange();
-		GeoPosition ctr = (pkt.getLocation() == null) ? null : new GeoPosition(pkt.getLocation());
-		
-		// Loop through the connection IDs, sending if in range of center
 		ACARSConnectionPool pool = ctx.getACARSConnectionPool();
 		for (Long ID : pc.getConnectionIDs()) {
 			ACARSConnection avc = pool.get(ID.longValue());
@@ -98,8 +93,8 @@ public class VoiceMixCommand extends ACARSCommand {
 				continue;
 			
 			// Check for range limitations
-			if ((maxRange > 0) && (ctr != null)) {
-				int rcvDistance = ctr.distanceTo(avc.getLocation());
+			if ((maxRange > 0) && (pkt.getLocation() != null)) {
+				int rcvDistance = pkt.getLocation().distanceTo(avc.getLocation());
 				if (rcvDistance > maxRange) {
 					if (log.isDebugEnabled())
 						log.debug(avc.getUserID() + " out of range: " + rcvDistance + " > " + maxRange);

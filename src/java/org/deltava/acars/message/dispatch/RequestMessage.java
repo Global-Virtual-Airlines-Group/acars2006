@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2010, 2011, 2012, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -7,15 +7,13 @@ import org.deltava.beans.*;
 import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*; 
 
-import org.deltava.util.GeoUtils;
-
 import org.deltava.acars.message.DispatchMessage;
 import org.deltava.acars.message.DispatchRequest;
 
 /**
  * An ACARS message to transmit dispatch requests.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 2.0
  */
 
@@ -157,11 +155,6 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 		return _etopsWarn;
 	}
 	
-	@Override
-	public int getDistance() {
-		return GeoUtils.distance(_airportD, _airportA);
-	}
-	
 	/**
 	 * Returns if automatic dispatch services requested.
 	 * @return TRUE if auto-dispatch, otherwise FALSE
@@ -234,7 +227,7 @@ public class RequestMessage extends DispatchMessage implements GeoLocation, Rout
 	 * @param loc the requesting Pilot's location
 	 */
 	public void setLocation(GeoLocation loc) {
-		_loc = new GeoPosition(loc);
+		_loc = loc;
 	}
 	
 	/**

@@ -151,11 +151,9 @@ public class ServiceRequestCommand extends DispatchCommand {
 		int reqsSent = 0; int outOfRange = 0;
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
-			for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-				ACARSConnection ac = i.next();
+			for (ACARSConnection ac : cons) {
 				if (ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden()) {
-					GeoPosition gp = new GeoPosition(ac.getLocation());
-					int distance = gp.distanceTo(msg);
+					int distance = ac.getLocation().distanceTo(msg);
 					if (ac.getUser().getID() == c.getUser().getID())
 						log.warn(c.getUserID() + " attempting self dispatch");
 					else if (distance <= ac.getRange()) {
