@@ -109,11 +109,6 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _f.getLeg();
 	}
 	
-	@Override
-	public int getDistance() {
-		return _airportD.getPosition().distanceTo(_airportA);
-	}
-
 	public String getAltitude() {
 		return _fpAlt;
 	}

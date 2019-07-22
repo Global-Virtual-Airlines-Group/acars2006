@@ -91,7 +91,7 @@ public class PositionCommand extends PositionCacheCommand {
 			if (noATC1) {
 				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
 				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
-					int distance = GeoUtils.distance(msg, ctr);
+					int distance = msg.distanceTo(ctr);
 					if (distance < (ctr.getFacility().getRange() * 2)) {
 						msg.setATC1(ctr);
 						log.warn("No ATC1 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
@@ -103,7 +103,7 @@ public class PositionCommand extends PositionCacheCommand {
 			if (noATC2) {
 				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM2(), msg);
 				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
-					int distance = GeoUtils.distance(msg, ctr);
+					int distance = msg.distanceTo(ctr);
 					if (distance < (ctr.getFacility().getRange() * 2)) {
 						msg.setATC2(ctr);
 						log.warn("No ATC2 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);

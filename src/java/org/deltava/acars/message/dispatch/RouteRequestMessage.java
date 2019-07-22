@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2011, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.DispatchRequest;
 /**
  * A message to transmit route information requests.
  * @author Luke
- * @version 8.4
+ * @version 8.6
  * @since 2.0
  */
 
@@ -44,11 +44,6 @@ public class RouteRequestMessage extends DispatchMessage implements RoutePair {
 	@Override
 	public Airport getAirportA() {
 		return _airportA;
-	}
-	
-	@Override
-	public int getDistance() {
-		return new GeoPosition(_airportD).distanceTo(_airportA);
 	}
 	
 	/**

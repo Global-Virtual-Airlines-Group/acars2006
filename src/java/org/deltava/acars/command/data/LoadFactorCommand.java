@@ -47,11 +47,6 @@ public class LoadFactorCommand extends DataCommand {
 		public Airport getAirportA() {
 			return _aA;
 		}
-		
-		@Override
-		public int getDistance() {
-			throw new UnsupportedOperationException();
-		}
 	}
 	
 	/**
