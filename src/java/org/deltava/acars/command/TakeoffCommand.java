@@ -14,8 +14,6 @@ import org.deltava.acars.message.*;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetTakeoff;
 
-import org.deltava.util.GeoUtils;
-
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
@@ -63,7 +61,7 @@ public class TakeoffCommand extends ACARSCommand {
 			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg.getLocation(), msg.getHeading());
 			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
-				int dist = GeoUtils.distanceFeet(r, msg.getLocation());
+				int dist = r.distanceFeet(msg.getLocation());
 				
 				// Send the ack
 				AcknowledgeMessage ackMsg = new AcknowledgeMessage(msg.getSender(), msg.getID());
