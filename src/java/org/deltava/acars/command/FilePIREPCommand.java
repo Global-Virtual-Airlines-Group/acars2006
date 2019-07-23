@@ -402,7 +402,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getSimulator(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
 			Runway r = lr.getBestRunway();
 			if (r != null) {
-				int dist = GeoUtils.distanceFeet(r, afr.getTakeoffLocation());
+				int dist = r.distanceFeet(afr.getTakeoffLocation());
 				rD = new RunwayDistance(r, dist);
 				if (r.getLength() < a.getTakeoffRunwayLength()) {
 					comments.add("SYSTEM: Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
@@ -419,7 +419,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			lr = navdao.getBestRunway(afr.getAirportA(), afr.getSimulator(), afr.getLandingLocation(), afr.getLandingHeading());
 			r = lr.getBestRunway();
 			if (r != null) {
-				int dist = GeoUtils.distanceFeet(r, afr.getLandingLocation());
+				int dist = r.distanceFeet(afr.getLandingLocation());
 				rA = new RunwayDistance(r, dist);
 				if (r.getLength() < a.getLandingRunwayLength()) {
 					comments.add("SYSTEM: Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
