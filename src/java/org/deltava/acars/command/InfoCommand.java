@@ -71,6 +71,18 @@ public class InfoCommand extends ACARSCommand {
 		int oldID = msg.getFlightID();
 		try {
 			Connection c = ctx.getConnection();
+			
+			// If we're not requesting an ID, check that we don't have a dupe
+			if (assignID) {
+				GetPositionCount pcdao = new GetPositionCount(c);
+				List<PositionCount> flightIDs = pcdao.find(usrLoc.getID(), msg.getStartTime());
+				if (flightIDs.size() > 0) {
+					log.warn(con.getUserID() + " requesting new Flight ID");
+					flightIDs.forEach(pc -> log.warn("Flight " + pc.getID() + " = " + pc.getPositionCount() + " records"));
+					msg.setFlightID(flightIDs.get(0).getID());
+					assignID = false; 
+				}
+			}
 
 			// If we're requesting a specific ID, make sure we used to own it
 			boolean isValidated = false;

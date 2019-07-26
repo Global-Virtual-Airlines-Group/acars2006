@@ -92,11 +92,17 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		Connection con = null;
 		try {
 			con = ctx.getConnection();
-			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
-			GetACARSPositions fddao = new GetACARSPositions(con);
+			
+			// Flush the position queue
+			ctx.setMessage("Flushing Position Queue");
+			int flushed = flush(true, ctx);
+			if (flushed > 0)
+				log.info("Flushed " + flushed + " Position records from queue");
 
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
+			GetFlightReportACARS prdao = new GetFlightReportACARS(con);
+			GetPositionCount pcdao = new GetPositionCount(con);
 			if (flightID != 0) {
 				FDRFlightReport afr2 = prdao.getACARS(usrLoc.getDB(), flightID);
 				if (afr2 != null) {
@@ -113,26 +119,34 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 				
 				// Check for flight ID filed around the same time
-				int dupeID = fddao.getDuplicateID(flightID);
-				if (dupeID > 0)
+				List<PositionCount> cnts = pcdao.getDuplicateID(flightID);
+				if (cnts.size() > 1) {
+					log.warn(cnts.size() + " Duplicate Flight records found for Flight " + flightID);
+					cnts.forEach(pc -> log.warn("Flight " + pc.getID() + " = " + pc.getPositionCount() + " records"));
+					int dupeID = cnts.get(0).getID(); 
 					afr2 = prdao.getACARS(usrLoc.getDB(), dupeID);
-				
-				// If it has a PIREP, ACK with that PIREP's ID. If it doesn't, use that flight ID for this PIREP.
-				if (afr2 != null) {
-					ctx.release();
 					
-					// Save the PIREP ID in the ACK message
-					ackMsg.setEntry("domain", usrLoc.getDomain());
-					ackMsg.setEntry("pirepID", afr2.getHexID());
+					// If it has a PIREP, ACK with that PIREP's ID. If it doesn't, use that flight ID for this PIREP.
+					if (afr2 != null) {
+						ctx.release();
+						
+						// Save the PIREP ID in the ACK message
+						ackMsg.setEntry("domain", usrLoc.getDomain());
+						ackMsg.setEntry("pirepID", afr2.getHexID());
 
-					// Log warning and return an ACK
-					log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID() + ", ID = " + dupeID);
-					ctx.push(ackMsg);
-					return;
+						// Log warning and return an ACK
+						log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID() + ", FlightID = " + afr2.getDatabaseID(DatabaseID.ACARS));
+						ctx.push(ackMsg);
+						return;
+					}
+					
+					// If the flight ID with the most records is different, use it
+					if (dupeID != flightID) {
+						log.warn(dupeID + " has more positions, switching Flight ID from " + flightID);
+						afr.setDatabaseID(DatabaseID.ACARS, dupeID);
+						flightID = dupeID;
+					}
 				}
-				
-				// Use the original flight ID
-				afr.setDatabaseID(DatabaseID.ACARS, dupeID);
 			} else {
 				List<FlightReport> dupes = prdao.checkDupes(usrLoc.getDB(), afr, usrLoc.getID());
 				dupes.addAll(prdao.checkDupes(usrLoc.getDB(), flightID));
@@ -146,14 +160,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 			}
 
-			// Flush the position queue
-			ctx.setMessage("Flushing Position Queue");
-			int flushed = flush(true, ctx);
-			if (flushed > 0)
-				log.info("Flushed " + flushed + " Position records from queue");
-			
 			// Log number of positions
-			int positionCount = fddao.getRouteEntries(info.getFlightID(), false).size();
+			int positionCount = pcdao.getCount(flightID).getPositionCount();
 			if (positionCount == 0)
 				log.warn("No position records for Flight " + info.getFlightID());
 			
@@ -280,6 +288,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
 			
 			// Check ETOPS
+			GetACARSPositions fddao = new GetACARSPositions(con);
 			List<? extends GeospaceLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
