@@ -60,7 +60,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Check for a duplicate Flight ID request
 		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && !curInfo.isComplete()) {
-			log.warn("Duplicate Flight ID request - assigning Flight ID " + curInfo.getFlightID());
+			log.warn("Duplicate Flight ID request from " + con.getUserID() + " - assigning Flight ID " + curInfo.getFlightID());
 			ackMsg.setEntry("flight_id", String.valueOf(curInfo.getFlightID()));
 			ackMsg.setEntry("tx", String.valueOf(curInfo.getTX()));
 			ctx.push(ackMsg);
