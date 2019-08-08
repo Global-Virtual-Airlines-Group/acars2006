@@ -19,8 +19,8 @@ import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
-import org.deltava.util.FlightCodeParser;
-import org.deltava.util.StringUtils;
+
+import org.deltava.util.*;
 
 /**
  * An ACARS Command to log Flight data.
@@ -269,6 +269,5 @@ public class InfoCommand extends ACARSCommand {
 
 		// Set the info for the connection
 		con.setFlightInfo(msg);
-		log.info("Received flight information from " + con.getUserID());
 	}
 }
