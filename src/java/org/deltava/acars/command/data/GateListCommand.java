@@ -13,7 +13,7 @@ import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
-
+import org.deltava.util.IPCUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -69,7 +69,7 @@ public class GateListCommand extends DataCommand {
 				
 			if ((gates.size() < 3) && (rspMsg.getAirport() != null)) {
 				Collection<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
-				allGates.forEach(g -> {g.setUseCount(0); gates.add(g); });
+				allGates.stream().map(IPCUtils::reserialize).map(Gate.class::cast).forEach(g -> { g.setUseCount(0); gates.add(g); }); // This is a hacky clone
 			}
 		} catch (DAOException de) {
 			log.error("Error loading Gates - " + de.getMessage(), de);
