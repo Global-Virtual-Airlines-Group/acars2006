@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 2.0
  */
 
@@ -107,9 +107,10 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// Get the aircraft type and check ETOPS
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(msg.getEquipmentType());
+			AircraftPolicyOptions opts = (a == null) ? null : a.getOptions(ud.getAirlineCode());
 			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
 			ETOPS e = ETOPSHelper.classify(gc).getResult();
-			msg.setETOPSWarning(ETOPSHelper.validate(a, e));
+			msg.setETOPSWarning(ETOPSHelper.validate(opts, e));
 			
 			// Find the closest gate
 			GetGates gdao = new GetGates(con);

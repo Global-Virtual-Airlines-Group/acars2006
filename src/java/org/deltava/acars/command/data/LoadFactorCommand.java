@@ -22,7 +22,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight. 
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 4.0
  */
 
@@ -91,9 +91,10 @@ public class LoadFactorCommand extends DataCommand {
 					log.warn("Unknown aircraft type - " + msg.getFlag("eqType"));
 				
 				// Load the original diverted flight, get the pax count
+				AircraftPolicyOptions opts = (a == null) ? null : a.getOptions(ud.getAirlineCode());
 				FlightReport ofr = hasDivert ? frdao.getDiversion(rp.getAirportD(), ud.getID(), ud.getDB()) : null;
-				if ((ofr != null) && (a != null)) {
-					loadFactor = Math.min(1.0, ofr.getPassengers() * 1.0d / a.getSeats());
+				if ((ofr != null) && (opts != null)) {
+					loadFactor = Math.min(1.0, ofr.getPassengers() * 1.0d / opts.getSeats());
 					ackMsg.setEntry("isDivert", "true");
 				}
 			} catch (DAOException de) {

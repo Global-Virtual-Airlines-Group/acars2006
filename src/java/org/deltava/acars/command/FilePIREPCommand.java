@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -278,7 +278,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			}
 
 			// Check for excessive distance and diversion
-			afr.setAttribute(FlightReport.ATTR_RANGEWARN, (afr.getDistance() > a.getRange()));
+			AircraftPolicyOptions opts = a.getOptions(usrLoc.getAirlineCode());
+			afr.setAttribute(FlightReport.ATTR_RANGEWARN, (afr.getDistance() > opts.getRange()));
 			afr.setAttribute(FlightReport.ATTR_DIVERT, afr.hasAttribute(FlightReport.ATTR_DIVERT) || !afr.getAirportA().equals(info.getAirportA()));
 
 			// Check for excessive weight
@@ -291,7 +292,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			GetACARSPositions fddao = new GetACARSPositions(con);
 			List<? extends GeospaceLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
-			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a, etopsClass.getResult()));
+			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a.getOptions(usrLoc.getAirlineCode()), etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
 				comments.add("SYSTEM: ETOPS classificataion " + String.valueOf(etopsClass));
 			
@@ -338,11 +339,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					log.info("Using flight data load factor of " + info.getLoadFactor());
 				}
 				
-				if ((a.getSeats() > 0) && (afr.getPassengers() == 0)) {
-					int paxCount = (int) Math.round(a.getSeats() * afr.getLoadFactor());
-					afr.setPassengers(Math.min(a.getSeats(), paxCount));
-					if (paxCount > a.getSeats())
-						log.warn("Invalid passenger count - pax=" + paxCount + ", seats=" + a.getSeats());
+				if ((opts.getSeats() > 0) && (afr.getPassengers() == 0)) {
+					int paxCount = (int) Math.round(opts.getSeats() * afr.getLoadFactor());
+					afr.setPassengers(Math.min(opts.getSeats(), paxCount));
+					if (paxCount > opts.getSeats())
+						log.warn("Invalid passenger count - pax=" + paxCount + ", seats=" + opts.getSeats());
 				}
 			}
 			
@@ -413,11 +414,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (r != null) {
 				int dist = r.distanceFeet(afr.getTakeoffLocation());
 				rD = new RunwayDistance(r, dist);
-				if (r.getLength() < a.getTakeoffRunwayLength()) {
-					comments.add("SYSTEM: Minimum takeoff runway length for the " + a.getName() + " is " + a.getTakeoffRunwayLength() + " feet");
+				if (r.getLength() < opts.getTakeoffRunwayLength()) {
+					comments.add("SYSTEM: Minimum takeoff runway length for the " + a.getName() + " is " + opts.getTakeoffRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
-				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
+				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
 					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
@@ -430,11 +431,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (r != null) {
 				int dist = r.distanceFeet(afr.getLandingLocation());
 				rA = new RunwayDistance(r, dist);
-				if (r.getLength() < a.getLandingRunwayLength()) {
-					comments.add("SYSTEM: Minimum landing runway length for the " + a.getName() + " is " + a.getLandingRunwayLength() + " feet");
+				if (r.getLength() < opts.getLandingRunwayLength()) {
+					comments.add("SYSTEM: Minimum landing runway length for the " + a.getName() + " is " + opts.getLandingRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
-				if (!r.getSurface().isHard() && !a.getUseSoftRunways()) {
+				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
 					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
