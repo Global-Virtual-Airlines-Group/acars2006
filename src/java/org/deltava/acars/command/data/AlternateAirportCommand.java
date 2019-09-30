@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to calculate an alternate airport.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 4.2
  */
 
@@ -51,7 +51,8 @@ public class AlternateAirportCommand extends DataCommand {
 				throw new IllegalArgumentException("Unknown aircraft type - " + msg.getFlag("eqType"));
 			
 			// Get the alternates
-			List<Airport> alts = AlternateAirportHelper.calculateAlternates(a, loc);
+			AlternateAirportHelper hlp = new AlternateAirportHelper(ctx.getACARSConnection().getUserData().getAirlineCode());
+			List<Airport> alts = hlp.calculateAlternates(a, loc);
 			if (aA != null)
 				alts.remove(aA);
 			if (alts.size() > max)

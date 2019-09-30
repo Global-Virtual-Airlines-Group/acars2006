@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -36,6 +36,7 @@ public class EquipmentListCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		AircraftMessage rspMsg = new AircraftMessage(env.getOwner(), msg.getID());
 		rspMsg.setShowProfile(Boolean.valueOf(msg.getFlag("showProfile")).booleanValue());
+		rspMsg.setShowPolicy(Boolean.valueOf(msg.getFlag("shiwPolicy")).booleanValue());
 		
 		try {
 			ACARSConnection ac = ctx.getACARSConnection();

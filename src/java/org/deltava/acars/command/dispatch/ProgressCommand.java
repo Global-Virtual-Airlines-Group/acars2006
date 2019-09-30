@@ -16,7 +16,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 2.1
  */
 
@@ -67,7 +67,8 @@ public class ProgressCommand extends DispatchCommand {
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(inf.getEquipmentType());
 			if (a != null) {
-				List<Airport> alts = AlternateAirportHelper.calculateAlternates(a, pos);
+				AlternateAirportHelper hlp = new AlternateAirportHelper(ac.getUserData().getAirlineCode());
+				List<Airport> alts = hlp.calculateAlternates(a, pos);
 				alts.remove(inf.getAirportA());
 				if (alts.size() > 5)
 					alts.subList(5, alts.size()).clear();

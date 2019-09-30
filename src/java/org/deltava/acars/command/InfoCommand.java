@@ -25,7 +25,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -168,10 +168,11 @@ public class InfoCommand extends ACARSCommand {
 			GetAircraft acdao = new GetAircraft(c);
 			Aircraft ac = acdao.get(msg.getEquipmentType());
 			if (ac != null) {
+				AircraftPolicyOptions opts = ac.getOptions(usrLoc.getAirlineCode());
 				if (msg.getPassengers() > 0)
-					msg.setLoadFactor(msg.getPassengers() * 1.0d / ac.getSeats());
+					msg.setLoadFactor(msg.getPassengers() * 1.0d / opts.getSeats());
 				else if ((msg.getLoadFactor() > 0) && (msg.getPassengers() == 0))
-					msg.setPassengers((int) (ac.getSeats() * msg.getLoadFactor()));
+					msg.setPassengers((int) (opts.getSeats() * msg.getLoadFactor()));
 			} else
 				log.warn("Unknown aircraft type - " + msg.getEquipmentType());
 				
