@@ -18,7 +18,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -126,13 +126,7 @@ public class NetworkReader extends Worker {
 								log.debug("QUIT Message from " + con.getUser().getName());
 								
 							conIDs.add(Long.valueOf(con.getID()));
-							QuitMessage qmsg = new QuitMessage(con.getUser());
-							qmsg.setFlightID(con.getFlightID());
-							qmsg.setHidden(con.getUserHidden());
-							qmsg.setDispatch(con.getIsDispatch());
-							qmsg.setMP(con.getIsMP());
-							qmsg.setVoice(con.isVoiceEnabled() || con.getMuted());
-							MSG_INPUT.add(new MessageEnvelope(qmsg, con.getID()));
+							MSG_INPUT.add(new MessageEnvelope(new QuitMessage(con), con.getID()));
 						}
 					}
 					
