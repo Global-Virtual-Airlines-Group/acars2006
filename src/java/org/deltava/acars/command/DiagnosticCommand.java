@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -71,13 +71,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					ctx.push(msg, ac.getID(), true);
 					
 					// Save the QUIT message
-					QuitMessage qmsg = new QuitMessage(ac.getUser());
-					qmsg.setFlightID(ac.getFlightID());
-					qmsg.setDispatch(ac.getIsDispatch());
-					qmsg.setHidden(ac.getUserHidden());
-					qmsg.setVoice(ac.isVoiceEnabled());
-					qmsg.setMP(ac.getIsMP());
-					MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
+					MSG_INPUT.add(new MessageEnvelope(new QuitMessage(ac), ac.getID()));
 
 					// Send the ACK
 					AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -87,7 +81,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					ctx.push(daMsg);
 					
 					// Log the KICK
-					StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
+					StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), UpdateType.COMMENT);
 					upd.setAuthorID(usr.getID());
 					upd.setDescription("Kicked from ACARS server");
 					
@@ -143,13 +137,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						ctx.push(msg, ac.getID(), true);
 						
 						// Save the QUIT message
-						QuitMessage qmsg = new QuitMessage(ac.getUser());
-						qmsg.setFlightID(ac.getFlightID());
-						qmsg.setDispatch(ac.getIsDispatch());
-						qmsg.setHidden(ac.getUserHidden());
-						qmsg.setVoice(ac.isVoiceEnabled());
-						qmsg.setMP(ac.getIsMP());
-						MSG_INPUT.add(new MessageEnvelope(qmsg, ac.getID()));
+						MSG_INPUT.add(new MessageEnvelope(new QuitMessage(ac), ac.getID()));
 						
 						// Send the ACK
 						AcknowledgeMessage daMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
@@ -159,7 +147,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						ctx.push(daMsg);
 						
 						// Log the BLOCK
-						StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), StatusUpdate.COMMENT);
+						StatusUpdate upd = new StatusUpdate(ac.getUser().getID(), UpdateType.COMMENT);
 						upd.setAuthorID(usr.getID());
 						upd.setDescription("Kicked from ACARS server - blocked IP " + msg.getRequestData());
 
