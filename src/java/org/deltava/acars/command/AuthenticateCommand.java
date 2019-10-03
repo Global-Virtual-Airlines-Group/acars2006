@@ -225,10 +225,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Load MVS warnings and disable voice if necessary
 			if (SystemData.getBoolean("acars.voice.enabled")) {
 				GetWarnings wdao = new GetWarnings(c);
-				con.setWarnings(wdao.getCount(usr.getID()));
-				if (con.getWarnings() >= SystemData.getInt("acars.voice.maxWarnings", 3)) {
-					log.warn(usr.getName() + " has " + con.getWarnings() + " warnings, voice disabled");
+				con.setWarningScore(wdao.get(usr.getID()).stream().mapToInt(Warning::getScore).sum());
+				if (con.getWarningScore() >= SystemData.getInt("acars.maxWarnings", 10)) {
+					log.warn(usr.getName() + " has " + con.getWarningScore() + " warning score, voice/text disabled");
 					usr.setNoVoice(true);
+					usr.setACARSRestriction(Restriction.NOMSGS);
 				}
 			}
 			

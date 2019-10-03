@@ -26,7 +26,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -91,8 +91,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		Map<Long, Integer> results = new HashMap<Long, Integer>();
 		for (ACARSConnection con : cons) {
 			synchronized (con) {
-				if (con.getWarnings() > 0)
-					results.put(Long.valueOf(con.getID()), Integer.valueOf(con.getWarnings()));
+				if (con.getWarningScore() > 0)
+					results.put(Long.valueOf(con.getID()), Integer.valueOf(con.getWarningScore()));
 			}
 		}
 		

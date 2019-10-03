@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -83,6 +83,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.COMPRESS, new CompressionCommand());
 		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
 		_commands.put(MessageType.PERFORMANCE, new PerformanceCommand());
+		_commands.put(MessageType.DISCONNECT, new KickCommand());
 		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize data commands
