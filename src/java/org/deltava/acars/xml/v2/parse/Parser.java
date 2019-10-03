@@ -6,7 +6,7 @@ import org.deltava.acars.message.*;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 2.7
  */
 
@@ -39,6 +39,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		_eParsers.put(MessageType.COMPRESS, new CompressionParser());
 		_eParsers.put(MessageType.SYSINFO, new SysInfoParser());
 		_eParsers.put(MessageType.PERFORMANCE, new PerformanceParser());
+		_eParsers.put(MessageType.DISCONNECT, new KickParser());
 		
 		// Dispatch parsers
 		_dspParsers.put(DispatchRequest.SCOPEINFO, new ScopeInfoParser());
