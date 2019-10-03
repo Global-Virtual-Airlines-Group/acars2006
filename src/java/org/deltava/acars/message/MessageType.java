@@ -4,7 +4,7 @@ package org.deltava.acars.message;
 /**
  * An enumeration of ACARS message types.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 8.4
  */
 
@@ -17,7 +17,7 @@ public enum MessageType {
 	SWCHAN("voxswchan", "Switch Channel"), MUTE("mute", "Mute"), VOICETOGGLE("voxtoggle", "Voice Toggle"), VOICE("vox", "Voice"),
 	WARN("warn", "Warning"), WARNRESET("warnreset", "Warning Reset"), POSUPDINT("updint", "Update Interval"),
 	VOICEPINGINT("voxping", "Voice Ping Interval"), COMPRESS("compress", "Data Compression"), SYSINFO("sysinfo", "System Information"),
-	PERFORMANCE("performance", "Client Performance");
+	PERFORMANCE("performance", "Client Performance"), DISCONNECT("kick", "Disconnect");
 	
 	private final String _code;
 	private final String _type;

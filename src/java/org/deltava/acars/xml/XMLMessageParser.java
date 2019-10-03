@@ -117,10 +117,6 @@ public abstract class XMLMessageParser extends MessageParser {
 							msg = new PINGMessage(env.getOwner());
 							break;
 
-						case QUIT:
-							msg = new QuitMessage(env.getOwner());
-							break;
-							
 						case DISPATCH:
 							String reqType = cmdE.getChildTextTrim("reqtype"); 
 							DispatchRequest dspType = DispatchRequest.fromType(reqType);
