@@ -570,7 +570,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
-			if (wdao.updatePaxCount(afr.getID(), usrLoc.getDB()))
+			if (wdao.updatePaxCount(afr.getID(), usrLoc))
 				log.warn("Updated Passnger count for PIREP #" + afr.getID());
 			
 			// Write ontime data if there is any
