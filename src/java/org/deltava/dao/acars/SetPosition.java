@@ -11,7 +11,7 @@ import org.deltava.acars.message.PositionMessage;
 /**
  * A Data Access Object to write ACARS Position Messages.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -34,7 +34,7 @@ public class SetPosition extends DAO {
 		try {
 			prepareStatementWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, "
 				+ "FUEL, PHASE, SIM_RATE, FLAGS, GNDFLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, GFORCE, FRAMERATE, NAV1, NAV2, VAS, "
-				+ "WEIGHT, ASTYPE, ADF1) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				+ "WEIGHT, ASTYPE, ADF1, NET_CONNECTED) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			
 			// Write core entries
 			startTransaction();
@@ -79,6 +79,7 @@ public class SetPosition extends DAO {
 				_ps.setInt(35, msg.getWeight());
 				_ps.setInt(36, msg.getAirspaceType().ordinal());
 				_ps.setString(37, msg.getADF1());
+				_ps.setBoolean(38, msg.getNetworkConnected());
 				_ps.addBatch();
 				
 				// Remove entries with no ATC ID

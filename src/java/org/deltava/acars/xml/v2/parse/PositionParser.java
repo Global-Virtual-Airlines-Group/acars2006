@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -91,6 +91,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setADF1(getChildText(e, "adf1", null));
 			msg.setVASFree(Integer.parseInt(getChildText(e, "vasFree", "0")));
 			msg.setGroundOperations(Integer.parseInt(getChildText(e, "groundOps", "0")));
+			msg.setNetworkConnected(Boolean.valueOf(getChildText(e, "networkConnected", "false")).booleanValue());
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);

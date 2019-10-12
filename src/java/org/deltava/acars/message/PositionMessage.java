@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 8.6
+ * @version 8.7
  * @since 1.0
  */
 
@@ -30,6 +30,7 @@ public class PositionMessage extends LocationMessage {
 	private double _angleOfAttack;
 	private int _frameRate;
 	private int _groundOps;
+	private boolean _networkConnected;
 	
 	private int _txCode;
 	private boolean _txActive;
@@ -174,6 +175,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public int getGroundOperations() {
 		return _groundOps;
+	}
+	
+	public boolean getNetworkConnected() {
+		return _networkConnected;
 	}
 	
 	public AirspaceType getAirspaceType() {
@@ -374,5 +379,9 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setVASFree(int kb) {
 		_vasFree = Math.max(0,  kb);
+	}
+	
+	public void setNetworkConnected(boolean isConnected) {
+		_networkConnected = isConnected;
 	}
 }
