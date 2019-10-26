@@ -1,10 +1,9 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.Instant;
 
 import org.jdom2.Element;
-import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
@@ -20,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 8.4
+ * @version 8.7
  * @since 1.0
  */
 
@@ -29,8 +28,6 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP, 2017=Prepar3Dv4
 	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017};
 	
-	private static final Logger log = Logger.getLogger(FlightInfoParser.class);
-
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
 	 * @param e the XML element
@@ -102,17 +99,9 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setIsSim64Bit(Boolean.valueOf(getChildText(e, "is64Bit", "false")).booleanValue() || (msg.getSimulator() == Simulator.P3Dv4));
 		msg.setIsACARS64Bit(Boolean.valueOf(getChildText(e, "isACARS64Bit", "false")).booleanValue());
 		
-		// Read pax (122+) / load factors (121+) if present
+		// Read pax (122+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
 		msg.setLoadType(LoadType.values()[StringUtils.parse(getChildText(e, "loadType", String.valueOf(LoadType.RANDOM.ordinal())), 0)]);
-		if (msg.getPassengers() == 0) {
-			String lf = getChildText(e, "loadFactor", "0.0");
-			msg.setLoadFactor(StringUtils.parse(lf, 0d));
-			if (Double.isNaN(msg.getLoadFactor())) {
-				log.warn("Invalid (NaN) load factor from " + user.getPilotCode() + " - " + lf);
-				msg.setLoadFactor(0);
-			}
-		}
 		
 		// Load SID data
 		Element sid = e.getChild("sid");
