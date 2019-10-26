@@ -101,8 +101,14 @@ public class InfoCommand extends ACARSCommand {
 					log.warn(msg.getFlightID() + " has PIREP or is archived!");
 					assignID = true;
 					msg.setFlightID(0);
-				} else
+				} else {
 					isValidated = info.isScheduleValidated();
+					if (msg.getDispatcherID() != info.getDispatcherID()) {
+						log.warn("Flight " + msg.getFlightID() + " dispatcher was " + info.getDispatcherID() + ", now " + msg.getDispatcherID());
+						if (msg.getDispatcherID() == 0)
+							msg.setDispatcherID(info.getDispatcherID());
+					}
+				}
 			}
 			
 			// Validate against the schedule - do this even if the message claims it's valid
