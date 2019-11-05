@@ -1,23 +1,28 @@
 // Copyright 2009, 2011, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.*;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.navdata.*;
-import org.deltava.beans.schedule.ICAOAirport;
-
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+
+import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.Airport;
+
+import org.deltava.comparators.GeoComparator;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetTakeoff;
 
+import org.deltava.util.system.SystemData;
+
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 2.8
  */
 
@@ -48,13 +53,24 @@ public class TakeoffCommand extends ACARSCommand {
 		msg.setEquipmentType(info.getEquipmentType());
 		msg.setFlightCode(info.getFlightCode());
 		
-		// Log the message
-		boolean isBounce = false;
-		ICAOAirport a = msg.isTakeoff() ? info.getAirportD() : info.getAirportA();
+		// Find the closest airport
+		List<Airport> airports = new ArrayList<Airport>(SystemData.getAirports().values());
+		Collections.sort(airports, new GeoComparator(msg.getLocation()));
+		Airport closestAirport = airports.get(0);
+		
+		// Check if we're the closest
+		Airport a = msg.isTakeoff() ? info.getAirportD() : info.getAirportA();
+		if (!a.equals(closestAirport)) {
+			int distance = a.distanceTo(closestAirport); 
+			log.warn("Closest airport for Flight " + info.getID() + " is " + closestAirport.getICAO() + " implied airport is " + a.getICAO() + " (distance = " + distance + " miles)");
+			if (distance > 15)
+				a = closestAirport;
+		}
+		
 		try {
 			Connection con = ctx.getConnection();
 			SetTakeoff todao = new SetTakeoff(con);
-			isBounce = todao.logTakeoff(info.getFlightID(), msg.isTakeoff());
+			boolean isBounce = todao.logTakeoff(info.getFlightID(), msg.isTakeoff());
 
 			// Get the runway
 			GetNavData nvdao = new GetNavData(con);
@@ -70,14 +86,14 @@ public class TakeoffCommand extends ACARSCommand {
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
 				ctx.push(ackMsg);
 			}
+			
+			// Send out a system message to the others if not a bounce
+			if (!isBounce)
+				ctx.pushAll(msg, ac.getID());
 		} catch (DAOException de) {
 			log.error("Cannnot log takeoff/landing - " + de.getMessage(), de);
 		} finally {
 			ctx.release();
 		}
-		
-		// Send out a system message to the others if not a bounce
-		if (!isBounce)
-			ctx.pushAll(msg, ac.getID());
 	}
 }
