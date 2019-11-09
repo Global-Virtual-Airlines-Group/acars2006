@@ -79,14 +79,6 @@
 		<pirep>
 			<maxHeld type="Integer">3</maxHeld>
 		</pirep>
-		
-		<!-- Facebook data URLs -->
-		<facebook>
-			<url>
-				<userInfo>https://graph.facebook.com/v2.3/me</userInfo>
-				<feed>https://graph.facebook.com/v2.3/me/feed</feed>
-			</url>
-		</facebook>
 	</users>
 
 	<!-- Multiplayer properties -->
@@ -137,9 +129,11 @@
 
 	<!-- SMTP server data -->
 	<smtp>
-		<server>polaris.sce.net</server>
+		<server>sirius.sce.net</server>
 		<errors-to>luke@sce.net</errors-to>
 		<testMode type="Boolean">true</testMode>
+		<port type="Integer">465</port>
+		<tls type="Boolean">true</tls>
 	</smtp>
 
 	<!-- ACARS Server Properties -->
