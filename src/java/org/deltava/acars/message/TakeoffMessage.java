@@ -1,18 +1,18 @@
-// Copyright 2009, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.ILSCategory;
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.schedule.*;
 
 /**
  * An ACARS message to track takeoffs and landings.
  * @author Luke
- * @version 8.4
+ * @version 9.0
  * @since 2.8
  */
 
-public class TakeoffMessage extends AbstractMessage {
+public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	
 	private GeospaceLocation _loc;
 	private int _hdg;
@@ -50,18 +50,12 @@ public class TakeoffMessage extends AbstractMessage {
 		return _hdg;
 	}
 	
-	/**
-	 * Returns the departure Airport.
-	 * @return the Airport
-	 */
+	@Override
 	public Airport getAirportD() {
 		return _airportD;
 	}
 	
-	/**
-	 * Returns the arrival Airport
-	 * @return the Airport
-	 */
+	@Override
 	public Airport getAirportA() {
 		return _airportA;
 	}
