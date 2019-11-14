@@ -37,7 +37,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -619,7 +619,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 					
 				// Send the message to the Instructors
-				Mailer mailer = new Mailer(p);
+				EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
+				Mailer mailer = new Mailer(sender);
 				mailer.setContext(mctxt);
 				mailer.send(insList);
 				log.info("Sending Academy Check Ride notification to " + insList);
@@ -641,7 +642,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					eqCPs.addAll(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
 
 					// Send the message to the CP
-					Mailer mailer = new Mailer(p);
+					EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
+					Mailer mailer = new Mailer(sender);
 					mailer.setContext(mctxt);
 					mailer.send(eqCPs);
 					log.info("Sending Check Ride notification to " + eqCPs);

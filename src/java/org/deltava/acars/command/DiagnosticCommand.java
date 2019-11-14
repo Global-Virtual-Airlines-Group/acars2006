@@ -17,13 +17,13 @@ import static org.deltava.acars.workers.Worker.*;
 
 import org.deltava.dao.*;
 import org.deltava.mail.*;
-
+import org.deltava.util.MailUtils;
 import org.deltava.util.StringUtils;
 
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -216,10 +216,7 @@ public class DiagnosticCommand extends ACARSCommand {
 						GetPilotDirectory pdao = new GetPilotDirectory(con);
 						GetUserData uddao = new GetUserData(con);
 						Collection<AirlineInformation> airlines = uddao.getAirlines(true).values();
-						for (Iterator<AirlineInformation> i = airlines.iterator(); i.hasNext(); ) {
-							AirlineInformation ai = i.next();
-							
-							// Get pilots
+						for (AirlineInformation ai : airlines) {
 							Collection<Pilot> pilots = pdao.getByRole("HR", ai.getDB());
 							for (Pilot p : pilots) {
 								MessageContext mctxt = new MessageContext(ai.getCode());
@@ -228,7 +225,7 @@ public class DiagnosticCommand extends ACARSCommand {
 								mctxt.setBody("Potentially inappropriate content in ACARS has been reported - " + msg.getRequestData() + "\n\n${user.name}");
 								
 								// Send the message
-								Mailer mailer = new Mailer(ctx.getACARSConnection().getUser());
+								Mailer mailer = new Mailer(MailUtils.makeAddress("acars", ai.getDomain(), "ACARS"));
 								mailer.setContext(mctxt);
 								mailer.send(p);
 							}
