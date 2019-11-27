@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 8.4
+ * @version 9.0
  * @since 1.0
  */
 
@@ -43,64 +43,65 @@ public class SetInfo extends DAO {
 		boolean isNew = (msg.getFlightID() == 0);
 		try {
 			startTransaction();
-			prepareStatementWithoutLimits(isNew ? ISQL : USQL);
-			_ps.setInt(1, ac.getUser().getID());
-			_ps.setString(2, msg.getFlightCode());
-			_ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
-			_ps.setString(4, msg.getEquipmentType());
-			_ps.setString(5, msg.getAltitude());
-			_ps.setString(6, msg.getAirportD().getIATA());
-			_ps.setString(7, msg.getAirportA().getIATA());
-			_ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
-			_ps.setString(9, msg.getRoute());
-			_ps.setString(10, msg.getComments());
-			_ps.setInt(11, msg.getSimulator().getCode());
-			_ps.setBoolean(12, msg.isScheduleValidated());
-			_ps.setBoolean(13, msg.isDispatchPlan());
-			_ps.setBoolean(14, (msg.getLivery() != null));
-			_ps.setString(15, ac.getRemoteAddr());
-			_ps.setString(16, ac.getRemoteHost());
-			_ps.setInt(17, ac.getClientBuild());
-			_ps.setInt(18, ac.getBeta());
-			_ps.setInt(19, msg.getSimMajor());
-			_ps.setInt(20, msg.getSimMinor());
-			_ps.setInt(21, msg.getTX());
-			_ps.setDouble(22, msg.getLoadFactor());
-			_ps.setInt(23, msg.getAutopilotType().ordinal());
-			_ps.setInt(24, msg.getPlatform().ordinal());
-			_ps.setBoolean(25, msg.getIsSim64Bit());
-			_ps.setBoolean(26, msg.getIsACARS64Bit());
-			_ps.setInt(27, msg.getLoadType().ordinal());
-			if (!isNew)
-				_ps.setInt(28, msg.getFlightID());
+			try (PreparedStatement ps = prepareWithoutLimits(isNew ? ISQL : USQL)) {
+				ps.setInt(1, ac.getUser().getID());
+				ps.setString(2, msg.getFlightCode());
+				ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
+				ps.setString(4, msg.getEquipmentType());
+				ps.setString(5, msg.getAltitude());
+				ps.setString(6, msg.getAirportD().getIATA());
+				ps.setString(7, msg.getAirportA().getIATA());
+				ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
+				ps.setString(9, msg.getRoute());
+				ps.setString(10, msg.getComments());
+				ps.setInt(11, msg.getSimulator().getCode());
+				ps.setBoolean(12, msg.isScheduleValidated());
+				ps.setBoolean(13, msg.isDispatchPlan());
+				ps.setBoolean(14, (msg.getLivery() != null));
+				ps.setString(15, ac.getRemoteAddr());
+				ps.setString(16, ac.getRemoteHost());
+				ps.setInt(17, ac.getClientBuild());
+				ps.setInt(18, ac.getBeta());
+				ps.setInt(19, msg.getSimMajor());
+				ps.setInt(20, msg.getSimMinor());
+				ps.setInt(21, msg.getTX());
+				ps.setDouble(22, msg.getLoadFactor());
+				ps.setInt(23, msg.getAutopilotType().ordinal());
+				ps.setInt(24, msg.getPlatform().ordinal());
+				ps.setBoolean(25, msg.getIsSim64Bit());
+				ps.setBoolean(26, msg.getIsACARS64Bit());
+				ps.setInt(27, msg.getLoadType().ordinal());
+				if (!isNew)
+					ps.setInt(28, msg.getFlightID());
 			
-			// Write to the database
-			executeUpdate(1);
+				executeUpdate(ps, 1);
+			}
 			
 			// If we're writing a new entry, get the database ID
-			int newID = msg.getFlightID();
-			if (isNew)
-				newID = getNewID();
+			int newID = isNew ? getNewID() : msg.getFlightID();
 			
 			// Write dispatcher ID
 			if (isNew && (msg.getDispatcherID() != 0)) {
-				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCHER (ID, DISPATCHER_ID) VALUES (?, ?)");
-				_ps.setInt(1, newID);
-				_ps.setInt(2, msg.getDispatcherID());
-				executeUpdate(0);
+				try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCHER (ID, DISPATCHER_ID) VALUES (?, ?)")) {
+					ps.setInt(1, newID);
+					ps.setInt(2, msg.getDispatcherID());
+					executeUpdate(ps, 0);
+				}
 			}
 			
 			// Save route usage if using auto-Dispatch
 			if (isNew && (msg.getRouteID() != 0)) {
-				prepareStatementWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID) VALUES (?, ?)");
-				_ps.setInt(1, newID);
-				_ps.setInt(2, msg.getRouteID());
-				executeUpdate(0);
+				try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCH (ID, ROUTE_ID) VALUES (?, ?)")) {
+					ps.setInt(1, newID);
+					ps.setInt(2, msg.getRouteID());
+					executeUpdate(ps, 0);
+				}
 				
 				// Save route usage
-				prepareStatementWithoutLimits("UPDATE acars.ROUTES SET USED=USED+1, LASTUSED=NOW() WHERE (ID=?) LIMIT 1");
-				_ps.setInt(1, msg.getRouteID());
-				executeUpdate(0);
+				try (PreparedStatement ps = prepareWithoutLimits("UPDATE acars.ROUTES SET USED=USED+1, LASTUSED=NOW() WHERE (ID=?) LIMIT 1")) {
+					ps.setInt(1, msg.getRouteID());
+					executeUpdate(ps, 0);
+				}
 			}
 				
 			commitTransaction();
@@ -124,10 +125,9 @@ public class SetInfo extends DAO {
 	   if (!force)
 	      sqlBuf.append(" AND (END_TIME IS NULL)");
 	   
-	   try {
-	      prepareStatement(sqlBuf.toString());
-	      _ps.setInt(1, flightID);
-	      executeUpdate(0);
+	   try (PreparedStatement ps = prepare(sqlBuf.toString())) {
+	      ps.setInt(1, flightID);
+	      executeUpdate(ps, 0);
 	   } catch (SQLException se) {
 	      throw new DAOException(se);
 	   }
@@ -139,11 +139,10 @@ public class SetInfo extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void logPIREP(int flightID) throws DAOException {
-	   try {
-	      prepareStatementWithoutLimits("UPDATE acars.FLIGHTS SET PIREP=? WHERE (ID=?) LIMIT 1");
-	      _ps.setBoolean(1, true);
-	      _ps.setInt(2, flightID);
-	      executeUpdate(0);
+	   try (PreparedStatement ps = prepareWithoutLimits("UPDATE acars.FLIGHTS SET PIREP=? WHERE (ID=?) LIMIT 1")) {
+	      ps.setBoolean(1, true);
+	      ps.setInt(2, flightID);
+	      executeUpdate(ps, 0);
 	   } catch (SQLException se) {
 	      throw new DAOException(se);
 	   }

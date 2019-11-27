@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A Data Access Object to write ACARS Connection information.
  * @author Luke
- * @version 8.0
+ * @version 9.0
  * @since 1.0
  */
 
@@ -30,19 +30,16 @@ public final class SetConnection extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void add(ACARSConnection c) throws DAOException {
-		if ((c == null) || (c.getUser() == null))
-			return;
-		
-		try {
-			prepareStatement("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (CONV(?,10,16), ?, ?, INET6_ATON(?), ?, ?, ?)");
-			_ps.setLong(1, c.getID());
-			_ps.setInt(2, c.getUser().getID());
-			_ps.setTimestamp(3, new Timestamp(c.getStartTime()));
-			_ps.setString(4, c.getRemoteAddr());
-			_ps.setString(5, c.getRemoteHost());
-			_ps.setInt(6, c.getClientBuild());
-			_ps.setInt(7, c.getBeta());
-			executeUpdate(1);
+		if ((c == null) || (c.getUser() == null)) return;
+		try (PreparedStatement ps = prepare("INSERT INTO acars.CONS (ID, PILOT_ID, DATE, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD) VALUES (CONV(?,10,16), ?, ?, INET6_ATON(?), ?, ?, ?)")) {
+			ps.setLong(1, c.getID());
+			ps.setInt(2, c.getUser().getID());
+			ps.setTimestamp(3, new Timestamp(c.getStartTime()));
+			ps.setString(4, c.getRemoteAddr());
+			ps.setString(5, c.getRemoteHost());
+			ps.setInt(6, c.getClientBuild());
+			ps.setInt(7, c.getBeta());
+			executeUpdate(ps, 1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
@@ -63,14 +60,13 @@ public final class SetConnection extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void closeConnections(Collection<Long> ids) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ID=CONV(?,10,16))");
+		try (PreparedStatement ps = prepareWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ID=CONV(?,10,16))")) {
 			for (Long id : ids) {
-				_ps.setLong(1, id.longValue());
-				_ps.addBatch();
+				ps.setLong(1, id.longValue());
+				ps.addBatch();
 			}
 			
-			executeBatchUpdate(0, 0);
+			executeUpdate(ps, 0, 0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
@@ -82,10 +78,9 @@ public final class SetConnection extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public int closeAll() throws DAOException {
-		try {
-			prepareStatementWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND (DATE>DATE_SUB(NOW(), INTERVAL ? HOUR))");
-			_ps.setInt(1, 24);
-			return executeUpdate(0);
+		try (PreparedStatement ps = prepareWithoutLimits("UPDATE acars.CONS SET ENDDATE=NOW() WHERE (ENDDATE IS NULL) AND (DATE>DATE_SUB(NOW(), INTERVAL ? HOUR))")) {
+			ps.setInt(1, 24);
+			return executeUpdate(ps, 0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}

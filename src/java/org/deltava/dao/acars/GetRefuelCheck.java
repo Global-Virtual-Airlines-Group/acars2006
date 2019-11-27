@@ -1,4 +1,4 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -12,7 +12,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to check for in-flight refueling from non-serialized ACARS position records.
  * @author Luke
- * @version 8.5
+ * @version 9.0
  * @since 8.5
  */
 
@@ -66,19 +66,17 @@ public class GetRefuelCheck extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public List<? extends FuelChecker> checkRefuel(int flightID) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("SELECT REPORT_TIME, FUEL, FLAGS FROM acars.POSITIONS WHERE (FLIGHT_ID=?) ORDER BY REPORT_TIME");
-			_ps.setInt(1, flightID);
-			List<FuelData> data = new ArrayList<FuelData>();
-			try (ResultSet rs = _ps.executeQuery()) {
+		try (PreparedStatement ps = prepareWithoutLimits("SELECT REPORT_TIME, FUEL, FLAGS FROM acars.POSITIONS WHERE (FLIGHT_ID=?) ORDER BY REPORT_TIME")) {
+			ps.setInt(1, flightID);
+			try (ResultSet rs = ps.executeQuery()) {
+				List<FuelData> data = new ArrayList<FuelData>();
 				 while (rs.next()) {
 					 FuelData fd = new FuelData(toInstant(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3));
 					 data.add(fd);
 				 }
+				 
+				 return data;
 			}
-			
-			_ps.close();
-			return data;
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
