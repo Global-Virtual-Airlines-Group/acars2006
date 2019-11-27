@@ -63,8 +63,13 @@ public class TakeoffCommand extends ACARSCommand {
 		if (!a.equals(closestAirport)) {
 			int distance = a.distanceTo(closestAirport); 
 			log.warn("Closest airport for Flight " + info.getID() + " is " + closestAirport.getICAO() + " implied airport is " + a.getICAO() + " (distance = " + distance + " miles)");
-			if (distance > 15)
+			if (distance > 15) {
 				a = closestAirport;
+				if (msg.isTakeoff())
+					msg.setAirportD(a);
+				else
+					msg.setAirportA(a);
+			}
 		}
 		
 		try {
@@ -81,6 +86,7 @@ public class TakeoffCommand extends ACARSCommand {
 				
 				// Send the ack
 				AcknowledgeMessage ackMsg = new AcknowledgeMessage(msg.getSender(), msg.getID());
+				ackMsg.setEntry("airport", a.getICAO());
 				ackMsg.setEntry("rwy", r.getName());
 				ackMsg.setEntry("distance", String.valueOf(dist));
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
