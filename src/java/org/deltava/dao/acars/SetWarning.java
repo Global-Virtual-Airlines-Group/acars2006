@@ -8,7 +8,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to log User warnings.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 4.0
  */
 
@@ -30,12 +30,11 @@ public class SetWarning extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void warn(int userID, int authorID, int score) throws DAOException {
-		try {
-			prepareStatement("REPLACE INTO acars.WARNINGS (ID, AUTHOR, WARNED_ON, SCORE) VALUES (?, ?, NOW(), ?)");
-			_ps.setInt(1, userID);
-			_ps.setInt(2, authorID);
-			_ps.setInt(3, score);
-			executeUpdate(1);
+		try (PreparedStatement ps = prepare("REPLACE INTO acars.WARNINGS (ID, AUTHOR, WARNED_ON, SCORE) VALUES (?, ?, NOW(), ?)")) {
+			ps.setInt(1, userID);
+			ps.setInt(2, authorID);
+			ps.setInt(3, score);
+			executeUpdate(ps, 1);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
@@ -47,10 +46,9 @@ public class SetWarning extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void clear(int userID) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("DELETE FROM acars.WARNINGS WHERE (ID=?)");
-			_ps.setInt(1, userID);
-			executeUpdate(0);
+		try (PreparedStatement ps = prepareWithoutLimits("DELETE FROM acars.WARNINGS WHERE (ID=?)")) {
+			ps.setInt(1, userID);
+			executeUpdate(ps, 0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}		
@@ -62,10 +60,9 @@ public class SetWarning extends DAO {
 	 * @throws DAOException if a JDBC error occurs
 	 */
 	public void purge(int days) throws DAOException {
-		try {
-			prepareStatementWithoutLimits("DELETE FROM acars.WARNINGS WHERE (WARNED_ON < DATE_SUB(NOW(), INTERVAL ? DAYS))");
-			_ps.setInt(1, days);
-			executeUpdate(0);
+		try (PreparedStatement ps = prepareWithoutLimits("DELETE FROM acars.WARNINGS WHERE (WARNED_ON < DATE_SUB(NOW(), INTERVAL ? DAYS))")) {
+			ps.setInt(1, days);
+			executeUpdate(ps, 0);
 		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
