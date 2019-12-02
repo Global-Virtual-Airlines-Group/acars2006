@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -307,7 +307,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Set roles/ratings and if we are unrestricted
 		ackMsg.setEntry("userID", usr.getPilotCode());
 		ackMsg.setEntry("dbID", String.valueOf(usr.getID()));
-		ackMsg.setEntry("appCode", usr.getAirlineCode());
+		ackMsg.setEntry("appCode", ud.getAirlineCode());
 		ackMsg.setEntry("rank", usr.getRank().getName());
 		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
