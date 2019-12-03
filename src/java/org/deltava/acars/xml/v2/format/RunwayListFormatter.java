@@ -14,7 +14,7 @@ import org.deltava.acars.message.data.RunwayListMessage;
 /**
  * A formatter for Runway List messages.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 8.4
  */
 
@@ -48,6 +48,7 @@ class RunwayListFormatter extends ElementFormatter {
 			re.setAttribute("name", r.getName());
 			re.setAttribute("hdg", String.valueOf(r.getHeading()));
 			re.setAttribute("length", String.valueOf(r.getLength()));
+			re.setAttribute("width", String.valueOf(r.getWidth()));
 			re.setAttribute("magVar", StringUtils.format(r.getMagVar(), "#0.000"));
 			re.setAttribute("surface", r.getSurface().getName());
 			if (r.getNewCode() != null)
