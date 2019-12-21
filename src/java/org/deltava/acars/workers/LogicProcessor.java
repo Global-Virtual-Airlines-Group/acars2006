@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -98,7 +98,6 @@ public class LogicProcessor extends Worker {
 		_dataCommands.put(DataRequest.EQLIST, new EquipmentListCommand());
 		_dataCommands.put(DataRequest.SCHED, new ScheduleInfoCommand());
 		_dataCommands.put(DataRequest.NAVAIDINFO, new NavaidCommand());
-		_dataCommands.put(DataRequest.TS2SERVERS, new TS2ServerListCommand());
 		_dataCommands.put(DataRequest.PVTVOX, new PrivateVoiceCommand());
 		_dataCommands.put(DataRequest.ATCINFO, new ATCInfoCommand());
 		_dataCommands.put(DataRequest.NATS, new OceanicTrackCommand());

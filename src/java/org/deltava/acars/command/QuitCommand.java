@@ -4,7 +4,6 @@ package org.deltava.acars.command;
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
 
 import java.util.*;
-import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 
@@ -18,12 +17,10 @@ import org.deltava.acars.message.mp.RemoveMessage;
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetInfo;
 
-import org.deltava.util.system.SystemData;
-
 /**
  * An ACARS command to handle disconnections by authenticated users.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.0
  */
 
@@ -45,16 +42,8 @@ public class QuitCommand extends ACARSCommand {
 		// Mark the flight as closed
 		if (msg.getFlightID() != 0) {
 			try {
-				Connection c = ctx.getConnection();
-				SetInfo infoDAO = new SetInfo(c);
+				SetInfo infoDAO = new SetInfo(ctx.getConnection());
 				infoDAO.close(msg.getFlightID(), false);
-
-				// If Teamspeak is enabled, mark us as disconnected
-				if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-					SetTS2Data ts2wdao = new SetTS2Data(c);
-					ts2wdao.setActive(env.getOwnerID(), false);
-					if (log.isDebugEnabled()) log.debug("Disabled " + env.getOwnerID() + " TS2 access");
-				}
 			} catch (DAOException de) {
 				log.error(de.getMessage(), de);
 			} finally {
