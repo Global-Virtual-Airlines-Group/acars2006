@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -10,7 +10,6 @@ import javax.servlet.*;
 import org.apache.log4j.Logger;
 
 import org.deltava.dao.*;
-import org.deltava.dao.acars.SetConnection;
 import org.deltava.mail.MailerDaemon;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.ipc.IPCDaemon;
@@ -32,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 8.3
+ * @version 9.0
  * @since 1.0
  */
 
@@ -53,23 +52,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		_daemons.clear();
 		_dGroup.interrupt();
 		
-		// If ACARS is enabled, then clean out the active flags
-		if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-			Connection c = null;
-			try {
-				c = _jdbcPool.getConnection(); c.setAutoCommit(false);
-				SetTS2Data ts2wdao = new SetTS2Data(c);
-				log.info("Cleared " + ts2wdao.clearActiveFlags() + " TeamSpeak 2 client activity flags");
-				SetConnection cwdao = new SetConnection(c);
-				cwdao.closeAll();
-				c.commit();
-			} catch (Exception de) {
-				log.error(de.getMessage(), de);
-			} finally {
-				_jdbcPool.release(c);
-			}
-		}
-
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
 		RedisUtils.shutdown();
@@ -191,14 +173,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 				channels.forEach(ch -> vc.add(null, ch));
 				log.info("Loaded " + channels.size() + " persistent Voice channels");
 				SharedData.addData(SharedData.MVS_POOL, vc);
-			}
-			
-			// Load TS2 server info if enabled
-			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-				SetTS2Data ts2wdao = new SetTS2Data(c);
-				int flagsCleared = ts2wdao.clearActiveFlags();
-				if (flagsCleared > 0)
-					log.warn("Reset " + flagsCleared + " TeamSpeak 2 client activity flags");
 			}
 		} catch (Exception ex) {
 			log.error("Error retrieving data - " + ex.getMessage(), ex);

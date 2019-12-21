@@ -268,13 +268,6 @@ public class AuthenticateCommand extends ACARSCommand {
 				log.warn("Unknown Host " + con.getRemoteAddr());
 			}
 
-			// If Teamspeak is enabled, mark us as logged in
-			if (SystemData.getBoolean("airline.voice.ts2.enabled")) {
-				SetTS2Data ts2wdao = new SetTS2Data(c);
-				ts2wdao.setActive(usr.getPilotCode(), true);
-			}
-
-			// Commit
 			ctx.commitTX();
 
 			// Add the user again so they are registered with this user ID
