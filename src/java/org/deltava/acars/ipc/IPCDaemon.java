@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 7.3
+ * @version 9.0
  * @since 1.0
  */
 
@@ -135,8 +135,8 @@ public class IPCDaemon implements Runnable {
 									ACARSConnection ac = ci.next();
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
-										if (p.getStatus() != Pilot.ACTIVE) {
-											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatusName());
+										if (p.getStatus() != PilotStatus.ACTIVE) {
+											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatus().getDescription());
 											ac.close();
 											acPool.remove(ac);
 										}
