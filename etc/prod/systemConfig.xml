@@ -10,10 +10,6 @@
 		<default>DVA</default>
 		<voice>
 			<url>rw.deltava.org/DAL</url>
-			<ts2>
-				<enabled type="Boolean">true</enabled>
-				<url>teamspeak://ts2.deltava.org</url>
-			</ts2>
 		</voice>
 
 		<!-- Default airline codes -->
