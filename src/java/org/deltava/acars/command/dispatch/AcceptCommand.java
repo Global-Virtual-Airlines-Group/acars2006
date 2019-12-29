@@ -12,7 +12,7 @@ import org.deltava.beans.mvs.PopulatedChannel;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 2.0
  */
 
@@ -73,6 +73,7 @@ public class AcceptCommand extends DispatchCommand {
 			// Send the ACK
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
 			ackMsg.setEntry("dispatcher", env.getOwnerID());
+			ackMsg.setEntry("dispatcherID", String.valueOf(env.getOwner().getID()));
 			ctx.push(ackMsg);
 		} else if (ac.getDispatcherID() != 0)
 			log.info(ac.getUserID() + " already has dispatch service");
