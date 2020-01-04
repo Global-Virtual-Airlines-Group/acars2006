@@ -290,7 +290,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					ctx.push(drMsg, ac.getID(), false);
 			}
 		} else
-			ctx.pushAll(drMsg, con.getID());
+			ctx.pushAll(drMsg, env.getConnectionID());
 
 		// If we have a newer ACARS client build, say so
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
@@ -311,7 +311,6 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
 		ackMsg.setEntry("heldFlights", String.valueOf(heldFlights));
-		ackMsg.setEntry("useSSL", "true");
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
