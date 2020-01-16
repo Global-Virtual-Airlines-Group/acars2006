@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -45,6 +45,7 @@ class ConnectionFormatter extends ElementFormatter {
 				Pilot usr = con.getUser();
 				ce.setAttribute("id", usr.getPilotCode());
 				ce.setAttribute("dbID", Integer.toHexString(usr.getID()));
+				ce.setAttribute("appCode", con.getUserData().getAirlineCode());
 				ce.addContent(XMLUtils.createElement("firstname", usr.getFirstName()));
 				ce.addContent(XMLUtils.createElement("lastname", usr.getLastName()));
 				ce.addContent(XMLUtils.createElement("name", usr.getName()));
