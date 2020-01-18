@@ -107,14 +107,10 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException("Cannot load user data - " + msg.getUserID());
 			
 			// Validate the password
-			org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR);
-			if (auth instanceof SQLAuthenticator) {
-				try (SQLAuthenticator sqlAuth = (SQLAuthenticator) auth) {
-					sqlAuth.setConnection(c);
-					sqlAuth.authenticate(usr, msg.getPassword());
-				}
-			} else
+			try (org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR)) {
+				if (auth instanceof SQLAuthenticator) ((SQLAuthenticator) auth).setConnection(c); 
 				auth.authenticate(usr, msg.getPassword());
+			}
 			
 			// Check if we're already logged in
 			ACARSConnection ac2 = ctx.getACARSConnection(usr.getPilotCode());
