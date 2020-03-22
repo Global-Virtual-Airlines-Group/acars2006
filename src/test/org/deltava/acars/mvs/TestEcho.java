@@ -12,7 +12,6 @@ import org.apache.log4j.*;
 import org.deltava.beans.mvs.*;
 import org.deltava.beans.schedule.GeoPosition;
 import org.deltava.util.*;
-import org.deltava.acars.mvs.Packet;
 
 import junit.framework.TestCase;
 
