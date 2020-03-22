@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Arrays;
 
 import org.deltava.acars.beans.Compression;
-import org.deltava.acars.util.DataCompressor;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
