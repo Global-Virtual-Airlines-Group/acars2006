@@ -72,6 +72,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
 		AirlineInformation usrAirline = SystemData.getApp(usrLoc.getAirlineCode());
+		afr.addStatusUpdate(usrLoc.getID(), HistoryType.LIFECYCLE, "Submitted via ACARS server");
 
 		// Adjust the times
 		afr.setStartTime(afr.getStartTime().plusMillis(ac.getTimeOffset()));
@@ -165,9 +166,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (positionCount == 0)
 				log.warn("No position records for Flight " + info.getFlightID());
 			
-			// Create comments field
-			Collection<String> comments = new LinkedHashSet<String>();
-
 			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
 			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
 			List<FlightReport> dFlights = prdao.getDraftReports(usrLoc.getID(), afr, usrLoc.getDB());
@@ -179,7 +177,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
 				afr.setAttribute(FlightReport.ATTR_DIVERT, fr.hasAttribute(FlightReport.ATTR_DIVERT));
 				if (!StringUtils.isEmpty(fr.getComments()))
-					comments.add(fr.getComments());
+					afr.setComments(fr.getComments());
 			}
 
 			// Reload the User
@@ -200,11 +198,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			OnlineNetwork network = afr.getNetwork();
 			if ((network != null) && (!p.hasNetworkID(network))) {
 				log.info(p.getName() + " does not have a " + network.toString() + " ID");
-				comments.add("SYSTEM: No " + network.toString() + " ID, resetting Online Network flag");
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "No " + network.toString() + " ID, resetting Online Network flag");
 				afr.setNetwork(null);
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			} else if ((network == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
-				comments.add("SYSTEM: Filed offline, resetting Online Event flag");
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed offline, resetting Online Event flag");
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
 			
@@ -214,7 +212,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				int eventID = evdao.getPossibleEvent(afr);
 				if (eventID != 0) {
 					Event e = evdao.get(eventID);
-					comments.add("SYSTEM: Detected participation in " + e.getName() + " Online Event");
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Detected participation in " + e.getName() + " Online Event");
 					afr.setDatabaseID(DatabaseID.EVENT, eventID);
 				}
 			}
@@ -224,11 +222,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (e != null) {
 				long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().toEpochMilli()) / 3600_000;
 				if (timeSinceEnd > 6) {
-					comments.add("SYSTEM: Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
 					afr.setDatabaseID(DatabaseID.EVENT, 0);
 				}
 			} else if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
-				comments.add("SYSTEM: Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
 			
@@ -259,7 +257,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					if (!isOK) {
 						i.remove();
 						log.info(p.getName() + " leg not eligible for promotion in " + pEQ + ": " + helper.getLastComment());
-						comments.add("SYSTEM: Not eligible for promotion: " + helper.getLastComment());
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
 
@@ -294,13 +292,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
 			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a.getOptions(usrLoc.getAirlineCode()), etopsClass.getResult()));
 			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
-				comments.add("SYSTEM: ETOPS classificataion " + String.valueOf(etopsClass));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "ETOPS classificataion " + String.valueOf(etopsClass));
 			
 			// Check prohibited airspace
 			Collection<Airspace> rstAirspaces = AirspaceHelper.classify(rtEntries, false); 
 			if (!rstAirspaces.isEmpty()) {
 				afr.setAttribute(FlightReport.ATTR_AIRSPACEWARN, true);
-				comments.add("SYSTEM: Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));
 			}
 			
 			// Calculate gates
@@ -353,7 +351,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			FuelUse use = FuelUse.validate(rfdao.checkRefuel(flightID));
 			afr.setTotalFuel(use.getTotalFuel());
 			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
-			use.getMessages().forEach(fuelMsg -> comments.add("SYSTEM: " + fuelMsg));
+			use.getMessages().forEach(fuelMsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, fuelMsg));
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
@@ -402,7 +400,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ctx.setMessage("Checking Held Flight Reports for " + ac.getUserID());
 			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
 			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
-				comments.add("SYSTEM: Automatically Held due to " + heldPIREPs + " held Flight Reports");
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Automatically Held due to " + heldPIREPs + " held Flight Reports");
 				afr.setStatus(FlightStatus.HOLD);
 			}
 
@@ -415,11 +413,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				int dist = r.distanceFeet(afr.getTakeoffLocation());
 				rD = new RunwayDistance(r, dist);
 				if (r.getLength() < opts.getTakeoffRunwayLength()) {
-					comments.add("SYSTEM: Minimum takeoff runway length for the " + a.getName() + " is " + opts.getTakeoffRunwayLength() + " feet");
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Minimum takeoff runway length for the " + a.getName() + " is " + opts.getTakeoffRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
-					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
 			}
@@ -432,11 +430,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				int dist = r.distanceFeet(afr.getLandingLocation());
 				rA = new RunwayDistance(r, dist);
 				if (r.getLength() < opts.getLandingRunwayLength()) {
-					comments.add("SYSTEM: Minimum landing runway length for the " + a.getName() + " is " + opts.getLandingRunwayLength() + " feet");
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Minimum landing runway length for the " + a.getName() + " is " + opts.getLandingRunwayLength() + " feet");
 					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
 				}
 				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
-					comments.add("SYSTEM: " + a.getName() + " not authorized for soft runway operation on " + r.getName());
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, a.getName() + " not authorized for soft runway operation on " + r.getName());
 					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
 				}
 			}
@@ -536,7 +534,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.SID);
 					awdao.writeSIDSTAR(flightID, aSID);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
 				}
 				
 				// Check what STAR we filed
@@ -557,13 +555,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.STAR);
 					awdao.writeSIDSTAR(flightID, aSTAR);
 					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						comments.add("SYSTEM: Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
 				}
 			}
-			
-			// Save comments
-			if (!comments.isEmpty())
-				afr.setComments(StringUtils.listConcat(comments, "\r\n"));
 			
 			// Get the write DAO and save the PIREP
 			ctx.setMessage("Saving Flight report for flight " + afr.getFlightCode() + " for " + ac.getUserID());
