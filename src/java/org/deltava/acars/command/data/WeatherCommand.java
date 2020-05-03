@@ -1,10 +1,11 @@
-// Copyright 2009, 2012, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2012, 2017, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
 
 import org.deltava.beans.wx.*;
 import org.deltava.beans.navdata.AirportLocation;
+import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.MessageEnvelope;
 
@@ -20,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 2.3
  */
 
@@ -71,6 +72,7 @@ public class WeatherCommand extends DataCommand {
 				dao.setUser(SystemData.get("schedule.flightaware.flightXML.user"));
 				dao.setPassword(SystemData.get("schedule.flightaware.flightXML.v3"));
 				dao.setReadTimeout(5000);
+				APILogger.add(new APIRequest(API.FlightAware.createName("WEATHER"), (ctx.getUser() == null)));
 				WeatherDataBean wx = dao.get(wt, ap);
 				wxMsg.add(wx);
 			} else {
