@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
 import org.deltava.beans.acars.CommandStats;
-
+import org.deltava.beans.system.APILogger;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.ipc.*;
 
@@ -201,6 +201,9 @@ public class LogicProcessor extends Worker {
 			// Initialize the command context and execute the command
 			CommandContext ctx = new CommandContext(_pool, _env, _status);
 			_cmd.execute(ctx, _env);
+			
+			// TODO: Eventually log these to the correct airline
+			APILogger.drain();
 
 			// Calculate and log execution time
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);

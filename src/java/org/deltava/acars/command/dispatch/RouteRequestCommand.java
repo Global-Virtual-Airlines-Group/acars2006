@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -7,7 +7,7 @@ import java.sql.Connection;
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.schedule.*;
-import org.deltava.beans.system.AirlineInformation;
+import org.deltava.beans.system.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.AcknowledgeMessage;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Dispatch Command to load flight routes.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 2.0
  */
 
@@ -62,8 +62,10 @@ public class RouteRequestCommand extends DispatchCommand {
 				helper.loadCachedRoutes();
 				
 			// Go to flightaware if nothing loaded
-			if (!helper.hasRoutes() && doExternal)
+			if (!helper.hasRoutes() && doExternal) {
+				APILogger.add(new APIRequest(API.FlightAware.createName("ROUTES"), !ac.isAuthenticated()));
 				helper.loadFlightAwareRoutes(true);
+			}
 				
 			// If we still got nothing, load from existing PIREPs in our database
 			Collection<AirlineInformation> apps = SystemData.getApps();
