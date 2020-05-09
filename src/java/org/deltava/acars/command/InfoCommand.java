@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -155,7 +155,9 @@ public class InfoCommand extends ACARSCommand {
 			// Check for ontime
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
 				Flight fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
+				GetRawSchedule rsdao = new GetRawSchedule(c);
 				GetScheduleSearch sdao = new GetScheduleSearch(c);
+				sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
 				ssc.setExcludeHistoric((fe == null) || !fe.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -355,7 +355,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking for Flight Academy flight");
+			GetRawSchedule rsdao = new GetRawSchedule(con);
 			GetScheduleSearch sdao = new GetScheduleSearch(con);
+			sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
 			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
 			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
 			
