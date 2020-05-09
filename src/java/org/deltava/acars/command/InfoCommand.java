@@ -111,10 +111,14 @@ public class InfoCommand extends ACARSCommand {
 				}
 			}
 			
+			// Initialize the schedule DAO
+			GetRawSchedule rsdao = new GetRawSchedule(c);
+			GetScheduleSearch sdao = new GetScheduleSearch(c);
+			sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
+			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
 				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
-				GetSchedule sdao = new GetSchedule(c);
 				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
 				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
@@ -155,9 +159,6 @@ public class InfoCommand extends ACARSCommand {
 			// Check for ontime
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
 				Flight fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
-				GetRawSchedule rsdao = new GetRawSchedule(c);
-				GetScheduleSearch sdao = new GetScheduleSearch(c);
-				sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
 				ssc.setExcludeHistoric((fe == null) || !fe.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);

@@ -1,4 +1,4 @@
-// Copyright 2014, 2015, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2015, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 5.4
  */
 
@@ -66,7 +66,9 @@ public class FlightNumberCommand extends DataCommand {
 			
 			// Check in schedule if no draft found
 			if (se == null) {
+				GetRawSchedule rsdao = new GetRawSchedule(con);
 				GetSchedule sdao = new GetSchedule(con);
+				sdao.setSources(rsdao.getSources(true, ud.getDB()));
 				se = sdao.getFlightNumber(rt, hour, ud.getDB());
 			}
 			

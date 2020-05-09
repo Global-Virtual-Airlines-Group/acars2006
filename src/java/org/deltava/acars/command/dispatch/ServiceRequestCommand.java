@@ -71,7 +71,9 @@ public class ServiceRequestCommand extends DispatchCommand {
 			}
 			
 			// Check the schedule
+			GetRawSchedule rsdao = new GetRawSchedule(con);
 			GetSchedule sdao = new GetSchedule(con);
+			sdao.setSources(rsdao.getSources(true, ud.getDB()));
 			schedInfo = sdao.getFlightNumber(msg, ud.getDB());
 			boolean routeValid = (schedInfo != null);
 			

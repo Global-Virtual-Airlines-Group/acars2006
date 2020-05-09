@@ -4,7 +4,7 @@ package org.deltava.acars.command.dispatch;
 import java.util.*;
 import java.sql.Connection;
 
-import org.deltava.beans.Pilot;
+import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.*;
@@ -89,8 +89,11 @@ public class RouteRequestCommand extends DispatchCommand {
 			}
 			
 			// Check if the route is valid
+			UserData ud = ac.getUserData();
+			GetRawSchedule rsdao = new GetRawSchedule(con);
 			GetSchedule sdao = new GetSchedule(con);
-			rmsg.setScheduleInfo(sdao.getFlightNumber(msg, ac.getUserData().getDB()));
+			sdao.setSources(rsdao.getSources(true, ud.getDB()));
+			rmsg.setScheduleInfo(sdao.getFlightNumber(msg, ud.getDB()));
 			
 			// Send the response
 			if (!ac.getIsDispatch())
