@@ -63,7 +63,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				
 			// Go to flightaware if nothing loaded
 			if (!helper.hasRoutes() && doExternal) {
-				APILogger.add(new APIRequest(API.FlightAware.createName("ROUTES"), !ac.isAuthenticated()));
+				APILogger.add(new APIRequest(API.FlightAware.createName("ROUTES"), ac.getUserData().getDB(), !ac.isAuthenticated()));
 				helper.loadFlightAwareRoutes(true);
 			}
 				
