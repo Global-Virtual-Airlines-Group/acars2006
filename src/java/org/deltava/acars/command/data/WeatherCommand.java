@@ -4,6 +4,7 @@ package org.deltava.acars.command.data;
 import java.sql.Connection;
 
 import org.deltava.beans.wx.*;
+import org.deltava.beans.UserData;
 import org.deltava.beans.navdata.AirportLocation;
 import org.deltava.beans.system.*;
 
@@ -16,6 +17,7 @@ import org.deltava.acars.command.*;
 
 import org.deltava.dao.*;
 import org.deltava.dao.http.GetFAWeather;
+
 import org.deltava.util.system.SystemData;
 
 /**
@@ -68,11 +70,12 @@ public class WeatherCommand extends DataCommand {
 			AirportLocation ap = navdao.getAirport(code);
 			
 			if (isFA) {
+				UserData usrLoc = ctx.getACARSConnection().getUserData();
 				GetFAWeather dao = new GetFAWeather();
 				dao.setUser(SystemData.get("schedule.flightaware.flightXML.user"));
 				dao.setPassword(SystemData.get("schedule.flightaware.flightXML.v3"));
 				dao.setReadTimeout(5000);
-				APILogger.add(new APIRequest(API.FlightAware.createName("WEATHER"), (ctx.getUser() == null)));
+				APILogger.add(new APIRequest(API.FlightAware.createName("WEATHER"), usrLoc.getDB(), (ctx.getUser() == null)));
 				WeatherDataBean wx = dao.get(wt, ap);
 				wxMsg.add(wx);
 			} else {
