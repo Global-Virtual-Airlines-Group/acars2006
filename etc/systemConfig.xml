@@ -18,7 +18,7 @@
 
 	<!-- JDBC data source configuration -->
 	<jdbc>
-		<driver>com.mysql.jdbc.Driver</driver>
+		<driver>com.mysql.cj.jdbc.Driver</driver>
 		<url>jdbc:mysql://localhost/acars</url>
 		<user>dva</user>
 		<pwd>***REMOVED***</pwd>
