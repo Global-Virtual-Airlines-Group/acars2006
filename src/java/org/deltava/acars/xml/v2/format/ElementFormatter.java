@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2016, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.time.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 8.4
+ * @version 9.0
  * @since 1.0
  */
 
@@ -38,7 +38,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		ae.setAttribute("country", a.getCountry().getCode());
 		ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
 		ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
-		ae.setAttribute("adse", String.valueOf(a.getADSE()));
+		ae.setAttribute("adse", String.valueOf(a.getASDE()));
 		ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
 		if (a.getSupercededAirport() != null)
 			ae.setAttribute("supercedes", a.getSupercededAirport());
