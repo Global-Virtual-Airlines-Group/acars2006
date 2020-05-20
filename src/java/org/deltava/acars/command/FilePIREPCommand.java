@@ -323,18 +323,18 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				if (Math.abs(afr.getLoadFactor() -info.getLoadFactor()) > 0.01)
-					log.warn("Load factor mismatch! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
+				if (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01)
+					log.warn("Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
 				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
 					ctx.setMessage("Calculating flight load factor");
 					LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
 					double loadFactor = lf.generate(afr.getDate());
-					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor());
+					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor() + " for Flight " + flightID);
 					afr.setLoadFactor(loadFactor);
 				} else if (info.getLoadFactor() > 0) {
 					afr.setLoadFactor(info.getLoadFactor());
-					log.info("Using flight data load factor of " + info.getLoadFactor());
+					log.info("Using flight " + flightID + " data load factor of " + info.getLoadFactor());
 				}
 				
 				if ((opts.getSeats() > 0) && (afr.getPassengers() == 0)) {
