@@ -75,7 +75,7 @@ public class WeatherCommand extends DataCommand {
 				dao.setUser(SystemData.get("schedule.flightaware.flightXML.user"));
 				dao.setPassword(SystemData.get("schedule.flightaware.flightXML.v3"));
 				dao.setReadTimeout(5000);
-				APILogger.add(new APIRequest(API.FlightAware.createName("WEATHER"), usrLoc.getDB(), (ctx.getUser() == null)));
+				APILogger.add(new APIRequest(API.FlightAware.createName("WEATHER"), usrLoc.getDB(), (ctx.getUser() == null), false));
 				WeatherDataBean wx = dao.get(wt, ap);
 				wxMsg.add(wx);
 			} else {
