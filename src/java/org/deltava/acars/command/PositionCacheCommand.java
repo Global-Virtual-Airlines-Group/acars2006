@@ -1,4 +1,4 @@
-// Copyright 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.deltava.jdbc.ConnectionContext;
 /**
  * An abstract class for ACARS commands to interact with the Position cache.
  * @author Luke
- * @version 7.4
+ * @version 9.0
  * @since 7.3
  */
 
@@ -68,8 +68,8 @@ abstract class PositionCacheCommand extends ACARSCommand {
 		boolean doFree = !ctx.hasConnection();
 		try {
 			if (force || _posCache.isFull()) {
-				Collection<PositionMessage> msgs = _posCache.drain(); int entries = msgs.size();
 				Connection con = ctx.getConnection();
+				Collection<PositionMessage> msgs = _posCache.drain(); int entries = msgs.size(); // This prevents a drain if the pool is full
 					
 				// Geolocation
 				GetCountry cdao = new GetCountry(con);
