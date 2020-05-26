@@ -1,12 +1,11 @@
-// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import org.deltava.beans.Pilot;
-
+import org.deltava.beans.*;
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetMessage;
 
@@ -19,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.0
  */
 
@@ -79,12 +78,6 @@ public class TextMessageCommand extends ACARSCommand {
 		txtRsp = new TextMessage(usr, msg.getText());
 		txtRsp.setRecipient(msg.getRecipient());
 		
-		// Send an ACK on the message
-		if (SystemData.getBoolean("acars.ack.text")) {
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-			ctx.push(ackMsg);
-		}
-		
 		// Check if the recipient has a databsae ID
 		UserID rcptID = new UserID(msg.getRecipient());
 		boolean isDBID = !rcptID.hasAirlineCode();
@@ -92,8 +85,13 @@ public class TextMessageCommand extends ACARSCommand {
 		// Push the message back to everyone if needed
 		Pilot rUsr = null;
 		if (msg.isPublic()) {
-			ctx.pushAll(txtRsp, env.getConnectionID());
 			log.info("Public message from " + usr.getPilotCode());
+			UserData usrLoc = ctx.getACARSConnection().getUserData();
+			for (ACARSConnection ac : cons) {
+				UserData ud = ac.getUserData();
+				if (ac.isAuthenticated() && (ud.getAirlineCode().equals(usrLoc.getAirlineCode())))
+					ctx.push(txtRsp, ac.getID(), false);
+			}
 		} else {
 			log.info("Message from " + usr.getPilotCode() + " to " + msg.getRecipient());
 			Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
@@ -102,7 +100,7 @@ public class TextMessageCommand extends ACARSCommand {
 				if (ac != null)
 					dstC.add(ac);
 			} else
-				dstC.addAll(ctx.getACARSConnectionPool().getAll());
+				dstC.addAll(cons);
 
 			// Send the message
 			for (ACARSConnection ac: dstC) {
@@ -116,6 +114,12 @@ public class TextMessageCommand extends ACARSCommand {
 				} else if (ac.getUserHidden() && !ac.getUserBusy())
 					ctx.push(txtRsp, ac.getID(), false);
 			}
+		}
+		
+		// Send an ACK on the message
+		if (SystemData.getBoolean("acars.ack.text")) {
+			AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
+			ctx.push(ackMsg);
 		}
 		
 		// Write the message
