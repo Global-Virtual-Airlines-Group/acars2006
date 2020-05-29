@@ -89,7 +89,7 @@ public class TextMessageCommand extends ACARSCommand {
 			UserData usrLoc = ctx.getACARSConnection().getUserData();
 			for (ACARSConnection ac : cons) {
 				UserData ud = ac.getUserData();
-				if (ac.isAuthenticated() && (ud.getAirlineCode().equals(usrLoc.getAirlineCode())))
+				if (ac.isAuthenticated() && (ud.getAirlineCode().equals(usrLoc.getAirlineCode())) && (ud.getID() != usrLoc.getID()))
 					ctx.push(txtRsp, ac.getID(), false);
 			}
 		} else {
