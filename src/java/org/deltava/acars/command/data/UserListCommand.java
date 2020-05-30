@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to display the connected Pilot list.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.0
  */
 
@@ -35,12 +35,20 @@ public class UserListCommand extends DataCommand {
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		boolean showHidden = ctx.getACARSConnection().getUser().isInRole("HR");
+		boolean showAll = ctx.getACARSConnection().getUser().getRoles().contains("Developer");
+		String myCode = ctx.getACARSConnection().getUserData().getAirlineCode();
 
 		// Loop through the connection pool
 		ConnectionMessage rspMsg = new ConnectionMessage(env.getOwner(), DataRequest.USERLIST, msg.getID());
 		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
-		cons.stream().filter(ac -> ac.isAuthenticated() && (showHidden || !ac.getUserHidden())).forEach(rspMsg::add);
+		cons.stream().filter(ac -> filter(ac, myCode, showHidden, showAll)).forEach(rspMsg::add);
 		ctx.push(rspMsg);
+	}
+	
+	private static boolean filter(ACARSConnection ac, String airlineCode, boolean showHidden, boolean showAll) {
+		if (!ac.isAuthenticated()) return false;
+		if (!airlineCode.equals(ac.getUserData().getAirlineCode()) && !showAll) return false;
+		return showHidden || !ac.getUserHidden();
 	}
 	
 	/**
@@ -49,6 +57,6 @@ public class UserListCommand extends DataCommand {
 	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 225;
+		return 150;
 	}
 }
