@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -26,7 +26,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -106,15 +106,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	@Override
 	public Collection<byte[]> getSerializedInfo() {
 		Collection<ACARSConnection> cons = getAll();
-		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size());
-		for (ACARSConnection ac : cons) {
-			if (ac.getIsDispatch() || !ac.getUserHidden()) {
-				ACARSMapEntry re = RouteEntryHelper.build(ac);
-				if (re != null)
-					results.add(re);
-			}
-		}
-		
+		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size() + 2);
+		cons.stream().filter(ac -> ac.getIsDispatch() || !ac.getUserHidden()).map(ac -> RouteEntryHelper.build(ac)).filter(Objects::nonNull).forEach(results::add);
 		return IPCUtils.serialize(results);
 	}
 	
@@ -137,49 +130,47 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
 		Collection<ACARSConnection> cons = getAll();
 		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size() + 2);
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-			ACARSConnection ac = i.next();
-			if (showHidden || !ac.getUserHidden()) {
-				ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
-				entry.setClientBuild(ac.getClientBuild());
-				entry.setBeta(ac.getBeta());
-				entry.setRemoteAddr(ac.getRemoteAddr());
-				entry.setRemoteHost(ac.getRemoteHost());
-				entry.setAddressInfo(ac.getAddressInfo());
-				entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
-				entry.setStartTime(Instant.ofEpochMilli(ac.getStartTime()));
-				entry.setUser(ac.getUser());
-				entry.setUserHidden(ac.getUserHidden());
-				entry.setVoice(ac.isVoiceEnabled());
-				entry.setCompressed(ac.getCompression() != Compression.NONE);
+		for (ACARSConnection ac : cons) {
+			if (!showHidden && ac.getUserHidden()) continue;
+			ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
+			entry.setClientBuild(ac.getClientBuild());
+			entry.setBeta(ac.getBeta());
+			entry.setRemoteAddr(ac.getRemoteAddr());
+			entry.setRemoteHost(ac.getRemoteHost());
+			entry.setAddressInfo(ac.getAddressInfo());
+			entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
+			entry.setStartTime(Instant.ofEpochMilli(ac.getStartTime()));
+			entry.setUser(ac.getUser());
+			entry.setUserHidden(ac.getUserHidden());
+			entry.setVoice(ac.isVoiceEnabled());
+			entry.setCompressed(ac.getCompression() != Compression.NONE);
 				
-				// Get the flight information
-				InfoMessage inf = ac.getFlightInfo();
-				FlightInfo info = new FlightInfo(0);
-				if (inf != null) {
-					info.setFlightCode(inf.getFlightCode());
-					info.setAirportD(inf.getAirportD());
-					info.setAirportA(inf.getAirportA());
-					info.setStartTime(inf.getStartTime());
-					info.setEndTime(info.getEndTime());
-					info.setEquipmentType(inf.getEquipmentType());
-					info.setAuthorID(ac.getUser().getID());
-					info.setSimulator(inf.getSimulator());
-					if (inf.getFlightID() != 0)
-						info.setID(inf.getFlightID());
-				}
-				
-				// Get the flight phase
-				PositionMessage pm = ac.getPosition();
-				if (pm == null)
-					entry.setFlightPhase((inf == null) ? "N/A" : "Unknown");
-				else
-					entry.setFlightPhase(pm.getPhase().getName());
-				
-				// Save the flight info
-				entry.setFlightInfo(info);
-				results.add(entry);
+			// Get the flight information
+			InfoMessage inf = ac.getFlightInfo();
+			FlightInfo info = new FlightInfo(0);
+			if (inf != null) {
+				info.setFlightCode(inf.getFlightCode());
+				info.setAirportD(inf.getAirportD());
+				info.setAirportA(inf.getAirportA());
+				info.setStartTime(inf.getStartTime());
+				info.setEndTime(info.getEndTime());
+				info.setEquipmentType(inf.getEquipmentType());
+				info.setAuthorID(ac.getUser().getID());
+				info.setSimulator(inf.getSimulator());
+				if (inf.getFlightID() != 0)
+					info.setID(inf.getFlightID());
 			}
+				
+			// Get the flight phase
+			PositionMessage pm = ac.getPosition();
+			if (pm == null)
+				entry.setFlightPhase((inf == null) ? "N/A" : "Unknown");
+			else
+				entry.setFlightPhase(pm.getPhase().getName());
+				
+			// Save the flight info
+			entry.setFlightInfo(info);
+			results.add(entry);
 		}
 		
 		return IPCUtils.serialize(results); 
@@ -193,9 +184,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<ConnectionStats> getStatistics() {
 		Collection<ACARSConnection> cons = getAll();
 		ArrayList<ConnectionStats> results = new ArrayList<ConnectionStats>(cons.size() + 8);
-		for (ACARSConnection ac : cons)
-			results.add(ac.getTCPStatistics());
-		
+		cons.stream().map(ACARSConnection::getTCPStatistics).forEach(results::add);
 		synchronized (_disConStats) {
 			results.addAll(_disConStats);
 			_disConStats.clear();
@@ -343,27 +332,14 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		return results;
 	}
 
-	/**
-	 * Returns the size of the connection pool.
-	 */
 	@Override
 	public int size() {
 		return getAll().size();
 	}
 	
-	/**
-	 * Returns if a Dispatcher is online.
-	 * @return TRUE if a Dispatcher is connected, otheriwse FALSE
-	 */
 	@Override
 	public boolean isDispatchOnline() {
-		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
-			ACARSConnection c = i.next();
-			if (c.getIsDispatch())
-				return true;
-		}
-		
-		return false;
+		return getAll().stream().anyMatch(ac -> ac.getIsDispatch());
 	}
 
 	/**

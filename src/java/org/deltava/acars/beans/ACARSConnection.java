@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -465,12 +465,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	
 	@Override
 	public int compareTo(ACARSConnection c2) {
-		if (!isAuthenticated())
-			return -1;
-		else if (!c2.isAuthenticated())
-			return 1;
-
-		return Integer.compare(_userInfo.getPilotNumber(), c2.getUser().getPilotNumber());
+		int tmpResult = Boolean.compare(isAuthenticated(), c2.isAuthenticated());
+		return (tmpResult == 0) ? Integer.compare(_userInfo.getPilotNumber(), c2.getUser().getPilotNumber()) : tmpResult;
 	}
 
 	/**
