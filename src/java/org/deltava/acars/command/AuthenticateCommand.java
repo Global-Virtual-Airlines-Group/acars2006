@@ -282,7 +282,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		drMsg.add(con);
 		if (con.getUserHidden()) {
 			for (ACARSConnection ac : ctx.getACARSConnectionPool().getAll()) {
-				if ((ac.getID() != con.getID()) && ac.getUser().isInRole("HR"))
+				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
 					ctx.push(drMsg, ac.getID(), false);
 			}
 		} else
