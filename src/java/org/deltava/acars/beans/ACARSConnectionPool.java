@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.nio.channels.*;
 import java.time.Instant;
@@ -81,6 +82,20 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			_r.unlock();
 		}
 	}
+	
+	/**
+	 * Returns a filtered list of ACARS Connections. 
+	 * @param p a Predicate for filtering
+	 * @return a List of filtered ACARSConnection beans
+	 */
+	public Collection<ACARSConnection> getAll(Predicate<ACARSConnection> p) {
+		try {
+			_r.lock();
+			return _cons.values().stream().filter(p).collect(Collectors.toCollection(LinkedHashSet::new));
+		} finally {
+			_r.unlock();
+		}
+	}
 
 	/**
 	 * Returns warning levels for connections.
@@ -105,9 +120,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	@Override
 	public Collection<byte[]> getSerializedInfo() {
-		Collection<ACARSConnection> cons = getAll();
-		Collection<ACARSMapEntry> results = new ArrayList<ACARSMapEntry>(cons.size() + 2);
-		cons.stream().filter(ac -> ac.getIsDispatch() || !ac.getUserHidden()).map(ac -> RouteEntryHelper.build(ac)).filter(Objects::nonNull).forEach(results::add);
+		Collection<ACARSMapEntry> results = getAll(ac -> ac.getIsDispatch() || !ac.getUserHidden()).stream().map(ac -> RouteEntryHelper.build(ac)).filter(Objects::nonNull).collect(Collectors.toList());
 		return IPCUtils.serialize(results);
 	}
 	
@@ -117,8 +130,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	@Override
 	public Collection<Integer> getFlightIDs() {
-		Collection<ACARSConnection> cons = getAll();
-		return cons.stream().filter(ac -> (ac.getFlightID() != 0)).map(ACARSConnection::getFlightID).collect(Collectors.toCollection(TreeSet::new));
+		return getAll(ac -> (ac.getFlightID() != 0)).stream().map(ACARSConnection::getFlightID).collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	/**
@@ -128,10 +140,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	@Override
 	public Collection<byte[]> getPoolInfo(boolean showHidden) {
-		Collection<ACARSConnection> cons = getAll();
+		Collection<ACARSConnection> cons = getAll(ac -> showHidden || !ac.getUserHidden());
 		Collection<ConnectionEntry> results = new ArrayList<ConnectionEntry>(cons.size() + 2);
 		for (ACARSConnection ac : cons) {
-			if (!showHidden && ac.getUserHidden()) continue;
 			ConnectionEntry entry = ac.getIsDispatch() ? new DispatchConnectionEntry(ac.getID()) : new ConnectionEntry(ac.getID());
 			entry.setClientBuild(ac.getClientBuild());
 			entry.setBeta(ac.getBeta());
@@ -236,7 +247,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	public Collection<ACARSConnection> checkConnections() {
 
 		// Start with the list of dropped connections
-		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>(_disCon.size() + 4);
+		List<ACARSConnection> disCons = new ArrayList<ACARSConnection>();
 		_disCon.drainTo(disCons);
 
 		// Build list of dropped connections; return it with just the dropped connections if we have no timeout
@@ -250,9 +261,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 
 		// Loop through the channels
 		_inactivityLastRun = now;
-		for (Iterator<ACARSConnection> i = getAll().iterator(); i.hasNext();) {
-			ACARSConnection con = i.next();
-
+		for (ACARSConnection con : getAll()) {
 			// Calculate the inactivity timeout
 			boolean isAuth = con.isAuthenticated();
 			long timeout = isAuth ? _inactivityTimeout : ANONYMOUS_INACTIVITY_TIMEOUT;
