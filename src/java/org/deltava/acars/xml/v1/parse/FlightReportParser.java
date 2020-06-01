@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.0
  */
 
@@ -120,7 +120,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		if (afr.getTakeoffHeading() > -1) {
 			double lat = StringUtils.parse(getChildText(e, "takeoffLat", "0.0"), 0.0d);
 			double lng = StringUtils.parse(getChildText(e, "takeoffLng", "0.0"), 0.0d);
-			afr.setTakeoffLocation(new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0)));
+			afr.setTakeoffLocation(new GeoPosition(lat, lng, Math.min(24000, StringUtils.parse(getChildText(e, "takeoffAlt", "0"), 0))));
 		}
 			
 		// Get the landing data
@@ -128,7 +128,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		if (afr.getLandingHeading() > -1) {
 			double lat = StringUtils.parse(getChildText(e, "landingLat", "0.0"), 0.0d);
 			double lng = StringUtils.parse(getChildText(e, "landingLng", "0.0"), 0.0d);	
-			afr.setLandingLocation(new GeoPosition(lat, lng, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0)));
+			afr.setLandingLocation(new GeoPosition(lat, lng, Math.min(24000, StringUtils.parse(getChildText(e, "landingAlt", "0"), 0))));
 		}
 
 		// Load the 0X/1X/2X/4X times
