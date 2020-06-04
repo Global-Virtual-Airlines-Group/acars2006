@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -45,6 +45,7 @@ class AircraftFormatter extends ElementFormatter {
 			ae.setAttribute("name", a.getName());
 			ae.setAttribute("engines", String.valueOf(a.getEngines()));
 			ae.setAttribute("historic", String.valueOf(a.getHistoric()));
+			ae.setAttribute("academyOnly", String.valueOf(a.getAcademyOnly()));
 			ae.addContent(XMLUtils.createElement("fullName", a.getFullName()));
 			ae.addContent(XMLUtils.createElement("family", a.getFamily()));
 			ae.addContent(XMLUtils.createElement("engineType", a.getEngineType()));
@@ -82,13 +83,13 @@ class AircraftFormatter extends ElementFormatter {
 			a.getIATA().forEach(iataCode -> ae.addContent(XMLUtils.createElement("iata", iataCode, false)));
 
 			// Get tank names/percentages
-			Map<String, Collection<String>> tNames = a.getTankNames();
-			Map<String, Integer> tPct = a.getTankPercent();
-			ae.addContent(XMLUtils.createElement("pTanks", StringUtils.listConcat(tNames.get("Primary"), ",")));
-			ae.addContent(XMLUtils.createElement("pPct", String.valueOf(tPct.get("Primary"))));
-			ae.addContent(XMLUtils.createElement("sTanks", StringUtils.listConcat(tNames.get("Secondary"), ",")));
-			ae.addContent(XMLUtils.createElement("sPct", String.valueOf(tPct.get("Secondary"))));
-			ae.addContent(XMLUtils.createElement("oTanks", StringUtils.listConcat(tNames.get("Other"), ",")));
+			Map<TankType, Collection<String>> tNames = a.getTankNames();
+			Map<TankType, Integer> tPct = a.getTankPercent();
+			ae.addContent(XMLUtils.createElement("pTanks", StringUtils.listConcat(tNames.get(TankType.PRIMARY), ",")));
+			ae.addContent(XMLUtils.createElement("pPct", String.valueOf(tPct.get(TankType.PRIMARY))));
+			ae.addContent(XMLUtils.createElement("sTanks", StringUtils.listConcat(tNames.get(TankType.SECONDARY), ",")));
+			ae.addContent(XMLUtils.createElement("sPct", String.valueOf(tPct.get(TankType.SECONDARY))));
+			ae.addContent(XMLUtils.createElement("oTanks", StringUtils.listConcat(tNames.get(TankType.OTHER), ",")));
 			e.addContent(ae);
 		}
 		
