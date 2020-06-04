@@ -359,16 +359,18 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			GetScheduleSearch sdao = new GetScheduleSearch(con);
 			sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
 			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
-			boolean isAcademy = ((sEntry != null) && sEntry.getAcademy());
+			boolean isAcademy = a.getAcademyOnly() || ((sEntry != null) && sEntry.getAcademy());
 			
 			// If we're an Academy flight, check if we have an active course
 			Course c = null;
 			if (isAcademy) {
 				GetAcademyCourses crsdao = new GetAcademyCourses(con);
 				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
-				c = courses.stream().filter(crs -> (crs.getStatus() == Status.STARTED)).findFirst().orElse(null);
+				c = courses.stream().filter(crs -> (crs.getStatus() == Status.STARTED)).findAny().orElse(null);
 				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") || p.isInRole("Examiner");
 				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
+				if (!afr.hasAttribute(FlightReport.ATTR_ACADEMY))
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Removed Flight Academy status - No active Course");
 			}
 
 			// Check the schedule database and check the route pair
