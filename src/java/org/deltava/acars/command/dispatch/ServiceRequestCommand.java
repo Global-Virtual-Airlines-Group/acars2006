@@ -152,20 +152,19 @@ public class ServiceRequestCommand extends DispatchCommand {
 		
 		// Send to dispatchers if not in auto dispatch mode
 		int reqsSent = 0; int outOfRange = 0;
-		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(ac -> ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden());
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
 			for (ACARSConnection ac : cons) {
-				if (ac.getIsDispatch() && !ac.getUserBusy() && !ac.getUserHidden()) {
-					int distance = ac.getLocation().distanceTo(msg);
-					if (ac.getUser().getID() == c.getUser().getID())
-						log.warn(c.getUserID() + " attempting self dispatch");
-					else if (distance <= ac.getRange()) {
-						reqsSent++;
-						ctx.push(msg, ac.getID(), true);
-					} else {
-						outOfRange++;
-						log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
-					}
+				int distance = ac.getLocation().distanceTo(msg);
+				if (ac.getUser().getID() == c.getUser().getID())
+					log.warn(c.getUserID() + " attempting self dispatch");
+				else if (distance <= ac.getRange()) {
+					reqsSent++;
+					ctx.push(msg, ac.getID(), true);
+					log.info("Dispatch service request " + msg.getID() + " sent to " + ac.getUserID() + " " + ac.getID());
+				} else {
+					outOfRange++;
+					log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
 				}
 			}
 		}
@@ -187,10 +186,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 		if (!plans.isEmpty() && msg.isRouteValid()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
 			rmsg.setClosestGate(msg.getClosestGate());
-			for (Gate g : msg.getArrivalGates())
-				rmsg.addGate(g);
-			for (PopulatedRoute rp : plans)
-				rmsg.addPlan(rp);
+			msg.getArrivalGates().forEach(rmsg::addGate);
+			plans.forEach(rmsg::addPlan);
 			
 			// Add schedule info - if schedInfo is null but routeValid is true, create a dummy entry
 			rmsg.setScheduleInfo(schedInfo);
