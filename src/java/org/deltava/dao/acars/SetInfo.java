@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -85,7 +85,7 @@ public class SetInfo extends DAO {
 				try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.FLIGHT_DISPATCHER (ID, DISPATCHER_ID) VALUES (?, ?)")) {
 					ps.setInt(1, newID);
 					ps.setInt(2, msg.getDispatcherID());
-					executeUpdate(ps, 0);
+					executeUpdate(ps, 1);
 				}
 			}
 			
