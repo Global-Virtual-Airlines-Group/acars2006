@@ -70,11 +70,13 @@ public class AcceptCommand extends DispatchCommand {
 				}
 			}
 			
+			log.info(dac.getUserID() + " accepted dispatch request from " + ac.getUserID());
+			
 			// Send the ACK
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
 			ackMsg.setEntry("dispatcher", env.getOwnerID());
 			ackMsg.setEntry("dispatcherID", String.valueOf(env.getOwner().getID()));
-			ctx.push(ackMsg);
+			ctx.push(ackMsg, ac.getID(), true);
 		} else if (ac.getDispatcherID() != 0)
 			log.info(ac.getUserID() + " already has dispatch service");
 		
