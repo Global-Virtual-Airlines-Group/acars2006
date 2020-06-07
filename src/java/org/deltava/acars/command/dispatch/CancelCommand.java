@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2016, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -10,7 +10,7 @@ import org.deltava.acars.message.dispatch.CancelMessage;
 /**
  * An ACARS Command to cancel Dispatch service requests.
  * @author Luke
- * @version 7.0
+ * @version 9.0
  * @since 2.0
  */
 
@@ -34,25 +34,25 @@ public class CancelCommand extends DispatchCommand {
 		// Get the inbound message
 		CancelMessage msg = (CancelMessage) env.getMessage();
 		
-		// Cancel this connection's dispatch status
+		// Determine which direction this is going in, Dispatcher->Pilot or vice versa
 		ACARSConnection con = ctx.getACARSConnection();
-		if (!con.getIsDispatch())
-			con.setDispatcherID(0);
+		ACARSConnection dstC = ctx.getACARSConnection(msg.getRecipient());
 		
-		// Get the dispatchers
-		Collection<ACARSConnection> cons = new ArrayList<ACARSConnection>();
-		if (msg.getRecipient() != null) {
-			ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
-			if (ac != null)
-				cons.add(ac);
-		} else
-			cons.addAll(ctx.getACARSConnectionPool().getAll());
-
-		// Send to dispatchers
-		for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext(); ) {
-			ACARSConnection ac = i.next();
-			if (ac.getIsDispatch() || (ac.getDispatcherID() == env.getConnectionID()))
-				ctx.push(msg, ac.getID(), true);
+		// Cancel this connection's dispatch status
+		if (con.getIsDispatch() && (dstC != null)) {
+			log.info("Dispatcher " + con.getUserID() + " canceling service to " + dstC.getUserID());
+			dstC.setDispatcherID(0);
+		} else if (!con.getIsDispatch() && (con.getDispatcherID() != 0)) {
+			log.info("Pilot " + con.getUserID() + " canceling dispatch services");
+			con.setDispatcherID(0);
 		}
+		
+		// Get the recipients
+		if (dstC == null) {
+			Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(ac -> ac.getIsDispatch());
+			cons.forEach(ac -> ctx.push(msg, ac.getID(), true));
+			cons.add(dstC);
+		} else
+			ctx.push(msg, dstC.getID(), true);
 	}
 }
