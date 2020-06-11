@@ -92,6 +92,7 @@
 	<!-- Online network properties -->
 	<online>
 		<default_network>VATSIM</default_network>
+		<refresh_interval type="Integer">60</refresh_interval>
 		<list name="networks" attr="network" unique="true">
 			<network>VATSIM</network>
 			<network>IVAO</network>
@@ -99,18 +100,18 @@
 		</list>
 
 		<vatsim>
-			<status_url>http://usa-s1.vatsim.net/data/status.txt</status_url>
+			<status_url>http://cluster.data.vatsim.net/vatsim-data.json</status_url>
 			<validation_url>https://cert.vatsim.net/vatsimnet/idstatus.php</validation_url>
 			<banner>vatsim.gif</banner>
 			<url>http://www.vatsim.net/</url>
 			<local>
-				<status>/var/cache/servinfo/vatsim.status</status>
 				<info>/var/cache/servinfo/vatsim.info</info>
 			</local>
 		</vatsim>
 		
       <pilotedge>
             <banner>pilotedge.png</banner>
+            <status_url>http://map.pilotedge.net/vspro.dat</status_url>
             <url>http://www.pilotedge.net/</url>
             <local>
                 <info>/var/cache/servinfo/pilotedge.info</info>
