@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 8.1
+ * @version 9.0
  * @since 1.0
  */
 
@@ -135,13 +135,12 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		
  		// Create the task container and the thread group
  		List<Worker> tasks = new ArrayList<Worker>();
-
-		// Init the singleton workers
  		tasks.add(new ConnectionHandler());
  		tasks.add(new NetworkReader());
 		tasks.add(new InputTranslator());
 		tasks.add(new LogicProcessor());
 		tasks.add(new MPAggregator());
+		tasks.add(new OnlineStatusLoader());
 		tasks.add(new GeoLocator());
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
@@ -149,16 +148,13 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		if (SystemData.getBoolean("acars.voice.enabled"))
 			tasks.add(new VoiceReader());
 
-		// Try to init all of the worker threads
-		for (Worker w : tasks) {
-			log.debug("Initializing " + w.getName());
-			w.setConnectionPool(_conPool);
-			w.open();
-		}
-		
  		// Turn the workers into threads
 		_workers.setDaemon(true);
  		for (Worker w : tasks) {
+ 			log.debug("Initializing " + w.getName());
+ 			w.setConnectionPool(_conPool);
+ 			w.open();
+ 			
  			Thread t = new Thread(_workers, w, w.getName());
  			t.setUncaughtExceptionHandler(this);
  			_threads.put(t, w);
@@ -167,9 +163,6 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		}
  	}
  	
- 	/**
- 	 * Worker thread exception handler.
- 	 */
  	@Override
  	public void uncaughtException(Thread t, Throwable e) {
  		if (!_threads.containsKey(t)) {
