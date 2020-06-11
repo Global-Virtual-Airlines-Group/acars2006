@@ -30,7 +30,7 @@
 	<cache id="FlightAwareTAF" max="256" expires="1800" />
 
 	<!-- ServInfo caches -->
-	<cache id="ServInfoData" max="4" expires="20" />
+	<cache id="ServInfoData" remote="true" expires="300" />
 	
 	<!-- Track cache -->
 	<cache id="ACARSTrackCAS" max="128" expires="30" />
