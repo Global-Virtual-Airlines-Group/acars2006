@@ -59,7 +59,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
 		
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
-		afr.setSDK(getChildText(e, "sdk", null));
+		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
 		if (Double.isNaN(afr.getLoadFactor())) {
