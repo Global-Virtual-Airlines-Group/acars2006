@@ -1,19 +1,15 @@
 // Copyright 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
-import java.io.*;
 import java.util.*;
-import java.time.Instant;
 import java.sql.Connection;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-import org.deltava.beans.OnlineNetwork;
+import org.deltava.acars.online.*;
 import org.deltava.beans.servinfo.NetworkInfo;
 
 import org.deltava.dao.*;
-import org.deltava.dao.file.*;
-import org.deltava.dao.http.GetURL;
 
 import org.deltava.util.TaskTimer;
 import org.deltava.util.cache.*;
@@ -29,135 +25,14 @@ import org.gvagroup.jdbc.ConnectionPool;
  * @since 9.0
  */
 
-public class OnlineStatusLoader extends Worker {
+public class OnlineStatusLoader extends Worker implements Thread.UncaughtExceptionHandler {
 
-	private final Cache<NetworkInfo> _cache = CacheManager.get(NetworkInfo.class, "ServInfoData");
+	final Cache<NetworkInfo> _cache = CacheManager.get(NetworkInfo.class, "ServInfoData");
 	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader());
 
 	private ConnectionPool _jdbcPool;
 
 	private static final int SLEEP_INTERVAL = 30;
-
-	private abstract class Loader implements Runnable {
-		protected Instant _lastUpdate = Instant.ofEpochMilli(0);
-		protected Instant _lastRun = Instant.ofEpochMilli(0);
-		final OnlineNetwork _network;
-		final int _updateInterval;
-		protected boolean _isUpdated;
-
-		protected Loader(OnlineNetwork net, int updateInterval) {
-			_network = net;
-			_updateInterval = Math.max(5, updateInterval);
-		}
-
-		protected void update(NetworkInfo inf) {
-			_lastUpdate = inf.getValidDate();
-			_cache.add(inf);
-			_isUpdated = true;
-		}
-		
-		@Override
-		public void run() {
-			_lastRun = Instant.now();
-			_isUpdated = false;
-		}
-	}
-
-	private class PilotEdgeLoader extends Loader {
-		PilotEdgeLoader() {
-			super(OnlineNetwork.PILOTEDGE, 30);
-		}
-
-		@Override
-		public void run() {
-			super.run();
-			try {
-				GetURL urldao = new GetURL(SystemData.get("online.pilotedge.status_url"), SystemData.get("online.pilotedge.local.info"));
-				urldao.setConnectTimeout(5000);
-				urldao.setReadTimeout(15000);
-				File f = urldao.download();
-				try (InputStream is = new BufferedInputStream(new FileInputStream(f), 32768)) {
-					GetServInfo sidao = new GetServInfo(is, _network);
-					NetworkInfo in = sidao.getInfo();
-					if ((in != null) && in.getValidDate().isAfter(_lastUpdate)) {
-						update(in);
-						f.setLastModified(in.getValidDate().toEpochMilli());
-					}
-				}
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	private class VATSIMLoader extends Loader {
-		VATSIMLoader() {
-			super(OnlineNetwork.VATSIM, 30);
-		}
-
-		@Override
-		public void run() {
-			super.run();
-			try {
-				GetURL urldao = new GetURL(SystemData.get("online.vatsim.status_url"), SystemData.get("online.vatsim.local.info"));
-				urldao.setConnectTimeout(5000);
-				urldao.setReadTimeout(15000);
-				File f = urldao.download();
-				try (InputStream is = new BufferedInputStream(new FileInputStream(f), 131072)) {
-					GetVATSIMInfo sidao = new GetVATSIMInfo(is);
-					NetworkInfo in = sidao.getInfo();
-					if ((in != null) && in.getValidDate().isAfter(_lastUpdate)) {
-						update(in);
-						f.setLastModified(in.getValidDate().toEpochMilli());
-					}
-				}
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
-
-	private class IVAOLoader extends Loader {
-		IVAOLoader() {
-			super(OnlineNetwork.IVAO, 60);
-		}
-
-		@Override
-		public void run() {
-			super.run();
-			String url = null;
-			try {
-				GetURL urldao = new GetURL(SystemData.get("online.ivao.status_url"), SystemData.get("online.ivao.local.status"));
-				urldao.setConnectTimeout(3500);
-				urldao.setReadTimeout(4500);
-				Properties p = new Properties();
-				File f = urldao.download();
-				try (InputStream is = new FileInputStream(f)) {
-					p.load(is);
-				}
-
-				url = p.getProperty("url0");
-				urldao = new GetURL(url, SystemData.get("online.ivao.local.info"));
-				urldao.setConnectTimeout(3500);
-				urldao.setReadTimeout(25000);
-				f = urldao.download();
-				try (InputStream is = new BufferedInputStream(new FileInputStream(f), 65536)) {
-					GetServInfo sidao = new GetServInfo(is, _network);
-					NetworkInfo in = sidao.getInfo();
-					if ((in != null) && in.getValidDate().isAfter(_lastUpdate)) {
-						update(in);
-						f.setLastModified(in.getValidDate().toEpochMilli());
-					}
-				}
-			} catch (Exception e) {
-				boolean isTimeout = e.getCause() instanceof java.net.SocketTimeoutException;
-				if (isTimeout)
-					log.warn("Timeout loading " + url);
-				else
-					log.error(e.getMessage(), e);
-			}
-		}
-	}
 
 	/**
 	 * Initializes the worker.
@@ -173,11 +48,9 @@ public class OnlineStatusLoader extends Worker {
 		
 		// Init the update dates
 		for (Loader l : LOADERS) {
-			NetworkInfo inf = _cache.get(l._network);
-			if (inf != null) {
-				l._lastUpdate = inf.getValidDate();
-				l._lastRun = inf.getValidDate().minusSeconds(10);
-			}
+			NetworkInfo inf = _cache.get(l.getNetwork());
+			if (inf != null)
+				l.init(inf.getValidDate().minusSeconds(15), inf.getValidDate());
 		}
 	}
 
@@ -186,15 +59,14 @@ public class OnlineStatusLoader extends Worker {
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		ForkJoinPool pool = new ForkJoinPool(4);
+		ForkJoinPool pool = new ForkJoinPool(4, new LoaderFactory(), this, false);
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Downloading network data");
 			_status.execute();
 
 			try {
-				long now = System.currentTimeMillis();
 				long sleepTime = (SLEEP_INTERVAL * 1000);
-				List<Loader> tasks = LOADERS.stream().filter(l -> ((now - l._lastRun.toEpochMilli()) > l._updateInterval)).collect(Collectors.toList());
+				List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
 				if (!tasks.isEmpty()) {
 					tasks.forEach(pool::submit); TaskTimer tt = new TaskTimer();
 					pool.awaitQuiescence((SLEEP_INTERVAL - 2), TimeUnit.SECONDS);
@@ -206,7 +78,7 @@ public class OnlineStatusLoader extends Worker {
 					}
 
 					// Record the update times for outage tracking
-					Connection c = null; tasks.removeIf(l -> !l._isUpdated);
+					Connection c = null; tasks.removeIf(l -> !l.isUpdated());
 					if (!tasks.isEmpty()) {
 						_status.setMessage("Updating data validity");
 						
@@ -214,7 +86,7 @@ public class OnlineStatusLoader extends Worker {
 							c = _jdbcPool.getConnection();
 							SetOnlineTrack twdao = new SetOnlineTrack(c);
 							for (Loader l : tasks)
-								twdao.writePull(l._network, l._lastUpdate);
+								twdao.writePull(l.getNetwork(), l.getLastUpdate());
 						} catch (DAOException de) {
 							log.error("Error writing update times - " + de.getMessage(), de);
 						} finally {
@@ -231,5 +103,10 @@ public class OnlineStatusLoader extends Worker {
 				log.error(e.getMessage(), e);
 			}
 		}
+	}
+
+	@Override
+	public void uncaughtException(Thread t, Throwable e) {
+		log.error(t.getName() + " Error - " + e.getMessage(), e);
 	}
 }
