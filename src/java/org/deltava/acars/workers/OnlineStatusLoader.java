@@ -49,7 +49,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 		// Init the update dates
 		for (Loader l : LOADERS) {
 			NetworkInfo inf = _cache.get(l.getNetwork());
-			if (inf != null)
+			if ((inf != null) && (inf.getValidDate() != null))
 				l.init(inf.getValidDate().minusSeconds(15), inf.getValidDate());
 		}
 	}
