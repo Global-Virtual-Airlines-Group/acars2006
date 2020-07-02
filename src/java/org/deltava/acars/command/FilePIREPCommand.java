@@ -191,8 +191,12 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setSimulator(info.getSimulator());
 
 			// Convert the date into the user's local time zone
+			int dayOfYear = ZonedDateTime.now().getDayOfYear();
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone());
-			afr.setDate(zdt.toInstant());
+			if (zdt.getDayOfYear() != dayOfYear) {
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Adjusted date to " + StringUtils.format(zdt, "MM/dd/yyyy") + ", Pilot in " + p.getTZ().toString());
+				afr.setDate(zdt.toInstant());
+			}
 
 			// Check that the user has an online network ID
 			OnlineNetwork network = afr.getNetwork();
