@@ -588,7 +588,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Write online track data
 			if (!pd.isEmpty()) {
 				SetOnlineTrack twdao = new SetOnlineTrack(con);
-				twdao.write(afr.getID(), pd);
+				twdao.write(afr.getID(), pd, usrLoc.getDB());
 				twdao.purgeRaw(trackID);
 			}
 			
