@@ -137,9 +137,10 @@ public class InfoCommand extends ACARSCommand {
 				
 				// If we're still not valid, check for an event
 				if (!msg.isScheduleValidated()) {
-					GetEvent edao = new GetEvent(c); 
-					boolean isOK = (edao.getPossibleEvent(msg, OnlineNetwork.VATSIM, msg.getStartTime()) > 0);
-					isOK |= (edao.getPossibleEvent(msg, OnlineNetwork.IVAO, msg.getStartTime()) > 0);
+					GetEvent edao = new GetEvent(c);
+					boolean isOK = !edao.getPossibleEvents(msg, OnlineNetwork.VATSIM, msg.getStartTime(), usrLoc.getAirlineCode()).isEmpty();
+					isOK |= !edao.getPossibleEvents(msg, OnlineNetwork.IVAO, msg.getStartTime(), usrLoc.getAirlineCode()).isEmpty();
+					isOK |= !edao.getPossibleEvents(msg, OnlineNetwork.PILOTEDGE, msg.getStartTime(), usrLoc.getAirlineCode()).isEmpty();
 					msg.setScheduleValidated(isOK);
 				}
 			} else
@@ -217,7 +218,8 @@ public class InfoCommand extends ACARSCommand {
 				if (ud == null) {
 					log.warn("Invalid Dispatcher ID - " + msg.getDispatcherID());
 					msg.setDispatcherID(0);
-				}
+				} else
+					log.info("Validated Dispatcher " + ud.getID() + " for " + env.getOwnerID());
 			}
 			
 			// Start a transaction
@@ -267,7 +269,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Log returned flight id
 		if (assignID)
-			log.info("Assigned Flight ID " + String.valueOf(msg.getFlightID()) + " to " + env.getOwnerID());
+			log.info("Assigned Flight ID " + msg.getFlightID() + " to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 

@@ -11,11 +11,12 @@ import org.deltava.beans.*;
 import org.deltava.beans.academy.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
-import org.deltava.beans.event.Event;
+import org.deltava.beans.event.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.servinfo.PositionData;
 import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.comparators.GeoComparator;
@@ -210,25 +211,35 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
 			
+			// Load track data
+			Collection<PositionData> pd = new ArrayList<PositionData>(); int trackID = 0;
+			if (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK)) {
+				GetOnlineTrack tdao = new GetOnlineTrack(con); 
+				trackID = tdao.getTrackID(afr.getDatabaseID(DatabaseID.PILOT), afr.getNetwork(), afr.getSubmittedOn(), afr.getAirportD(), afr.getAirportA());
+				if (trackID != 0) {
+					pd.addAll(tdao.getRaw(trackID));
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Loaded " + afr.getNetwork() + " online track data (" + pd.size() + " positions)");	
+				}
+			}
+			
 			// Check if it's an Online Event flight
 			GetEvent evdao = new GetEvent(con);
+			EventFlightHelper efr = new EventFlightHelper(afr);
 			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (network != null)) {
-				int eventID = evdao.getPossibleEvent(afr);
-				if (eventID != 0) {
-					Event e = evdao.get(eventID);
+				List<Event> events = evdao.getPossibleEvents(afr, afr.getNetwork(), afr.getSubmittedOn(), usrLoc.getAirlineCode());
+				events.removeIf(e -> !efr.matches(e));
+				if (!events.isEmpty()) {
+					Event e = events.get(0);
 					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Detected participation in " + e.getName() + " Online Event");
-					afr.setDatabaseID(DatabaseID.EVENT, eventID);
+					afr.setDatabaseID(DatabaseID.EVENT, e.getID());
 				}
 			}
 
 			// Check that it was submitted in time
 			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
-			if (e != null) {
-				long timeSinceEnd = (System.currentTimeMillis() - e.getEndTime().toEpochMilli()) / 3600_000;
-				if (timeSinceEnd > 6) {
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Flight logged " + timeSinceEnd + " hours after '" + e.getName() + "' completion");
-					afr.setDatabaseID(DatabaseID.EVENT, 0);
-				}
+			if ((e != null) && !efr.matches(e)) {
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, efr.getMessage());
+				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			} else if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
@@ -260,7 +271,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					boolean isOK = helper.canPromote(pEQ);
 					if (!isOK) {
 						i.remove();
-						log.info(p.getName() + " leg not eligible for promotion in " + pEQ + ": " + helper.getLastComment());
 						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Not eligible for promotion: " + helper.getLastComment());
 					}
 				}
@@ -328,7 +338,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
 				if (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01)
-					log.warn("Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
 				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
 					ctx.setMessage("Calculating flight load factor");
@@ -345,7 +355,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					int paxCount = (int) Math.round(opts.getSeats() * afr.getLoadFactor());
 					afr.setPassengers(Math.min(opts.getSeats(), paxCount));
 					if (paxCount > opts.getSeats())
-						log.warn("Invalid passenger count - pax=" + paxCount + ", seats=" + opts.getSeats());
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Invalid passenger count - pax=" + paxCount + ", seats=" + opts.getSeats());
 				}
 			}
 			
@@ -370,7 +380,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (isAcademy) {
 				GetAcademyCourses crsdao = new GetAcademyCourses(con);
 				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
-				c = courses.stream().filter(crs -> (crs.getStatus() == Status.STARTED)).findAny().orElse(null);
+				c = courses.stream().filter(crs -> (crs.getStatus() == org.deltava.beans.academy.Status.STARTED)).findAny().orElse(null);
 				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") || p.isInRole("Examiner");
 				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
 				if (!afr.hasAttribute(FlightReport.ATTR_ACADEMY))
@@ -573,7 +583,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
 			if (wdao.updatePaxCount(afr.getID(), usrLoc))
-				log.warn("Updated Passnger count for PIREP #" + afr.getID());
+				log.warn("Updated Passenger count for PIREP #" + afr.getID());
+			
+			// Write online track data
+			if (!pd.isEmpty()) {
+				SetOnlineTrack twdao = new SetOnlineTrack(con);
+				twdao.write(afr.getID(), pd);
+				twdao.purgeRaw(trackID);
+			}
 			
 			// Write ontime data if there is any
 			if (afr.getOnTime() != OnTime.UNKNOWN) {
