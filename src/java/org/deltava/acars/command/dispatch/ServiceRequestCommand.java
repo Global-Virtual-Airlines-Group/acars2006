@@ -95,10 +95,11 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// If we're still not valid, check for an event
 			if (!routeValid) {
-				Instant now = Instant.now();
+				Instant now = Instant.ofEpochMilli(msg.getTime());
 				GetEvent edao = new GetEvent(con); 
-				routeValid |= (edao.getPossibleEvent(msg, OnlineNetwork.VATSIM, now) > 0);
-				routeValid |= (edao.getPossibleEvent(msg, OnlineNetwork.IVAO, now) > 0);
+				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.VATSIM, now, ud.getAirlineCode()).isEmpty();
+				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.IVAO, now, ud.getAirlineCode()).isEmpty();
+				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.PILOTEDGE, now, ud.getAirlineCode()).isEmpty();
 				if (routeValid)
 					log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using Online Event");
 			}
