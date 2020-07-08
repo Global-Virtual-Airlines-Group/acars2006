@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -33,8 +33,8 @@ public class SetPosition extends DAO {
 	public void flush(Collection<PositionMessage> entries) throws DAOException {
 		try {
 			try (PreparedStatement ps = prepareWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, "
-				+ "FUEL, PHASE, SIM_RATE, FLAGS, GNDFLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, GFORCE, FRAMERATE, NAV1, NAV2, VAS, WEIGHT, ASTYPE, "
-				+ "ADF1, NET_CONNECTED) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+				+ "FUEL, PHASE, SIM_RATE, FLAGS, GNDFLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, CG, GFORCE, FRAMERATE, NAV1, NAV2, VAS, WEIGHT, ASTYPE, "
+				+ "ADF1, NET_CONNECTED) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
 				// Write core entries
 				startTransaction();
@@ -71,15 +71,16 @@ public class SetPosition extends DAO {
 					ps.setInt(27, msg.getPressure());
 					ps.setDouble(28, msg.getVisibility());
 					ps.setDouble(29, msg.getAngleOfAttack());
-					ps.setDouble(30, msg.getG());
-					ps.setInt(31, msg.getFrameRate());
-					ps.setString(32, msg.getNAV1());
-					ps.setString(33, msg.getNAV2());
-					ps.setInt(34, msg.getVASFree());
-					ps.setInt(35, msg.getWeight());
-					ps.setInt(36, msg.getAirspaceType().ordinal());
-					ps.setString(37, msg.getADF1());
-					ps.setBoolean(38, msg.getNetworkConnected());
+					ps.setDouble(30, msg.getCG());
+					ps.setDouble(31, msg.getG());
+					ps.setInt(32, msg.getFrameRate());
+					ps.setString(33, msg.getNAV1());
+					ps.setString(34, msg.getNAV2());
+					ps.setInt(35, msg.getVASFree());
+					ps.setInt(36, msg.getWeight());
+					ps.setInt(37, msg.getAirspaceType().ordinal());
+					ps.setString(38, msg.getADF1());
+					ps.setBoolean(39, msg.getNetworkConnected());
 					ps.addBatch();
 
 					// Remove entries with no ATC ID

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -69,6 +69,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFlags(Integer.parseInt(getChildText(e, "flags", "0")));
 			msg.setLights(Integer.parseInt(getChildText(e, "lights", "0")));
 			msg.setAngleOfAttack(Double.parseDouble(getChildText(e, "aoa", "0")));
+			msg.setCG(Double.parseDouble(getChildText(e, "cg", "0")));
 			msg.setG(Double.parseDouble(getChildText(e, "g", "1")));
 			msg.setN1(Double.parseDouble(getChildText(e, "n1", "0")));
 			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));

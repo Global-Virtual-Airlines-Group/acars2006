@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 8.7
+ * @version 9.0
  * @since 1.0
  */
 
@@ -21,13 +21,14 @@ public class PositionMessage extends LocationMessage {
 	private int r_altitude;
 	private int aspeed;
 	private double mach;
-	private int fuelRemaining;
-	private int weight;
+	private int _fuelRemaining;
+	private int _weight;
 	private double n1;
 	private double n2;
 	private int _fuelFlow;
 	private double _gForce;
 	private double _angleOfAttack;
+	private double _cg;
 	private int _frameRate;
 	private int _groundOps;
 	private boolean _networkConnected;
@@ -76,9 +77,13 @@ public class PositionMessage extends LocationMessage {
 	public double getAngleOfAttack() {
 		return _angleOfAttack;
 	}
+	
+	public double getCG() {
+		return _cg;
+	}
 
 	public int getFuelRemaining() {
-		return this.fuelRemaining;
+		return _fuelRemaining;
 	}
 
 	public int getFrameRate() {
@@ -90,7 +95,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public int getWeight() {
-		return weight;
+		return _weight;
 	}
 
 	public int getWindSpeed() {
@@ -237,9 +242,13 @@ public class PositionMessage extends LocationMessage {
 		if (!Double.isNaN(aoa))
 			_angleOfAttack = Math.max(-90, Math.min(90, aoa));
 	}
+	
+	public void setCG(double cg) {
+		_cg = cg;
+	}
 
 	public void setFuelRemaining(int fr) {
-		fuelRemaining = Math.max(0, fr);
+		_fuelRemaining = Math.max(0, fr);
 	}
 
 	public void setFrameRate(int rate) {
@@ -280,7 +289,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public void setWeight(int w) {
-		weight = Math.max(0, w);
+		_weight = Math.max(0, w);
 	}
 
 	public void setPhase(FlightPhase fp) {
