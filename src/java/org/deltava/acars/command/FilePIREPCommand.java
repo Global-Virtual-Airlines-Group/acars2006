@@ -226,7 +226,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			GetEvent evdao = new GetEvent(con);
 			EventFlightHelper efr = new EventFlightHelper(afr);
 			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (network != null)) {
-				List<Event> events = evdao.getPossibleEvents(afr, afr.getNetwork(), afr.getSubmittedOn(), usrLoc.getAirlineCode());
+				List<Event> events = evdao.getPossibleEvents(afr, usrLoc.getAirlineCode());
 				events.removeIf(e -> !efr.matches(e));
 				if (!events.isEmpty()) {
 					Event e = events.get(0);
