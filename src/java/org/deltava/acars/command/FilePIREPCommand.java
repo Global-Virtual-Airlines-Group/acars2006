@@ -240,7 +240,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if ((e != null) && !efr.matches(e)) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, efr.getMessage());
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			} else if (afr.getDatabaseID(DatabaseID.EVENT) != 0) {
+			} else if ((e == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			}
