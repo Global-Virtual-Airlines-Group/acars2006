@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2010, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2010, 2011, 2016, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -13,15 +13,12 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 7.2
+ * @version 9.0
  * @since 1.0
  */
 
 public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerInfo, java.io.Serializable {
 
-	/**
-	 * Executes the Thread.
-	 */
 	@Override
 	public void run() {
 
@@ -83,28 +80,17 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 		}
 		
 		// Remove uncaught exception handler if we're shutting threads down
-		for (Iterator<Thread> i = _threads.keySet().iterator(); i.hasNext(); ) { 
-			Thread wt = i.next();
-			wt.setUncaughtExceptionHandler(null);
-			wt.interrupt();
-		}
+		_threads.keySet().forEach(wt -> { wt.setUncaughtExceptionHandler(null); wt.interrupt(); });
 
 		// Try to close the workers down
-		ThreadUtils.sleep(500);
-		for (Iterator<Worker> i = _threads.values().iterator(); i.hasNext();) {
-			Worker w = i.next();
-			log.debug("Stopping " + w.getName());
-			w.close();
-		}
+		ThreadUtils.sleep(250);
+		_threads.values().forEach(w -> { log.debug("Stopping " + w.getName()); w.close(); });
 
 		// Display shutdown message
 		ThreadUtils.kill(_workers, 1500);
 		log.info("Terminated");
 	}
 
-	/**
-	 * Returns worker status to the web application.
-	 */
 	@Override
 	public Collection<WorkerStatus> getWorkers() {
 		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
@@ -112,9 +98,6 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 		return results;
 	}
 	
-	/**
-	 * Returns the thread name.
-	 */
 	@Override
 	public String toString() {
 		return "ACARS Daemon";
