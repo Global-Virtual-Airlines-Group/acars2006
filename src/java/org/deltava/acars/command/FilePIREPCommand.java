@@ -337,7 +337,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				if (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01)
+				if (!msg.hasCustomCabinSize() && (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01))
 					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
 				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
@@ -346,7 +346,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					double loadFactor = lf.generate(afr.getDate());
 					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor() + " for Flight " + flightID);
 					afr.setLoadFactor(loadFactor);
-				} else if (info.getLoadFactor() > 0) {
+				} else if ((info.getLoadFactor() > 0) && !msg.hasCustomCabinSize()) {
 					afr.setLoadFactor(info.getLoadFactor());
 					log.info("Using flight " + flightID + " data load factor of " + info.getLoadFactor());
 				}
