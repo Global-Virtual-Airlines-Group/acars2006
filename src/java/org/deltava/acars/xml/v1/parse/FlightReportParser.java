@@ -70,6 +70,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
+		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
