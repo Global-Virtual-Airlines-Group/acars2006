@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2012, 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom2.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 8.0
+ * @version 9.0
  * @since 2.1
  */
 
@@ -38,6 +38,7 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 		msg.setRouteValid(Boolean.valueOf(fe.getAttributeValue("routeValid")).booleanValue());
 		msg.setNoSave(Boolean.valueOf(fe.getAttributeValue("noSave")).booleanValue());
 		msg.setRouteID(StringUtils.parse(fe.getAttributeValue("routeID"), 0));
+		msg.setLogID(StringUtils.parse(fe.getAttributeValue("logID"), 0));
 		msg.setAirline(SystemData.getAirline(getChildText(fe, "airline", user.getAirlineCode())));
 		msg.setFlight(StringUtils.parse(getChildText(fe, "flight", "1"), 1));
 		msg.setLeg(StringUtils.parse(getChildText(fe, "leg", "1"), 1));

@@ -466,7 +466,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
-
+			
 			// Start the transaction
 			ctx.startTX();
 
@@ -474,6 +474,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			SetInfo idao = new SetInfo(con);
 			idao.logPIREP(flightID);
 			info.setComplete(true);
+			
+			// Check dispatch log
+			if ((afr.getDatabaseID(DatabaseID.DISPATCH) != info.getDispatchLogID()) && (info.getDispatchLogID() == 0)) {
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Setting ACARS Dispatch Log to " + afr.getDatabaseID(DatabaseID.DISPATCH));
+				SetDispatch dlwdao = new SetDispatch(con);
+				dlwdao.link(afr.getDatabaseID(DatabaseID.DISPATCH), info.getFlightID());
+			}
 
 			// Clean up the memcached track data
 			SetTrack tkwdao = new SetTrack();

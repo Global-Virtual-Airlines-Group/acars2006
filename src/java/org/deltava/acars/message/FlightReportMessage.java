@@ -90,7 +90,7 @@ public class FlightReportMessage extends AbstractMessage {
    public void setRouteID(int id) {
 	   _routeID = id;
    }
-  
+   
    /**
     * Sets whether the aircraft had a custom (smaller) cabin size than default.
     * @param isCustomCabin TRUE if a custom cabin, otherwise FALSE 

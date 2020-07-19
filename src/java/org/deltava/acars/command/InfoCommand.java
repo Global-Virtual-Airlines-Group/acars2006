@@ -62,6 +62,7 @@ public class InfoCommand extends ACARSCommand {
 		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && !curInfo.isComplete()) {
 			log.warn("Duplicate Flight ID request from " + con.getUserID() + " - assigning Flight ID " + curInfo.getFlightID());
 			ackMsg.setEntry("flight_id", String.valueOf(curInfo.getFlightID()));
+			ackMsg.setEntry("dispatchLogID", String.valueOf(curInfo.getDispatchLogID()));
 			ackMsg.setEntry("tx", String.valueOf(curInfo.getTX()));
 			ctx.push(ackMsg);
 			return;
@@ -256,7 +257,12 @@ public class InfoCommand extends ACARSCommand {
 				dwdao.writeSIDSTAR(msg.getFlightID(), star);
 			}
 			
-			// Commit the transaction
+			// Link to dispatcher log
+			if (msg.getDispatchLogID() != 0) {
+				SetDispatch dlwdao = new SetDispatch(c);
+				dlwdao.link(msg.getDispatchLogID(), msg.getFlightID());
+			}
+			
 			ctx.commitTX();
 		} catch (DAOException de) {
 			ctx.rollbackTX();
@@ -275,6 +281,7 @@ public class InfoCommand extends ACARSCommand {
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));
+		ackMsg.setEntry("dispatchLogID", String.valueOf(msg.getDispatchLogID()));
 		ackMsg.setEntry("tx", String.valueOf(msg.getTX()));		
 		ackMsg.setEntry("schedValid", String.valueOf(msg.isScheduleValidated()));
 		ctx.push(ackMsg, env.getConnectionID(), true);

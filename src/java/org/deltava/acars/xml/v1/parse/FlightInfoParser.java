@@ -56,6 +56,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 
 		// Load the bean
 		msg.setFlightID(StringUtils.parse(getChildText(e, "flight_id", "0"), 0));
+		msg.setDispatchLogID(StringUtils.parse(getChildText(e, "dispatchLogID", "0"), 0));
 		msg.setEquipmentType(getChildText(e, "equipment", "UNKNOWN"));
 		msg.setFlight(FlightCodeParser.parse(getChildText(e, "flight_num", "001"), user.getAirlineCode()));
 		msg.setAltitude(getChildText(e, "cruise_alt", null));

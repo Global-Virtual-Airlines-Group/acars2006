@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import java.util.*;
@@ -12,14 +12,14 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS message to store Dispatch data.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.1
  */
 
 public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	
-	private String _recipient;
 	private int _routeID;
+	private int _logID;
 	private Airline _a;
 	private int _flight;
 	private int _leg;
@@ -83,6 +83,10 @@ public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	
 	public int getRouteID() {
 		return _routeID;
+	}
+	
+	public int getLogID() {
+		return _logID;
 	}
 	
 	public String getEquipmentType() {
@@ -149,6 +153,10 @@ public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	
 	public void setRouteID(int id) {
 		_routeID = id;
+	}
+	
+	public void setLogID(int id) {
+		_logID = id;
 	}
 	
 	public void setRoute(String route) {
@@ -221,7 +229,7 @@ public class FlightDataMessage extends DispatchMessage implements RoutePair {
 	}
 	
 	public void setNoSave(boolean noSave) {
-		_noSave = (_recipient != null) && noSave;
+		_noSave = (getRecipient() != null) && noSave;
 	}
 	
 	public void setComments(String comments) {

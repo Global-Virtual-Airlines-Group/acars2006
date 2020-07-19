@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	private boolean _dispatchPlan;
 	private int _dispatcherID;
 	private int _routeID;
+	private int _dispatchLogID;
 	
 	private int _txCode = TXCode.DEFAULT_IFR;
 	
@@ -243,6 +244,10 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _routeID;
 	}
 	
+	public int getDispatchLogID() {
+		return _dispatchLogID;
+	}
+	
 	public boolean isScheduleValidated() {
 		return _scheduleValidated;
 	}
@@ -342,6 +347,10 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	
 	public void setRouteID(int id) {
 		_routeID = Math.max(0, id);
+	}
+	
+	public void setDispatchLogID(int id) {
+		_dispatchLogID = id;
 	}
 	
 	public void setStartTime(Instant dt) {

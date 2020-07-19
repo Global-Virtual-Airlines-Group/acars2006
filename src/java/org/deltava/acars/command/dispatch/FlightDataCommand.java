@@ -1,13 +1,12 @@
-// Copyright 2006, 2007, 2008, 2009, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
-import java.util.*;
 import java.sql.Connection;
 
 import org.deltava.beans.Pilot;
 
 import org.deltava.dao.*;
-import org.deltava.dao.acars.SetRoute;
+import org.deltava.dao.acars.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -17,7 +16,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 8.6
+ * @version 9.0
  * @since 1.1
  */
 
@@ -54,19 +53,19 @@ public class FlightDataCommand extends DispatchCommand {
 		boolean isPlot = (msg.getRecipient() != null) && (msg.getRecipient().startsWith("$"));
 
 		// Get the recipient
-		Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
+		ACARSConnection dc = null;
 		if (!isPlot) {
-			ACARSConnection dc = ctx.getACARSConnection(msg.getRecipient());
+			dc = ctx.getACARSConnection(msg.getRecipient());
 			if (dc == null) {
 				ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
 				log.warn("Cannot send dispatch message to " + msg.getRecipient());
-			} else
-				dstC.add(dc);
+			}
 		}
 
 		boolean canCreate = usr.isInRole("Route");
 		try {
 			Connection c = ctx.getConnection();
+			ctx.startTX();
 			
 			// Populate the gates
 			GetGates gdao = new GetGates(c);
@@ -74,6 +73,12 @@ public class FlightDataCommand extends DispatchCommand {
 				msg.setGateD(gdao.getGate(msg.getAirportD(), msg.getSimulator(), msg.getGateD().getName()));
 			if (msg.getGateA() != null)
 				msg.setGateA(gdao.getGate(msg.getAirportA(), msg.getSimulator(), msg.getGateA().getName()));
+			
+			// Log things
+			if ((dc != null) && (msg.getLogID() == 0)) {
+				SetDispatch dlwdao = new SetDispatch(c);
+				dlwdao.writeLog(msg, dc.getUser());
+			}
 
 			// Save the dispatch message data
 			if ((msg.getRouteID() == 0) && canCreate && !msg.getNoSave()) {
@@ -89,7 +94,10 @@ public class FlightDataCommand extends DispatchCommand {
 					msg.setRouteID(dupeID);
 				}
 			}
+			
+			ctx.commitTX();
 		} catch (DAOException de) {
+			ctx.rollbackTX();
 			log.warn("Cannot save/update route data - " + de.getMessage(), de);
 		} finally {
 			ctx.release();
@@ -97,15 +105,13 @@ public class FlightDataCommand extends DispatchCommand {
 
 		// Send out the dispatch data
 		ackMsg.setEntry("routeID", String.valueOf(msg.getRouteID()));
-		ackMsg.setEntry("msgs", String.valueOf(dstC.size()));
-		if (!isPlot) {
-			for (ACARSConnection ac : dstC) {
-				log.info("Dispatch info from " + usr.getPilotCode() + " to " + ac.getUserID());
-				ctx.push(msg, ac.getID(), false);
-			}
+		ackMsg.setEntry("logID", String.valueOf(msg.getLogID()));
+		ackMsg.setEntry("msgs", (dc == null) ? "0" : "1");
+		if (dc != null) {
+			log.info("Dispatch info from " + usr.getPilotCode() + " to " + dc.getUserID());
+			ctx.push(msg, dc.getID(), false);
 		}
 
-		// Send out the ack
 		ctx.push(ackMsg);
 	}
 }
