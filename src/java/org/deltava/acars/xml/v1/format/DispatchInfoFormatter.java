@@ -38,6 +38,7 @@ class DispatchInfoFormatter extends ElementFormatter {
 		Element e = initDataResponse(pe, dmsg.getRequestType().getCode());
 		e.setAttribute("routeValid", String.valueOf(dmsg.isRouteValid()));
 		e.setAttribute("id", String.valueOf(dmsg.getRouteID()));
+		e.setAttribute("logID", String.valueOf(dmsg.getLogID()));
 		e.addContent(XMLUtils.createElement("airline", dmsg.getAirline().getCode()));
 		e.addContent(XMLUtils.createElement("flight", String.valueOf(dmsg.getFlight())));
 		e.addContent(XMLUtils.createElement("leg", String.valueOf(dmsg.getLeg())));

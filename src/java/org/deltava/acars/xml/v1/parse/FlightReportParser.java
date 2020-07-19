@@ -45,6 +45,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
 		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.valueOf(getChildText(e, "isDivert", "false")).booleanValue());
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
+		afr.setDatabaseID(DatabaseID.DISPATCH, StringUtils.parse(e.getChildTextTrim("dispatchLogID"), 0));
 		afr.setStatus(FlightStatus.SUBMITTED);
 		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
 		afr.setDate(Instant.now());
