@@ -350,7 +350,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		@SuppressWarnings("unchecked")
 		Collection<? extends String> systemMsgs = (Collection<? extends String>) SystemData.getObject("acars.login_msgs");
 		if (systemMsgs != null)
-			sysMsg.addMessages(systemMsgs);
+			systemMsgs.forEach(sysMsg::addMessage);
 
 		// Add hidden/dispatch notices
 		if (con.getUserHidden())
