@@ -16,7 +16,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -31,6 +31,7 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	private String _eqType;
 	private String _livery;
 	private String _tailCode;
+	private int _engineCount;
 	
 	private Flight _f;
 	private Airport _airportA;
@@ -124,6 +125,10 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	
 	public String getEquipmentType() {
 		return _eqType;
+	}
+	
+	public int getEngineCount() {
+		return _engineCount;
 	}
 	
 	public String getLivery() {
@@ -294,6 +299,10 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	
 	public void setEquipmentType(String newEQ) {
 		_eqType = newEQ;
+	}
+	
+	public void setEngineCount(int cnt) {
+		_engineCount = cnt;
 	}
 	
 	public void setLivery(String code) {

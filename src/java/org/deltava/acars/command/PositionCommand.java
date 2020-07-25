@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
@@ -72,6 +72,7 @@ public class PositionCommand extends PositionCacheCommand {
 		
 		// Set flight ID
 		msg.setFlightID(info.getFlightID());
+		msg.setEngineCount(info.getEngineCount());
 		
 		// Adjust the message date and calculate the age of the last message
 		// Check if it's really a flood or whether the previous message was just stuck in transit

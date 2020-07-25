@@ -25,7 +25,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -179,13 +179,16 @@ public class InfoCommand extends ACARSCommand {
 			GetAircraft acdao = new GetAircraft(c);
 			Aircraft ac = acdao.get(msg.getEquipmentType());
 			if (ac != null) {
+				msg.setEngineCount(ac.getEngines());
 				AircraftPolicyOptions opts = ac.getOptions(usrLoc.getAirlineCode());
 				if (msg.getPassengers() > 0)
 					msg.setLoadFactor(msg.getPassengers() * 1.0d / opts.getSeats());
 				else if ((msg.getLoadFactor() > 0) && (msg.getPassengers() == 0))
 					msg.setPassengers((int) (opts.getSeats() * msg.getLoadFactor()));
-			} else
+			} else {
 				log.warn("Unknown aircraft type - " + msg.getEquipmentType());
+				msg.setEngineCount(2);
+			}
 				
 			// Get the SID/STAR data
 			GetNavAirway navdao = new GetNavAirway(c);

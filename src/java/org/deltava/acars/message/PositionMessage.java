@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -23,8 +23,11 @@ public class PositionMessage extends LocationMessage {
 	private double mach;
 	private int _fuelRemaining;
 	private int _weight;
-	private double n1;
-	private double n2;
+	private int _engineCount;
+	private final double[] _n1 = new double[6];
+	private final double[] _n2 = new double[6];
+	private double _avgN1;
+	private double _avgN2;
 	private int _fuelFlow;
 	private double _gForce;
 	private double _angleOfAttack;
@@ -129,15 +132,27 @@ public class PositionMessage extends LocationMessage {
 	public double getMach() {
 		return mach;
 	}
-
-	public double getN1() {
-		return n1;
+	
+	public int getEngineCount() {
+		return _engineCount;
 	}
 
-	public double getN2() {
-		return n2;
+	public double getAverageN1() {
+		return _avgN1;
+	}
+	
+	public double[] getN1() {
+		return _n1;
 	}
 
+	public double getAverageN2() {
+		return _avgN2;
+	}
+
+	public double[] getN2() {
+		return _n2;
+	}
+	
 	public FlightPhase getPhase() {
 		return _phase;
 	}
@@ -273,19 +288,25 @@ public class PositionMessage extends LocationMessage {
 		if (!Double.isNaN(m))
 			mach = Math.min(6.5, Math.max(0, m));
 	}
-
-	public void setN1(double nn1) {
-		if (Double.isNaN(nn1))
-			this.n1 = 0;
-		else
-			this.n1 = Math.min(9999, Math.max(0, nn1));
+	
+	public void setEngineCount(int cnt) {
+		_engineCount = cnt;
 	}
 
-	public void setN2(double nn2) {
-		if (Double.isNaN(nn2))
-			this.n2 = 0;
-		else
-			this.n2 = Math.min(9999, Math.max(0, nn2));
+	public void setAvgN1(double nn1) {
+		_avgN1 = Double.isNaN(nn1) ? 0 : Math.min(9999, Math.max(0, nn1)); 
+	}
+	
+	public void setN1(int eng, double nn1) {
+		_n1[eng] = nn1;
+	}
+
+	public void setAvgN2(double nn2) {
+		_avgN2 = Double.isNaN(nn2) ? 0 : Math.min(9999, Math.max(0, nn2));
+	}
+	
+	public void setN2(int eng, double nn2) {
+		_n2[eng] = nn2;
 	}
 	
 	public void setWeight(int w) {

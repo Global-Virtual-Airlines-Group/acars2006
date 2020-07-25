@@ -71,8 +71,18 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setAngleOfAttack(Double.parseDouble(getChildText(e, "aoa", "0")));
 			msg.setCG(Double.parseDouble(getChildText(e, "cg", "0")));
 			msg.setG(Double.parseDouble(getChildText(e, "g", "1")));
-			msg.setN1(Double.parseDouble(getChildText(e, "n1", "0")));
-			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
+			int engCount = Integer.parseInt(getChildText(e, "ec", "-1"));
+			if (engCount > 0) {
+				Element n1e = e.getChild("n1");
+				Element n2e = e.getChild("n2");
+				for (int x = 1; x <= engCount; x++) {
+					msg.setN1(x, Double.parseDouble(n1e.getAttributeValue("e" + x, "0")));
+					msg.setN2(x, Double.parseDouble(n2e.getAttributeValue("e" + x, "0")));
+				}
+			}
+			
+			msg.setAvgN1(Double.parseDouble(getChildText(e, "n1", "0")));
+			msg.setAvgN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")));

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 7.3
+ * @version 9.1
  * @since 1.0
  */
 
@@ -83,8 +83,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setLights(Integer.parseInt(getChildText(e, "lights", "0")));
 			msg.setAngleOfAttack(Double.parseDouble(getChildText(e, "aoa", "0")));
 			msg.setG(Double.parseDouble(getChildText(e, "g", "1")));
-			msg.setN1(Double.parseDouble(getChildText(e, "n1", "0")));
-			msg.setN2(Double.parseDouble(getChildText(e, "n2", "0")));
+			msg.setAvgN1(Double.parseDouble(getChildText(e, "n1", "0")));
+			msg.setAvgN2(Double.parseDouble(getChildText(e, "n2", "0")));
 			msg.setWindHeading(Integer.parseInt(getChildText(e, "wHdg", "0")));
 			msg.setWindSpeed(Integer.parseInt(getChildText(e, "wSpeed", "0")));
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")) * 2.56);	// Fix because ACARS2 multiplied by 100 instead of 256
