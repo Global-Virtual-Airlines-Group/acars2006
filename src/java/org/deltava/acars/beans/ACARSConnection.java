@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -460,7 +460,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	
 	@Override
 	public int hashCode() {
-		return Long.valueOf(_id).hashCode();
+		return Long.hashCode(_id);
 	}
 	
 	@Override
