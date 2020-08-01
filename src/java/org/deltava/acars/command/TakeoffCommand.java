@@ -96,7 +96,7 @@ public class TakeoffCommand extends ACARSCommand {
 			// Send out a system message to the others if not a bounce
 			if (!isBounce) {
 				String aCode = ac.getUserData().getAirlineCode();
-				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> c.isAuthenticated() && aCode.equals(c.getUserData().getAirlineCode()));
+				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> (c.getProtocolVersion() > 1) && c.isAuthenticated() && aCode.equals(c.getUserData().getAirlineCode()));
 				cons.forEach(c -> ctx.push(msg, c.getID(), false));
 			}
 		} catch (DAOException de) {
