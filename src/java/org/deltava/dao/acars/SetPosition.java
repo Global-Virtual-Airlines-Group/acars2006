@@ -12,7 +12,7 @@ import org.deltava.beans.acars.EngineSpeedEncoder;
 /**
  * A Data Access Object to write ACARS Position Messages.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -35,7 +35,7 @@ public class SetPosition extends DAO {
 		try {
 			try (PreparedStatement ps = prepareWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, "
 				+ "FUEL, PHASE, SIM_RATE, FLAGS, GNDFLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, CG, GFORCE, FRAMERATE, NAV1, NAV2, VAS, WEIGHT, ASTYPE, "
-				+ "ADF1, NET_CONNECTED, ENC_N1, ENC_N2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+				+ "ADF1, NET_CONNECTED, ACARS_CONNECTED, ENC_N1, ENC_N2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
 				// Write core entries
 				startTransaction();
@@ -82,8 +82,9 @@ public class SetPosition extends DAO {
 					ps.setInt(37, msg.getAirspaceType().ordinal());
 					ps.setString(38, msg.getADF1());
 					ps.setBoolean(39, msg.getNetworkConnected());
-					ps.setBytes(40, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN1()));
-					ps.setBytes(41, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN2()));
+					ps.setBoolean(40, msg.getACARSConnected());
+					ps.setBytes(41, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN1()));
+					ps.setBytes(42, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN2()));
 					ps.addBatch();
 
 					// Remove entries with no ATC ID

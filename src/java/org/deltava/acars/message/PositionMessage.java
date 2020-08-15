@@ -34,6 +34,7 @@ public class PositionMessage extends LocationMessage {
 	private double _cg;
 	private int _frameRate;
 	private int _groundOps;
+	private boolean _acarsConnected;
 	private boolean _networkConnected;
 	
 	private int _txCode;
@@ -199,6 +200,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public boolean getNetworkConnected() {
 		return _networkConnected;
+	}
+	
+	public boolean getACARSConnected() {
+		return _acarsConnected;
 	}
 	
 	public AirspaceType getAirspaceType() {
@@ -413,5 +418,9 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setNetworkConnected(boolean isConnected) {
 		_networkConnected = isConnected;
+	}
+	
+	public void setACARSConnected(boolean isConnected) {
+		_acarsConnected = isConnected;
 	}
 }

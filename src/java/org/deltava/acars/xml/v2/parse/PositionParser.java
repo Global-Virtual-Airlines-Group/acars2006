@@ -103,6 +103,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setVASFree(Integer.parseInt(getChildText(e, "vasFree", "0")));
 			msg.setGroundOperations(Integer.parseInt(getChildText(e, "groundOps", "0")));
 			msg.setNetworkConnected(Boolean.valueOf(getChildText(e, "networkConnected", "false")).booleanValue());
+			msg.setACARSConnected(Boolean.valueOf(getChildText(e, "acarsConnected", "true")).booleanValue());
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
