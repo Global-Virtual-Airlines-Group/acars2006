@@ -27,7 +27,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -152,6 +152,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
 			entry.setStartTime(Instant.ofEpochMilli(ac.getStartTime()));
 			entry.setUser(ac.getUser());
+			entry.setUserData(ac.getUserData());
 			entry.setUserHidden(ac.getUserHidden());
 			entry.setVoice(ac.isVoiceEnabled());
 			entry.setCompressed(ac.getCompression() != Compression.NONE);
