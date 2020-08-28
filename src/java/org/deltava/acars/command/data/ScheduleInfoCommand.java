@@ -20,18 +20,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
 public class ScheduleInfoCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public ScheduleInfoCommand() {
-		super(ScheduleInfoCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -59,7 +52,7 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setDBName(usrLoc.getDB());
 		sc.setCheckDispatchRoutes(true);
 		sc.setExcludeHistoric(Boolean.valueOf(msg.getFlag("excludeHistoric")).booleanValue() ? Inclusion.EXCLUDE : Inclusion.ALL);
-		sc.setFlightsPerRoute(3);
+		sc.setFlightsPerRoute(sc.isPopulated() ? 0 : 3);
 		sc.setSortBy("RAND()");
 		sc.setDispatchOnly(Boolean.valueOf(msg.getFlag("dispatchOnly")).booleanValue() ? Inclusion.INCLUDE : Inclusion.ALL);
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 150))
