@@ -1,4 +1,4 @@
-// Copyright 2007, 2009, 2010, 2011, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2010, 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -12,18 +12,11 @@ import org.deltava.beans.mvs.PopulatedChannel;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.0
  */
 
 public class AcceptCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public AcceptCommand() {
-		super(AcceptCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -33,10 +26,8 @@ public class AcceptCommand extends DispatchCommand {
 	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 		
-		// Get the message
+		// Get the message and the connection
 		AcceptMessage msg = (AcceptMessage) env.getMessage();
-		
-		// Get the connection
 		ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
 		if (ac == null) {
 			log.warn("Unknown recipient ID - " + msg.getRecipient());

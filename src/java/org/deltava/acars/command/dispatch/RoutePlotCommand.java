@@ -1,4 +1,4 @@
-// Copyright 2010, 2015, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2015, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -23,18 +23,11 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 3.0
  */
 
 public class RoutePlotCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public RoutePlotCommand() {
-		super(RoutePlotCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -104,8 +97,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			
 			// Load the route waypoints
 			List<NavigationDataBean> points = navdao.getRouteWaypoints(msg.getRoute(), msg.getAirportD());
-			for (NavigationDataBean nd : points)
-				rt.addWaypoint(nd, nd.getAirway());
+			points.forEach(nd -> rt.addWaypoint(nd, nd.getAirway()));
 			
 			// Load best STAR
 			if (!StringUtils.isEmpty(msg.getSTAR()) && (msg.getSTAR().contains("."))) {
