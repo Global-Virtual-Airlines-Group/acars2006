@@ -23,19 +23,12 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.3
  */
 
 public class WeatherCommand extends DataCommand {
 	
-	/**
-	 * Initializes the Command.
-	 */
-	public WeatherCommand() {
-		super(WeatherCommand.class);
-	}
-
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

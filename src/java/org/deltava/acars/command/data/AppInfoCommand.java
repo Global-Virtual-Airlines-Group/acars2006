@@ -1,4 +1,4 @@
-// Copyright 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -11,19 +11,12 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to display cross-application information. 
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 3.6
  */
 
 public class AppInfoCommand extends DataCommand {
 	
-	/**
-	 * Initializes the Command.
-	 */
-	public AppInfoCommand() {
-		super(AppInfoCommand.class);
-	}
-
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

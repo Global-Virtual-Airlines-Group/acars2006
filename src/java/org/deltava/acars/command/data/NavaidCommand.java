@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2010, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -17,19 +17,12 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
 public class NavaidCommand extends DataCommand {
 
-	/**
-	 * Initializes the Command.
-	 */
-	public NavaidCommand() {
-		super(NavaidCommand.class);
-	}
-	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

@@ -1,4 +1,4 @@
-// Copyright 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -16,18 +16,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport runway information.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 8.6
  */
 
 public class RunwayInfoCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public RunwayInfoCommand() {
-		super(RunwayInfoCommand.class);
-	}
 
 	/**
 	 * Executes the command.

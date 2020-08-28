@@ -19,18 +19,11 @@ import org.deltava.util.system.SystemData;
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
  * valid flight assignment or charter request, and if any dispatch routes currently exist.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.3
  */
 
 public class FlightValidationCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public FlightValidationCommand() {
-		super(FlightValidationCommand.class);
-	}
 
 	/**
 	 * Executes the command.

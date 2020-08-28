@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2011, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -11,19 +11,12 @@ import org.deltava.dao.*;
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 8.7
+ * @version 9.1
  * @since 1.0
  */
 
 public class EquipmentListCommand extends DataCommand {
 
-	/**
-	 * Initializes the Command.
-	 */
-	public EquipmentListCommand() {
-		super(EquipmentListCommand.class);
-	}
-	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

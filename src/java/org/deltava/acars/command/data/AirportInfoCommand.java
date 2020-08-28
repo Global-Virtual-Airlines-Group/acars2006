@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2015, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2015, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -23,18 +23,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 2.6
  */
 
 public class AirportInfoCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public AirportInfoCommand() {
-		super(AirportInfoCommand.class);
-	}
 
 	/**
 	 * Executes the command.

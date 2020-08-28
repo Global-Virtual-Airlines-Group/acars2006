@@ -11,18 +11,11 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to display the connected Pilot list.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
 public class UserListCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public UserListCommand() {
-		super(UserListCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -51,10 +44,6 @@ public class UserListCommand extends DataCommand {
 		return showHidden || !ac.getUserHidden();
 	}
 	
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
 		return 150;

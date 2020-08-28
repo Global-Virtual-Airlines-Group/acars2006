@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2014, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2014, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -12,19 +12,12 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
 public class DraftFlightCommand extends DataCommand {
 
-	/**
-	 * Initializes the command.
-	 */
-	public DraftFlightCommand() {
-		super(DraftFlightCommand.class);
-	}
-	
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

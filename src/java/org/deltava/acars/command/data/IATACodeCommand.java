@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,18 +20,11 @@ import org.deltava.acars.message.data.IATACodeMessage;
 /**
  * An ACARS Command to return a list of IATA aircraft codes.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 5.1
  */
 
 public class IATACodeCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public IATACodeCommand() {
-		super(IATACodeCommand.class);
-	}
 
 	/**
 	 * Executes the command.

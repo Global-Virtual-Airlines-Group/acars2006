@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2011, 2014, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2011, 2014, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.Collection;
@@ -17,18 +17,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
 public class ATCInfoCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public ATCInfoCommand() {
-		super(ATCInfoCommand.class);
-	}
 
 	/**
 	 * Executes the command.

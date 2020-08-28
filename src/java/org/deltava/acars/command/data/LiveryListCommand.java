@@ -1,4 +1,4 @@
-// Copyright 2008, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -18,18 +18,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available multi-player livery data.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 2.2
  */
 
 public class LiveryListCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public LiveryListCommand() {
-		super(LiveryListCommand.class);
-	}
 
 	/**
 	 * Executes the command.
