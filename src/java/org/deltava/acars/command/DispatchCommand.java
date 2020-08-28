@@ -1,4 +1,4 @@
-// Copyright 2006, 2009 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.apache.log4j.Logger;
@@ -6,21 +6,19 @@ import org.apache.log4j.Logger;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 2.8
+ * @version 9.1
  * @since 1.0
  */
 
 public abstract class DispatchCommand extends ACARSCommand {
 	
-	protected Logger log;
+	protected final Logger log;
 
 	/**
 	 * Initializes the Command.
-	 * @param logClass the Log4j logging class
 	 */
-	protected DispatchCommand(Class<?> logClass) {
+	protected DispatchCommand() {
 		super();
-		Package p = logClass.getPackage();
-		log = Logger.getLogger(p.getName() + ".Dispatch" + logClass.getName());
+		log = Logger.getLogger(getClass().getPackageName() + ".Dispatch" + getClass().getName());
 	}
 }

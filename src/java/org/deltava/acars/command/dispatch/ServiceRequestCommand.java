@@ -25,18 +25,11 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.0
  */
 
 public class ServiceRequestCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public ServiceRequestCommand() {
-		super(ServiceRequestCommand.class);
-	}
 
 	/**
 	 * Executes the command.

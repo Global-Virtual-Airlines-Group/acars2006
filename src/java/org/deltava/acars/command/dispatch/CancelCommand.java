@@ -10,18 +10,11 @@ import org.deltava.acars.message.dispatch.CancelMessage;
 /**
  * An ACARS Command to cancel Dispatch service requests.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.0
  */
 
 public class CancelCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public CancelCommand() {
-		super(CancelCommand.class);
-	}
 
 	/**
 	 * Executes the command.

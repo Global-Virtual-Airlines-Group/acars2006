@@ -1,4 +1,4 @@
-// Copyright 2007, 2009, 2012, 2015, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2012, 2015, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.List;
@@ -16,19 +16,12 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 8.7
+ * @version 9.1
  * @since 2.1
  */
 
 public class ProgressCommand extends DispatchCommand {
 	
-	/**
-	 * Initializes the Command.
-	 */
-	public ProgressCommand() {
-		super(ProgressCommand.class);
-	}
-
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

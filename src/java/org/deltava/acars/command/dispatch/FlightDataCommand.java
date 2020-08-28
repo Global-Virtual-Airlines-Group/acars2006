@@ -16,18 +16,11 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.1
  */
 
 public class FlightDataCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public FlightDataCommand() {
-		super(FlightDataCommand.class);
-	}
 
 	/**
 	 * Executes the command.

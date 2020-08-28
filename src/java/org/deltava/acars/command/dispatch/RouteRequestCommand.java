@@ -22,18 +22,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Dispatch Command to load flight routes.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 2.0
  */
 
 public class RouteRequestCommand extends DispatchCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public RouteRequestCommand() {
-		super(RouteRequestCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -107,10 +100,6 @@ public class RouteRequestCommand extends DispatchCommand {
 		}
 	}
 	
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
 		return 2750;
