@@ -1,4 +1,4 @@
-// Copyright 2006, 2009, 2011, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,18 +17,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available Airline data.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
 public class AirlineListCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public AirlineListCommand() {
-		super(AirlineListCommand.class);
-	}
 
 	/**
 	 * Executes the command.

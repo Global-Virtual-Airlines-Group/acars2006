@@ -1,4 +1,4 @@
-// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -18,18 +18,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 8.7
+ * @version 9.1
  * @since 8.4
  */
 
 public class GateListCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public GateListCommand() {
-		super(GateListCommand.class);
-	}
 
 	/**
 	 * Executes the command.

@@ -1,4 +1,4 @@
-// Copyright 2014, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -16,18 +16,11 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS data command to find the current Flight Infromation Region.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 6.1
  */
 
 public class FIRSearchCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public FIRSearchCommand() {
-		super(FIRSearchCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -59,6 +52,7 @@ public class FIRSearchCommand extends DataCommand {
 			}
 		} catch (DAOException de) {
 			log.error("Error searching FIR data - " + de.getMessage(), de);
+			ackMsg.setEntry("error", "Cannot determine FIR - " + de.getMessage());
 		} finally {
 			ctx.release();
 		}

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -10,18 +10,11 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's busy status.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 1.0
  */
 
 public class BusyCommand extends DataCommand {
-
-	/**
-	 * Initializes the command.
-	 */
-	public BusyCommand() {
-		super(BusyCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -34,8 +27,6 @@ public class BusyCommand extends DataCommand {
 		// Get the message and connection
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
-		
-		// Set the pilot's busy flag
 		ac.setUserBusy(Boolean.valueOf(msg.getFlag("isBusy")).booleanValue());
 		
 		// Push the update to everyone, only us if we're hidden
@@ -47,10 +38,6 @@ public class BusyCommand extends DataCommand {
 			ctx.pushAll(rspMsg, 0);
 	}
 	
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
 		return 200;

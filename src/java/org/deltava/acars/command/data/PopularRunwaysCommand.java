@@ -1,4 +1,4 @@
-// Copyright 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,18 +20,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return popular runways for an Airport.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 8.4
  */
 
 public class PopularRunwaysCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public PopularRunwaysCommand() {
-		super(PopularRunwaysCommand.class);
-	}
 
 	/**
 	 * Executes the command.

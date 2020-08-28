@@ -1,4 +1,4 @@
-// Copyright 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.*;
@@ -9,19 +9,12 @@ import org.deltava.acars.message.data.ChannelListMessage;
 /**
  * An ACARS command to list voice channels.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 4.0
  */
 
 public class VoiceChannelListCommand extends DataCommand {
 	
-	/**
-	 * Initializes the command.
-	 */
-	public VoiceChannelListCommand() {
-		super(VoiceChannelListCommand.class);
-	}
-
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context

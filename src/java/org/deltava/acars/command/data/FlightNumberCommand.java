@@ -19,18 +19,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 5.4
  */
 
 public class FlightNumberCommand extends DataCommand {
-
-	/**
-	 * Initializes the Command.
-	 */
-	public FlightNumberCommand() {
-		super(FlightNumberCommand.class);
-	}
 
 	/**
 	 * Executes the command.

@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,18 +11,11 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's hidden status.
  * @author Luke
- * @version 8.6
+ * @version 9.1
  * @since 2.2
  */
 
 public class HiddenCommand extends DataCommand {
-
-	/**
-	 * Initializes the command.
-	 */
-	public HiddenCommand() {
-		super(HiddenCommand.class);
-	}
 
 	/**
 	 * Executes the command.
@@ -49,11 +42,8 @@ public class HiddenCommand extends DataCommand {
 		ConnectionMessage dmsg = new ConnectionMessage(env.getOwner(), msgType, msg.getID());
 		dmsg.add(ac);
 		
-		// Get a list of authenticated connections
-		Collection<ACARSConnection> authCons = ctx.getACARSConnectionPool().getAll();
-		authCons.removeIf(ACARSConnection::isAuthenticated);
-		
 		// Push the login announcement to everyone not in HR; send a userlist to HR
+		Collection<ACARSConnection> authCons = ctx.getACARSConnectionPool().getAll(ACARSConnection::isAuthenticated);
 		for (ACARSConnection con : authCons) {
 			if (con.getUser().isInRole("HR")) {
 				ConnectionMessage rspMsg = new ConnectionMessage(con.getUser(), DataRequest.USERLIST, msg.getID());
@@ -64,10 +54,6 @@ public class HiddenCommand extends DataCommand {
 		}
 	}
 	
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
 		return 225;
