@@ -13,6 +13,13 @@ import org.deltava.dao.http.GetURL;
 
 import org.deltava.util.system.SystemData;
 
+/**
+ * A network information loader for VATSIM.
+ * @author Luke
+ * @version 9.1
+ * @since 9.0
+ */
+
 public class VATSIMLoader extends Loader {
 	
 	private static final Logger log = Logger.getLogger(VATSIMLoader.class);

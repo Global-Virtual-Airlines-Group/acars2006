@@ -14,6 +14,13 @@ import org.deltava.dao.http.GetURL;
 
 import org.deltava.util.system.SystemData;
 
+/**
+ * A network information loader for IVAO.
+ * @author Luke
+ * @version 9.1
+ * @since 9.0
+ */
+
 public class IVAOLoader extends Loader {
 	
 	private static final Logger log = Logger.getLogger(IVAOLoader.class);
@@ -36,7 +43,7 @@ public class IVAOLoader extends Loader {
 				p.load(is);
 			}
 
-			url = p.getProperty("url0");
+			url = p.getProperty("url0").replace("http://", "https://");
 			urldao = new GetURL(url, SystemData.get("online.ivao.local.info"));
 			urldao.setConnectTimeout(3500);
 			urldao.setReadTimeout(25000);

@@ -3,6 +3,13 @@ package org.deltava.acars.online;
 
 import java.io.*;
 
+/**
+ * A network information loader for PilotEdge.
+ * @author Luke
+ * @version 9.1
+ * @since 9.0
+ */
+
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.OnlineNetwork;
