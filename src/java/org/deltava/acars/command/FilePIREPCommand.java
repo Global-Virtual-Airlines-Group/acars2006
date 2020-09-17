@@ -196,7 +196,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			int dayOfYear = ZonedDateTime.now().getDayOfYear(); int doyDelta = (dayOfYear - zdt.getDayOfYear());
 			if (doyDelta != 0) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Adjusted date to " + StringUtils.format(zdt, "MM/dd/yyyy") + ", Pilot in " + p.getTZ().toString());
-				afr.setDate(zdt.plusDays(doyDelta).toInstant());
+				afr.setDate(zdt.minusDays(doyDelta).toInstant());
 			}
 
 			// Check that the user has an online network ID
