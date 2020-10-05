@@ -38,7 +38,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -276,7 +276,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 
 				afr.setCaptEQType(promoEQ);
-				log.info("Setting Promotion Flags for " + env.getOwner().getName() + " to " + afr.getCaptEQType());
+				if (!promoEQ.isEmpty())
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Flight eligible for promotion in " + StringUtils.listConcat(promoEQ, ", "));
 			} else if (promoEQ.isEmpty())
 				log.warn("No equipment program found for " + afr.getEquipmentType() + " in " + usrLoc.getDB());
 			else
