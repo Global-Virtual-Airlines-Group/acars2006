@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved. -->
 <project default="deploy">
-
-	<!-- Lowercase function -->
-	<scriptdef language="javascript" name="lower">
-		<attribute name="string" /> 
-		<attribute name="to" />
-			project.setProperty(attributes.get("to"),attributes.get("string").toLowerCase());
-	</scriptdef>
-	
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="14" target="14" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="15" target="15" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
@@ -30,7 +22,15 @@
 	<target name="deploy" depends="compile">
 		<loadproperties srcFile="data/build_deploy.properties" />
 		<property name="webapp.dev.port" value="22" />
-		<lower string="${user.name}" to="webapp.dev.user" />
+		
+		<taskdef classname="org.gvagroup.ant.LowercaseTask" name="lower">
+			<classpath id="lc.classpath">
+				<pathelement path="${classpath}" />
+				<fileset dir="./lib" includes="golgotha_ipc-*.jar" />
+			</classpath>
+		</taskdef>
+		
+		<lower property="webapp.dev.user" value="${user.name}" />
 
 		<!-- Upload the web configuration -->
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
@@ -69,7 +69,14 @@
 	<target name="prod_deploy" depends="compile">
 		<loadproperties srcFile="data/build_deploy.properties" />
 		<property name="webapp.ssh.port" value="22" />
-		<lower string="${user.name}" to="webapp.ssh.user" />
+		<taskdef classname="org.gvagroup.ant.LowercaseTask" name="lower">
+			<classpath id="lc.classpath">
+				<pathelement path="${classpath}" />
+				<fileset dir="./lib" includes="golgotha_ipc-*.jar" />
+			</classpath>
+		</taskdef>
+
+		<lower property="webapp.ssh.user" value="${user.name}" />
 
 		<!-- Upload the web configuration -->
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
