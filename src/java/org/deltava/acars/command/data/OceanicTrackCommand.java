@@ -40,18 +40,16 @@ public class OceanicTrackCommand extends DataCommand {
 			log.warn("Unknown Oceanic Route type - " + msg.getFlag("type"));
 		}
 		
-		// Get the response and add the Concorde tracks if pulling down NATs
-		OceanicTrackMessage rspMsg = new OceanicTrackMessage(env.getOwner(), msg.getID());
-		if (rType == OceanicTrackInfo.Type.NAT)
-			OceanicTrack.CONC_ROUTES.forEach(ot -> rspMsg.add(ot));
-		
 		// Get the date
+		OceanicTrackMessage rspMsg = new OceanicTrackMessage(env.getOwner(), msg.getID());
 		Instant dt = msg.hasFlag("date") ? StringUtils.parseInstant(msg.getFlag("date"), "MM/dd/yyyy") : null;
 		try {
 			GetOceanicRoute dao = new GetOceanicRoute(ctx.getConnection());
 			DailyOceanicTracks tracks = dao.getOceanicTracks(rType, dt);
 			rspMsg.setDate(tracks.getDate());
 			rspMsg.addAll(tracks.getTracks());
+			if (rType == OceanicTrackInfo.Type.NAT)
+				rspMsg.addAll(dao.loadConcordeNATs());
 			if (rspMsg.getDate() == null)
 				rspMsg.setDate(Instant.now());
 			
