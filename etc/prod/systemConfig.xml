@@ -29,6 +29,8 @@
 		<map name="connectProperties">
 		    <useSSL>false</useSSL>
 			<useCompression>false</useCompression>
+			<characterEncoding>utf-8</characterEncoding>
+			<connectionCollation>latin1_swedish_ci</connectionCollation>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>true</autoReconnect>
 			<sendFractionalSeconds>true</sendFractionalSeconds>

@@ -27,6 +27,7 @@
             <useSSL>false</useSSL>
 			<useCompression>false</useCompression>
 			<characterEncoding>utf-8</characterEncoding>
+			<connectionCollation>latin1_swedish_ci</connectionCollation>
 			<useUnicode>true</useUnicode>
 			<connectTimeout>1000</connectTimeout>
 			<autoReconnect>false</autoReconnect>
