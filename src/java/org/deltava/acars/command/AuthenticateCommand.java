@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -119,7 +119,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
 				boolean isDSP = (cInfo.isDispatch() || ac2.getIsDispatch());
 				if (!isDSP) {
-					log.warn(code + " already logged in from " + ac2.getRemoteAddr() + ", closing existing connection from " + remoteAddr);
+					log.warn(usr.getName() + " (" + code + ") already logged in from " + ac2.getRemoteAddr() + ", closing existing connection from " + remoteAddr);
 					ac2.close();
 					ctx.getACARSConnectionPool().remove(ac2);
 					
@@ -127,7 +127,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					SetConnection dao = new SetConnection(c);
 					dao.closeConnection(ac2.getID());
 				} else
-					log.warn("Dispatcher " + code + " already logged in from " + ac2.getRemoteAddr() + ", logging in from " + remoteAddr);
+					log.warn("Dispatcher " + usr.getName() + " (" + code + ") already logged in from " + ac2.getRemoteAddr() + ", logging in from " + remoteAddr);
 			}
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
