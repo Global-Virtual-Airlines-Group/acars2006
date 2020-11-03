@@ -1,14 +1,14 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 /**
  * An enumeration of Dispatch operation types. 
  * @author Luke
- * @version 8.4
+ * @version 9.1
  * @since 8.4
  */
 
-public enum DispatchRequest {
+public enum DispatchRequest implements SubRequest {
 	UNKNOWN("?"), SVCREQ("svcrequest"), CANCEL("cancel"), ACCEPT("accept"), INFO("flightinfo"), ROUTEREQ("routerequest"),
 	ROUTEDATA("routes"), COMPLETE("done"), PROGRESS("progress"), RANGE("svcrange"), SCOPEINFO("scopeinfo"), ROUTEPLOT("rtplot");
 	
@@ -21,18 +21,20 @@ public enum DispatchRequest {
 	DispatchRequest(String code) {
 		_code = code;
 	}
+	
+	@Override
+	public final SubRequestType getType() {
+		return SubRequestType.DISPATCH;
+	}
 
-	/**
-	 * Returns the Dispatch operation code.
-	 * @return the code
-	 */
+	@Override
 	public String getCode() {
 		return _code;
 	}
 	
 	public static DispatchRequest fromType(String type) {
 		for (DispatchRequest dr : values()) {
-			if (dr.getCode().equalsIgnoreCase(type))
+			if (dr._code.equalsIgnoreCase(type))
 				return dr;
 		}
 		

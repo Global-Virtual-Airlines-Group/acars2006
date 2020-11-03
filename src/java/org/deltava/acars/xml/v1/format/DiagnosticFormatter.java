@@ -1,4 +1,4 @@
-// Copyright 2006, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2012, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -10,7 +10,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Diagnostic messages.
  * @author Luke
- * @version 8.4
+ * @version 9.1
  * @since 1.0
  */
 
@@ -29,7 +29,7 @@ class DiagnosticFormatter extends ElementFormatter {
 		
 		// Create the element and the type
 		Element e = initResponse(msg.getType());
-		e.addContent(XMLUtils.createElement("reqtype", dmsg.getRequestType().getDescription()));
+		e.addContent(XMLUtils.createElement("reqtype", dmsg.getRequestType().getCode()));
 		e.addContent(XMLUtils.createElement("reqData", dmsg.getRequestData()));
 		e.addContent(XMLUtils.createElement("time", Long.toHexString(msg.getTime())));
 		return e;

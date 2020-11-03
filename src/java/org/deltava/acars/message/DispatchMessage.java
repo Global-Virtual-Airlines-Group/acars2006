@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,11 +6,11 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to store Dispatch information.
  * @author Luke
- * @version 8.4
+ * @version 9.1
  * @since 1.0
  */
 
-public abstract class DispatchMessage extends RecipientMessage {
+public abstract class DispatchMessage extends RecipientMessage implements SubRequestMessage {
 	
 	private final DispatchRequest _reqType;
 	
@@ -23,12 +23,9 @@ public abstract class DispatchMessage extends RecipientMessage {
 		super(MessageType.DISPATCH, msgFrom);
 		_reqType = dspType;
 	}
-	
-	/**
-	 * Returns the Dispatch request type.
-	 * @return the DispatchType
-	 */
-	public DispatchRequest getRequestType() {
+
+	@Override
+	public SubRequest getRequestType() {
 		return _reqType;
 	}
 }

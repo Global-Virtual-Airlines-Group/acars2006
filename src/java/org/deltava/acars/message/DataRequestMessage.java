@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2008, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2008, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS message to request data from the server.
  * @author Luke
- * @version 8.4
+ * @version 9.1
  * @since 1.0
  */
 
@@ -23,8 +23,7 @@ public class DataRequestMessage extends DataMessage {
 	 * @param rType the data request type
 	 */
 	public DataRequestMessage(Pilot msgFrom, DataRequest rType) {
-		super(MessageType.DATAREQ, msgFrom);
-		setRequestType(rType);
+		super(MessageType.DATAREQ, msgFrom, rType);
 	}
 	
 	/**
