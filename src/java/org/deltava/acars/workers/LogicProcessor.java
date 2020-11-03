@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 1.0
  */
 
@@ -36,8 +36,7 @@ public class LogicProcessor extends Worker {
 	private final HashMap<String, CommandStats> _cmdStats = new HashMap<String, CommandStats>();
 
 	private final Map<MessageType, ACARSCommand> _commands = new HashMap<MessageType, ACARSCommand>();
-	private final Map<DataRequest, DataCommand> _dataCommands = new HashMap<DataRequest, DataCommand>();
-	private final Map<DispatchRequest, DispatchCommand> _dspCommands = new HashMap<DispatchRequest, DispatchCommand>();
+	private final Map<SubRequest, ACARSCommand> _subCommands = new HashMap<SubRequest, ACARSCommand>();
 
 	/**
 	 * Initializes the Worker.
@@ -46,9 +45,6 @@ public class LogicProcessor extends Worker {
 		super("Message Processor", 40, LogicProcessor.class);
 	}
 
-	/**
-	 * Initializes the Command map.
-	 */
 	@Override
 	public void open() {
 		super.open();
@@ -87,57 +83,56 @@ public class LogicProcessor extends Worker {
 		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize data commands
-		_dataCommands.put(DataRequest.BUSY, new BusyCommand());
-		_dataCommands.put(DataRequest.HIDE, new HiddenCommand());
-		_dataCommands.put(DataRequest.CHARTS, new ChartsCommand());
-		_dataCommands.put(DataRequest.DRAFTPIREP, new DraftFlightCommand());
-		_dataCommands.put(DataRequest.USERLIST, new UserListCommand());
-		_dataCommands.put(DataRequest.VALIDATE, new FlightValidationCommand());
-		_dataCommands.put(DataRequest.ALLIST, new AirlineListCommand());
-		_dataCommands.put(DataRequest.APLIST, new AirportListCommand());
-		_dataCommands.put(DataRequest.EQLIST, new EquipmentListCommand());
-		_dataCommands.put(DataRequest.SCHED, new ScheduleInfoCommand());
-		_dataCommands.put(DataRequest.NAVAIDINFO, new NavaidCommand());
-		_dataCommands.put(DataRequest.PVTVOX, new PrivateVoiceCommand());
-		_dataCommands.put(DataRequest.ATCINFO, new ATCInfoCommand());
-		_dataCommands.put(DataRequest.NATS, new OceanicTrackCommand());
-		_dataCommands.put(DataRequest.LIVERIES, new LiveryListCommand());
-		_dataCommands.put(DataRequest.WX, new WeatherCommand());
-		_dataCommands.put(DataRequest.APINFO, new AirportInfoCommand());
-		_dataCommands.put(DataRequest.APPINFO, new AppInfoCommand());
-		_dataCommands.put(DataRequest.CHLIST, new VoiceChannelListCommand());
-		_dataCommands.put(DataRequest.LOAD, new LoadFactorCommand());
-		_dataCommands.put(DataRequest.ONLINE, new OnlinePresenceCommand());
-		_dataCommands.put(DataRequest.LASTAP, new LastAirportCommand());
-		_dataCommands.put(DataRequest.ALT, new AlternateAirportCommand());
-		_dataCommands.put(DataRequest.IATA, new IATACodeCommand());
-		_dataCommands.put(DataRequest.FLIGHTNUM, new FlightNumberCommand());
-		_dataCommands.put(DataRequest.FIR, new FIRSearchCommand());
-		_dataCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());
-		_dataCommands.put(DataRequest.GATES, new GateListCommand());
-		_dataCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
-		_dataCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
-		_dataCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
+		_subCommands.put(DataRequest.BUSY, new BusyCommand());
+		_subCommands.put(DataRequest.HIDE, new HiddenCommand());
+		_subCommands.put(DataRequest.CHARTS, new ChartsCommand());
+		_subCommands.put(DataRequest.DRAFTPIREP, new DraftFlightCommand());
+		_subCommands.put(DataRequest.USERLIST, new UserListCommand());
+		_subCommands.put(DataRequest.VALIDATE, new FlightValidationCommand());
+		_subCommands.put(DataRequest.ALLIST, new AirlineListCommand());
+		_subCommands.put(DataRequest.APLIST, new AirportListCommand());
+		_subCommands.put(DataRequest.EQLIST, new EquipmentListCommand());
+		_subCommands.put(DataRequest.SCHED, new ScheduleInfoCommand());
+		_subCommands.put(DataRequest.NAVAIDINFO, new NavaidCommand());
+		_subCommands.put(DataRequest.PVTVOX, new PrivateVoiceCommand());
+		_subCommands.put(DataRequest.ATCINFO, new ATCInfoCommand());
+		_subCommands.put(DataRequest.NATS, new OceanicTrackCommand());
+		_subCommands.put(DataRequest.LIVERIES, new LiveryListCommand());
+		_subCommands.put(DataRequest.WX, new WeatherCommand());
+		_subCommands.put(DataRequest.APINFO, new AirportInfoCommand());
+		_subCommands.put(DataRequest.APPINFO, new AppInfoCommand());
+		_subCommands.put(DataRequest.CHLIST, new VoiceChannelListCommand());
+		_subCommands.put(DataRequest.LOAD, new LoadFactorCommand());
+		_subCommands.put(DataRequest.ONLINE, new OnlinePresenceCommand());
+		_subCommands.put(DataRequest.LASTAP, new LastAirportCommand());
+		_subCommands.put(DataRequest.ALT, new AlternateAirportCommand());
+		_subCommands.put(DataRequest.IATA, new IATACodeCommand());
+		_subCommands.put(DataRequest.FLIGHTNUM, new FlightNumberCommand());
+		_subCommands.put(DataRequest.FIR, new FIRSearchCommand());
+		_subCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());
+		_subCommands.put(DataRequest.GATES, new GateListCommand());
+		_subCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
+		_subCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
+		_subCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize dispatch commands
-		_dspCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
-		_dspCommands.put(DispatchRequest.CANCEL, new org.deltava.acars.command.dispatch.CancelCommand());
-		_dspCommands.put(DispatchRequest.ACCEPT, new org.deltava.acars.command.dispatch.AcceptCommand());
-		_dspCommands.put(DispatchRequest.INFO, new FlightDataCommand());
-		_dspCommands.put(DispatchRequest.ROUTEREQ, new RouteRequestCommand());
-		_dspCommands.put(DispatchRequest.COMPLETE, new ServiceCompleteCommand());
-		_dspCommands.put(DispatchRequest.PROGRESS, new ProgressCommand());
-		_dspCommands.put(DispatchRequest.RANGE, new ServiceRangeCommand());
-		_dspCommands.put(DispatchRequest.SCOPEINFO, new ScopeInfoCommand());
-		_dspCommands.put(DispatchRequest.ROUTEPLOT, new RoutePlotCommand());
-		_dspCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
+		_subCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
+		_subCommands.put(DispatchRequest.CANCEL, new org.deltava.acars.command.dispatch.CancelCommand());
+		_subCommands.put(DispatchRequest.ACCEPT, new org.deltava.acars.command.dispatch.AcceptCommand());
+		_subCommands.put(DispatchRequest.INFO, new FlightDataCommand());
+		_subCommands.put(DispatchRequest.ROUTEREQ, new RouteRequestCommand());
+		_subCommands.put(DispatchRequest.COMPLETE, new ServiceCompleteCommand());
+		_subCommands.put(DispatchRequest.PROGRESS, new ProgressCommand());
+		_subCommands.put(DispatchRequest.RANGE, new ServiceRangeCommand());
+		_subCommands.put(DispatchRequest.SCOPEINFO, new ScopeInfoCommand());
+		_subCommands.put(DispatchRequest.ROUTEPLOT, new RoutePlotCommand());
+		_subCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
-		int size = _commands.size() + _dataCommands.size() + _dspCommands.size();
+		int size = _commands.size() + _subCommands.size();
 		log.info("Loaded " + size + " commands");
 	}
 
 	private class CommandWorker extends PoolWorker {
-
 		private final MessageEnvelope _env;
 		private final ACARSCommand _cmd;
 		private final String _reqType;
@@ -219,10 +214,6 @@ public class LogicProcessor extends Worker {
 		}
 	}
 
-	/**
-	 * Returns the status of this Worker and the Connection writers.
-	 * @return a List of WorkerStatus beans, with this Worker's status first
-	 */
 	@Override
 	public final List<WorkerStatus> getStatus() {
 		List<WorkerStatus> results = new ArrayList<WorkerStatus>(super.getStatus());
@@ -230,9 +221,6 @@ public class LogicProcessor extends Worker {
 		return results;
 	}
 
-	/**
-	 * Shuts down the worker.
-	 */
 	@Override
 	public final void close() {
 		try {
@@ -247,9 +235,6 @@ public class LogicProcessor extends Worker {
 		super.close();
 	}
 
-	/**
-	 * Executes the Thread.
-	 */
 	@Override
 	public void run() {
 		log.info("Started");
@@ -266,35 +251,28 @@ public class LogicProcessor extends Worker {
 				// Log the received message and get the command to process it
 				while (env != null) {
 					_status.setMessage("Processing Message");
-					Message msg = env.getMessage(); String reqType = msg.getType().getType();
+					Message msg = env.getMessage(); String reqType = msg.getType().getDescription();
 					if (log.isDebugEnabled())
 						log.debug(reqType + " message from " + env.getOwnerID());
 
 					ACARSCommand cmd = null;
-					if (msg.getType() == MessageType.DATAREQ) {
-						DataRequestMessage reqmsg = (DataRequestMessage) msg;
-						cmd = _dataCommands.get(reqmsg.getRequestType());
-						reqType = reqmsg.getRequestType().getType();
-						if (cmd == null)
-							log.warn("No Data Command for " + reqType + " request");
-						else
+					if (msg instanceof SubRequestMessage) {
+						SubRequestMessage srmsg = (SubRequestMessage) msg;
+						cmd = _subCommands.get(srmsg.getRequestType());
+						reqType = srmsg.getRequestType().getCode();
+						if (cmd != null) {
 							log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
-					} else if (msg.getType() == MessageType.DISPATCH) {
-						DispatchMessage dspmsg = (DispatchMessage) msg;
-						cmd = _dspCommands.get(dspmsg.getRequestType());
-						reqType = dspmsg.getRequestType().getCode();
-						if (cmd == null)
-							log.warn("No Dispatch Command for " + reqType + " request");
-						else
-							log.info("Dispatch Request (" + reqType + ") from " + env.getOwnerID());
+							_cmdPool.execute(new CommandWorker(env, cmd, reqType));
+						} else
+							log.warn("No " + srmsg.getRequestType().getType() + " Command for " + reqType + " request");
 					} else {
 						cmd = _commands.get(msg.getType());
-						if (cmd == null)
+						if (cmd != null)
+							_cmdPool.execute(new CommandWorker(env, cmd, reqType));
+						else
 							log.warn("No command for " + reqType + " message");
 					}
 
-					// Send the envelope to the thread pool for processing
-					if (cmd != null) _cmdPool.execute(new CommandWorker(env, cmd, reqType));
 					env = MSG_INPUT.poll();
 				}
 			} catch (InterruptedException ie) {
