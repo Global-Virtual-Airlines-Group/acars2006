@@ -405,6 +405,9 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	}
 
 	public void setUser(Pilot p) {
+		if ((_userInfo != null) && (p != null) && (p.getID() != _userInfo.getID()))
+			throw new IllegalArgumentException("Connection " + _id + " owned by " + _userInfo.getID() + ", attempting to transfer to " + p.getID());
+				
 		_userInfo = p;
 	}
 
