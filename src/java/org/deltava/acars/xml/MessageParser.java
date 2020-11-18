@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.Collection;
@@ -9,8 +9,9 @@ import org.deltava.acars.beans.TextEnvelope;
 import org.deltava.acars.message.Message;
 
 /**
+ * An interface for ACARS XML message parsers.
  * @author Luke
- * @version 1.0
+ * @version 9.1
  * @since 1.0
  * @see MessageFormatter
  */
@@ -22,8 +23,8 @@ public abstract class MessageParser {
 	 */
 	protected static final String XML_HDR = "<?xml";
 	
-	protected Logger log;
-	private int _version;
+	protected final Logger log;
+	private final int _version;
 	
 	/**
 	 * Initializes the Message Parser.
