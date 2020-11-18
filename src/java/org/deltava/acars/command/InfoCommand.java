@@ -4,7 +4,7 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -45,7 +45,7 @@ public class InfoCommand extends ACARSCommand {
 		InfoMessage msg = (InfoMessage) env.getMessage();
 
 		// Check if we already have a flight ID and are requesting a new one
-		boolean assignID = (msg.getFlightID() == 0);
+		boolean assignID = (msg.getFlightID() == 0); boolean logNewID = false;
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
 		UserData usrLoc = con.getUserData();
@@ -89,7 +89,7 @@ public class InfoCommand extends ACARSCommand {
 			boolean isValidated = false;
 			if (!assignID) {
 				GetACARSData rdao = new GetACARSData(c);
-				FlightInfo info = rdao.getInfo(msg.getFlightID());
+				FlightInfo info = rdao.getInfo(msg.getFlightID()); logNewID = true;
 				if (info == null) {
 					log.warn(env.getOwnerID() + " requesting invalid Flight " + msg.getFlightID());
 					assignID = true;
@@ -277,8 +277,8 @@ public class InfoCommand extends ACARSCommand {
 		}
 
 		// Log returned flight id
-		if (assignID)
-			log.info("Assigned Flight ID " + msg.getFlightID() + " to " + env.getOwnerID());
+		if (assignID || logNewID)
+			log.log(logNewID ? Level.WARN : Level.INFO, "Assigned Flight ID " + msg.getFlightID() + " to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 
