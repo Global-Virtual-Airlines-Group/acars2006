@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2015, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,7 +6,7 @@ import org.deltava.beans.Pilot;
 /**
  * An interface to store common ACARS message data.
  * @author Luke
- * @version 8.3
+ * @version 9.1
  * @since 1.0
  */
 
@@ -58,12 +58,6 @@ public interface Message {
 	 * @return the ID
 	 */
 	public long getID();
-	
-	/**
-	 * Updates the message sender.
-	 * @param msgFrom the sending Pilot
-	 */
-	public void setSender(Pilot msgFrom);
 	
 	/**
 	 * Returns the message sender.

@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2011, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2011, 2016, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,15 +6,15 @@ import org.deltava.beans.Pilot;
 /**
  * An abstract class to store common Message data.
  * @author Luke
- * @version 8.4
+ * @version 9.1
  * @since 1.0
  */
 
 public abstract class AbstractMessage implements Message {
 	
-	private MessageType _msgType;
+	private final MessageType _msgType;
 	private long _timeStamp = System.nanoTime();
-	private Pilot _sender;
+	private final Pilot _sender;
 	private long _id;
 	private int _version = 1;
 
@@ -32,17 +32,11 @@ public abstract class AbstractMessage implements Message {
 		_version = Math.max(_version, pVersion);
 	}
 	
-	/**
-	 * Returns the minimum protocol version that supports this message.
-	 */
 	@Override
 	public final int getProtocolVersion() {
 		return _version;
 	}
 	
-	/**
-	 * Returns whether the message can be sent by an unauthenticated user.
-	 */
 	@Override
 	public boolean isAnonymous() {
 		return false;
@@ -52,12 +46,6 @@ public abstract class AbstractMessage implements Message {
 	public final void setID(long newID) {
 		if (_id == 0)
 			_id = newID;
-	}
-	
-	@Override
-	public final void setSender(Pilot msgFrom) {
-		if (msgFrom != null)
-			_sender = msgFrom;
 	}
 	
 	@Override
