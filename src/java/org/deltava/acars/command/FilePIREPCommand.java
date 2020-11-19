@@ -90,7 +90,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			return;
 		}
 
+		// Ensure we are taking the Flight ID from the latest InfoMessage
 		int flightID = info.getFlightID();
+		if (flightID != afr.getDatabaseID(DatabaseID.ACARS)) {
+			log.warn("Flight Report flightID = " + afr.getDatabaseID(DatabaseID.ACARS) + " Connection flightID = " + flightID);
+			afr.setDatabaseID(DatabaseID.ACARS, flightID);
+		}
+		
 		Connection con = null;
 		try {
 			con = ctx.getConnection();
@@ -614,6 +620,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
+			ackMsg.setEntry("flightID", Integer.toHexString(afr.getDatabaseID(DatabaseID.ACARS)));
 			ackMsg.setEntry("protocol", "https");
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 			ctx.push(ackMsg, ac.getID(), true);
@@ -677,7 +684,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 			}
 			
-			log.info("PIREP " + afr.getID() + " from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
+			log.info("PIREP " + afr.getID() + " [Flight " + afr.getDatabaseID(DatabaseID.ACARS) + "] from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			log.error(ac.getUserID() + " - " + de.getMessage(), de);
