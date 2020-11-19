@@ -28,9 +28,6 @@ public class Parser extends XMLMessageParser {
 		super(version);
 	}
 	
-	/**
-	 * Initializes the parser map.
-	 */
 	@Override
 	protected void init() {
 		_eParsers.put(MessageType.ACK, new AckParser());
@@ -41,6 +38,7 @@ public class Parser extends XMLMessageParser {
 		_eParsers.put(MessageType.PIREP, new FlightReportParser());
 		_eParsers.put(MessageType.POSITION, new PositionParser());
 		_eParsers.put(MessageType.TEXT, new TextMessageParser());
+		_eParsers.put(MessageType.PING, new PingParser());
 		_dspParsers.put(DispatchRequest.SVCREQ, new DispatchRequestParser());
 		_dspParsers.put(DispatchRequest.CANCEL, new DispatchCancelParser());
 		_dspParsers.put(DispatchRequest.ACCEPT, new DispatchAcceptParser());
