@@ -57,7 +57,7 @@ public class LogicProcessor extends Worker {
 
 		// Initialize commands
 		_commands.put(MessageType.ACK, new DummyCommand());
-		_commands.put(MessageType.PING, new AcknowledgeCommand(true));
+		_commands.put(MessageType.PING, new PingCommand());
 		_commands.put(MessageType.POSITION, new PositionCommand());
 		_commands.put(MessageType.TEXT, new TextMessageCommand());
 		_commands.put(MessageType.AUTH, new AuthenticateCommand());
@@ -113,7 +113,6 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.GATES, new GateListCommand());
 		_subCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 		_subCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
-		_subCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize dispatch commands
 		_subCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
