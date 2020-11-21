@@ -37,6 +37,7 @@
 
 	<!-- System caches -->
 	<cache id="AircraftInfo" max="96" expires="3600" />
+	<cache id="AircraftInfoALL" max="6" expires="3600" />
 	<cache id="EquipmentTypes" max="24" expires="3600" />
 	<cache id="Accomplishments" max="24" expires="3600" />
 	<cache id="IATACodes" max="4" expires="7200" />
