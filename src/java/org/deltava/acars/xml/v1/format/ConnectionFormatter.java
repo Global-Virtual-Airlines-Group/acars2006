@@ -9,13 +9,13 @@ import org.deltava.acars.message.data.ConnectionMessage;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.ConnectionStats;
-
+import org.deltava.beans.econ.EliteLevel;
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 9.0
+ * @version 9.2
  * @since 1.0
  */
 
@@ -32,7 +32,7 @@ class ConnectionFormatter extends ElementFormatter {
 		// Cast the message
 		ConnectionMessage cmsg = (ConnectionMessage) msg;
 		Pilot owner = cmsg.getSender();
-		boolean isAdmin = (owner != null) && owner.isInRole("HR");
+		boolean isAdmin = (owner != null) && (owner.isInRole("HR") || owner.isInRole("Developer"));
 		long now = System.currentTimeMillis();
 
 		// Create the parent elements
@@ -62,6 +62,12 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 				ce.addContent(XMLUtils.createElement("ratings", StringUtils.listConcat(usr.getRatings(), ",")));
 				ce.addContent(XMLUtils.createElement("conTime", String.valueOf((now - con.getStartTime()) / 1000)));
+				if (con.getEliteStatus() != null) {
+					EliteLevel lvl = con.getEliteStatus().getLevel();
+					ce.addContent(XMLUtils.createElement("eliteLevel", lvl.getName()));
+					ce.addContent(XMLUtils.createElement("eliteYear", String.valueOf(lvl.getYear())));
+					ce.addContent(XMLUtils.createElement("eliteColor", String.valueOf(lvl.getColor())));
+				}
 			}
 			
 			// Display flight-specific stuff
