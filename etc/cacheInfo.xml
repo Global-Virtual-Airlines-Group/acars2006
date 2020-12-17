@@ -42,6 +42,8 @@
 	<cache id="Accomplishments" max="24" expires="3600" />
 	<cache id="IATACodes" max="4" expires="7200" />
 	<cache id="ScheduleSource" remote="true" expires="3600" />
+	<cache id="EliteLevel" max="32" expires="86400" />
+	<cache id="EliteStatus" expires="14400" remote="true" />
 
 	<cache id="IPInfo" remote="true" expires="345600" />
 	<cache id="IPBlock" remote="true" expires="345600" />

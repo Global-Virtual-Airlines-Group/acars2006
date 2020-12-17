@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.econ.EliteStatus;
 import org.deltava.beans.system.IPBlock;
 
 import org.deltava.acars.message.*;
@@ -21,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 1.0
  */
 
@@ -60,6 +61,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	private final long _id;
 	private Pilot _userInfo;
 	private UserData _userData;
+	private EliteStatus _eliteStatus;
+	
 	private IPBlock _addrInfo;
 	private InfoMessage _fInfo;
 	private PositionMessage _pInfo;
@@ -139,9 +142,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 		_udp = null;
 	}
 	
-	/**
-	 * Closes the connection.
-	 */
 	@Override
 	public void close() {
 		disableVoice();
@@ -321,6 +321,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 	public UserData getUserData() {
 		return _userData;
 	}
+	
+	public EliteStatus getEliteStatus() {
+		return _eliteStatus;
+	}
 
 	public String getUserID() {
 		if (!isAuthenticated())
@@ -409,6 +413,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, ViewEntry, 
 			throw new IllegalArgumentException("Connection " + _id + " owned by " + _userInfo.getID() + ", attempting to transfer to " + p.getID());
 				
 		_userInfo = p;
+	}
+	
+	public void setEliteStatus(EliteStatus es) {
+		_eliteStatus = es;
 	}
 
 	public void setUserBusy(boolean isBusy) {

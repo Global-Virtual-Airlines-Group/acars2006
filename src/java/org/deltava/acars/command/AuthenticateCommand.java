@@ -4,13 +4,13 @@ package org.deltava.acars.command;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
-import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.*;
 
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.econ.*;
 import org.deltava.beans.stats.SystemInformation;
 import org.deltava.beans.system.*;
 
@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 1.0
  */
 
@@ -239,6 +239,14 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Check for held flights
 			GetFlightReports frdao = new GetFlightReports(c);
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
+			
+			// Get elite status
+			if (aInfo.getHasElite()) {
+				GetElite eldao = new GetElite(c);
+				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteLevel.getYear(Instant.now()), ud.getDB());
+				if (!status.isEmpty())
+					con.setEliteStatus(status.get(ud.cacheKey()));
+			}
 
 			// Start a transaction
 			ctx.startTX();
@@ -313,6 +321,12 @@ public class AuthenticateCommand extends ACARSCommand {
 			ackMsg.setEntry("unrestricted", "true");
 		else if (usr.getACARSRestriction() == Restriction.NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
+		if (con.getEliteStatus() != null) {
+			EliteLevel lvl = con.getEliteStatus().getLevel();
+			ackMsg.setEntry("eliteLevel", lvl.getName());
+			ackMsg.setEntry("eliteYear", String.valueOf(lvl.getYear()));
+			ackMsg.setEntry("eliteColor", String.valueOf(lvl.getColor()));
+		}
 		
 		// Get max time acceleration rate
 		if (!con.getIsDispatch()) {
@@ -365,12 +379,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		log.info("New Connection from " + usr.getName() + " (" + con.getVersion() + ")");
 	}
 
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
-		return 2250;
+		return 1750;
 	}
 }
