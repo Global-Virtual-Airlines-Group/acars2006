@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 3.0
  */
 
@@ -97,7 +97,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			
 			// Load the route waypoints
 			List<NavigationDataBean> points = navdao.getRouteWaypoints(msg.getRoute(), msg.getAirportD());
-			points.forEach(nd -> rt.addWaypoint(nd, nd.getAirway()));
+			points.forEach(rt::addWaypoint);
 			
 			// Load best STAR
 			if (!StringUtils.isEmpty(msg.getSTAR()) && (msg.getSTAR().contains("."))) {
