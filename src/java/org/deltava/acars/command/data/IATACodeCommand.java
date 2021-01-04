@@ -1,8 +1,9 @@
-// Copyright 2013, 2014, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
 import java.sql.Connection;
+import java.util.stream.Collectors;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.GetACARSIATACodes;
@@ -46,7 +47,7 @@ public class IATACodeCommand extends DataCommand {
 			
 			// Add existing codes
 			GetAircraft acdao = new GetAircraft(con);
-			Collection<Aircraft> allAC = acdao.getAircraftTypes(ud.getAirlineCode());
+			Collection<Aircraft> allAC = acdao.getAll().stream().filter(a -> a.isUsed(ud.getAirlineCode())).collect(Collectors.toList());
 			for (Aircraft ac : allAC) {
 				IATACodes c = codes.get(ac.getName());
 				if (c == null) {
