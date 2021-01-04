@@ -3,6 +3,7 @@ package org.deltava.acars.command;
 
 import java.util.*;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -198,11 +199,12 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setSimulator(info.getSimulator());
 
 			// Convert the date into the user's local time zone
-			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone());
-			int dayOfYear = ZonedDateTime.now().getDayOfYear(); int doyDelta = (dayOfYear - zdt.getDayOfYear());
-			if (doyDelta != 0) {
+			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).truncatedTo(ChronoUnit.DAYS);
+			ZonedDateTime day = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS); int dayOfYear = day.getDayOfYear();
+			Duration timeDelta = Duration.between(day, zdt);
+			if (dayOfYear != zdt.getDayOfYear()) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Adjusted date to " + StringUtils.format(zdt, "MM/dd/yyyy") + ", Pilot in " + p.getTZ().toString());
-				afr.setDate(zdt.minusDays(doyDelta).toInstant());
+				afr.setDate(zdt.minusSeconds(timeDelta.getSeconds()).toInstant());
 			}
 
 			// Check that the user has an online network ID
