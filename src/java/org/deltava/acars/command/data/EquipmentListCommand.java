@@ -1,10 +1,14 @@
-// Copyright 2006, 2007, 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
+
+import java.util.Collection;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.AircraftMessage;
+
+import org.deltava.beans.schedule.Aircraft;
 
 import org.deltava.dao.*;
 
@@ -34,10 +38,11 @@ public class EquipmentListCommand extends DataCommand {
 		try {
 			ACARSConnection ac = ctx.getACARSConnection();
 			GetAircraft acdao = new GetAircraft(ctx.getConnection());
-			if (ac.getIsDispatch())
-				rspMsg.addAll(acdao.getAll());
+			Collection<Aircraft> allAC = acdao.getAll();
+			if (!ac.getIsDispatch())
+				allAC.stream().filter(a -> a.isUsed(ac.getUserData().getAirlineCode())).forEach(rspMsg::add);
 			else
-				rspMsg.addAll(acdao.getAircraftTypes(ac.getUserData().getAirlineCode()));
+				rspMsg.addAll(allAC);
 			
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
