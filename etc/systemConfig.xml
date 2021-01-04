@@ -101,7 +101,7 @@
 		</list>
 
 		<vatsim>
-			<status_url>https://data.vatsim.net/vatsim-data.json</status_url>
+			<status_url>https://data.vatsim.net/v3/vatsim-data.json</status_url>
 			<validation_url>https://cert.vatsim.net/vatsimnet/idstatus.php</validation_url>
 			<banner>vatsim.gif</banner>
 			<url>http://www.vatsim.net/</url>
@@ -120,7 +120,7 @@
         </pilotedge>
 
 		<ivao>
-			<status_url>http://www.ivao.aero/whazzup/status.txt</status_url>
+			<status_url>https://www.ivao.aero/whazzup/status.txt</status_url>
 			<banner>ivao.png</banner>
 			<url>http://www.ivao.aero/</url>
 			<local>
