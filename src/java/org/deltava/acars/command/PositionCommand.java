@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 1.0
  */
 
@@ -93,7 +93,7 @@ public class PositionCommand extends PositionCacheCommand {
 				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM1(), msg);
 				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
 					int distance = msg.distanceTo(ctr);
-					if (distance < (ctr.getFacility().getRange() * 2)) {
+					if (distance < (ctr.getRange() * 2)) {
 						msg.setATC1(ctr);
 						log.warn("No ATC1 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
 						ackMsg.setEntry("reqATC", "true");
@@ -105,7 +105,7 @@ public class PositionCommand extends PositionCacheCommand {
 				Controller ctr = netInfo.getControllerByFrequency(msg.getCOM2(), msg);
 				if ((ctr != null) && (ctr.getFacility() != Facility.ATIS) && !ctr.isObserver() && ctr.hasFrequency()) {
 					int distance = msg.distanceTo(ctr);
-					if (distance < (ctr.getFacility().getRange() * 2)) {
+					if (distance < (ctr.getRange() * 2)) {
 						msg.setATC2(ctr);
 						log.warn("No ATC2 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
 						ackMsg.setEntry("reqATC", "true");
