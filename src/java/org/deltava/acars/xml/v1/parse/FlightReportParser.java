@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 9.0
+ * @version 9.2
  * @since 1.0
  */
 
@@ -71,7 +71,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
-		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());

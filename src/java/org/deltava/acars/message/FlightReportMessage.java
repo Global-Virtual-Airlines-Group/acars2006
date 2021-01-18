@@ -1,4 +1,4 @@
-// Copyright 2005, 2009, 2010, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2009, 2010, 2018, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,7 +7,7 @@ import org.deltava.beans.flight.ACARSFlightReport;
 /**
  * An ACARS Message used to pass PIREP data.
  * @author Luke
- * @version 9.0
+ * @version 9.2
  * @since 1.0
  */
 
@@ -17,8 +17,6 @@ public class FlightReportMessage extends AbstractMessage {
    private int _dispatcherID;
    private int _routeID;
    
-   private boolean _customCabinSize;
-
    /**
     * Creates a new Flight Report message.
     * @param msgFrom the Pilot sending the message
@@ -58,14 +56,6 @@ public class FlightReportMessage extends AbstractMessage {
    public int getRouteID() {
 	   return _routeID;
    }
-   
-   /**
-    * Returns whether the aircraft has reported a custom (smaller) cabin size than default.
-    * @return TRUE if using a smaller cabin size, otherwise FALSE
-    */
-   public boolean hasCustomCabinSize() {
-	   return _customCabinSize;
-   }
 
    /**
     * Sets the PIREP data.
@@ -89,13 +79,5 @@ public class FlightReportMessage extends AbstractMessage {
     */
    public void setRouteID(int id) {
 	   _routeID = id;
-   }
-   
-   /**
-    * Sets whether the aircraft had a custom (smaller) cabin size than default.
-    * @param isCustomCabin TRUE if a custom cabin, otherwise FALSE 
-    */
-   public void setCustomCabinSize(boolean isCustomCabin) {
-	   _customCabinSize = isCustomCabin;
    }
 }
