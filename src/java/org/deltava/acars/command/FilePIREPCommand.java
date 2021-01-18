@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -39,7 +39,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 1.0
  */
 
@@ -346,7 +346,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
-				if (!msg.hasCustomCabinSize() && (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01))
+				boolean customCabin = !Capabilities.CABINSIZE.has(afr.getCapabilities());
+				if (!customCabin && (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01))
 					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
 				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
@@ -355,7 +356,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					double loadFactor = lf.generate(afr.getDate());
 					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor() + " for Flight " + flightID);
 					afr.setLoadFactor(loadFactor);
-				} else if ((info.getLoadFactor() > 0) && !msg.hasCustomCabinSize()) {
+				} else if ((info.getLoadFactor() > 0) && !customCabin) {
 					afr.setLoadFactor(info.getLoadFactor());
 					log.info("Using flight " + flightID + " data load factor of " + info.getLoadFactor());
 				}
