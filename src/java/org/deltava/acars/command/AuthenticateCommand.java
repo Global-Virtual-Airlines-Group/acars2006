@@ -241,12 +241,12 @@ public class AuthenticateCommand extends ACARSCommand {
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 			
 			// Get elite status
-			if (aInfo.getHasElite()) {
+			/* if (aInfo.getHasElite()) {
 				GetElite eldao = new GetElite(c);
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteLevel.getYear(Instant.now()), ud.getDB());
 				if (!status.isEmpty())
 					con.setEliteStatus(status.get(ud.cacheKey()));
-			}
+			} */
 
 			// Start a transaction
 			ctx.startTX();
