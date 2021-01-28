@@ -246,7 +246,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Check that it was submitted in time
 			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
 			if ((e != null) && !efr.matches(e)) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, efr.getMessage());
+				efr.getMessages().forEach(emsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, emsg));
 				afr.setDatabaseID(DatabaseID.EVENT, 0);
 			} else if ((e == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
