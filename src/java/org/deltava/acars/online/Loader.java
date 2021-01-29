@@ -10,6 +10,7 @@ import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.NetworkInfo;
 
 import org.deltava.dao.DAOException;
+import org.deltava.dao.http.HTTPDAOException;
 
 import org.deltava.util.cache.*;
 
@@ -106,7 +107,9 @@ public abstract class Loader implements Runnable {
 		_lastRun = Instant.now();
 		_isUpdated = false;
 		try {
-			execute(); 
+			execute();
+		} catch (HTTPDAOException hde) {
+			log.error("Error " + hde.getStatusCode() + " loading " + hde.getMessage());
 		} catch (Exception e) {
 			boolean isTimeout = e.getCause() instanceof java.net.SocketTimeoutException;
 			if (isTimeout)
