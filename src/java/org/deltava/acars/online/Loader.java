@@ -1,21 +1,28 @@
-// Copyright 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.online;
 
 import java.time.Instant;
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
 
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.NetworkInfo;
+
+import org.deltava.dao.DAOException;
 
 import org.deltava.util.cache.*;
 
 /**
  * An abstract class for common Online Network status loader tasks. 
  * @author Luke
- * @version 9.0
+ * @version 9.1
  * @since 9.0
  */
 
 public abstract class Loader implements Runnable {
+	
+	private final Logger log = Logger.getLogger(getClass());
 	
 	private Instant _lastUpdate = Instant.ofEpochMilli(0);
 	private Instant _lastRun = Instant.ofEpochMilli(0);
@@ -55,10 +62,18 @@ public abstract class Loader implements Runnable {
 		return _network;
 	}
 	
+	/**
+	 * Returns the last time the network data was successfully updated.
+	 * @return the last update date/time
+	 */
 	public Instant getLastUpdate() {
 		return _lastUpdate;
 	}
 	
+	/**
+	 * Returns the last time the load was executed.
+	 * @return the last execution date/time
+	 */
 	public Instant getLastRun() {
 		return _lastRun;
 	}
@@ -72,6 +87,11 @@ public abstract class Loader implements Runnable {
 	}
 	
 	/**
+	 * Downloads the data. Subclasses need to extend this method.
+	 */
+	protected abstract void execute() throws IOException, DAOException;
+	
+	/**
 	 * Initializes the Loader with last run/update dates.
 	 * @param lastRun the last execution date/time
 	 * @param lastUpdate the last data update date/time
@@ -82,8 +102,17 @@ public abstract class Loader implements Runnable {
 	}
 	
 	@Override
-	public void run() {
+	public final void run() {
 		_lastRun = Instant.now();
 		_isUpdated = false;
+		try {
+			execute(); 
+		} catch (Exception e) {
+			boolean isTimeout = e.getCause() instanceof java.net.SocketTimeoutException;
+			if (isTimeout)
+				log.warn("Timeout loading " + _network + " data");
+			else
+				log.error(e.getMessage(), e);
+		}
 	}
 }
