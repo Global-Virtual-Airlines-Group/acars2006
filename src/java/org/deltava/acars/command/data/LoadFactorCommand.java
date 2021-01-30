@@ -1,4 +1,4 @@
-// Copyright 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,9 +20,9 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.common.SharedData;
 
 /**
- * An ACARS Command to request a passenger load factor for a flight. 
+ * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 9.1
+ * @version 9.2
  * @since 4.0
  */
 
@@ -31,24 +31,24 @@ public class LoadFactorCommand extends DataCommand {
 	private class SparseRoute implements RoutePair {
 		private final Airport _aD;
 		private final Airport _aA;
-		
+
 		protected SparseRoute(Airport aD, Airport aA) {
 			super();
 			_aD = aD;
 			_aA = aA;
 		}
-		
+
 		@Override
 		public Airport getAirportD() {
 			return _aD;
 		}
-		
+
 		@Override
 		public Airport getAirportA() {
 			return _aA;
 		}
 	}
-	
+
 	/**
 	 * Executes the command.
 	 * @param ctx the Command context
@@ -56,55 +56,61 @@ public class LoadFactorCommand extends DataCommand {
 	 */
 	@Override
 	public void execute(CommandContext ctx, MessageEnvelope env) {
-		
+
 		// Get the message
 		UserData ud = ctx.getACARSConnection().getUserData();
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		double loadFactor = -1;
-		
-		// Create the ACK
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
-		
+
 		// Check for airport
+		double loadFactor = -1;
 		RoutePair rp = new SparseRoute(SystemData.getAirport(msg.getFlag("airportD")), SystemData.getAirport(msg.getFlag("airportA")));
 		if (rp.isPopulated() && msg.hasFlag("eqType")) {
 			try {
 				Connection con = ctx.getConnection();
-				
-				// Check for diversion
+
+				// Check for diversion or pre-calculated load factor
 				GetFlightReports frdao = new GetFlightReports(con);
-				Optional<FlightReport> dFlights = frdao.getDraftReports(env.getOwner().getID(), null, ud.getDB()).stream().filter(fr -> fr.hasAttribute(FlightReport.ATTR_DIVERT)).findFirst();
-				FlightReport dfr = dFlights.orElse(null);
-				boolean hasDivert = ((dfr != null) && rp.getAirportD().equals(dfr.getAirportD()) && rp.getAirportA().equals(dfr.getAirportA()));
-				
+				Optional<FlightReport> df = frdao.getDraftReports(env.getOwner().getID(), null, ud.getDB()).stream().filter(fr -> fr.matches(rp)).findFirst();
+				FlightReport dfr = df.orElse(null);
+				int pax = df.isPresent() ? dfr.getPassengers() : -1;
+				boolean isDivert = df.isPresent() && dfr.hasAttribute(FlightReport.ATTR_DIVERT);
+				ackMsg.setEntry("isDivert", String.valueOf(isDivert));
+				if (pax != -1)
+					ackMsg.setEntry("paxCount", String.valueOf(pax));
+
 				// Load the aircraft
 				GetAircraft acdao = new GetAircraft(con);
 				Aircraft a = acdao.get(msg.getFlag("eqType"));
-				if (a == null)
+				if ((a == null) && df.isPresent())
+					a = acdao.get(dfr.getEquipmentType());
+
+				// Load the original flight, get the pax count if it's not already in the draft flight report
+				if (a != null) {
+					AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
+					if (opts != null) {
+						if (pax >= 0) {
+							loadFactor = Math.max(1.0, pax * 1.0d / opts.getSeats());
+							ackMsg.setEntry("extraPax", String.valueOf(pax > opts.getSeats()));
+						}
+					} else
+						log.warn("No policy options for the " + a.getName() + " in " + ud.getAirlineCode());
+				} else
 					log.warn("Unknown aircraft type - " + msg.getFlag("eqType"));
-				
-				// Load the original diverted flight, get the pax count
-				AircraftPolicyOptions opts = (a == null) ? null : a.getOptions(ud.getAirlineCode());
-				FlightReport ofr = hasDivert ? frdao.getDiversion(rp.getAirportD(), ud.getID(), ud.getDB()) : null;
-				if ((ofr != null) && (opts != null)) {
-					loadFactor = Math.min(1.0, ofr.getPassengers() * 1.0d / opts.getSeats());
-					ackMsg.setEntry("isDivert", "true");
-				}
 			} catch (DAOException de) {
 				log.error(de.getMessage(), de);
 			} finally {
 				ctx.release();
 			}
 		}
-		
+
 		// Calculate flight load factor
 		java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + ud.getAirlineCode());
 		if ((econ != null) && (loadFactor < 0)) {
 			LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
 			loadFactor = lf.generate();
-		} else if (loadFactor < 0)
-			loadFactor = 1;
-			
+		} else if (loadFactor < 0) loadFactor = 1;
+
 		ackMsg.setEntry("loadFactor", StringUtils.format(loadFactor, "0.00000"));
 		ctx.push(ackMsg);
 	}
