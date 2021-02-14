@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2010, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
@@ -67,8 +67,9 @@ public class NavaidCommand extends DataCommand {
 				if (!ndMap.isEmpty()) {
 					ACARSConnection ac = ctx.getACARSConnection();
 					GeoLocation loc = ((ac.getPosition() == null) || msg.hasFlag("lat")) ? new GeoPosition(StringUtils.parse(msg.getFlag("lat"), 0d), StringUtils.parse(msg.getFlag("lng"), 0d)) : ac.getPosition();
+					String radioName = msg.getFlag("radio");
 					NavigationDataBean nav = ndMap.get(id, GeoUtils.isValid(loc) ? loc : ac.getPosition());
-					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
+					rspMsg.add(new NavigationRadioBean(StringUtils.isEmpty(radioName) ? "NAV1" : radioName, nav, msg.getFlag("hdg")));
 					log.info("Loaded Navigation data for " + id);
 				}
 				
