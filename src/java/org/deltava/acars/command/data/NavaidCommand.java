@@ -67,9 +67,8 @@ public class NavaidCommand extends DataCommand {
 				if (!ndMap.isEmpty()) {
 					ACARSConnection ac = ctx.getACARSConnection();
 					GeoLocation loc = ((ac.getPosition() == null) || msg.hasFlag("lat")) ? new GeoPosition(StringUtils.parse(msg.getFlag("lat"), 0d), StringUtils.parse(msg.getFlag("lng"), 0d)) : ac.getPosition();
-					String radioName = msg.getFlag("radio");
 					NavigationDataBean nav = ndMap.get(id, GeoUtils.isValid(loc) ? loc : ac.getPosition());
-					rspMsg.add(new NavigationRadioBean(StringUtils.isEmpty(radioName) ? "NAV1" : radioName, nav, msg.getFlag("hdg")));
+					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
 					log.info("Loaded Navigation data for " + id);
 				}
 				
