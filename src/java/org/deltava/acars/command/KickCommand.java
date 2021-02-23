@@ -1,4 +1,4 @@
-// Copyright 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import static org.deltava.acars.workers.Worker.MSG_INPUT;
@@ -20,7 +20,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to disconnect a user from the ACARS server.
  * @author Luke
- * @version 8.7
+ * @version 10.0
  * @since 8.7
  */
 
@@ -73,7 +73,7 @@ public class KickCommand extends ACARSCommand {
 			
 			// Write the KICK record
 			SetStatusUpdate udao = new SetStatusUpdate(con);
-			udao.write(upd);
+			udao.write(upd, ac.getUserData().getDB());
 			
 			// Get the pilot record
 			GetPilot pdao = new GetPilot(con);

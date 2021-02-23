@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2009, 2010, 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2009, 2010, 2011, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.beans.Pilot;
@@ -15,7 +15,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * The ACARS command context object.
  * @author Luke
- * @version 8.6
+ * @version 10.0
  * @since 1.0
  */
 
@@ -40,6 +40,8 @@ public class CommandContext extends ConnectionContext {
 		_ac = _pool.get(env.getConnectionID());
 		_msgTime = env.getTime();
 		_status = status;
+		if (_ac.isAuthenticated())
+			setDB(_ac.getUserData().getDB());
 	}
 	
 	/**
@@ -100,8 +102,7 @@ public class CommandContext extends ConnectionContext {
 	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
 	 */
 	public void pushAll(Message msg, long skipThisConID) {
-		if (msg == null)
-			return;
+		if (msg == null) return;
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
@@ -117,8 +118,7 @@ public class CommandContext extends ConnectionContext {
 	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
 	 */
 	public void pushDispatch(Message msg, long skipThisConID) {
-		if (msg == null)
-			return;
+		if (msg == null) return;
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
@@ -134,8 +134,7 @@ public class CommandContext extends ConnectionContext {
 	 * @param skipThisConID the ID of a Connection to not send to (usually the sender)
 	 */
 	public void pushVoice(Message msg, long skipThisConID) {
-		if (msg == null)
-			return;
+		if (msg == null) return;
 		
 		// Set the original timestamp and message time
 		msg.setTime(_msgTime);
@@ -160,12 +159,11 @@ public class CommandContext extends ConnectionContext {
 	 * @param isCritical TRUE if the response is critical, otherwise FALSE
 	 */
 	public void push(Message msg, long conID, boolean isCritical) {
-		if (msg != null) {
-			msg.setTime(_msgTime);
-			MessageEnvelope env = new MessageEnvelope(msg, conID);
-			env.setCritical(isCritical);
-			MSG_OUTPUT.add(env);
-		}
+		if (msg == null) return;
+		msg.setTime(_msgTime);
+		MessageEnvelope env = new MessageEnvelope(msg, conID);
+		env.setCritical(isCritical);
+		MSG_OUTPUT.add(env);
 	}
 	
 	/**
