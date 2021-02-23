@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -18,6 +18,7 @@ import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.servinfo.PositionData;
+import org.deltava.beans.stats.Tour;
 import org.deltava.beans.system.AirlineInformation;
 
 import org.deltava.comparators.GeoComparator;
@@ -39,7 +40,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
@@ -429,6 +430,29 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
 				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Automatically Held due to " + heldPIREPs + " held Flight Reports");
 				afr.setStatus(FlightStatus.HOLD);
+			}
+			
+			// Check for tour
+			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
+			GetTour trdao = new GetTour(con);
+			Collection<Tour> possibleTours = trdao.findLeg(afr, usrLoc.getDB());
+			if (!possibleTours.isEmpty()) {
+				Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElseThrow());
+				Duration d = Duration.between(minDate, afr.getSubmittedOn());
+				Collection<FlightReport> oldPireps = prdao.getLogbookCalendar(afr.getAuthorID(), usrLoc.getDB(), minDate, (int)d.toDaysPart() + 1);
+			
+				// Init the helper and validate
+				TourFlightHelper tfh = new TourFlightHelper(afr, true);
+				tfh.addFlights(oldPireps);
+				for (Tour t : possibleTours) {
+					int idx = tfh.isLeg(t);
+					if (idx > 0) {
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Leg %d in Flight Tour %s", Integer.valueOf(idx), t.getName()));
+						afr.setDatabaseID(DatabaseID.TOUR, t.getID());
+						break;
+					} else if (tfh.hasMessage())
+						tfh.getMessages().forEach(tmsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, tmsg));
+				}
 			}
 
 			// Load the departure runway
