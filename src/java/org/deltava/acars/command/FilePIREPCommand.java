@@ -9,22 +9,16 @@ import java.sql.Connection;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.academy.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
-import org.deltava.beans.event.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.testing.*;
-import org.deltava.beans.schedule.*;
-import org.deltava.beans.servinfo.PositionData;
-import org.deltava.beans.stats.Tour;
 import org.deltava.beans.system.AirlineInformation;
-
-import org.deltava.comparators.GeoComparator;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
+import org.deltava.acars.util.FlightInfoHelper;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.*;
@@ -175,24 +169,19 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (positionCount == 0)
 				log.warn("No position records for Flight " + info.getFlightID());
 			
-			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
-			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
-			List<FlightReport> dFlights = prdao.getDraftReports(usrLoc.getID(), afr, usrLoc.getDB());
-			if (!dFlights.isEmpty()) {
-				FlightReport fr = dFlights.get(0);
-				afr.setID(fr.getID());
-				afr.setDatabaseID(DatabaseID.ASSIGN, fr.getDatabaseID(DatabaseID.ASSIGN));
-				afr.setDatabaseID(DatabaseID.EVENT, fr.getDatabaseID(DatabaseID.EVENT));
-				afr.setAttribute(FlightReport.ATTR_CHARTER, fr.hasAttribute(FlightReport.ATTR_CHARTER));
-				afr.setAttribute(FlightReport.ATTR_DIVERT, fr.hasAttribute(FlightReport.ATTR_DIVERT));
-				if (!StringUtils.isEmpty(fr.getComments()))
-					afr.setComments(fr.getComments());
-			}
-
 			// Reload the User
 			GetPilotDirectory pdao = new GetPilotDirectory(con);
 			CacheManager.invalidate("Pilots", usrLoc.cacheKey());
 			Pilot p = pdao.get(usrLoc);
+			
+			// Init the submission helper
+			FlightSubmissionHelper fsh = new FlightSubmissionHelper(con, afr, p);
+			fsh.setAirlineInfo(usrLoc.getAirlineCode(), usrLoc.getDB());
+			fsh.setACARSInfo(FlightInfoHelper.convert(info));
+			
+			// If we found a draft flight report, save its database ID and copy its ID to the PIREP we will file
+			ctx.setMessage("Checking for draft Flight Reports by " + ac.getUserID());
+			fsh.checkFlightReports();
 
 			// Add user data
 			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
@@ -208,292 +197,53 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setDate(zdt.minusSeconds(timeDelta.getSeconds()).toInstant());
 			}
 
-			// Check that the user has an online network ID
-			OnlineNetwork network = afr.getNetwork();
-			if ((network != null) && (!p.hasNetworkID(network))) {
-				log.info(p.getName() + " does not have a " + network.toString() + " ID");
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "No " + network.toString() + " ID, resetting Online Network flag");
-				afr.setNetwork(null);
-				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			} else if ((network == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed offline, resetting Online Event flag");
-				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			}
-			
-			// Load track data
-			Collection<PositionData> pd = new ArrayList<PositionData>(); int trackID = 0;
-			if (afr.hasAttribute(FlightReport.ATTR_ONLINE_MASK)) {
-				GetOnlineTrack tdao = new GetOnlineTrack(con); 
-				trackID = tdao.getTrackID(afr.getDatabaseID(DatabaseID.PILOT), afr.getNetwork(), afr.getSubmittedOn(), afr.getAirportD(), afr.getAirportA());
-				if (trackID != 0) {
-					pd.addAll(tdao.getRaw(trackID));
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Loaded " + afr.getNetwork() + " online track data (" + pd.size() + " positions)");	
-				}
-			}
-			
-			// Check if it's an Online Event flight
-			GetEvent evdao = new GetEvent(con);
-			EventFlightHelper efr = new EventFlightHelper(afr);
-			if ((afr.getDatabaseID(DatabaseID.EVENT) == 0) && (network != null)) {
-				List<Event> events = evdao.getPossibleEvents(afr, usrLoc.getAirlineCode());
-				events.removeIf(e -> !efr.matches(e));
-				if (!events.isEmpty()) {
-					Event e = events.get(0);
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Detected participation in " + e.getName() + " Online Event");
-					afr.setDatabaseID(DatabaseID.EVENT, e.getID());
-				}
-			}
+			// Check Online status, and Online Event
+			fsh.checkOnlineNetwork();
+			fsh.checkOnlineEvent();
 
-			// Check that it was submitted in time
-			Event e = evdao.get(afr.getDatabaseID(DatabaseID.EVENT));
-			if ((e != null) && !efr.matches(e)) {
-				efr.getMessages().forEach(emsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, emsg));
-				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			} else if ((e == null) && (afr.getDatabaseID(DatabaseID.EVENT) != 0)) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unknown Online Event - " + afr.getDatabaseID(DatabaseID.EVENT));
-				afr.setDatabaseID(DatabaseID.EVENT, 0);
-			}
-			
 			// Load the aircraft
-			GetAircraft acdao = new GetAircraft(con);
-			Aircraft a = acdao.get(afr.getEquipmentType());
-			if (a == null) 
-				throw new DAOException("Invalid equipment type - " + afr.getEquipmentType());
-			else if (!a.getName().equals(afr.getEquipmentType()))
-				throw new DAOException("Expected " + afr.getEquipmentType() + ", received " + a.getName());
-
-			// Check if this Flight Report counts for promotion
 			ctx.setMessage("Checking type ratings for " + ac.getUserID());
-			GetEquipmentType eqdao = new GetEquipmentType(con);
-			EquipmentType eq = eqdao.get(p.getEquipmentType(), usrLoc.getDB());
-			Collection<String> promoEQ = eqdao.getPrimaryTypes(usrLoc.getDB(), afr.getEquipmentType());
-			
-			// Loop through the eq types, not all may have the same minimum promotion stage length!!
-			if (promoEQ.contains(p.getEquipmentType())) {
-				FlightPromotionHelper helper = new FlightPromotionHelper(afr);
-				for (Iterator<String> i = promoEQ.iterator(); i.hasNext();) {
-					String pType = i.next();
-					EquipmentType pEQ = eqdao.get(pType, usrLoc.getDB());
-					if (pEQ == null)
-						log.warn("Cannot find " + pType + " in " + usrLoc.getDB());
-					
-					boolean isOK = helper.canPromote(pEQ);
-					if (!isOK) {
-						i.remove();
-						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Not eligible for promotion: " + helper.getLastComment());
-					}
-				}
+			fsh.checkRatings();
 
-				afr.setCaptEQType(promoEQ);
-				if (!promoEQ.isEmpty())
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Flight eligible for promotion in " + StringUtils.listConcat(promoEQ, ", "));
-			} else if (promoEQ.isEmpty())
-				log.warn("No equipment program found for " + afr.getEquipmentType() + " in " + usrLoc.getDB());
-			else
-				log.info(afr.getEquipmentType() + " not in " + p.getEquipmentType() + " program " + eq.getPrimaryRatings());
-			
-			// Check if the user is rated to fly the aircraft
-			afr.setAttribute(FlightReport.ATTR_HISTORIC, a.getHistoric());
-			if (!p.getRatings().contains(afr.getEquipmentType()) && !eq.getRatings().contains(afr.getEquipmentType())) {
-				log.warn(p.getName() + " not rated in " + afr.getEquipmentType() + " ratings = " + p.getRatings());
-				afr.setAttribute(FlightReport.ATTR_NOTRATED, !afr.hasAttribute(FlightReport.ATTR_CHECKRIDE));
-			}
-
-			// Check for excessive distance and diversion
-			AircraftPolicyOptions opts = a.getOptions(usrLoc.getAirlineCode());
-			afr.setAttribute(FlightReport.ATTR_RANGEWARN, (afr.getDistance() > opts.getRange()));
-			afr.setAttribute(FlightReport.ATTR_DIVERT, afr.hasAttribute(FlightReport.ATTR_DIVERT) || !afr.getAirportA().equals(info.getAirportA()));
-
-			// Check for excessive weight
-			if ((a.getMaxTakeoffWeight() != 0) && (afr.getTakeoffWeight() > a.getMaxTakeoffWeight()))
-				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
-			else if ((a.getMaxLandingWeight() != 0) && (afr.getLandingWeight() > a.getMaxLandingWeight()))
-				afr.setAttribute(FlightReport.ATTR_WEIGHTWARN, true);
-			
-			// Check ETOPS
+			// Check ETOPS / Airspace /Gates
 			GetACARSPositions fddao = new GetACARSPositions(con);
-			List<? extends GeospaceLocation> rtEntries = fddao.getRouteEntries(flightID, false, false);
-			ETOPSResult etopsClass = ETOPSHelper.classify(rtEntries);
-			afr.setAttribute(FlightReport.ATTR_ETOPSWARN, ETOPSHelper.validate(a.getOptions(usrLoc.getAirlineCode()), etopsClass.getResult()));
-			if (afr.hasAttribute(FlightReport.ATTR_ETOPSWARN))
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "ETOPS classificataion " + String.valueOf(etopsClass));
-			
-			// Check prohibited airspace
-			Collection<Airspace> rstAirspaces = AirspaceHelper.classify(rtEntries, false); 
-			if (!rstAirspaces.isEmpty()) {
-				afr.setAttribute(FlightReport.ATTR_AIRSPACEWARN, true);
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Entered restricted airspace " + StringUtils.listConcat(rstAirspaces, ", "));
-			}
-			
-			// Calculate gates
-			Gate gD = null; Gate gA = null;
-			if (rtEntries.size() > 1) {
+			fsh.addPositions(fddao.getRouteEntries(flightID, true, false));
+			if (fsh.hasPositionData()) {
+				ctx.setMessage("Validating Airspace");
+				fsh.checkAirspace();
 				ctx.setMessage("Calculating departure/arrival Gates");
-				GeoComparator dgc = new GeoComparator(rtEntries.get(0), true);
-				GeoComparator agc = new GeoComparator(rtEntries.get(rtEntries.size() - 1), true);
-			
-				// Get the closest departure gate
-				GetGates gdao = new GetGates(con);
-				SortedSet<Gate> dGates = new TreeSet<Gate>(dgc);
-				dGates.addAll(gdao.getAllGates(afr.getAirportD(), info.getSimulator()));
-				gD = dGates.isEmpty() ? null : dGates.first();
-				
-				// Get the closest arrival gate
-				SortedSet<Gate> aGates = new TreeSet<Gate>(agc);
-				aGates.addAll(gdao.getAllGates(afr.getAirportA(), info.getSimulator()));
-				gA = aGates.isEmpty() ? null : aGates.first();
+				fsh.calculateGates();
 			}
 			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
+				ctx.setMessage("Calculating flight load factor");
 				if (!msg.hasCustomCabinSize() && (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01))
 					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
 				
-				if ((afr.getLoadFactor() <= 0) && (info.getLoadFactor() <= 0)) {
-					ctx.setMessage("Calculating flight load factor");
-					LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-					double loadFactor = lf.generate(afr.getDate());
-					log.info("Calculated load factor of " + loadFactor + ", was " + afr.getLoadFactor() + " for Flight " + flightID);
-					afr.setLoadFactor(loadFactor);
-				} else if ((info.getLoadFactor() > 0) && !msg.hasCustomCabinSize()) {
-					afr.setLoadFactor(info.getLoadFactor());
-					log.info("Using flight " + flightID + " data load factor of " + info.getLoadFactor());
-				}
-				
-				if ((opts.getSeats() > 0) && (afr.getPassengers() == 0)) {
-					int paxCount = (int) Math.round(opts.getSeats() * afr.getLoadFactor());
-					afr.setPassengers(Math.min(opts.getSeats(), paxCount));
-					if (paxCount > opts.getSeats())
-						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Invalid passenger count - pax=" + paxCount + ", seats=" + opts.getSeats());
-				}
+				fsh.calculateLoadFactor((EconomyInfo) IPCUtils.reserialize(econ), msg.hasCustomCabinSize());
 			}
 			
 			// Check for in-flight refueling
 			ctx.setMessage("Checking for In-Flight Refueling");
-			GetRefuelCheck rfdao = new GetRefuelCheck(con);
-			FuelUse use = FuelUse.validate(rfdao.checkRefuel(flightID));
-			afr.setTotalFuel(use.getTotalFuel());
-			afr.setAttribute(FlightReport.ATTR_REFUELWARN, use.getRefuel());
-			use.getMessages().forEach(fuelMsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, fuelMsg));
+			if (fsh.hasPositionData())
+				fsh.checkRefuel();
 			
 			// Check if it's a Flight Academy flight
-			ctx.setMessage("Checking for Flight Academy flight");
-			GetRawSchedule rsdao = new GetRawSchedule(con);
-			GetScheduleSearch sdao = new GetScheduleSearch(con);
-			sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
-			ScheduleEntry sEntry = sdao.get(afr, usrLoc.getDB());
-			boolean isAcademy = a.getAcademyOnly() || ((sEntry != null) && sEntry.getAcademy());
-			
-			// If we're an Academy flight, check if we have an active course
-			Course c = null;
-			if (isAcademy) {
-				GetAcademyCourses crsdao = new GetAcademyCourses(con);
-				Collection<Course> courses = crsdao.getByPilot(usrLoc.getID());
-				c = courses.stream().filter(crs -> (crs.getStatus() == org.deltava.beans.academy.Status.STARTED)).findAny().orElse(null);
-				boolean isINS = p.isInRole("Instructor") ||  p.isInRole("AcademyAdmin") || p.isInRole("AcademyAudit") || p.isInRole("Examiner");
-				afr.setAttribute(FlightReport.ATTR_ACADEMY, (c != null) || isINS);	
-				if (!afr.hasAttribute(FlightReport.ATTR_ACADEMY))
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Removed Flight Academy status - No active Course");
-			}
-
-			// Check the schedule database and check the route pair
-			ctx.setMessage("Checking schedule for " + afr.getAirportD() + " to " + afr.getAirportA());
-			boolean isAssignment = (afr.getDatabaseID(DatabaseID.ASSIGN) != 0);
-			boolean isEvent = (afr.getDatabaseID(DatabaseID.EVENT) != 0);
-			FlightTime avgHours = sdao.getFlightTime(afr, usrLoc.getDB()); ScheduleEntry onTimeEntry = null;
-			if ((avgHours.getType() == RoutePairType.UNKNOWN) && !isAcademy && !isAssignment && !isEvent) {
-				log.warn("No flights found between " + afr.getAirportD() + " and " + afr.getAirportA());
-				boolean wasValid = info.isScheduleValidated() && info.matches(afr.getAirportD(), afr.getAirportA());
-				if (!wasValid)
-					afr.setAttribute(FlightReport.ATTR_ROUTEWARN, !afr.hasAttribute(FlightReport.ATTR_CHARTER));
-			} else {
-				int minHours = (int) ((avgHours.getFlightTime() * 0.75) - 5); // fixed 0.5 hour
-				int maxHours = (int) ((avgHours.getFlightTime() * 1.15) + 5);
-				if ((afr.getLength() < minHours) || (afr.getLength() > maxHours))
-					afr.setAttribute(FlightReport.ATTR_TIMEWARN, true);
-				
-				// Calculate timeliness of flight
-				if (!afr.hasAttribute(FlightReport.ATTR_DIVERT)) {
-					ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
-					ssc.setAirportD(afr.getAirportD()); ssc.setAirportA(afr.getAirportA());
-					ssc.setExcludeHistoric(afr.getAirline().getHistoric() ? Inclusion.INCLUDE : Inclusion.EXCLUDE);
-					OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
-					afr.setOnTime(oth.validate(afr));
-					onTimeEntry = oth.getScheduleEntry();
-				}
-			}
-
-			// Load held PIREP count
-			ctx.setMessage("Checking Held Flight Reports for " + ac.getUserID());
-			int heldPIREPs = prdao.getHeld(usrLoc.getID(), usrLoc.getDB());
-			if (heldPIREPs >= SystemData.getInt("users.pirep.maxHeld", 5)) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Automatically Held due to " + heldPIREPs + " held Flight Reports");
-				afr.setStatus(FlightStatus.HOLD);
-			}
+			ctx.setMessage("Checking Flight Schedule");
+			fsh.checkSchedule();
 			
 			// Check for tour
 			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
-			GetTour trdao = new GetTour(con);
-			Collection<Tour> possibleTours = trdao.findLeg(afr, usrLoc.getDB());
-			if (!possibleTours.isEmpty()) {
-				Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElseThrow());
-				Duration d = Duration.between(minDate, afr.getSubmittedOn());
-				Collection<FlightReport> oldPireps = prdao.getLogbookCalendar(afr.getAuthorID(), usrLoc.getDB(), minDate, (int)d.toDaysPart() + 1);
-			
-				// Init the helper and validate
-				TourFlightHelper tfh = new TourFlightHelper(afr, true);
-				tfh.addFlights(oldPireps);
-				for (Tour t : possibleTours) {
-					int idx = tfh.isLeg(t);
-					if (idx > 0) {
-						afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Leg %d in Flight Tour %s", Integer.valueOf(idx), t.getName()));
-						afr.setDatabaseID(DatabaseID.TOUR, t.getID());
-						break;
-					} else if (tfh.hasMessage())
-						tfh.getMessages().forEach(tmsg -> afr.addStatusUpdate(0, HistoryType.SYSTEM, tmsg));
-				}
-			}
+			fsh.checkTour();
 
-			// Load the departure runway
-			GetNavAirway navdao = new GetNavAirway(con);
-			Runway rD = null;
-			LandingRunways lr = navdao.getBestRunway(info.getAirportD(), afr.getSimulator(), afr.getTakeoffLocation(), afr.getTakeoffHeading());
-			Runway r = lr.getBestRunway();
-			if (r != null) {
-				int dist = r.distanceFeet(afr.getTakeoffLocation());
-				rD = new RunwayDistance(r, dist);
-				if (r.getLength() < opts.getTakeoffRunwayLength()) {
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Minimum takeoff runway length for the " + a.getName() + " is " + opts.getTakeoffRunwayLength() + " feet");
-					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
-				}
-				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, a.getName() + " not authorized for soft runway operation on " + r.getName());
-					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
-				}
-			}
-
-			// Load the arrival runway
-			Runway rA = null;
-			lr = navdao.getBestRunway(afr.getAirportA(), afr.getSimulator(), afr.getLandingLocation(), afr.getLandingHeading());
-			r = lr.getBestRunway();
-			if (r != null) {
-				int dist = r.distanceFeet(afr.getLandingLocation());
-				rA = new RunwayDistance(r, dist);
-				if (r.getLength() < opts.getLandingRunwayLength()) {
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Minimum landing runway length for the " + a.getName() + " is " + opts.getLandingRunwayLength() + " feet");
-					afr.setAttribute(FlightReport.ATTR_RWYWARN, true);
-				}
-				if (!r.getSurface().isHard() && !opts.getUseSoftRunways()) {
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, a.getName() + " not authorized for soft runway operation on " + r.getName());
-					afr.setAttribute(FlightReport.ATTR_RWYSFCWARN, true);
-				}
-			}
-			
-			// Get framerates
-			afr.setAverageFrameRate(fddao.getFrameRate(flightID));
+			// Load the runways
+			ctx.setMessage("Calculating runways at " + afr.getAirportD() + " / " + afr.getAirportA());
+			fsh.calculateRunways();
 			
 			// Set misc options
+			afr.setAverageFrameRate(fddao.getFrameRate(flightID));
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
@@ -524,8 +274,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
 				// Check for Academy chck ride
-				if (c != null) {
-					List<CheckRide> rides = exdao.getAcademyCheckRides(c.getID(), TestStatus.NEW);
+				if (fsh.getCourse() != null) {
+					List<CheckRide> rides = exdao.getAcademyCheckRides(fsh.getCourse().getID(), TestStatus.NEW);
 					if (!rides.isEmpty())
 						cr = rides.get(0);
 				}
@@ -551,8 +301,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 			// Write the runway/gate data
 			SetACARSRunway awdao = new SetACARSRunway(con);
-			awdao.writeRunways(flightID, rD, rA);
-			awdao.writeGates(flightID, gD, gA);
+			FlightInfo inf = fsh.getACARSInfo();
+			awdao.writeRunways(flightID, inf.getRunwayD(), inf.getRunwayA());
+			awdao.writeGates(flightID, inf.getGateD(), inf.getGateA());
 			
 			// Check if we're a dispatch plan
 			if (msg.isDispatch() && !info.isDispatchPlan()) {
@@ -575,6 +326,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			wps.remove(info.getAirportA().getICAO());
 			if (wps.size() > 2) {
 				ctx.setMessage("Checking actual SID/STAR for ACARS Flight " + flightID);
+				GetNavRoute navdao = new GetNavRoute(con);
 				
 				// Check what SID we filed
 				String trName = wps.get(0); String trTrans = wps.get(1);
@@ -587,7 +339,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 
 				// Check actual SID
-				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, trName, trTrans, rD);
+				TerminalRoute aSID = navdao.getBestRoute(afr.getAirportD(), TerminalRoute.Type.SID, trName, trTrans, fsh.getACARSInfo().getRunwayD());
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.SID);
 					awdao.writeSIDSTAR(flightID, aSID);
@@ -606,9 +358,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 
 				// Check actual STAR
-				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, trTrans, rA);
+				TerminalRoute aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, trTrans, fsh.getACARSInfo().getRunwayA());
 				if (aSTAR == null)
-					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, null, rA); 
+					aSTAR = navdao.getBestRoute(afr.getAirportA(), TerminalRoute.Type.STAR, trName, null, fsh.getACARSInfo().getRunwayA()); 
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.STAR);
 					awdao.writeSIDSTAR(flightID, aSTAR);
@@ -626,19 +378,19 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				log.warn("Updated Passenger count for PIREP #" + afr.getID());
 			
 			// Write online track data
-			if (!pd.isEmpty()) {
+			if (fsh.hasTrackData()) {
 				SetOnlineTrack twdao = new SetOnlineTrack(con);
-				twdao.write(afr.getID(), pd, usrLoc.getDB());
-				twdao.purgeRaw(trackID);
+				twdao.write(afr.getID(), fsh.getTrackData(), usrLoc.getDB());
+				twdao.purgeRaw(fsh.getTrackID());
 			}
 			
 			// Write ontime data if there is any
 			if (afr.getOnTime() != OnTime.UNKNOWN) {
 				SetACARSOnTime aowdao = new SetACARSOnTime(con);
-				aowdao.write(usrLoc.getDB(), afr, onTimeEntry);
+				aowdao.write(usrLoc.getDB(), afr, fsh.getOnTimeEntry());
 				ackMsg.setEntry("onTime", afr.getOnTime().toString());
-				if (onTimeEntry != null)
-					ackMsg.setEntry("onTimeFlight", onTimeEntry.getFlightCode());
+				if (fsh.getOnTimeEntry() != null)
+					ackMsg.setEntry("onTimeFlight", fsh.getOnTimeEntry().getFlightCode());
 			}
 			
 			// Commit the transaction
@@ -667,8 +419,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Get the Instructor(s)
 				GetUserData uddao = new GetUserData(con);
 				Collection<Pilot> insList = new TreeSet<Pilot>();
-				if ((c != null) && (c.getInstructorID() != 0)) {
-					Pilot ins = pdao.get(uddao.get(c.getInstructorID()));
+				if ((fsh.getCourse() != null) && (fsh.getCourse().getInstructorID() != 0)) {
+					Pilot ins = pdao.get(uddao.get(fsh.getCourse().getInstructorID()));
 					if (ins != null)
 						insList.add(ins);
 				}
@@ -686,13 +438,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				log.info("Sending Academy Check Ride notification to " + insList);
 			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
+				GetEquipmentType eqdao = new GetEquipmentType(con);
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
 				if (crEQ != null) {
 					MessageContext mctxt = new MessageContext(crEQ.getOwner().getCode());
 					mctxt.addData("user", p);
 					mctxt.addData("pirep", afr);
 					mctxt.addData("airline", crEQ.getOwner().getName());
-					mctxt.addData("url", "https://www." + eq.getOwner().getDomain() + "/");
+					mctxt.addData("url", "https://www." + crEQ.getOwner().getDomain() + "/");
 					
 					// Load the template
 					mctxt.setTemplate(mtdao.get(crEQ.getOwner().getDB(), "CRSUBMIT"));
@@ -721,10 +474,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		}
 	}
 
-	/**
-	 * Returns the maximum execution time of this command before a warning is issued.
-	 * @return the maximum execution time in milliseconds
-	 */
 	@Override
 	public final int getMaxExecTime() {
 		return 2500;
