@@ -261,10 +261,6 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _noRideCheck;
 	}
 	
-	public boolean matches(Airport org, Airport dst) {
-		return (_airportD.equals(org) && _airportA.equals(dst));
-	}
-	
 	public void setAirportA(Airport aInfo) {
 		_airportA = aInfo;
 	}
