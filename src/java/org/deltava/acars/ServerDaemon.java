@@ -149,7 +149,6 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 			tasks.add(new VoiceReader());
 
  		// Turn the workers into threads
-		_workers.setDaemon(true);
  		for (Worker w : tasks) {
  			log.debug("Initializing " + w.getName());
  			w.setConnectionPool(_conPool);
@@ -157,6 +156,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  			
  			Thread t = new Thread(_workers, w, w.getName());
  			t.setUncaughtExceptionHandler(this);
+ 			t.setDaemon(true);
  			_threads.put(t, w);
  			log.debug("Starting " + w.getName());
  			t.start();
