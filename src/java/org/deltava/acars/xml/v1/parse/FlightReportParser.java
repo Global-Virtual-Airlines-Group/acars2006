@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -61,6 +61,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
+		afr.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
 		if (Double.isNaN(afr.getLoadFactor())) {
