@@ -230,14 +230,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (fsh.hasPositionData())
 				fsh.checkRefuel();
 			
+			// Check for tour
+			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
+			fsh.checkTour();
+			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking Flight Schedule");
 			fsh.checkSchedule();
 			
-			// Check for tour
-			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
-			fsh.checkTour();
-
 			// Load the runways
 			ctx.setMessage("Calculating runways at " + afr.getAirportD() + " / " + afr.getAirportA());
 			fsh.calculateRunways();
