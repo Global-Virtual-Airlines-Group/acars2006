@@ -193,7 +193,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ZonedDateTime day = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS); int dayOfYear = day.getDayOfYear();
 			Duration timeDelta = Duration.between(day, zdt);
 			if (dayOfYear != zdt.getDayOfYear()) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Adjusted date to " + StringUtils.format(zdt, "MM/dd/yyyy") + ", Pilot in " + p.getTZ().toString());
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date to %s, Pilot in %s (-%d s)", StringUtils.format(zdt, "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
 				afr.setDate(zdt.minusSeconds(timeDelta.getSeconds()).toInstant());
 			}
 
