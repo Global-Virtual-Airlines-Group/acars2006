@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2014, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2014, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -12,7 +12,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
@@ -29,10 +29,9 @@ public class DraftFlightCommand extends DataCommand {
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		DraftPIREPMessage rspMsg = new DraftPIREPMessage(env.getOwner(), msg.getID());
-		String db = ctx.getACARSConnection().getUserData().getDB();
 		try {
 			GetFlightReports frdao = new GetFlightReports(ctx.getConnection());
-			rspMsg.addAll(frdao.getDraftReports(env.getOwner().getID(), null, db));
+			rspMsg.addAll(frdao.getDraftReports(env.getOwner().getID(), null, ctx.getDB()));
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);

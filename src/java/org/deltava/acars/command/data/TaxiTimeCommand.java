@@ -1,4 +1,4 @@
-// Copyright 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -14,7 +14,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to return airport taxi times.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 8.6
  */
 
@@ -30,7 +30,6 @@ public class TaxiTimeCommand extends DataCommand {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		
 		boolean isTakeoff = Boolean.valueOf(msg.getFlag("isTakeoff")).booleanValue();
 		Airport a = SystemData.getAirport(msg.getFlag("airport"));
 		if (a == null) {
@@ -38,10 +37,9 @@ public class TaxiTimeCommand extends DataCommand {
 			return;
 		}
 		
-		String db = ctx.getACARSConnection().getUserData().getDB();
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
-			int taxiTime = isTakeoff ? ttdao.getTaxiOutTime(a, db) : ttdao.getTaxiInTime(a, db);
+			int taxiTime = isTakeoff ? ttdao.getTaxiOutTime(a, ctx.getDB()) : ttdao.getTaxiInTime(a, ctx.getDB());
 			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
 			ackMsg.setEntry("taxiTime", String.valueOf(taxiTime));
 			ctx.push(ackMsg);
