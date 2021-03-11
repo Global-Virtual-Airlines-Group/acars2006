@@ -1,25 +1,28 @@
-// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.sql.Connection;
+import java.time.Instant;
 
 import org.deltava.beans.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.stats.Tour;
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
+
 import org.deltava.dao.*;
+
 import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
- * valid flight assignment or charter request, and if any dispatch routes currently exist.
+ * valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 2.3
  */
 
@@ -64,11 +67,21 @@ public class FlightValidationCommand extends DataCommand {
 			boolean inSchedule = (flightTime.getFlightTime() > 0); boolean isValid = inSchedule;
 			
 			// Check for draft flights if not in schedule
+			GetFlightReports frdao = new GetFlightReports(con);
 			if (!inSchedule) {
-				GetFlightReports frdao = new GetFlightReports(con);
 				List<FlightReport> pireps = frdao.getDraftReports(ud.getID(), rt, ud.getDB());
-				List<FlightReport> fp = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0))).collect(Collectors.toList());
-				isValid = (fp.size() > 0);
+				Optional<FlightReport> ofr = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0))).findAny();
+				isValid = ofr.isPresent();
+			}
+			
+			// Check Tours
+			if (!isValid) {
+				final Instant now = Instant.now();
+				GetTour trdao = new GetTour(con);
+				Collection<Tour> possibleTours = trdao.findLeg(new ScheduleRoute(airportD, airportA), null, ud.getDB());
+				possibleTours.removeIf(t -> !t.isActiveOn(now));
+				isValid |= possibleTours.isEmpty();
+				rspMsg.setEntry("possibleTour", String.valueOf(!possibleTours.isEmpty()));
 			}
 			
 			rspMsg.setEntry("routeOK", String.valueOf(isValid));
