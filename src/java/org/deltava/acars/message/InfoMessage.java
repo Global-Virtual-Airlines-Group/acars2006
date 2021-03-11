@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -8,6 +8,8 @@ import org.deltava.acars.beans.TXCode;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
+import org.deltava.beans.flight.FlightData;
+import org.deltava.beans.flight.Recorder;
 import org.deltava.beans.schedule.*;
 import org.deltava.beans.system.OperatingSystem;
 
@@ -16,11 +18,11 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
-public class InfoMessage extends AbstractMessage implements FlightNumber, RoutePair, FlightTimes {
+public class InfoMessage extends AbstractMessage implements FlightData, FlightTimes {
 	
 	private int _flightID;
 	private Instant _startTime;
@@ -111,6 +113,11 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _f.getLeg();
 	}
 	
+	@Override
+	public Recorder getFDR() {
+		return Recorder.ACARS;
+	}
+	
 	public String getAltitude() {
 		return _fpAlt;
 	}
@@ -119,10 +126,12 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _comments;
 	}
 	
+	@Override
 	public OnlineNetwork getNetwork() {
 		return _network;
 	}
 	
+	@Override
 	public String getEquipmentType() {
 		return _eqType;
 	}
@@ -175,6 +184,7 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 		return _star;
 	}
 	
+	@Override
 	public Simulator getSimulator() {
 		return _sim;
 	}
@@ -184,6 +194,11 @@ public class InfoMessage extends AbstractMessage implements FlightNumber, RouteP
 	}
 	
 	public Instant getStartTime() {
+		return _startTime;
+	}
+	
+	@Override
+	public Instant getDate() {
 		return _startTime;
 	}
 	
