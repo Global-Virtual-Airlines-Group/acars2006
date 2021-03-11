@@ -2,6 +2,7 @@
 package org.deltava.acars.command;
 
 import java.util.*;
+import java.time.*;
 import java.sql.Connection;
 
 import org.apache.log4j.*;
@@ -15,6 +16,7 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.stats.Tour;
 import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
@@ -126,16 +128,11 @@ public class InfoCommand extends ACARSCommand {
 				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
 				// If we're not valid, check against draft PIREPs
+				GetFlightReports prdao = new GetFlightReports(c);
 				if (!msg.isScheduleValidated()) {
-					GetFlightReports prdao = new GetFlightReports(c);
 					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg, usrLoc.getDB());
-					for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !msg.isScheduleValidated(); ) {
-						FlightReport fr = i.next();
-						boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
-						isOK &= msg.getAirportD().equals(fr.getAirportD());
-						isOK &= msg.getAirportA().equals(fr.getAirportA());
-						msg.setScheduleValidated(isOK);
-					}
+					Optional<FlightReport> odfr = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0))).findAny();
+					msg.setScheduleValidated(odfr.isPresent());
 				}
 				
 				// If we're still not valid, check for an event
@@ -145,6 +142,26 @@ public class InfoCommand extends ACARSCommand {
 					isOK |= !edao.getPossibleEvents(msg, OnlineNetwork.IVAO, msg.getStartTime(), usrLoc.getAirlineCode()).isEmpty();
 					isOK |= !edao.getPossibleEvents(msg, OnlineNetwork.PILOTEDGE, msg.getStartTime(), usrLoc.getAirlineCode()).isEmpty();
 					msg.setScheduleValidated(isOK);
+				}
+				
+				// Check Tours
+				if (!msg.isScheduleValidated()) {
+					GetTour trdao = new GetTour(c);
+					Collection<Tour> possibleTours = trdao.findLeg(msg, null, usrLoc.getDB());
+					Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElseThrow());
+					Duration d = Duration.between(minDate, msg.getStartTime());
+					Collection<FlightReport> oldPireps = prdao.getLogbookCalendar(usrLoc.getID(), usrLoc.getDB(), minDate, (int)d.toDaysPart() + 1);
+					
+					// Init the helper
+					TourFlightHelper tfh = new TourFlightHelper(msg, true);
+					tfh.addFlights(oldPireps);
+					possibleTours.removeIf(t -> (tfh.isLeg(t) < 1));
+					log.info(String.format("Possible Tours found - %s", possibleTours));
+					if (!possibleTours.isEmpty()) {
+						msg.setScheduleValidated(true);
+						ackMsg.setEntry("possibleTour", "true");
+						ackMsg.setEntry("tours", String.valueOf(possibleTours.size()));
+					}
 				}
 			} else
 				msg.setScheduleValidated(true);
