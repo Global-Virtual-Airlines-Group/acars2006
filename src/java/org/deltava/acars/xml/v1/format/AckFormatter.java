@@ -1,4 +1,4 @@
-// Copyright 2006, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2012, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -10,7 +10,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Acknowledge messages.
  * @author Luke
- * @version 4.2
+ * @version 10.0
  * @since 1.0
  */
 
@@ -30,10 +30,7 @@ class AckFormatter extends ElementFormatter {
 		// Create the element and the type
 		Element e = initResponse(msg.getType());
 		e.setAttribute("id", Long.toHexString(ackmsg.getParentID()));
-		for (java.util.Map.Entry<String, String> me : ackmsg.getEntries())
-			e.addContent(XMLUtils.createElement(me.getKey(), me.getValue(), true));
-
-		// Return the element
+		ackmsg.getEntries().forEach(me -> e.addContent(XMLUtils.createElement(me.getKey(), me.getValue(), true)));
 		return e;
 	}
 }
