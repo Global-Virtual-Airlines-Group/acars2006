@@ -1,4 +1,4 @@
-// Copyright 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -12,13 +12,15 @@ import org.deltava.beans.Simulator;
 import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
 
+import org.deltava.comparators.GateComparator;
+
 import org.deltava.dao.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 8.4
  */
 
@@ -46,22 +48,33 @@ public class GateListCommand extends DataCommand {
 		if (al == null)
 			al = SystemData.getAirline(ctx.getACARSConnection().getUserData().getAirlineCode());
 		
-		List<Gate> gates = new ArrayList<Gate>();
+		// 1. Load all gates for Airport that have our Airline, sort based on popularity for route
+		// 2. Load all gates for Airport that have our Airline, sort based on popularity 
+		// 3. Load all gates for Airport, sort based on popularlity
+		
+		List<Gate> gates = new ArrayList<Gate>(); final Airline a = al;
 		try {
 			GetGates gdao = new GetGates(ctx.getConnection());
 			gdao.setQueryMax(20);
 			if ((rspMsg.getAirport() == null) && (inf != null)) {
-				gates.addAll(gdao.getPopularGates(inf, sim, isDeparture));
+				List<Gate> popGates = gdao.getPopularGates(inf, sim, isDeparture);
+				popGates.removeIf(g -> !g.getAirlines().contains(a));
+				gates.addAll(popGates);
 				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
+				rspMsg.setRouteUsage(true);
 			} else if ((rspMsg.getAirport() != null) && (aA != null)) {
 				RoutePair rp = new ScheduleRoute(rspMsg.getAirport(), aA);
-				gates.addAll(gdao.getPopularGates(rp, sim, isDeparture));
+				List<Gate> popGates = gdao.getPopularGates(rp, sim, isDeparture);
+				popGates.removeIf(g -> !g.getAirlines().contains(a));
+				gates.addAll(popGates);
 				rspMsg.setAirport(isDeparture ? rp.getAirportD() : rp.getAirportA());
+				rspMsg.setRouteUsage(true);
 			}
 				
-			if ((gates.size() < 3) && (rspMsg.getAirport() != null)) {
-				Collection<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
-				allGates.stream().map(g -> new Gate(g)).forEach(g -> { g.setUseCount(0); gates.add(g); });
+			if (gates.isEmpty() && (rspMsg.getAirport() != null)) {
+				List<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
+				Collections.sort(allGates, new GateComparator(GateComparator.USAGE));
+				allGates.stream().map(g -> new Gate(g, 0)).forEach(gates::add);
 			}
 		} catch (DAOException de) {
 			log.error("Error loading Gates - " + de.getMessage(), de);
@@ -70,7 +83,6 @@ public class GateListCommand extends DataCommand {
 		}
 		
 		// Filter based on airline
-		final Airline a = al;
 		gates.stream().filter(g -> g.getAirlines().contains(a)).forEach(rspMsg::add);
 		if (rspMsg.getResponse().isEmpty())
 			rspMsg.addAll(gates);
