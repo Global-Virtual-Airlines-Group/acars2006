@@ -1,4 +1,4 @@
-// Copyright 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -7,12 +7,13 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.GateMessage;
 
 import org.deltava.beans.navdata.Gate;
+import org.deltava.beans.navdata.GateZone;
 import org.deltava.util.*;
 
 /**
  * An XML formatter for Gate data messages.
  * @author Luke
- * @version 8.4
+ * @version 10.0
  * @since 8.4
  */
 
@@ -33,11 +34,13 @@ class GateFormatter extends ElementFormatter {
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "gates");
 		e.setAttribute("icao", gmsg.getAirport().getICAO());
+		e.setAttribute("routeUsage", String.valueOf(gmsg.isRouteUsage()));
 		for (Gate g : gmsg.getResponse()) {
 			Element ge = new Element("gate");
 			String n = g.getName().toUpperCase();
 			ge.setAttribute("name", n.startsWith("GATE ") ? n.substring(5) : g.getName());
-			ge.setAttribute("isIntl", String.valueOf(g.isInternational()));
+			ge.setAttribute("isIntl", String.valueOf(g.getZone() != GateZone.DOMESTIC));
+			ge.setAttribute("zone", String.valueOf(g.getZone()));
 			ge.setAttribute("lat", StringUtils.format(g.getLatitude(), "##0.0000"));
 			ge.setAttribute("lng", StringUtils.format(g.getLongitude(), "##0.0000"));
 			ge.setAttribute("hdg", String.valueOf(g.getHeading()));
