@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 9.2
+ * @version 10.0
  * @since 1.0
  */
 
@@ -77,6 +77,7 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("flightEQ", inf.getEquipmentType()));
 				ce.addContent(XMLUtils.createElement("airportD", inf.getAirportD().getICAO()));
 				ce.addContent(XMLUtils.createElement("airportA", inf.getAirportA().getICAO()));
+				ce.addContent(XMLUtils.createElement("flightType", inf.getFlightType().name()));
 				if (inf.getNetwork() != null)
 					ce.addContent(XMLUtils.createElement("network", inf.getNetwork().toString()));
 			}
