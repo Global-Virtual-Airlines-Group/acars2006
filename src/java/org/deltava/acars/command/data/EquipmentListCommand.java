@@ -1,21 +1,23 @@
 // Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.util.Collection;
+import java.util.*;
+import java.sql.Connection;
+
+import org.deltava.beans.*;
+import org.deltava.beans.schedule.Aircraft;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.AircraftMessage;
 
-import org.deltava.beans.schedule.Aircraft;
-
 import org.deltava.dao.*;
 
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
@@ -31,16 +33,28 @@ public class EquipmentListCommand extends DataCommand {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
+		ACARSConnection ac = ctx.getACARSConnection();
+		
 		AircraftMessage rspMsg = new AircraftMessage(env.getOwner(), msg.getID());
 		rspMsg.setShowProfile(Boolean.valueOf(msg.getFlag("showProfile")).booleanValue());
 		rspMsg.setShowPolicy(Boolean.valueOf(msg.getFlag("showPolicy")).booleanValue());
-		
 		try {
-			ACARSConnection ac = ctx.getACARSConnection();
-			GetAircraft acdao = new GetAircraft(ctx.getConnection());
+			Connection con = ctx.getConnection();
+			
+			// Get all of our IDs and airline codes
+			Collection<String> airlineCodes = new HashSet<String>() {{ add(ac.getUserData().getAirlineCode()); }};
+			if (!ac.getUserData().getIDs().isEmpty()) {
+				GetUserData uddao = new GetUserData(con);
+				UserDataMap udm = uddao.get(ac.getUserData().getIDs());
+				udm.values().stream().map(UserData::getAirlineCode).forEach(airlineCodes::add);
+			}
+			
+			// Get the aircraft
+			GetAircraft acdao = new GetAircraft(con);
 			Collection<Aircraft> allAC = acdao.getAll();
+			allAC.stream().filter(a -> a.getApps().isEmpty()).forEach(a -> log.warn("No options for " + a.getName()));
 			if (!ac.getIsDispatch())
-				allAC.stream().filter(a -> a.isUsed(ac.getUserData().getAirlineCode())).forEach(rspMsg::add);
+				allAC.stream().filter(a -> airlineCodes.stream().anyMatch(aCode -> a.isUsed(aCode))).forEach(rspMsg::add);
 			else
 				rspMsg.addAll(allAC);
 			
