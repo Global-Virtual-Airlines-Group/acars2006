@@ -1,4 +1,4 @@
-// Copyright 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for ACARS client performance counter messages.
  * @author Luke
- * @version 8.6
+ * @version 10.0
  * @since 8.6
  */
 
@@ -39,6 +39,7 @@ public class PerformanceParser extends XMLElementParser<PerformanceMessage> {
 			ttd.setMin(StringUtils.parse(getChildText(te, "min", "0"), 0));
 			ttd.setCount(StringUtils.parse(getChildText(te, "count", "0"), 0, false));
 			ttd.setTotal(StringUtils.parse(getChildText(te, "total", "0"), 0, false));
+			ttd.setStdDev(StringUtils.parse(getChildText(te, "stdDev", "0"), 0.0));
 			msg.addTimerData(ttd);
 		}
 		

@@ -1,4 +1,4 @@
-// Copyright 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * A Data Access Object to write user system data to the database.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 6.4
  */
 
@@ -98,7 +98,7 @@ public class SetSystemInfo extends DAO {
 			}
 			
 			// Write the timers
-			try (PreparedStatement ps = prepare("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+			try (PreparedStatement ps = prepare("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN, STDDEV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
 				ps.setInt(1, pm.getFlightID());
 				for (TaskTimerData ttd : pm.getTimers()) {
 					ps.setString(2, ttd.getName());
@@ -107,6 +107,7 @@ public class SetSystemInfo extends DAO {
 					ps.setLong(5, ttd.getTotal());
 					ps.setInt(6, ttd.getMax());
 					ps.setInt(7, ttd.getMin());
+					ps.setDouble(8, ttd.getStdDev());
 					ps.addBatch();
 				}
 			
