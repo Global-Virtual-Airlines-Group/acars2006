@@ -40,7 +40,7 @@ public class CommandContext extends ConnectionContext {
 		_ac = _pool.get(env.getConnectionID());
 		_msgTime = env.getTime();
 		_status = status;
-		if (_ac.isAuthenticated())
+		if ((_ac != null) && _ac.isAuthenticated())
 			setDB(_ac.getUserData().getDB());
 	}
 	
