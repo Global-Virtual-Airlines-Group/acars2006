@@ -15,6 +15,7 @@ import org.deltava.beans.schedule.*;
 import org.deltava.comparators.GateComparator;
 
 import org.deltava.dao.*;
+import org.deltava.util.EnumUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -38,7 +39,7 @@ public class GateListCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		GateMessage rspMsg = new GateMessage(env.getOwner(), msg.getID());		
 		InfoMessage inf = ctx.getACARSConnection().getFlightInfo();
-		Simulator sim = (inf == null) ? Simulator.FSX : inf.getSimulator();
+		Simulator sim = (inf == null) ? EnumUtils.parse(Simulator.class, msg.getFlag("sim"), Simulator.FSX) : inf.getSimulator();
 		
 		// Get the airport / airline / isDeparture
 		boolean isDeparture = Boolean.valueOf(msg.getFlag("isDeparture")).booleanValue();
@@ -55,18 +56,16 @@ public class GateListCommand extends DataCommand {
 		List<Gate> gates = new ArrayList<Gate>(); final Airline a = al;
 		try {
 			GetGates gdao = new GetGates(ctx.getConnection());
-			gdao.setQueryMax(20);
+			gdao.setQueryMax(40);
 			if ((rspMsg.getAirport() == null) && (inf != null)) {
 				List<Gate> popGates = gdao.getPopularGates(inf, sim, isDeparture);
-				popGates.removeIf(g -> !g.getAirlines().contains(a));
-				gates.addAll(popGates);
+				popGates.stream().filter(g -> g.getAirlines().contains(a)).forEach(gates::add);
 				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
 				rspMsg.setRouteUsage(true);
 			} else if ((rspMsg.getAirport() != null) && (aA != null)) {
 				RoutePair rp = new ScheduleRoute(rspMsg.getAirport(), aA);
 				List<Gate> popGates = gdao.getPopularGates(rp, sim, isDeparture);
-				popGates.removeIf(g -> !g.getAirlines().contains(a));
-				gates.addAll(popGates);
+				popGates.stream().filter(g -> g.getAirlines().contains(a)).forEach(gates::add);
 				rspMsg.setAirport(isDeparture ? rp.getAirportD() : rp.getAirportA());
 				rspMsg.setRouteUsage(true);
 			}
@@ -74,7 +73,7 @@ public class GateListCommand extends DataCommand {
 			if (gates.isEmpty() && (rspMsg.getAirport() != null)) {
 				List<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
 				Collections.sort(allGates, new GateComparator(GateComparator.USAGE));
-				allGates.stream().map(g -> new Gate(g, 0)).forEach(gates::add);
+				gates.addAll(allGates);
 			}
 		} catch (DAOException de) {
 			log.error("Error loading Gates - " + de.getMessage(), de);
