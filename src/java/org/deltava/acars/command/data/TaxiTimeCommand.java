@@ -1,6 +1,8 @@
 // Copyright 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.time.Duration;
+
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
@@ -39,9 +41,9 @@ public class TaxiTimeCommand extends DataCommand {
 		
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
-			int taxiTime = isTakeoff ? ttdao.getTaxiOutTime(a, ctx.getDB()) : ttdao.getTaxiInTime(a, ctx.getDB());
+			Duration taxiTime = ttdao.getTaxiTime(a, isTakeoff);
 			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("taxiTime", String.valueOf(taxiTime));
+			ackMsg.setEntry("taxiTime", String.valueOf(taxiTime.toSeconds()));
 			ctx.push(ackMsg);
 		} catch (DAOException de) {
 			log.error("Error loading taxi times - " + de.getMessage(), de);
