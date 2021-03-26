@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2009, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2012, 2017, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -13,7 +13,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 8.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -46,18 +46,23 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			fe.addContent(XMLUtils.createElement("lf", StringUtils.format(fr.getLoadFactor(), "0.000")));
+			fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
 			if (fr.getNetwork() != null)
 				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
 			if (!StringUtils.isEmpty(fr.getRoute()))
 				fe.addContent(XMLUtils.createElement("route", fr.getRoute(), true));
 			
-			// Add scheduled departure/arrival times
+			// Add scheduled departure/arrival times and gates
 			if (fr instanceof DraftFlightReport) {
 				DraftFlightReport dfr = (DraftFlightReport) fr;
 				if (dfr.getTimeD() != null)
 					fe.addContent(XMLUtils.createElement("timeD", StringUtils.format(dfr.getTimeD(), "HH:mm")));
+				if (dfr.getGateD() != null)
+					fe.addContent(XMLUtils.createElement("gateD", dfr.getGateD()));
 				if (dfr.getTimeA() != null)
 					fe.addContent(XMLUtils.createElement("timeA", StringUtils.format(dfr.getTimeA(), "HH:mm")));
+				if (dfr.getGateA() != null)
+					fe.addContent(XMLUtils.createElement("gateA", dfr.getGateA()));
 			}
 			
 			e.addContent(fe);
