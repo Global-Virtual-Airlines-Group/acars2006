@@ -1,8 +1,9 @@
-// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
 
+import org.deltava.beans.acars.TaxiTime;
 import org.deltava.beans.navdata.Runway;
 import org.deltava.beans.wx.METAR;
 
@@ -14,7 +15,7 @@ import org.deltava.util.*;
 /**
  * A formatter for AirportInfoMessages.
  * @author Luke
- * @version 4.2
+ * @version 10.0
  * @since 2.6
  */
 
@@ -58,6 +59,15 @@ public class AirportInfoFormatter extends ElementFormatter {
 			re.setAttribute("length", String.valueOf(rwy.getLength()));
 			re.setAttribute("hdg", String.valueOf(rwy.getHeading()));
 			ae.addContent(re);
+		}
+		
+		// Add taxi times
+		if (amsg.getTaxiTime() != null) {
+			TaxiTime tt = amsg.getTaxiTime();
+			Element tte = new Element("taxiTime");
+			tte.setAttribute("in", String.valueOf(tt.getInboundTime().toSeconds()));
+			tte.setAttribute("out", String.valueOf(tt.getOutboundTime().toSeconds()));
+			ae.addContent(tte);
 		}
 		
 		e.addContent(ae);
