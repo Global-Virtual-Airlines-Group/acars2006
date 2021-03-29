@@ -1,4 +1,4 @@
-// Copyright 2012, 2014, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2012, 2014, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -8,12 +8,12 @@ import org.deltava.acars.message.*;
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.*;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 
 /**
  * An ACARS command to determine whether a user is connected to an Online Network.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 4.1
  */
 
@@ -29,21 +29,14 @@ public class OnlinePresenceCommand extends DataCommand {
 
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		OnlineNetwork network = OnlineNetwork.fromName(msg.getFlag("network"));
+		OnlineNetwork network = EnumUtils.parse(OnlineNetwork.class, msg.getFlag("network"), null);
 
 		// Create the response
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		if (network != null) {
-			int myID = StringUtils.parse(ctx.getUser().getNetworkID(network), -1);
+			final int myID = StringUtils.parse(ctx.getUser().getNetworkID(network), -1);
 			NetworkInfo info = ServInfoHelper.getInfo(network);
-
-			// Check for the user
-			for (Pilot p : info.getPilots()) {
-				if (p.getID() == myID) {
-					ackMsg.setEntry("isOnline", "true");
-					break;
-				}
-			}
+			ackMsg.setEntry("isOnline", String.valueOf(info.getPilots().stream().anyMatch(p -> (p.getID() == myID))));
 		}
 
 		ctx.push(ackMsg);
