@@ -11,8 +11,8 @@ import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.util.*;
-import org.deltava.acars.message.*;
 
+import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
 /**
@@ -57,7 +57,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setFDE(getChildText(e, "fde", null));
 		afr.setCapabilities(StringUtils.parse(getChildText(e, "capabilities", "0"), 0, true));
 		afr.setAircraftCode(getChildText(e, "code", null));
-		afr.setNetwork(OnlineNetwork.fromName(getChildText(e, "network", null)));
+		afr.setNetwork(EnumUtils.parse(OnlineNetwork.class, getChildText(e, "network", null), null));
 		
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));

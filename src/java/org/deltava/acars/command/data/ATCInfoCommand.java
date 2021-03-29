@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2011, 2014, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2011, 2014, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.Collection;
@@ -12,12 +12,13 @@ import org.deltava.acars.message.data.ControllerMessage;
 import org.deltava.beans.*;
 import org.deltava.beans.servinfo.*;
 
+import org.deltava.util.EnumUtils;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Server command to display online ATC data.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 1.0
  */
 
@@ -33,9 +34,9 @@ public class ATCInfoCommand extends DataCommand {
 		
 		// Get the message and the network
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		OnlineNetwork network = OnlineNetwork.fromName(msg.getFlag("network"));
+		OnlineNetwork network = EnumUtils.parse(OnlineNetwork.class, msg.getFlag("network"), null);
 		Collection<?> networkNames = (Collection<?>) SystemData.getObject("online.networks");
-		if (!networkNames.contains(network.toString()))
+		if ((network == null) || !networkNames.contains(network.toString()))
 			return;
 		
 		// Get the data
