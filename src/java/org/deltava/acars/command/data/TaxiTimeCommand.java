@@ -7,6 +7,7 @@ import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.beans.acars.TaxiTime;
 import org.deltava.beans.schedule.Airport;
 
 import org.deltava.dao.*;
@@ -41,9 +42,9 @@ public class TaxiTimeCommand extends DataCommand {
 		
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
-			Duration taxiTime = ttdao.getTaxiTime(a, isTakeoff);
+			TaxiTime tt = ttdao.getTaxiTime(a); Duration d = isTakeoff ? tt.getOutboundTime() : tt.getInboundTime();
 			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
-			ackMsg.setEntry("taxiTime", String.valueOf(taxiTime.toSeconds()));
+			ackMsg.setEntry("taxiTime", String.valueOf(d.toSeconds()));
 			ctx.push(ackMsg);
 		} catch (DAOException de) {
 			log.error("Error loading taxi times - " + de.getMessage(), de);
