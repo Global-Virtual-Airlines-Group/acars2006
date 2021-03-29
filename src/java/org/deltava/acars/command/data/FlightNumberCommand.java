@@ -1,25 +1,26 @@
-// Copyright 2014, 2015, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2015, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
+import java.util.*;
+import java.sql.Connection;
+
 import org.deltava.beans.*;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
-
-import java.util.List;
-import java.sql.Connection;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.util.StringUtils;
+import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 5.4
  */
 
@@ -69,6 +70,13 @@ public class FlightNumberCommand extends DataCommand {
 				rspMsg.setEntry("airline", se.getAirline().getCode());
 				rspMsg.setEntry("flight", String.valueOf(se.getFlightNumber()));
 				rspMsg.setEntry("leg", String.valueOf(se.getLeg()));
+				
+				// Calculate ETOPS
+				Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, 25);
+				ETOPS re = ETOPSHelper.classify(gc).getResult();
+				rspMsg.setEntry("etops", re.name());
+				
+				// Show departure time
 				if (se instanceof FlightTimes) {
 					FlightTimes ft = (FlightTimes) se;
 					if (ft.getTimeD() != null)
