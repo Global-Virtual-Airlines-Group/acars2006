@@ -50,14 +50,26 @@ public class FlightValidationCommand extends DataCommand {
 			return;
 		}
 		
-		// Create the route pair and do ETOPS validation
+		// Create the route pair and do ETOPS classification
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(ud.getAirlineCode()), airportD, airportA);
 		Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, 25);
-		ETOPS e = ETOPSHelper.classify(gc).getResult();
-		rspMsg.setEntry("etops", String.valueOf(ETOPSHelper.validate(null, e)));
-		
+		ETOPS re = ETOPSHelper.classify(gc).getResult();
+		rspMsg.setEntry("etops", re.name());
+
 		try {
 			Connection con = ctx.getConnection();
+			
+			// Get the aircraft if provided, do ETOPS validation
+			GetAircraft acdao = new GetAircraft(con);
+			if (msg.hasFlag("eqType")) {
+				Aircraft a = acdao.get(msg.getFlag("eqType"));
+				if (a != null) {
+					AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
+					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(opts, re)));	
+				} else
+					log.warn(String.format("Unknown Aircraft - %s", msg.getFlag("eqType")));
+			} else
+				rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(ETOPS.ETOPS90, re)));
 
 			// Check the route
 			GetRawSchedule rsdao = new GetRawSchedule(con);
