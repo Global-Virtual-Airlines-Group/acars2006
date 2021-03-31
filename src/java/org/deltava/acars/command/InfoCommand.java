@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 9.2
+ * @version 10.0
  * @since 1.0
  */
 
@@ -148,7 +148,7 @@ public class InfoCommand extends ACARSCommand {
 				if (!msg.isScheduleValidated()) {
 					GetTour trdao = new GetTour(c);
 					Collection<Tour> possibleTours = trdao.findLeg(msg, null, usrLoc.getDB());
-					Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElseThrow());
+					Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElse(msg.getStartTime().toEpochMilli()));
 					Duration d = Duration.between(minDate, msg.getStartTime());
 					Collection<FlightReport> oldPireps = prdao.getLogbookCalendar(usrLoc.getID(), usrLoc.getDB(), minDate, (int)d.toDaysPart() + 1);
 					
