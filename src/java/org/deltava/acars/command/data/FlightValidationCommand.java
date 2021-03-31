@@ -65,7 +65,8 @@ public class FlightValidationCommand extends DataCommand {
 				Aircraft a = acdao.get(msg.getFlag("eqType"));
 				if (a != null) {
 					AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
-					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(opts, re)));	
+					ETOPS ae = (opts == null) ? ETOPS.ETOPS90 : opts.getETOPS();
+					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(ae, re)));	
 				} else
 					log.warn(String.format("Unknown Aircraft - %s", msg.getFlag("eqType")));
 			} else

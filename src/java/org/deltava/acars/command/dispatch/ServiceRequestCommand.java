@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 2.0
  */
 
@@ -103,10 +103,13 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// Get the aircraft type and check ETOPS
 			GetAircraft acdao = new GetAircraft(con);
 			Aircraft a = acdao.get(msg.getEquipmentType());
-			AircraftPolicyOptions opts = (a == null) ? null : a.getOptions(ud.getAirlineCode());
+			if (a == null)
+				throw new DAOException("Unknown aircraft - " + msg.getEquipmentType());
+			
+			AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
 			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
 			ETOPS e = ETOPSHelper.classify(gc).getResult();
-			msg.setETOPSWarning(ETOPSHelper.validate(opts, e));
+			msg.setETOPSWarning(ETOPSHelper.validate(opts.getETOPS(), e));
 			
 			// Find the closest gate
 			GetGates gdao = new GetGates(con);
