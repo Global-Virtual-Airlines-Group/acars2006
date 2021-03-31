@@ -66,11 +66,11 @@ public class FlightValidationCommand extends DataCommand {
 				if (a != null) {
 					AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
 					ETOPS ae = (opts == null) ? ETOPS.ETOPS90 : opts.getETOPS();
-					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(ae, re)));	
+					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.isWarn(ae, re)));	
 				} else
 					log.warn(String.format("Unknown Aircraft - %s", msg.getFlag("eqType")));
 			} else
-				rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.validate(ETOPS.ETOPS90, re)));
+				rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.isWarn(ETOPS.ETOPS90, re)));
 
 			// Check the route
 			GetRawSchedule rsdao = new GetRawSchedule(con);
