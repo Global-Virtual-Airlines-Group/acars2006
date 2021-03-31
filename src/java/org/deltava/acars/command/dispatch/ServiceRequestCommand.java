@@ -109,7 +109,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
 			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
 			ETOPS e = ETOPSHelper.classify(gc).getResult();
-			msg.setETOPSWarning(ETOPSHelper.validate(opts.getETOPS(), e));
+			msg.setETOPSWarning(ETOPSHelper.isWarn(opts.getETOPS(), e));
 			
 			// Find the closest gate
 			GetGates gdao = new GetGates(con);
