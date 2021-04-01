@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -40,13 +40,10 @@ public class IPCDaemon implements Runnable {
 		return "ACARS IPC Daemon";
 	}
 
-	/**
-	 * Executes the thread.
-	 */
 	@Override
 	public void run() {
 		log.info("Starting");
-		ACARSConnectionPool acPool = null;
+		ACARSConnectionPool acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
 		ConnectionPool cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
 
 		while (!Thread.currentThread().isInterrupted()) {
@@ -56,8 +53,7 @@ public class IPCDaemon implements Runnable {
 				Collection<SystemEvent> events = EventDispatcher.getEvents();
 				try {
 					con = cPool.getConnection();
-					for (Iterator<SystemEvent> i = events.iterator(); i.hasNext(); ) {
-						SystemEvent event = i.next();
+					for (SystemEvent event : events) {
 						Pilot usr = null; GetPilot pdao = new GetPilot(con);
 						if (event instanceof UserEvent) {
 							int userID = ((UserEvent) event).getUserID();
@@ -112,10 +108,7 @@ public class IPCDaemon implements Runnable {
 								// Delete old channels
 								for (PopulatedChannel pc : vc.getChannels()) {
 									Channel c = pc.getChannel();
-									if (c.getIsTemporary())
-										continue;
-									
-									if (!channels.containsKey(c.getName())) {
+									if (!c.getIsTemporary() && !channels.containsKey(c.getName())) {
 										log.warn("Removing MVS channel " + c.getName());
 										vc.remove(c.getName());
 									}
@@ -124,15 +117,12 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case USER_SUSPEND:
-								if (usr == null)
-									break;
+								if (usr == null) break;
 								
 								// Validate all of the connections
 								log.warn(usr.getName() + " Suspended - Validating all Credentials");
 								CacheManager.invalidate("Pilots", usr.cacheKey());
-								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
-								for (Iterator<ACARSConnection> ci = acPool.getAll().iterator(); ci.hasNext(); ) {
-									ACARSConnection ac = ci.next();
+								for (ACARSConnection ac : acPool.getAll()) {
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
 										if (p.getStatus() != PilotStatus.ACTIVE) {
@@ -146,15 +136,14 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case USER_INVALIDATE:
-								if (usr == null)
-									break;
+								if (usr == null) break;
 								
 								// Reload the user
+								final int id = usr.getID();
 								log.warn("Invalidated User " + usr.getName());
 								CacheManager.invalidate("Pilots", usr.cacheKey());
-								acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
-								ACARSConnection ac = acPool.get(usr.getPilotCode());
-								if (ac != null) {
+								Collection<ACARSConnection> cons = acPool.getAll(c -> c.isAuthenticated() && (c.getUser().getID() == id));
+								for (ACARSConnection ac : cons) {
 									log.info("Updated ACARS Connection record for " + ac.getUser().getName());
 									ac.setUser(usr);
 								}
@@ -186,7 +175,7 @@ public class IPCDaemon implements Runnable {
 			}
 		}
 		
-		log.info("Stopping");
 		EventDispatcher.unregister();
+		log.info("Stopping");
 	}
 }
