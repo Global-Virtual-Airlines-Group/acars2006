@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -13,12 +13,11 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.util.UserID;
-import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -44,13 +43,8 @@ public class TextMessageCommand extends ACARSCommand {
 		
 		// Check if HR or dispatch is online
 		boolean hasHR = usr.isInRole("HR") || usr.isInRole("Dispatch");
-		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll();
-		for (Iterator<ACARSConnection> i = cons.iterator(); !hasHR && i.hasNext(); ) {
-			ACARSConnection ac = i.next();
-			Pilot p = ac.getUser();
-			if (p != null)
-				hasHR |= p.isInRole("HR") || p.isInRole("Dispatch");
-		}
+		Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(ac -> ac.isAuthenticated());
+		hasHR |= cons.stream().anyMatch(ac -> ac.getUser().isInRole("HR") || ac.getUser().isInRole("Dispatch"));
 		
 		// If we have messaging restrictions on this user, apply the profanity filter
 		TextMessage txtRsp = null;
@@ -89,7 +83,7 @@ public class TextMessageCommand extends ACARSCommand {
 			UserData usrLoc = ctx.getACARSConnection().getUserData();
 			for (ACARSConnection ac : cons) {
 				UserData ud = ac.getUserData();
-				if (ac.isAuthenticated() && (ud.getAirlineCode().equals(usrLoc.getAirlineCode())) && (ud.getID() != usrLoc.getID()))
+				if (ud.getAirlineCode().equals(usrLoc.getAirlineCode()) && (ud.getID() != usrLoc.getID()))
 					ctx.push(txtRsp, ac.getID(), false);
 			}
 		} else {
@@ -105,7 +99,7 @@ public class TextMessageCommand extends ACARSCommand {
 			// Send the message
 			for (ACARSConnection ac: dstC) {
 				Pilot p = ac.getUser();
-				if (isDBID && ac.isAuthenticated() && (p.getID() == rcptID.getUserID())) {
+				if (isDBID && (p.getID() == rcptID.getUserID())) {
 					rUsr = p;
 					ctx.push(txtRsp, ac.getID(), false);
 				} else if (ac.getUserID().equalsIgnoreCase(msg.getRecipient()))  {
@@ -117,10 +111,8 @@ public class TextMessageCommand extends ACARSCommand {
 		}
 		
 		// Send an ACK on the message
-		if (SystemData.getBoolean("acars.ack.text")) {
-			AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
-			ctx.push(ackMsg);
-		}
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(usr, msg.getID());
+		ctx.push(ackMsg);
 		
 		// Write the message
 		try {
