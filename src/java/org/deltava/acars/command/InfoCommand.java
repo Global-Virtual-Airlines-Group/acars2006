@@ -47,7 +47,7 @@ public class InfoCommand extends ACARSCommand {
 		InfoMessage msg = (InfoMessage) env.getMessage();
 
 		// Check if we already have a flight ID and are requesting a new one
-		boolean assignID = (msg.getFlightID() == 0); boolean logNewID = false;
+		boolean assignID = (msg.getFlightID() == 0);
 		ACARSConnection con = ctx.getACARSConnection();
 		InfoMessage curInfo = con.getFlightInfo();
 		UserData usrLoc = con.getUserData();
@@ -106,14 +106,13 @@ public class InfoCommand extends ACARSCommand {
 					msg.setFlightID(0);
 				} else {
 					isValidated = info.isScheduleValidated();
+					log.warn("Revalidating Flight " + msg.getFlightID());
 					if (msg.getDispatcherID() != info.getDispatcherID()) {
 						log.warn("Flight " + msg.getFlightID() + " dispatcher was " + info.getDispatcherID() + ", now " + msg.getDispatcherID());
 						if (msg.getDispatcherID() == 0)
 							msg.setDispatcherID(info.getDispatcherID());
 					}
 				}
-				
-				logNewID = (msg.getFlightID() != 0);
 			}
 			
 			// Initialize the schedule DAO
@@ -296,8 +295,8 @@ public class InfoCommand extends ACARSCommand {
 		}
 
 		// Log returned flight id
-		if (assignID || logNewID)
-			log.log(logNewID ? Level.WARN : Level.INFO, "Assigned Flight ID " + msg.getFlightID() + " to " + env.getOwnerID());
+		if (assignID)
+			log.info("Assigned Flight ID " + msg.getFlightID() + " to " + env.getOwnerID());
 		else
 			log.info(env.getOwnerID() + " resuming Flight " + msg.getFlightID());
 
