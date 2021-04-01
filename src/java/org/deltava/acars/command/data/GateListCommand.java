@@ -57,7 +57,7 @@ public class GateListCommand extends DataCommand {
 		try {
 			GetGates gdao = new GetGates(ctx.getConnection());
 			gdao.setQueryMax(40);
-			if ((rspMsg.getAirport() == null) && (inf != null)) {
+			if ((rspMsg.getAirport() == null) && (inf != null) && inf.isPopulated()) {
 				List<Gate> popGates = gdao.getPopularGates(inf, sim, isDeparture);
 				popGates.stream().filter(g -> g.getAirlines().contains(a)).forEach(gates::add);
 				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
