@@ -66,8 +66,8 @@
 	<!-- Weather download locations -->
 	<weather>
 		<url>
-			<metar>ftp://tgftp.nws.noaa.gov/data/observations/metar/stations/</metar>
-			<taf>ftp://tgftp.nws.noaa.gov/data/forecasts/taf/stations/</taf>
+			<metar>ftp://tgftp.cp.ncep.noaa.gov/data/observations/metar/stations/</metar>
+			<taf>ftp://tgftp.cp.ncep.noaa.gov/data/forecasts/taf/stations/</taf>
 		</url>	
 	</weather>
 
