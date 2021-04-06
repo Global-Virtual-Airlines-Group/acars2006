@@ -3,7 +3,6 @@ package org.deltava.acars.command;
 
 import java.util.*;
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
@@ -189,12 +188,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setSimulator(info.getSimulator());
 
 			// Convert the date into the user's local time zone
-			ZonedDateTime zdt = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).truncatedTo(ChronoUnit.DAYS);
-			ZonedDateTime day = ZonedDateTime.now().truncatedTo(ChronoUnit.DAYS); int dayOfYear = day.getDayOfYear();
-			Duration timeDelta = Duration.between(zdt, day);
-			if (dayOfYear != zdt.getDayOfYear()) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date to %s, Pilot in %s (-%d s)", StringUtils.format(zdt, "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
-				afr.setDate(zdt.minusSeconds(timeDelta.getSeconds()).toInstant());
+			LocalDate pd = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).toLocalDate();
+			LocalDate sd = LocalDate.now();
+			Duration timeDelta = Duration.between(pd, sd);
+			if (sd.getDayOfYear() != pd.getDayOfYear()) {
+				Instant dt = afr.getDate();
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date to %s, Pilot in %s (-%d d)", StringUtils.format(pd.atStartOfDay(p.getTZ().getZone()), "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
+				afr.setDate(dt.minusSeconds(timeDelta.getSeconds()));
 			}
 
 			// Check Online status, and Online Event
