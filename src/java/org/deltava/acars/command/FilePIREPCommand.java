@@ -190,11 +190,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Convert the date into the user's local time zone
 			LocalDate pd = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).toLocalDate();
 			LocalDate sd = LocalDate.now();
-			Duration timeDelta = Duration.between(pd, sd);
+			Duration timeDelta = Duration.between(pd.atStartOfDay(), sd.atStartOfDay());
 			if (sd.getDayOfYear() != pd.getDayOfYear()) {
-				Instant dt = afr.getDate();
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date to %s, Pilot in %s (-%d d)", StringUtils.format(pd.atStartOfDay(p.getTZ().getZone()), "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
-				afr.setDate(dt.minusSeconds(timeDelta.getSeconds()));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date to %s, Pilot in %s (-%d s)", StringUtils.format(pd.atStartOfDay(p.getTZ().getZone()), "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
+				afr.setDate(ZonedDateTime.of(pd.atTime(12, 0), ZoneOffset.UTC).toInstant());
 			}
 
 			// Check Online status, and Online Event
@@ -374,8 +373,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
-			if (wdao.updatePaxCount(afr.getID(), usrLoc))
-				log.warn("Updated Passenger count for PIREP #" + afr.getID());
+			/* if (wdao.updatePaxCount(afr.getID(), usrLoc))
+				log.warn("Updated Passenger count for PIREP #" + afr.getID()); */
 			
 			// Write online track data
 			if (fsh.hasTrackData()) {
