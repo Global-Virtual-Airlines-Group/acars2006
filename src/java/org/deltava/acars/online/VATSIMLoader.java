@@ -15,7 +15,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for VATSIM.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 9.0
  */
 
@@ -37,7 +37,6 @@ public class VATSIMLoader extends Loader {
 		File f = urldao.download();
 		try (InputStream is = new BufferedInputStream(new FileInputStream(f), 131072)) {
 			GetVATSIMInfo sidao = new GetVATSIMInfo(is);
-			sidao.setVersion(2);
 			NetworkInfo in = sidao.getInfo();
 			if ((in != null) && in.getValidDate().isAfter(getLastUpdate())) {
 				update(in);
