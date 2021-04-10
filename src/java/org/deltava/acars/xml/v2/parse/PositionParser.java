@@ -122,8 +122,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				Element ce = e.getChild("atc");
 				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
-				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
-				msg.setATC1(ctr);
+				ctr.setPosition(ce.getAttributeValue("lat"), ce.getAttributeValue("lon"));
+				//msg.setATC1(ctr);
 			}
 			
 			atcID = getChildText(e, "atc2", null);
@@ -132,7 +132,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
-				msg.setATC2(ctr);
+				//msg.setATC2(ctr);
 			}
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);
