@@ -55,14 +55,12 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			// Add scheduled departure/arrival times and gates
 			if (fr instanceof DraftFlightReport) {
 				DraftFlightReport dfr = (DraftFlightReport) fr;
+				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("gateD", dfr.getGateD()));
+				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("gateA", dfr.getGateA()));
 				if (dfr.getTimeD() != null)
 					fe.addContent(XMLUtils.createElement("timeD", StringUtils.format(dfr.getTimeD(), "HH:mm")));
-				if (dfr.getGateD() != null)
-					fe.addContent(XMLUtils.createElement("gateD", dfr.getGateD()));
 				if (dfr.getTimeA() != null)
 					fe.addContent(XMLUtils.createElement("timeA", StringUtils.format(dfr.getTimeA(), "HH:mm")));
-				if (dfr.getGateA() != null)
-					fe.addContent(XMLUtils.createElement("gateA", dfr.getGateA()));
 			}
 			
 			e.addContent(fe);

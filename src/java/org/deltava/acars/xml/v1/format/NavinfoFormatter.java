@@ -63,8 +63,7 @@ class NavinfoFormatter extends ElementFormatter {
 			ne.addContent(XMLUtils.createElement("name", navaid.getName()));
 			if (navaid.getType() == Navaid.VOR) {
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
-				if (!StringUtils.isEmpty(nrb.getHeading()))
-					ne.addContent(XMLUtils.createElement("hdg", nrb.getHeading()));
+				XMLUtils.addIfPresent(ne, XMLUtils.createIfPresent("hdg", nrb.getHeading()));
 			} else if (navaid.getType() == Navaid.NDB)
 				ne.addContent(XMLUtils.createElement("freq", nrb.getFrequency()));
 

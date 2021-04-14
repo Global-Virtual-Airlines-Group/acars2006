@@ -1,4 +1,4 @@
-// Copyright 2007, 2012, 2015, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2012, 2015, 2018, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -13,7 +13,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchProgressResponse messages.
  * @author Luke
- * @version 8.4
+ * @version 10.0
  * @since 2.1
  */
 
@@ -39,8 +39,7 @@ class DispatchProgressFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("originator", rspmsg.getRecipient()));
 		e.addContent(formatAirport(rspmsg.getAirportD(), "airportD"));
 		e.addContent(formatAirport(rspmsg.getAirportA(), "airportA"));
-		if (rspmsg.getAirportL() != null)
-			e.addContent(formatAirport(rspmsg.getAirportL(), "airportL"));
+		XMLUtils.addIfPresent(e, formatAirport(rspmsg.getAirportL(), "airportL"));
 		e.addContent(XMLUtils.createElement("eqType", rspmsg.getEquipmentType()));
 		e.addContent(XMLUtils.createElement("fuel", String.valueOf(rspmsg.getFuel())));
 		e.addContent(XMLUtils.createElement("fuelFlow", String.valueOf(rspmsg.getBurnRate())));

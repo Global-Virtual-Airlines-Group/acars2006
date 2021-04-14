@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2010, 2011, 2012, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2010, 2011, 2012, 2018, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML formatter for Dispatch service request messages.
  * @author Luke
- * @version 8.4
+ * @version 10.0
  * @since 2.0
  */
 
@@ -55,8 +55,7 @@ public class ServiceRequestFormatter extends ElementFormatter {
 			e.addContent(XMLUtils.createElement("airportL", reqmsg.getAirportL().getICAO()));
 		
 		// Add closest gate
-		if (reqmsg.getClosestGate() != null)
-			e.addContent(formatGate(reqmsg.getClosestGate(), "gate"));
+		XMLUtils.addIfPresent(e, formatGate(reqmsg.getClosestGate(), "gate"));
 		
 		// Add tank capacity data
 		Element tse = new Element("tanks");

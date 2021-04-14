@@ -1,11 +1,10 @@
-// Copyright 2007, 2008, 2009, 2010, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
 
 import org.deltava.beans.Flight;
 import org.deltava.beans.acars.DispatchRoute;
-import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.acars.message.Message;
@@ -17,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 5.1
+ * @version 10.0
  * @since 2.0
  */
 
@@ -51,10 +50,8 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		}
 		
 		// Add the gates
-		if (rmsg.getClosestGate() != null)
-			e.addContent(formatGate(rmsg.getClosestGate(), "gateD"));
-		for (Gate g : rmsg.getArrivalGates())
-			e.addContent(formatGate(g, "gateA"));
+		XMLUtils.addIfPresent(e, formatGate(rmsg.getClosestGate(), "gateD"));
+		rmsg.getArrivalGates().forEach(g -> e.addContent(formatGate(g, "gateA")));
 		
 		// Add the routes
 		for (PopulatedRoute rp : rmsg.getPlans()) {
@@ -75,10 +72,8 @@ public class DispatchRouteFormatter extends ElementFormatter {
 					a = SystemData.getAirline(msg.getSender().getAirlineCode());
 				if (a != null)
 					re.addContent(XMLUtils.createElement("airline", a.getCode()));
-				if (dr.getAirportL() != null)
-					re.addContent(formatAirport(dr.getAirportL(), "airportL"));
-			} else if (f != null)
-				re.addContent(XMLUtils.createElement("airline", f.getAirline().getCode())); // Hack for Build 97
+				XMLUtils.addIfPresent(re, formatAirport(dr.getAirportL(), "airportL"));
+			}
 			
 			e.addContent(re);
 		}
