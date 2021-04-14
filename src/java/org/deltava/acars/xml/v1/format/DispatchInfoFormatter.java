@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2011, 2012, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2011, 2012, 2018, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for DispatchInfo messages.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -47,16 +47,11 @@ class DispatchInfoFormatter extends ElementFormatter {
 		e.addContent(XMLUtils.createElement("tx", StringUtils.format(dmsg.getTXCode(), "0000")));
 		e.addContent(formatAirport(dmsg.getAirportD(), "airportD"));
 		e.addContent(formatAirport(dmsg.getAirportA(), "airportA"));
-		if (dmsg.getAirportL() != null)
-			e.addContent(formatAirport(dmsg.getAirportL(), "airportL"));
-		if (dmsg.getSID() != null)
-			e.addContent(XMLUtils.createElement("sid", dmsg.getSID()));
-		if (dmsg.getSTAR() != null)
-			e.addContent(XMLUtils.createElement("star", dmsg.getSTAR()));
-		if (dmsg.getGateD() != null)
-			e.addContent(formatGate(dmsg.getGateD(), "gateD"));
-		if (dmsg.getGateA() != null)
-			e.addContent(formatGate(dmsg.getGateA(), "gateA"));
+		XMLUtils.addIfPresent(e, formatAirport(dmsg.getAirportL(), "airportL"));
+		XMLUtils.addIfPresent(e, XMLUtils.createIfPresent("sid", dmsg.getSID()));
+		XMLUtils.addIfPresent(e, XMLUtils.createIfPresent("star", dmsg.getSTAR()));
+		XMLUtils.addIfPresent(e, formatGate(dmsg.getGateD(), "gateD"));
+		XMLUtils.addIfPresent(e, formatGate(dmsg.getGateA(), "gateA"));
 
 		// Add fuel tanks
 		Element fe = new Element("fuel");

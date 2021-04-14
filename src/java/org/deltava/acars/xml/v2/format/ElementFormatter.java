@@ -67,6 +67,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	 * @return an Element
 	 */
 	protected static Element formatRoute(FlightRoute rt) {
+		if (rt == null) return null;
 		Element re = new Element("route");
 		re.setAttribute("id", String.valueOf(rt.getID()));
 		re.addContent(formatAirport(rt.getAirportD(), "airportD"));

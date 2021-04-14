@@ -1,7 +1,8 @@
-// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2016, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2016, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.time.*;
+import java.util.Objects;
 
 import org.jdom2.Element;
 
@@ -16,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML data elements.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -28,33 +29,24 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	 * @param eName the XML element name
 	 */
 	protected static Element formatAirport(Airport a, String eName) {
+		if (a == null) return null;
 		Element ae = new Element(eName);
-		if (a != null) {
-			ae.setAttribute("name", a.getName());
-			ae.setAttribute("icao", a.getICAO());
-			ae.setAttribute("iata", a.getIATA());
-			ae.setAttribute("country", a.getCountry().getCode());
-			ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
-			ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
-			ae.setAttribute("adse", String.valueOf(a.getASDE()));
-			ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
+		ae.setAttribute("name", a.getName());
+		ae.setAttribute("icao", a.getICAO());
+		ae.setAttribute("iata", a.getIATA());
+		ae.setAttribute("country", a.getCountry().getCode());
+		ae.setAttribute("lat", StringUtils.format(a.getLatitude(), "##0.0000"));
+		ae.setAttribute("lng", StringUtils.format(a.getLongitude(), "##0.0000"));
+		ae.setAttribute("adse", String.valueOf(a.getASDE()));
+		ae.setAttribute("maxRunwayLength", String.valueOf(a.getMaximumRunwayLength()));
 
-			// Add UTC offset
-			ZoneId tz = a.getTZ().getZone();
-			int ofs = tz.getRules().getOffset(Instant.now()).getTotalSeconds();
-			ae.setAttribute("utcOffset", String.valueOf(ofs));
+		// Add UTC offset
+		ZoneId tz = a.getTZ().getZone();
+		int ofs = tz.getRules().getOffset(Instant.now()).getTotalSeconds();
+		ae.setAttribute("utcOffset", String.valueOf(ofs));
 
-			// Attach airlines
-			for (String aCode : a.getAirlineCodes()) {
-				final Airline al = SystemData.getAirline(aCode);
-				if (al == null)
-					continue;
-
-				Element ale = new Element("airline") {{ setAttribute("code", al.getCode()); setAttribute("name", al.getName()); }};
-				ae.addContent(ale);
-			}
-		}
-
+		// Attach airlines
+		a.getAirlineCodes().stream().map(ac -> SystemData.getAirline(ac)).filter(Objects::nonNull).map(al -> new Element("airline") {{ setAttribute("code", al.getCode()); setAttribute("name", al.getName()); }}).forEach(ae::addContent);
 		return ae;
 	}
 
@@ -63,6 +55,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	 * @param rt the FlightRoute
 	 */
 	protected static Element formatRoute(FlightRoute rt) {
+		if (rt == null) return null;
 		Element re = new Element("route");
 		re.setAttribute("id", String.valueOf(rt.getID()));
 		re.addContent(formatAirport(rt.getAirportD(), "airportD"));
@@ -101,6 +94,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 	 * @param eName the XML element name
 	 */
 	protected static Element formatGate(Gate g, String eName) {
+		if (g == null) return null;
 		Element ge = new Element(eName);		
 		ge.setAttribute("icao", g.getCode());
 		ge.setAttribute("code", g.getName());
