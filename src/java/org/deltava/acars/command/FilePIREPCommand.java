@@ -219,8 +219,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
 				ctx.setMessage("Calculating flight load factor");
-				if (!msg.hasCustomCabinSize() && (Math.abs(afr.getLoadFactor() - info.getLoadFactor()) > 0.01))
-					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Load factor mismatch for " + flightID + "! Flight = " + info.getLoadFactor() + ", PIREP = " + afr.getLoadFactor());
+				if (!msg.hasCustomCabinSize() && (afr.getPassengers() != info.getPassengers()))
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Passenger Load mismatch for %d! Flight = %d, PIREP = %d", Integer.valueOf(flightID), Integer.valueOf(info.getPassengers()), Integer.valueOf(afr.getPassengers())));
 				
 				fsh.calculateLoadFactor((EconomyInfo) IPCUtils.reserialize(econ), msg.hasCustomCabinSize());
 			}
