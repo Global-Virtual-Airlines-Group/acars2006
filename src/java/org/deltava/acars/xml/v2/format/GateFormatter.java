@@ -37,8 +37,7 @@ class GateFormatter extends ElementFormatter {
 		e.setAttribute("routeUsage", String.valueOf(gmsg.isRouteUsage()));
 		for (Gate g : gmsg.getResponse()) {
 			Element ge = new Element("gate");
-			String n = g.getName().toUpperCase();
-			ge.setAttribute("name", n.startsWith("GATE ") ? n.substring(5) : g.getName());
+			ge.setAttribute("name", g.getName());
 			ge.setAttribute("isIntl", String.valueOf(g.getZone() != GateZone.DOMESTIC));
 			ge.setAttribute("zone", String.valueOf(g.getZone()));
 			ge.setAttribute("lat", StringUtils.format(g.getLatitude(), "##0.0000"));
