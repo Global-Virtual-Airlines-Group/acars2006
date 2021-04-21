@@ -12,7 +12,7 @@ import org.deltava.util.StringUtils;
 /**
  * An XML Formatter for Controller data messages.
  * @author Luke
- * @version 9.2
+ * @version 10.0
  * @since 1.0
  */
 
@@ -41,9 +41,12 @@ class ControllerFormatter extends ElementFormatter {
 			ce.setAttribute("type", ctr.getFacility().getName());
 			ce.setAttribute("freq", ctr.getFrequency());
 			ce.setAttribute("networkID", String.valueOf(ctr.getID()));
-			ce.setAttribute("lat", StringUtils.format(ctr.getLatitude(), "##0.0000"));
-			ce.setAttribute("lng", StringUtils.format(ctr.getLongitude(), "##0.0000"));
-			ce.setAttribute("range", String.valueOf(ctr.getRange()));
+			if (ctr.getPosition() != null) {
+				ce.setAttribute("lat", StringUtils.format(ctr.getLatitude(), "##0.0000"));
+				ce.setAttribute("lng", StringUtils.format(ctr.getLongitude(), "##0.0000"));
+				ce.setAttribute("range", String.valueOf(ctr.getRange()));
+			}
+			
 			e.addContent(ce);
 		}
 		
