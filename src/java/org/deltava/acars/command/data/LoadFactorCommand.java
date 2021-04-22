@@ -22,7 +22,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 9.2
+ * @version 10.0
  * @since 4.0
  */
 
@@ -76,7 +76,7 @@ public class LoadFactorCommand extends DataCommand {
 				int pax = df.isPresent() ? dfr.getPassengers() : -1;
 				boolean isDivert = df.isPresent() && dfr.hasAttribute(FlightReport.ATTR_DIVERT);
 				ackMsg.setEntry("isDivert", String.valueOf(isDivert));
-				if (pax != -1)
+				if (pax > 0)
 					ackMsg.setEntry("paxCount", String.valueOf(pax));
 
 				// Load the aircraft
