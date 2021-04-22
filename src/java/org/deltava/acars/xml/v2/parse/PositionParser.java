@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -122,8 +122,8 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				Element ce = e.getChild("atc");
 				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
-				ctr.setPosition(ce.getAttributeValue("lat"), ce.getAttributeValue("lon"));
-				//msg.setATC1(ctr);
+				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0), StringUtils.parse(ce.getAttributeValue("lon"), 0.0));
+				msg.setATC1(ctr);
 			}
 			
 			atcID = getChildText(e, "atc2", null);
@@ -132,7 +132,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				Controller ctr = new Controller(Integer.parseInt(ce.getAttributeValue("id")), null);
 				ctr.setCallsign(atcID);
 				ctr.setPosition(StringUtils.parse(ce.getAttributeValue("lat"), 0.0d), StringUtils.parse(ce.getAttributeValue("lon"), 0.0d));
-				//msg.setATC2(ctr);
+				msg.setATC2(ctr);
 			}
 		} catch (Exception ex) {
 			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);
