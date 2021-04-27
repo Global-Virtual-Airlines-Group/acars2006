@@ -81,6 +81,12 @@ public class GateListCommand extends DataCommand {
 			ctx.release();
 		}
 		
+		// Sanity check the reply
+		if (rspMsg.getAirport() == null) {
+			log.warn(String.format("Unknown Airport - %s", msg.getFlag("airport")));
+			return;
+		}
+		
 		// Filter based on airline
 		gates.stream().filter(g -> g.getAirlines().contains(a)).forEach(rspMsg::add);
 		if (rspMsg.getResponse().isEmpty())
