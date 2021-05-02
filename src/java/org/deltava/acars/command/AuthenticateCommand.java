@@ -62,7 +62,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		if (aInfo == null)
 			aInfo = SystemData.getApp(SystemData.get("airline.default"));
 
-		ClientInfo cInfo = msg.getClientInfo();
+		ClientInfo cInfo = msg.getClientInfo(); boolean isDispatch = (cInfo.getClientType() == ClientType.DISPATCH);
 		ClientInfo latestClient = null; UserData ud = null; Pilot usr = null;
 		try {
 			Connection c = ctx.getConnection();
@@ -74,11 +74,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (!isOK || (latestClient == null)) {
 				String ct = cInfo.getClientType().getName();
 				if (latestClient == null)
-					throw new ACARSException("Unknown/Deprecated ACARS " + ct + " Version - " + cInfo.getVersion());	
+					throw new ACARSException(String.format("Unknown/Deprecated ACARS %s Version - %d", ct, Integer.valueOf(cInfo.getVersion())));	
 				else if (cInfo.isBeta())
-					throw new ACARSException("Unknown/Deprecated ACARS beta - Build " + cInfo.getClientBuild() + " Beta " + cInfo.getBeta());	
+					throw new ACARSException(String.format("Unknown/Deprecated ACARS beta - Build %d Beta %d", Integer.valueOf(cInfo.getClientBuild()), Integer.valueOf(cInfo.getBeta())));	
 				
-				throw new ACARSException("Obsolete ACARS " + ct + " Client - Use Build " + latestClient.getClientBuild() + " or newer");	
+				throw new ACARSException(String.format("Obsolete ACARS %s Client - Use Build %d or newer", ct, Integer.valueOf(latestClient.getClientBuild())));	
 			}
 
 			// Get the DAOs
@@ -89,7 +89,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (!usrID.hasAirlineCode()) {
 				ud = udao.get(StringUtils.parse(msg.getUserID(), 0));
 				if (ud == null)
-					throw new SecurityException("Invalid database ID - " + msg.getUserID());
+					throw new SecurityException(String.format("Invalid database ID - %s", msg.getUserID()));
 
 				usr = pdao.get(ud);
 			} else {
@@ -101,10 +101,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Check security access before we validate the password
 			if ((usr == null) || (usr.getStatus() != PilotStatus.ACTIVE) || (usr.getACARSRestriction() == Restriction.BLOCK))
 				throw new SecurityException();
-			else if (cInfo.isDispatch() && (!usr.isInRole("Dispatch")))
+			else if (isDispatch && (!usr.isInRole("Dispatch")))
 				throw new SecurityException("Invalid dispatch access");
 			else if (ud == null)
-				throw new SecurityException("Cannot load user data - " + msg.getUserID());
+				throw new SecurityException(String.format("Cannot load user data - %s", msg.getUserID()));
 			
 			// Validate the password
 			try (org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR)) {
@@ -117,9 +117,9 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (ac2 != null) {
 				String code = StringUtils.isEmpty(usr.getPilotCode()) ? usr.getName() : usr.getPilotCode();
 				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
-				boolean isDSP = (cInfo.isDispatch() || ac2.getIsDispatch());
+				boolean isDSP = (isDispatch || ac2.getIsDispatch());
 				if (!isDSP) {
-					log.warn(usr.getName() + " (" + code + ") already logged in from " + ac2.getRemoteAddr() + ", closing existing connection from " + remoteAddr);
+					log.warn(String.format("%s (%s) already logged in from %s, closing existing connection from %s", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr));
 					ac2.close();
 					ctx.getACARSConnectionPool().remove(ac2);
 					
@@ -127,17 +127,17 @@ public class AuthenticateCommand extends ACARSCommand {
 					SetConnection dao = new SetConnection(c);
 					dao.closeConnection(ac2.getID());
 				} else
-					log.warn("Dispatcher " + usr.getName() + " (" + code + ") already logged in from " + ac2.getRemoteAddr() + ", logging in from " + remoteAddr);
+					log.warn(String.format("Dispatcher %s (%s) already logged in from %s, logging in from %s", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr));
 			}
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
 			AcknowledgeMessage errMsg = new AcknowledgeMessage(null, msg.getID());
 			if ((usr != null) && (usr.getACARSRestriction() == Restriction.BLOCK))
 				errMsg.setEntry("error", "ACARS Server access disabled");
-			else if (cInfo.isDispatch() && (usr != null) && !usr.isInRole("Dispatch"))
+			else if (isDispatch && (usr != null) && !usr.isInRole("Dispatch"))
 				errMsg.setEntry("error", "Dispatch not authorized");
 			else if (!StringUtils.isEmpty(se.getMessage()))
-				errMsg.setEntry("error", "Authentication Failed - " + se.getMessage());
+				errMsg.setEntry("error", String.format("Authentication Failed - %s", se.getMessage()));
 			else
 				errMsg.setEntry("error", "Authentication Failed");
 
@@ -148,17 +148,17 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.push(new AcknowledgeMessage(null, msg.getID(), ae.getMessage()));
 		} catch (DAOException de) {
 			usr = null;
-			String errorMsg = "Error loading " + msg.getUserID() + " -  " + de.getMessage();
+			String errorMsg = String.format("Error loading %s - %s", msg.getUserID(), de.getMessage());
 			if (de.isWarning())
 				log.warn(errorMsg);
 			else
 				log.error(errorMsg, de.getLogStackDump() ? de : null);
 
-			ctx.push(new AcknowledgeMessage(null, msg.getID(), "Authentication Failed - " + de.getMessage()));
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("Authentication Failed - %s", de.getMessage())));
 		} catch (Exception e) {
 			usr = null;
-			log.error("Error loading " + msg.getUserID() + " - " + e.getMessage(), e);
-			ctx.push(new AcknowledgeMessage(null, msg.getID(), "Authentication Failed - " + e.getMessage()));
+			log.error(String.format("Error loading %s - %s", msg.getUserID(), e.getMessage()), e);
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("Authentication Failed - %s", e.getMessage())));
 		} finally {
 			ctx.release();
 		}
@@ -169,18 +169,17 @@ public class AuthenticateCommand extends ACARSCommand {
 			return;
 
 		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
-		Instant now = Instant.now();
-		long timeDiff = (msg.getClientUTC().toEpochMilli() - now.toEpochMilli() + 500) / 1000;
-		if (Math.abs(timeDiff) > 14400) {
-			log.error("Cannot authenticate " + usr.getName() + " system clock " + timeDiff + " seconds off");
+		Duration td = Duration.between(msg.getClientUTC(), Instant.now().plusMillis(500));
+		if (td.abs().toSeconds() > 14400) {
+			log.error(String.format("Cannot authenticate %s - system clock %d seconds off", usr.getName(), Long.valueOf(td.toSeconds())));
 
 			// Convert times to client date/time
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(msg.getClientUTC(), usr.getTZ().getZone());
-			ZonedDateTime zdn = ZonedDateTime.ofInstant(now, usr.getTZ().getZone());
-			ctx.push(new AcknowledgeMessage(null, msg.getID(), "It is now " + zdn.toString() + ". Your system clock is set to " + zdt.toString() + " ( " + timeDiff + " seconds off)"));
+			ZonedDateTime zdn = ZonedDateTime.ofInstant(Instant.now(), usr.getTZ().getZone());
+			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("It is now %s. Your system clock is set to %s (%d seconds off)", zdn, zdt, Long.valueOf(td.toSeconds()))));
 			return;
-		} else if (Math.abs(timeDiff) > 900)
-			log.warn(usr.getName() + " system clock " + timeDiff + " seconds off");
+		} else if (td.abs().toSeconds() > 900)
+			log.warn(String.format("%s system clock %d seconds off", usr.getName(), Long.valueOf(td.toSeconds())));
 
 		// Log the user in
 		con.setUser(usr);
@@ -188,9 +187,9 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setVersion(cInfo.getVersion());
 		con.setClientBuild(cInfo.getClientBuild(), cInfo.getBeta());
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
-		con.setTimeOffset(timeDiff * 1000);
+		con.setTimeOffset(td.toSeconds());
 		if (msg.getProtocolVersion() > con.getProtocolVersion()) {
-			log.info(usr.getName() + " requesting protocol v" + msg.getProtocolVersion());
+			log.info(String.format("%s requesting protocol v%d", usr.getName(), Integer.valueOf(msg.getProtocolVersion())));
 			con.setProtocolVersion(msg.getProtocolVersion());
 		}
 		
@@ -223,7 +222,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				GetWarnings wdao = new GetWarnings(c);
 				con.setWarningScore(wdao.get(usr.getID()).stream().mapToInt(Warning::getScore).sum());
 				if (con.getWarningScore() >= SystemData.getInt("acars.maxWarnings", 10)) {
-					log.warn(usr.getName() + " has " + con.getWarningScore() + " warning score, voice/text disabled");
+					log.warn(String.format("%s has %d warning score, voice/text disabled", usr.getName(), Integer.valueOf(con.getWarningScore())));
 					usr.setNoVoice(true);
 					usr.setACARSRestriction(Restriction.NOMSGS);
 				}
@@ -233,7 +232,11 @@ public class AuthenticateCommand extends ACARSCommand {
 			if (con.getProtocolVersion() > 1) {
 				GetSystemInfo sysdao = new GetSystemInfo(c);
 				SystemInformation sysinfo = sysdao.get(usr.getID());
-				requestSystemInfo = (sysinfo == null) || ((now.toEpochMilli() - sysinfo.getDate().toEpochMilli()) > (86400_000 * 6));
+				if (sysinfo != null) {
+					Duration id = Duration.between(sysinfo.getDate(), Instant.now());
+					requestSystemInfo = (id.toDays() > 6);
+				} else
+					requestSystemInfo = true;
 			}
 			
 			// Check for held flights
@@ -241,12 +244,12 @@ public class AuthenticateCommand extends ACARSCommand {
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 			
 			// Get elite status
-			/* if (aInfo.getHasElite()) {
+			if (aInfo.getHasElite()) {
 				GetElite eldao = new GetElite(c);
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteLevel.getYear(Instant.now()), ud.getDB());
 				if (!status.isEmpty())
 					con.setEliteStatus(status.get(ud.cacheKey()));
-			} */
+			}
 
 			// Start a transaction
 			ctx.startTX();
@@ -269,7 +272,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					swdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
 				}
 			} catch (UnknownHostException uhe) {
-				log.warn("Unknown Host " + con.getRemoteAddr());
+				log.warn(String.format("Unknown Host - %s", con.getRemoteAddr()));
 			}
 
 			ctx.commitTX();
@@ -277,10 +280,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Add the user again so they are registered with this user ID
 			ctx.getACARSConnectionPool().add(con);
 		} catch (ACARSException ae) {
-			log.error("Error logging connection - " + ae.getMessage());
+			log.error(String.format("Error logging connection - %s", ae.getMessage()));
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error("Error logging connection - " + de.getMessage(), de);
+			log.error(String.format("Error logging connection - %s", de.getMessage()), de);
 		} finally {
 			ctx.release();
 		}
@@ -306,7 +309,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("dbID", String.valueOf(usr.getID()));
 		ackMsg.setEntry("appCode", ud.getAirlineCode());
 		ackMsg.setEntry("rank", usr.getRank().getName());
-		ackMsg.setEntry("timeOffset", String.valueOf(timeDiff / 1000));
+		ackMsg.setEntry("timeOffset", String.valueOf(td.toSeconds()));
 		ackMsg.setEntry("roles", StringUtils.listConcat(usr.getRoles(), ","));
 		ackMsg.setEntry("networks", StringUtils.listConcat(usr.getNetworks(), ","));
 		ackMsg.setEntry("ratings", StringUtils.listConcat(usr.getRatings(), ","));
@@ -315,6 +318,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("weightUnits", String.valueOf(usr.getWeightType().ordinal()));
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
 		ackMsg.setEntry("heldFlights", String.valueOf(heldFlights));
+		ackMsg.setEntry("updChannel", usr.getACARSUpdateChannel().name().toLowerCase());
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
@@ -353,12 +357,12 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Return a system message to the user
 		SystemTextMessage sysMsg = new SystemTextMessage();
-		sysMsg.addMessage("Welcome to the " + SystemData.get("airline.name") + " ACARS server! (Build " + VersionInfo.BUILD + ")");
+		sysMsg.addMessage(String.format("Welcome to the %s ACARS server! (Build %d)", SystemData.get("airline.name"), Integer.valueOf(VersionInfo.BUILD)));
 		sysMsg.addMessage(VersionInfo.TXT_COPYRIGHT);
 		if (StringUtils.isEmpty(usr.getPilotCode()))
-			sysMsg.addMessage("You are logged in as " + usr.getName() + " from " + con.getRemoteAddr());
+			sysMsg.addMessage(String.format("You are logged in as %s from %s", usr.getName(), con.getRemoteAddr()));
 		else
-			sysMsg.addMessage("You are logged in as " + usr.getName() + " (" + usr.getPilotCode() + ") from " + con.getRemoteAddr());
+			sysMsg.addMessage(String.format("You are logged in as %s (%s) from %s", usr.getName(), usr.getPilotCode(), con.getRemoteAddr()));
 			
 		// Add system-defined messages
 		@SuppressWarnings("unchecked")
@@ -376,7 +380,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Send the message and log
 		ctx.push(sysMsg);
-		log.info("New Connection from " + usr.getName() + " (" + con.getVersion() + ")");
+		log.info(String.format("New Connection from %s (v%d)", usr.getName(), Integer.valueOf(con.getVersion())));
 	}
 
 	@Override
