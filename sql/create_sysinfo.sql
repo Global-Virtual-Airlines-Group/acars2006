@@ -8,7 +8,7 @@ CREATE TABLE SYSINFO (
  SLI                        BOOLEAN NOT NULL DEFAULT FALSE,
  LOCALE                     VARCHAR(12) NOT NULL,
  TZ                         VARCHAR(64) NOT NULL,
- MEMORY                     SMALLINT UNSIGNED NOT NULL,
+ MEMORY                     INTEGER UNSIGNED NOT NULL,
  CPU                        VARCHAR(48) NOT NULL,
  CPU_SPEED                  SMALLINT UNSIGNED NOT NULL,
  CPU_SOCK                   SMALLINT UNSIGNED NOT NULL,
