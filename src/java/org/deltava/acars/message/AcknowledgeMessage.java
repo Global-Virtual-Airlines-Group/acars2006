@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2018, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS Acknowledgement message.
  * @author Luke
- * @version 8.6
+ * @version 10.0
  * @since 1.0
  */
 
@@ -16,6 +16,8 @@ public class AcknowledgeMessage extends AbstractMessage {
 
 	private final long _parent;
 	private final Map<String, String> _msgs = new LinkedHashMap<String, String>();
+	
+	private int _maxAge = 2500;
 
 	/**
 	 * Creates the message.
@@ -47,6 +49,14 @@ public class AcknowledgeMessage extends AbstractMessage {
 	}
 	
 	/**
+	 * Returns the maximum age of this ACK before the client outputs a warning.
+	 * @return the maximum age in milliseconds
+	 */
+	public int getMaxAge() {
+		return _maxAge;
+	}
+	
+	/**
 	 * Retrieves a message attribute.
 	 * @param eName the attribute name
 	 * @return the attribute value, or null if not found
@@ -70,5 +80,13 @@ public class AcknowledgeMessage extends AbstractMessage {
 	 */
 	public void setEntry(String eName, String eValue) {
 		_msgs.put(eName, eValue);
+	}
+	
+	/**
+	 * Sets the maximum age of this ACK before the client outputs a warning.
+	 * @param ms the maximum age in milliseconds
+	 */
+	public void setMaxAge(int ms) {
+		_maxAge = Math.max(50, ms);
 	}
 }

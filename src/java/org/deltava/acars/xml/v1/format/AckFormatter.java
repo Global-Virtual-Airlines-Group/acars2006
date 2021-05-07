@@ -30,6 +30,7 @@ class AckFormatter extends ElementFormatter {
 		// Create the element and the type
 		Element e = initResponse(msg.getType());
 		e.setAttribute("id", Long.toHexString(ackmsg.getParentID()));
+		e.setAttribute("maxAge", String.valueOf(ackmsg.getMaxAge()));
 		ackmsg.getEntries().forEach(me -> e.addContent(XMLUtils.createElement(me.getKey(), me.getValue(), true)));
 		return e;
 	}
