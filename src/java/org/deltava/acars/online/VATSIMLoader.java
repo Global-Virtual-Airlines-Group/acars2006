@@ -12,6 +12,7 @@ import org.deltava.beans.servinfo.*;
 
 import org.deltava.dao.file.*;
 import org.deltava.dao.http.GetURL;
+import org.deltava.dao.http.DAO.Compression;
 import org.deltava.dao.DAOException;
 
 import org.deltava.util.system.SystemData;
@@ -37,8 +38,8 @@ public class VATSIMLoader extends Loader {
 	}
 	
 	private class URLLoader implements Runnable {
-		private String _url;
-		private String _file;
+		private final String _url;
+		private final String _file;
 		
 		URLLoader(String url, String file) {
 			super();
@@ -48,25 +49,25 @@ public class VATSIMLoader extends Loader {
 		
 		@Override
 		public void run() {
+			GetURL urldao = new GetURL(_url, _file);
 			try {
-				GetURL urldao = new GetURL(_url, _file);
-				urldao.setConnectTimeout(2500);
-				urldao.setReadTimeout(5000);
+				urldao.setConnectTimeout(1250);
+				urldao.setReadTimeout(15000);
+				urldao.setCompression(Compression.GZIP);
 				urldao.download();
 			} catch (Exception e) {
-				log.error("Error loading " + _url + " - " + e.getMessage());
+				log.error(String.format("Error loading %s using %s - %s", _url, urldao.getCompression(), e.getMessage()));
 			}
 		}
 	}
 
 	@Override
 	public void execute() throws IOException, DAOException {
-
 		try {
 			CompletableFuture<Void> sif = CompletableFuture.runAsync(new URLLoader(SystemData.get("online.vatsim.status_url"), SystemData.get("online.vatsim.local.info")), _tp);
 			CompletableFuture<Void> tcf = CompletableFuture.runAsync(new URLLoader(SystemData.get("online.vatsim.transceiver_url"), SystemData.get("online.vatsim.local.transceiver")), _tp);
 			CompletableFuture<Void> ft = CompletableFuture.allOf(sif, tcf);
-			ft.get(15, TimeUnit.SECONDS);
+			ft.get(17500, TimeUnit.MILLISECONDS);
 		} catch (ExecutionException ee) {
 			log.error("Error downloading VATSIM data - " + ee.getMessage(), ee);
 		} catch (TimeoutException | InterruptedException ie) {
