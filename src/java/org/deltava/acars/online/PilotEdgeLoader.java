@@ -8,6 +8,7 @@ import org.deltava.beans.servinfo.NetworkInfo;
 
 import org.deltava.dao.DAOException;
 import org.deltava.dao.file.GetServInfo;
+import org.deltava.dao.http.DAO.Compression;
 import org.deltava.dao.http.GetURL;
 
 import org.deltava.util.system.SystemData;
@@ -15,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for PilotEdge.
  * @author Luke
- * @version 9.1
+ * @version 10.0
  * @since 9.0
  */
 
@@ -34,6 +35,7 @@ public class PilotEdgeLoader extends Loader {
 		GetURL urldao = new GetURL(SystemData.get("online.pilotedge.status_url"), SystemData.get("online.pilotedge.local.info"));
 		urldao.setConnectTimeout(9500);
 		urldao.setReadTimeout(17500);
+		urldao.setCompression(Compression.GZIP);
 		File f = urldao.download();
 		try (InputStream is = new BufferedInputStream(new FileInputStream(f), 32768)) {
 			GetServInfo sidao = new GetServInfo(is, _network);
