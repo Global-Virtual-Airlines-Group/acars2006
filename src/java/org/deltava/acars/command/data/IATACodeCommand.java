@@ -55,10 +55,11 @@ public class IATACodeCommand extends DataCommand {
 					codes.put(ac.getName(), c);
 				}
 				
-				for (String iata : ac.getIATA())
-					c.putIfAbsent(iata, Integer.valueOf(1));
+				final IATACodes cc = c;
+				ac.getIATA().forEach(iata -> cc.putIfAbsent(iata, Integer.valueOf(1)));
 			}
 			
+			rspMsg.setMaxAge(5500);
 			rspMsg.addAll(codes.values());
 			ctx.push(rspMsg);
 		} catch (DAOException de) {

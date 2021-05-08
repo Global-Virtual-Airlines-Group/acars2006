@@ -92,6 +92,7 @@ public class GateListCommand extends DataCommand {
 		if (rspMsg.getResponse().isEmpty())
 			rspMsg.addAll(gates);
 		
+		rspMsg.setMaxAge(5500);
 		ctx.push(rspMsg);
 	}
 }
