@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -31,7 +31,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 9.0
+ * @version 10.0
  * @since 1.0
  */
 
@@ -182,6 +182,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Start the ACARS/Mailer/IPC daemons
 		TomcatDaemon tcDaemon = new TomcatDaemon();
+		tcDaemon.initACARSConnectionPool(); // Ensure the connection pool is created before IPCDaemon starts
 		spawnDaemon(tcDaemon);
 		spawnDaemon(new MailerDaemon());
 		spawnDaemon(new IPCDaemon());
