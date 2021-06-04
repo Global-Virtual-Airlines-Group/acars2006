@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -17,7 +17,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 7.4
+ * @version 10.0
  * @since 2.1
  */
 
@@ -40,7 +40,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	protected final Collection<String> _blockedAddrs = new HashSet<String>();
 	
 	private class ConnectWorker implements Runnable {
-		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.APPNAME + " HELLO";
+		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.getAppName() + " HELLO";
 
 		private final SocketChannel _sc;
 		private final long _id;
