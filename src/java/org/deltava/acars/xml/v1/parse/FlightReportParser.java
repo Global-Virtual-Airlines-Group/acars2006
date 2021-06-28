@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -50,7 +50,11 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setEquipmentType(getChildText(e, "eqType", "CRJ-200"));
 		afr.setDate(Instant.now());
 		afr.setSubmittedOn(afr.getDate());
-		afr.setHasReload(Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue());
+		afr.setRestoreCount(StringUtils.parse(e.getChildTextTrim("restoreCount"), 0));
+		boolean hasRestore = Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue(); // TODO: remove once 156 is minimum
+		if (hasRestore && (afr.getRestoreCount() == 0))
+			afr.setRestoreCount(1);
+		
 		afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
 		afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
 		afr.setRemarks(e.getChildText("remarks"));
@@ -139,6 +143,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setTime(1, StringUtils.parse(getChildText(e, "time1X", "0"), 0));
 		afr.setTime(2, StringUtils.parse(getChildText(e, "time2X", "0"), 0));
 		afr.setTime(4, StringUtils.parse(getChildText(e, "time4X", "0"), 0));
+		afr.setBoardTime(StringUtils.parse(getChildText(e, "timeBoard", "0"), 0));
+		afr.setDeboardTime(StringUtils.parse(getChildText(e, "timeDeboard", "0"), 0));
 
 		// Save the PIREP and return
 		msg.setPIREP(afr);
