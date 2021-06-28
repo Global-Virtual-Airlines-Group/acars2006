@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
  * valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 2.3
  */
 
@@ -77,7 +77,7 @@ public class FlightValidationCommand extends DataCommand {
 			GetSchedule sdao = new GetSchedule(con);
 			sdao.setSources(rsdao.getSources(true, ud.getDB()));
 			FlightTime flightTime = sdao.getFlightTime(rt, ud.getDB());
-			boolean inSchedule = (flightTime.getFlightTime() > 0); boolean isValid = inSchedule;
+			boolean inSchedule = (flightTime.getFlightTime().toSeconds() > 0); boolean isValid = inSchedule;
 			
 			// Check for draft flights if not in schedule
 			GetFlightReports frdao = new GetFlightReports(con);
