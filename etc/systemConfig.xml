@@ -22,6 +22,7 @@
 		<url>jdbc:mysql://localhost/acars</url>
 		<user>dva</user>
 		<pwd>***REMOVED***</pwd>
+		<socket>/var/run/mysql/mysql.sock</socket>
 		
 		<map name="connectProperties">
             <useSSL>false</useSSL>
@@ -49,7 +50,14 @@
 		<auto_commit type="Boolean">true</auto_commit>
 		<log_stack type="Boolean">true</log_stack>
 	</jdbc>
-	
+
+	<!-- Redis data configuration -->
+	<redis>
+		<addr>/var/run/redis/redis.sock</addr>
+		<port type="Integer">6379</port>
+		<db type="Integer">0</db>
+	</redis>
+
 	<schedule>
 		<!-- FlightAware download data -->
 		<flightaware>
