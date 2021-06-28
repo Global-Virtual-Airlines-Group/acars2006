@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -12,7 +12,7 @@ import org.deltava.beans.acars.EngineSpeedEncoder;
 /**
  * A Data Access Object to write ACARS Position Messages.
  * @author Luke
- * @version 9.1
+ * @version 10.1
  * @since 1.0
  */
 
@@ -35,7 +35,7 @@ public class SetPosition extends DAO {
 		try {
 			try (PreparedStatement ps = prepareWithoutLimits("REPLACE INTO acars.POSITIONS (FLIGHT_ID, REPORT_TIME, SIM_TIME, LAT, LNG, B_ALT, R_ALT, HEADING, ASPEED, GSPEED, VSPEED, N1, N2, MACH, "
 				+ "FUEL, PHASE, SIM_RATE, FLAGS, GNDFLAGS, FLAPS, PITCH, BANK, FUELFLOW, WIND_HDG, WIND_SPEED, TEMP, PRESSURE, VIZ, AOA, CG, GFORCE, FRAMERATE, NAV1, NAV2, VAS, WEIGHT, ASTYPE, "
-				+ "ADF1, NET_CONNECTED, ACARS_CONNECTED, ENC_N1, ENC_N2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+				+ "ADF1, NET_CONNECTED, ACARS_CONNECTED, RESTORE_COUNT, ENC_N1, ENC_N2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
 				// Write core entries
 				startTransaction();
@@ -83,8 +83,9 @@ public class SetPosition extends DAO {
 					ps.setString(38, msg.getADF1());
 					ps.setBoolean(39, msg.getNetworkConnected());
 					ps.setBoolean(40, msg.getACARSConnected());
-					ps.setBytes(41, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN1()));
-					ps.setBytes(42, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN2()));
+					ps.setInt(41, msg.getRestoreCount());
+					ps.setBytes(42, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN1()));
+					ps.setBytes(43, EngineSpeedEncoder.encode(msg.getEngineCount(), msg.getN2()));
 					ps.addBatch();
 
 					// Remove entries with no ATC ID
