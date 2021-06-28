@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 9.2
+ * @version 10.1
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ public class PositionMessage extends LocationMessage {
 	private int _vasFree;
 	private boolean _isReplay;
 	private boolean _isLogged;
+	private int _restoreCount;
 	
 	private AirspaceType _asType = AirspaceType.E;
 	private Country _c;
@@ -156,6 +157,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public FlightPhase getPhase() {
 		return _phase;
+	}
+	
+	public int getRestoreCount() {
+		return _restoreCount;
 	}
 	
 	public int getFlightID() {
@@ -321,6 +326,10 @@ public class PositionMessage extends LocationMessage {
 
 	public void setPhase(FlightPhase fp) {
 		_phase = fp;
+	}
+	
+	public void setRestoreCount(int cnt) {
+		_restoreCount = cnt;
 	}
 	
 	public void setFlightID(int id) {

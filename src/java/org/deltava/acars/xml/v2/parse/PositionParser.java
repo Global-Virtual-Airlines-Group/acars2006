@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -94,6 +94,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
 			msg.setReplay(Boolean.valueOf(getChildText(e, "isReplay", "false")).booleanValue());
+			msg.setRestoreCount(Integer.parseInt(getChildText(e, "restoreCount", "0")));
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
 			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
