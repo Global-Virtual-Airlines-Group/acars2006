@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2011, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2011, 2018, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -6,14 +6,16 @@ import org.deltava.beans.Pilot;
 /** 
  * An ACARS text message.
  * @author Luke
- * @version 8.4
+ * @version 10.1
  * @since 1.0
  */
 
 public class TextMessage extends RecipientMessage {
+	
 	private final static int MAX_MSG_SIZE = 1024;
 
 	private final String _text;
+	private String _channel;
 
 	/**
 	 * Creates the message.
@@ -23,6 +25,14 @@ public class TextMessage extends RecipientMessage {
 	public TextMessage(Pilot msgFrom, String msgText) {
 		super(MessageType.TEXT, msgFrom);
 		_text = (msgText.length() > MAX_MSG_SIZE) ? msgText.substring(0, MAX_MSG_SIZE) : msgText;
+	}
+	
+	/**
+	 * Returns the channel name.
+	 * @return the name, or null if none
+	 */
+	public String getChannel() {
+		return _channel;
 	}
 	
 	/**
@@ -39,5 +49,13 @@ public class TextMessage extends RecipientMessage {
 	 */
 	public final boolean isPublic() {
 		return (getRecipient() == null);
+	}
+
+	/**
+	 * Updates the channel name.
+	 * @param ch the channel, or null if none
+	 */
+	public void setChannel(String ch) {
+		_channel = ch;
 	}
 }
