@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2011, 2012, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2011, 2012, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -10,7 +10,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Text messages.
  * @author Luke
- * @version 9.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -35,9 +35,8 @@ class TextMessageFormatter extends ElementFormatter {
 		}
 		
 		e.addContent(XMLUtils.createElement("text", tmsg.getText()));
-		if (!tmsg.isPublic())
-			e.addContent(XMLUtils.createElement("to", tmsg.getRecipient()));
-
+		XMLUtils.addIfPresent(e, XMLUtils.createIfPresent("channel", tmsg.getChannel()));
+		XMLUtils.addIfPresent(e, XMLUtils.createIfPresent("to", tmsg.getRecipient()));
 		return e;
 	}
 }

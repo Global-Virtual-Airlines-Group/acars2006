@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2012, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Text Message elements.
  * @author Luke
- * @version 4.2
+ * @version 10.1
  * @since 1.0
  */
 
@@ -32,6 +32,7 @@ class TextMessageParser extends XMLElementParser<TextMessage> {
 		// Create the bean and set the receipients
 		TextMessage msg = new TextMessage(user, msgText);
 		msg.setRecipient(getChildText(e, "to", null));
+		msg.setChannel(getChildText(e, "channel", null));
 		return msg;
 	}
 }
