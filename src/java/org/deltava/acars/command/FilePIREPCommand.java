@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -233,6 +233,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Check for tour
 			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
 			fsh.checkTour();
+			
+			// Check aircraft
+			fsh.checkAircraft();
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking Flight Schedule");
