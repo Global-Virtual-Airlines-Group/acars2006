@@ -7,7 +7,7 @@ import org.deltava.beans.acars.FlightInfo;
 /**
  * A utility class to convert FlightInfo messages to Flight Information beans.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 10.0
  */
 
@@ -44,6 +44,7 @@ public class FlightInfoHelper {
 		inf.setIsACARS64Bit(msg.getIsACARS64Bit());
 		inf.setIsSim64Bit(msg.getIsSim64Bit());
 		inf.setPassengers(msg.getPassengers());
+		inf.setSeats(msg.getSeats());
 		inf.setSimulator(msg.getSimulator());
 		return inf;
 	}
