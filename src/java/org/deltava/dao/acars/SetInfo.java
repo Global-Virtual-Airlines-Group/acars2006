@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -11,19 +11,19 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 9.0
+ * @version 10.1
  * @since 1.0
  */
 
 public class SetInfo extends DAO {
 
 	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, "
-		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX, LOADFACTOR, "
-		+ "APTYPE, PLATFORM, IS64, ACARS64, LOADTYPE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCH_PLAN, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX, APTYPE, "
+		+ "PLATFORM, IS64, ACARS64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, "
 		+ "AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, DISPATCH_PLAN=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, "
-		+ "BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, LOADFACTOR=?, APTYPE=?, PLATFORM=?, IS64=?, ACARS64=?, LOADTYPE=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
+		+ "BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, APTYPE=?, PLATFORM=?, IS64=?, ACARS64=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
 	/**
 	 * Initialize the Data Access Object.
@@ -65,14 +65,12 @@ public class SetInfo extends DAO {
 				ps.setInt(19, msg.getSimMajor());
 				ps.setInt(20, msg.getSimMinor());
 				ps.setInt(21, msg.getTX());
-				ps.setDouble(22, msg.getLoadFactor());
-				ps.setInt(23, msg.getAutopilotType().ordinal());
-				ps.setInt(24, msg.getPlatform().ordinal());
-				ps.setBoolean(25, msg.getIsSim64Bit());
-				ps.setBoolean(26, msg.getIsACARS64Bit());
-				ps.setInt(27, msg.getLoadType().ordinal());
+				ps.setInt(22, msg.getAutopilotType().ordinal());
+				ps.setInt(23, msg.getPlatform().ordinal());
+				ps.setBoolean(24, msg.getIsSim64Bit());
+				ps.setBoolean(25, msg.getIsACARS64Bit());
 				if (!isNew)
-					ps.setInt(28, msg.getFlightID());
+					ps.setInt(26, msg.getFlightID());
 			
 				executeUpdate(ps, 1);
 			}
@@ -102,6 +100,16 @@ public class SetInfo extends DAO {
 					ps.setInt(1, msg.getRouteID());
 					executeUpdate(ps, 0);
 				}
+			}
+			
+			// Write load data
+			try (PreparedStatement ps = prepareWithoutLimits("REPLACE INTO acars.FLIGHT_LOAD (ID, PAX, SEATS, LOADTYPE, LOADFACTOR) VALUES (?, ?, ?, ?, ?)")) {
+				ps.setInt(1, newID);
+				ps.setInt(2, msg.getPassengers());
+				ps.setInt(3, msg.getSeats());
+				ps.setInt(4, msg.getLoadType().ordinal());
+				ps.setDouble(5, msg.getLoadFactor());
+				executeUpdate(ps, 1);
 			}
 				
 			commitTransaction();

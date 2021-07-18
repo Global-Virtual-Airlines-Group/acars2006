@@ -193,15 +193,13 @@ public class InfoCommand extends ACARSCommand {
 				}
 			}
 			
-			// Load passenger count for 121+ that submits load factor
+			// Load passenger count for 156+ that submits pax and seats
 			GetAircraft acdao = new GetAircraft(c);
 			Aircraft ac = acdao.get(msg.getEquipmentType());
 			if (ac != null) {
 				msg.setEngineCount(ac.getEngines());
 				AircraftPolicyOptions opts = ac.getOptions(usrLoc.getAirlineCode());
-				int seats = (msg.getSeats() == 0) ? opts.getSeats() : msg.getSeats();
-				if (msg.getPassengers() > 0)
-					msg.setLoadFactor(msg.getPassengers() * 1.0d / seats);
+				if (msg.getSeats() == 0) msg.setSeats(opts.getSeats());
 			} else {
 				log.warn("Unknown aircraft type - " + msg.getEquipmentType());
 				msg.setEngineCount(2);
