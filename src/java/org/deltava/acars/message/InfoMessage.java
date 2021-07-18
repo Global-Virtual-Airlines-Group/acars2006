@@ -18,7 +18,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -56,12 +56,14 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	
 	private double _loadFactor = -1;
 	private int _pax;
-	private LoadType _loadType = LoadType.RANDOM;
+	private int _seats;
+	private LoadType _loadType = LoadType.NONE;
 	
 	private boolean _flightComplete;
 	private boolean _checkRide;
 	private boolean _scheduleValidated;
 	private boolean _noRideCheck;
+	private boolean _serverRequested;
 	
 	private boolean _dispatchPlan;
 	private int _dispatcherID;
@@ -160,6 +162,10 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		return _pax;
 	}
 	
+	public int getSeats() {
+		return _seats;
+	}
+	
 	public LoadType getLoadType() {
 		return _loadType;
 	}
@@ -246,6 +252,10 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	
 	public boolean isComplete() {
 		return _flightComplete;
+	}
+	
+	public boolean isServerRequsted() {
+		return _serverRequested;
 	}
 	
 	public boolean isCheckRide() {
@@ -357,6 +367,10 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		_scheduleValidated = isOK;
 	}
 	
+	public void setServerRequested(boolean isSrvReq) {
+		_serverRequested = isSrvReq;
+	}
+	
 	public void setDispatchPlan(boolean isDP) {
 		_dispatchPlan = isDP;
 	}
@@ -399,6 +413,10 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	
 	public void setPassengers(int pax) {
 		_pax = Math.max(-1, pax);
+	}
+	
+	public void setSeats(int seats) {
+		_seats = seats;
 	}
 	
 	public void setLoadType(LoadType lt) {

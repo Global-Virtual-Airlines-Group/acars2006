@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -106,7 +106,7 @@ public class InfoCommand extends ACARSCommand {
 					msg.setFlightID(0);
 				} else {
 					isValidated = info.isScheduleValidated();
-					log.warn("Revalidating Flight " + msg.getFlightID());
+					log.warn((msg.isServerRequsted() ? "Server" : "Client") + " revalidating Flight " + msg.getFlightID());
 					if (msg.getDispatcherID() != info.getDispatcherID()) {
 						log.warn("Flight " + msg.getFlightID() + " dispatcher was " + info.getDispatcherID() + ", now " + msg.getDispatcherID());
 						if (msg.getDispatcherID() == 0)
@@ -199,10 +199,9 @@ public class InfoCommand extends ACARSCommand {
 			if (ac != null) {
 				msg.setEngineCount(ac.getEngines());
 				AircraftPolicyOptions opts = ac.getOptions(usrLoc.getAirlineCode());
+				int seats = (msg.getSeats() == 0) ? opts.getSeats() : msg.getSeats();
 				if (msg.getPassengers() > 0)
-					msg.setLoadFactor(msg.getPassengers() * 1.0d / opts.getSeats());
-				else if ((msg.getLoadFactor() > 0) && (msg.getPassengers() == 0))
-					msg.setPassengers((int) (opts.getSeats() * msg.getLoadFactor()));
+					msg.setLoadFactor(msg.getPassengers() * 1.0d / seats);
 			} else {
 				log.warn("Unknown aircraft type - " + msg.getEquipmentType());
 				msg.setEngineCount(2);

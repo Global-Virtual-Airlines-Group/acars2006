@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 1.0
  */
 
@@ -70,6 +70,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setComplete(Boolean.valueOf(getChildText(e, "complete", null)).booleanValue());
 		msg.setDispatchPlan(Boolean.valueOf(getChildText(e, "dispatchPlan", "false")).booleanValue());
 		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
+		msg.setServerRequested(Boolean.valueOf(getChildText(e, "serverRequested", "false")).booleanValue());
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "routeID", "0"), 0));
 		msg.setNetwork(EnumUtils.parse(OnlineNetwork.class,getChildText(e, "network", null), null));
@@ -102,6 +103,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		
 		// Read pax (122+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
+		msg.setSeats(StringUtils.parse(getChildText(e, "seats","0"), 0));
 		msg.setLoadType(LoadType.values()[StringUtils.parse(getChildText(e, "loadType", String.valueOf(LoadType.RANDOM.ordinal())), 0)]);
 		
 		// Load SID data
