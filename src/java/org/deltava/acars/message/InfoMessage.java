@@ -54,7 +54,6 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	private String _sid;
 	private String _star;
 	
-	private double _loadFactor = -1;
 	private int _pax;
 	private int _seats;
 	private LoadType _loadType = LoadType.NONE;
@@ -155,7 +154,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	}
 	
 	public double getLoadFactor() {
-		return _loadFactor;
+		return (_seats == 0) ? 0 : (_pax * 1.0d / _seats);
 	}
 	
 	public int getPassengers() {
@@ -405,10 +404,6 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	
 	public void setComplete(boolean isComplete) {
 		_flightComplete = isComplete;
-	}
-	
-	public void setLoadFactor(double lf) {
-		_loadFactor = Math.max(-1, Math.min(1, lf));
 	}
 	
 	public void setPassengers(int pax) {
