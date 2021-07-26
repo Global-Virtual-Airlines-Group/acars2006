@@ -270,7 +270,7 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setCG(double cg) {
 		if (!Double.isNaN(cg))
-			_cg = cg;
+			_cg = Math.min(1, Math.max(0, cg));
 	}
 
 	public void setFuelRemaining(int fr) {
