@@ -66,6 +66,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
 		afr.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
+		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
+		msg.setPaxWeight(StringUtils.parse(getChildText(e, "paxWeight", String.valueOf(FlightReportMessage.DEFAULT_PAX_WEIGHT)), FlightReportMessage.DEFAULT_PAX_WEIGHT));
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
 		if (Double.isNaN(afr.getLoadFactor())) {
@@ -76,7 +78,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
-		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
