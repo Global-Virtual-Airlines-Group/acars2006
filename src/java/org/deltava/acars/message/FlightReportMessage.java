@@ -1,4 +1,4 @@
-// Copyright 2005, 2009, 2010, 2018, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2009, 2010, 2018, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
@@ -7,17 +7,20 @@ import org.deltava.beans.flight.ACARSFlightReport;
 /**
  * An ACARS Message used to pass PIREP data.
  * @author Luke
- * @version 9.0
+ * @version 10.1
  * @since 1.0
  */
 
 public class FlightReportMessage extends AbstractMessage {
+	
+	public static final int DEFAULT_PAX_WEIGHT = 170;
    
    private ACARSFlightReport _afr;
    private int _dispatcherID;
    private int _routeID;
    
    private boolean _customCabinSize;
+   private int _paxWeight = DEFAULT_PAX_WEIGHT;
 
    /**
     * Creates a new Flight Report message.
@@ -66,6 +69,14 @@ public class FlightReportMessage extends AbstractMessage {
    public boolean hasCustomCabinSize() {
 	   return _customCabinSize;
    }
+   
+   /**
+    * Returns the aircraft's weight per passenger.
+    * @return the weight in pounds 
+    */
+   public int getPaxWeight() {
+	   return _paxWeight;
+   }
 
    /**
     * Sets the PIREP data.
@@ -97,5 +108,13 @@ public class FlightReportMessage extends AbstractMessage {
     */
    public void setCustomCabinSize(boolean isCustomCabin) {
 	   _customCabinSize = isCustomCabin;
+   }
+   
+   /**
+    * Updates the weight per passenger.
+    * @param w the weight in pounds
+    */
+   public void setPaxWeight(int w) {
+	   _paxWeight = w;
    }
 }
