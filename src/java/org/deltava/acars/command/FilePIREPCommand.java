@@ -215,14 +215,17 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				fsh.calculateGates();
 			}
 			
+			// Check aircraft
+			fsh.checkAircraft();
+			
 			// Calculate flight load factor if not set client-side
 			java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + usrLoc.getAirlineCode());
 			if (econ != null) {
 				ctx.setMessage("Calculating flight load factor");
-				if (!msg.hasCustomCabinSize() && (afr.getPassengers() != info.getPassengers()))
+				if (afr.getPassengers() != info.getPassengers())
 					afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Passenger Load mismatch for %d! Flight = %d, PIREP = %d", Integer.valueOf(flightID), Integer.valueOf(info.getPassengers()), Integer.valueOf(afr.getPassengers())));
 				
-				fsh.calculateLoadFactor((EconomyInfo) IPCUtils.reserialize(econ), msg.hasCustomCabinSize());
+				fsh.calculateLoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
 			}
 			
 			// Check for in-flight refueling
@@ -233,9 +236,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Check for tour
 			ctx.setMessage("Checking Flight Tours for " + ac.getUserID());
 			fsh.checkTour();
-			
-			// Check aircraft
-			fsh.checkAircraft();
 			
 			// Check if it's a Flight Academy flight
 			ctx.setMessage("Checking Flight Schedule");
@@ -377,8 +377,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
-			/* if (wdao.updatePaxCount(afr.getID(), usrLoc))
-				log.warn("Updated Passenger count for PIREP #" + afr.getID()); */
 			
 			// Write online track data
 			if (fsh.hasTrackData()) {
