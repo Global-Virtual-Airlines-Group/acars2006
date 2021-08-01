@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for VATSIM.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 9.0
  */
 
@@ -34,7 +34,7 @@ public class VATSIMLoader extends Loader {
 	 * Creates the Loader.
 	 */
 	public VATSIMLoader() {
-		super(OnlineNetwork.VATSIM, 20);
+		super(OnlineNetwork.VATSIM, 30);
 	}
 	
 	private class URLLoader implements Runnable {
@@ -51,8 +51,8 @@ public class VATSIMLoader extends Loader {
 		public void run() {
 			GetURL urldao = new GetURL(_url, _file);
 			try {
-				urldao.setConnectTimeout(1250);
-				urldao.setReadTimeout(15000);
+				urldao.setConnectTimeout(2500);
+				urldao.setReadTimeout(25000);
 				urldao.setCompression(Compression.GZIP);
 				urldao.download();
 			} catch (Exception e) {
