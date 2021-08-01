@@ -67,7 +67,7 @@ public class VATSIMLoader extends Loader {
 			CompletableFuture<Void> sif = CompletableFuture.runAsync(new URLLoader(SystemData.get("online.vatsim.status_url"), SystemData.get("online.vatsim.local.info")), _tp);
 			CompletableFuture<Void> tcf = CompletableFuture.runAsync(new URLLoader(SystemData.get("online.vatsim.transceiver_url"), SystemData.get("online.vatsim.local.transceiver")), _tp);
 			CompletableFuture<Void> ft = CompletableFuture.allOf(sif, tcf);
-			ft.get(17500, TimeUnit.MILLISECONDS);
+			ft.get(28000, TimeUnit.MILLISECONDS);
 		} catch (ExecutionException ee) {
 			log.error("Error downloading VATSIM data - " + ee.getMessage(), ee);
 		} catch (TimeoutException | InterruptedException ie) {
