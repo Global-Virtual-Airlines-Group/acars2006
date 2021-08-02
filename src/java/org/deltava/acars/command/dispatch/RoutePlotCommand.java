@@ -1,4 +1,4 @@
-// Copyright 2010, 2015, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2015, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 9.2
+ * @version 10.1
  * @since 3.0
  */
 
@@ -60,11 +60,11 @@ public class RoutePlotCommand extends DispatchCommand {
 			
 			// Sort runways based on wind heading
 			if ((wxD != null) && (wxD.getWindSpeed() > 0)) {
-				dRwys.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed()));
+				dRwys.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed(), true));
 				dRwys.add(null);
 			}
 			if ((wxA != null) && (wxA.getWindSpeed() > 0)) {
-				aRwys.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed()));
+				aRwys.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed(), true));
 				aRwys.add(null);
 			}
 			
