@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 2.6
  */
 
@@ -56,8 +56,8 @@ public class AirportInfoCommand extends DataCommand {
 			// Get the runway choices
 			GetACARSRunways rwdao = new GetACARSRunways(c);
 			List<Runway> rwyD = rwdao.getPopularRunways(aD, aA, true);
-			if ((wxD != null) && (wxD.getWindSpeed() > 0))
-				rwyD.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed()));
+			if (wxD != null)
+				rwyD.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed(), true));
 			
 			// Get the taxi times
 			final int year = LocalDate.now().getYear();
@@ -77,8 +77,8 @@ public class AirportInfoCommand extends DataCommand {
 				TaxiTime ttA = ttdao.getTaxiTime(aA, year);
 				METAR wxA = wxdao.getMETAR(aA.getICAO());
 				List<Runway> rwyA = rwdao.getPopularRunways(aD, aA, false);
-				if ((wxA != null) && (wxA.getWindSpeed() > 0))
-					rwyA.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed()));
+				if (wxA != null)
+					rwyA.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed(), true));
 				
 				AirportInfoMessage msgA = new AirportInfoMessage(env.getOwner(), msg.getID());	
 				msgA.setAirport(aA);
