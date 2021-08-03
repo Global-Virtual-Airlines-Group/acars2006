@@ -67,7 +67,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
 		afr.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
 		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
-		msg.setPaxWeight(StringUtils.parse(getChildText(e, "paxWeight", String.valueOf(FlightReportMessage.DEFAULT_PAX_WEIGHT)), FlightReportMessage.DEFAULT_PAX_WEIGHT));
+		msg.setPaxWeight(StringUtils.parse(getChildText(e, "passengerWeight", String.valueOf(FlightReportMessage.DEFAULT_PAX_WEIGHT)), FlightReportMessage.DEFAULT_PAX_WEIGHT));
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
 		if (Double.isNaN(afr.getLoadFactor())) {
