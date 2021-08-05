@@ -3,6 +3,7 @@ package org.deltava.acars.command.data;
 
 import java.util.*;
 import java.sql.Connection;
+import java.time.Instant;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -22,7 +23,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 10.0
+ * @version 10.1
  * @since 4.0
  */
 
@@ -108,7 +109,7 @@ public class LoadFactorCommand extends DataCommand {
 		java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + ud.getAirlineCode());
 		if ((econ != null) && (loadFactor < 0)) {
 			LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-			loadFactor = lf.generate();
+			loadFactor = lf.generate(Instant.now());
 		} else if (loadFactor < 0) loadFactor = 1;
 
 		ackMsg.setEntry("loadFactor", StringUtils.format(loadFactor, "0.00000"));
