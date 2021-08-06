@@ -108,8 +108,10 @@ public class LoadFactorCommand extends DataCommand {
 		// Calculate flight load factor
 		java.io.Serializable econ = SharedData.get(SharedData.ECON_DATA + ud.getAirlineCode());
 		if ((econ != null) && (loadFactor < 0)) {
+			final Instant today = Instant.now();
 			LoadFactor lf = new LoadFactor((EconomyInfo) IPCUtils.reserialize(econ));
-			loadFactor = lf.generate(Instant.now());
+			loadFactor = lf.generate(today);
+			ackMsg.setEntry("targetLoadFactor", StringUtils.format(lf.getTargetLoad(today), "0.00000"));
 		} else if (loadFactor < 0) loadFactor = 1;
 
 		ackMsg.setEntry("loadFactor", StringUtils.format(loadFactor, "0.00000"));
