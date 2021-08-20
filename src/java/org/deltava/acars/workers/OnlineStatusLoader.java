@@ -1,4 +1,4 @@
-// Copyright 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,14 +21,14 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 9.0
+ * @version 10.1
  * @since 9.0
  */
 
 public class OnlineStatusLoader extends Worker implements Thread.UncaughtExceptionHandler {
 
 	final Cache<NetworkInfo> _cache = CacheManager.get(NetworkInfo.class, "ServInfoData");
-	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader());
+	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader(), new POSCONLoader());
 
 	private ConnectionPool _jdbcPool;
 
@@ -38,7 +38,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 	 * Initializes the worker.
 	 */
 	public OnlineStatusLoader() {
-		super("ServInfo Loader", 45, OnlineStatusLoader.class);
+		super("Online Status Loader", 45, OnlineStatusLoader.class);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		ForkJoinPool pool = new ForkJoinPool(4, new LoaderFactory(), this, false);
+		ForkJoinPool pool = new ForkJoinPool(6, new LoaderFactory(), this, false);
 		while (!Thread.currentThread().isInterrupted()) {
 			_status.setMessage("Downloading network data");
 			_status.execute();
