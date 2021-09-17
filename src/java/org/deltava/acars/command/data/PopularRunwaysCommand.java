@@ -1,4 +1,4 @@
-// Copyright 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return popular runways for an Airport.
  * @author Luke
- * @version 9.1
+ * @version 10.1
  * @since 8.4
  */
 
@@ -67,6 +67,7 @@ public class PopularRunwaysCommand extends DataCommand {
 			
 			// Apply the surfaces
 			rspMsg.getResponse().forEach(rw -> rw.setSurface(sfcs.getOrDefault(rw.getCode() + "-" + rw.getName(), Surface.UNKNOWN)));
+			rspMsg.setMaxAge(4500);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading runway popularity - " + de.getMessage(), de);
