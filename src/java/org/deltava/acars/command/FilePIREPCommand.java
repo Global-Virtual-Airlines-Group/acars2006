@@ -426,10 +426,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 						insList.add(ins);
 				}
 					
-				if (insList.isEmpty()) {
-					for (AirlineInformation ai : uddao.getAirlines(false).values())
-						insList.addAll(pdao.getByRole("Instructor", ai.getDB()));
-				}
+				if (insList.isEmpty())
+					insList.addAll(pdao.getByRole("Instructor", usrLoc.getDB()));
 					
 				// Send the message to the Instructors
 				EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
