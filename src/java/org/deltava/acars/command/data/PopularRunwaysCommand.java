@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return popular runways for an Airport.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 8.4
  */
 
@@ -45,7 +45,7 @@ public class PopularRunwaysCommand extends DataCommand {
 		
 		// Get the sim version for the runway surface
 		InfoMessage imsg = ctx.getACARSConnection().getFlightInfo();
-		Simulator sim = (imsg == null) ? Simulator.FSX : imsg.getSimulator();
+		Simulator sim = (imsg == null) ? Simulator.P3Dv4 : imsg.getSimulator();
 		Map<String, Surface> sfcs = new HashMap<String, Surface>();
 		
 		// Create the response
@@ -61,9 +61,10 @@ public class PopularRunwaysCommand extends DataCommand {
 			navdao.getRunways(aA, sim).forEach(rw -> sfcs.put(rw.getCode() + "-" + rw.getName(), rw.getSurface()));
 			
 			// Load popular runways
+			UsagePercentFilter rf = new UsagePercentFilter(10);
 			GetACARSRunways ardao = new GetACARSRunways(con);
-			rspMsg.addAll(ardao.getPopularRunways(aD, aA, true));
-			rspMsg.addAll(ardao.getPopularRunways(aD, aA, false));
+			rf.filter(ardao.getPopularRunways(aD, aA, true)).forEach(rspMsg::add);
+			rf.filter(ardao.getPopularRunways(aD, aA, false)).forEach(rspMsg::add);
 			
 			// Apply the surfaces
 			rspMsg.getResponse().forEach(rw -> rw.setSurface(sfcs.getOrDefault(rw.getCode() + "-" + rw.getName(), Surface.UNKNOWN)));
