@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 3.0
  */
 
@@ -54,9 +54,10 @@ public class RoutePlotCommand extends DispatchCommand {
 			METAR wxA = wxdao.getMETAR(msg.getAirportA().getICAO());
 			
 			// Get best runways
+			UsagePercentFilter rf = new UsagePercentFilter(10); 
 			GetACARSRunways rwdao = new GetACARSRunways(con);
-			List<Runway> dRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true);
-			List<Runway> aRwys = rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false);
+			List<? extends Runway> dRwys = rf.filter(rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true));
+			List<? extends Runway> aRwys = rf.filter(rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false));
 			
 			// Sort runways based on wind heading
 			if ((wxD != null) && (wxD.getWindSpeed() > 0)) {
@@ -83,7 +84,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			if (!StringUtils.isEmpty(msg.getSID()) && (msg.getSID().contains("."))) {
 				StringTokenizer tkns = new StringTokenizer(msg.getSID(), ".");
 				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute sid = null;
-				for (Iterator<Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
+				for (Iterator<? extends Runway> ri = dRwys.iterator(); (sid == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
 					sid = navdao.getBestRoute(msg.getAirportD(), TerminalRoute.Type.SID, name, wp, rwy);
 					if (sid != null) {
@@ -103,7 +104,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			if (!StringUtils.isEmpty(msg.getSTAR()) && (msg.getSTAR().contains("."))) {
 				StringTokenizer tkns = new StringTokenizer(msg.getSTAR(), ".");
 				String name = TerminalRoute.makeGeneric(tkns.nextToken()); String wp = tkns.nextToken(); TerminalRoute star = null;
-				for (Iterator<Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
+				for (Iterator<? extends Runway> ri = aRwys.iterator(); (star == null) && ri.hasNext(); ) {
 					Runway rwy = ri.next();
 					star = navdao.getBestRoute(msg.getAirportA(), TerminalRoute.Type.STAR, name, wp, rwy);
 					if (star != null) {

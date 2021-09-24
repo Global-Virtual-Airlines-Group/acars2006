@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 2.6
  */
 
@@ -52,10 +52,12 @@ public class AirportInfoCommand extends DataCommand {
 			// Get the weather
 			GetWeather wxdao = new GetWeather(c);
 			METAR wxD = wxdao.getMETAR(aD.getICAO());
+			UsageWindFilter rf = new UsageWindFilter(10, -7);
+			rf.setWinds(wxD);
 			
 			// Get the runway choices
 			GetACARSRunways rwdao = new GetACARSRunways(c);
-			List<Runway> rwyD = rwdao.getPopularRunways(aD, aA, true);
+			List<? extends Runway> rwyD = rf.filter(rwdao.getPopularRunways(aD, aA, true));
 			if (wxD != null)
 				rwyD.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed(), true));
 			
@@ -68,7 +70,7 @@ public class AirportInfoCommand extends DataCommand {
 			AirportInfoMessage msgD = new AirportInfoMessage(env.getOwner(), msg.getID());
 			msgD.setAirport(aD);
 			msgD.setMETAR(wxD);
-			msgD.addAll(rwyD);
+			rwyD.forEach(msgD::add);
 			msgD.setTaxiTime(ttD);
 			ctx.push(msgD);
 			
@@ -76,14 +78,15 @@ public class AirportInfoCommand extends DataCommand {
 			if (aA != null) {
 				TaxiTime ttA = ttdao.getTaxiTime(aA, year);
 				METAR wxA = wxdao.getMETAR(aA.getICAO());
-				List<Runway> rwyA = rwdao.getPopularRunways(aD, aA, false);
+				rf.setWinds(wxA);
+				List<? extends Runway> rwyA = rf.filter(rwdao.getPopularRunways(aD, aA, false));
 				if (wxA != null)
 					rwyA.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed(), true));
 				
 				AirportInfoMessage msgA = new AirportInfoMessage(env.getOwner(), msg.getID());	
 				msgA.setAirport(aA);
 				msgA.setMETAR(wxA);
-				msgA.addAll(rwyA);
+				rwyA.forEach(msgA::add);
 				msgA.setTaxiTime(ttA);
 				ctx.push(msgA);
 			}
