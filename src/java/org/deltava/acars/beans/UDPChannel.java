@@ -1,4 +1,4 @@
-// Copyright 2011, 2013, 2014, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2013, 2014, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import org.deltava.util.NetworkUtils;
 /**
  * An object to handle UDP voice connections.
  * @author Luke
- * @version 7.2
+ * @version 10.2
  * @since 4.0
  */
 
@@ -100,7 +100,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 								_wSelector.selectedKeys().clear();
 							}
 
-							throw new IOException("Write timeout for " + getRemoteAddress());
+							throw new IOException("Write timeout for " + getRemoteAddr());
 						}
 					}
 				}
@@ -108,7 +108,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 
 			_stats.addMessageOut();
 		} catch (IOException ie) {
-			log.warn("Error writing to voice channel for " + getRemoteAddress() + " - " + ie.getMessage());
+			log.warn("Error writing to voice channel for " + getRemoteAddr() + " - " + ie.getMessage());
 		}
 	}
 }
