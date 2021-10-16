@@ -1,4 +1,4 @@
-// Copyright 2011, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2015, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -11,6 +11,7 @@ import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
+import org.deltava.beans.RemoteAddressBean;
 import org.deltava.beans.acars.ConnectionStats;
 
 import org.deltava.util.NetworkUtils;
@@ -19,11 +20,11 @@ import org.deltava.util.system.SystemData;
 /**
  * An abstract class to store common NIO channel information.
  * @author Luke
- * @version 7.0
+ * @version 10.2
  * @since 4.0
  */
 
-abstract class ACARSChannel<T> implements Serializable, Closeable {
+abstract class ACARSChannel<T> implements RemoteAddressBean, Serializable, Closeable {
 	
 	/**
 	 * Maximum number of timed out write attempts.
@@ -109,11 +110,8 @@ abstract class ACARSChannel<T> implements Serializable, Closeable {
 	
 	public abstract SelectableChannel getChannel();
 	
-	/**
-	 * Returns the remote IP address.
-	 * @return the remote address
-	 */
-	public String getRemoteAddress() {
+	@Override
+	public String getRemoteAddr() {
 		return _remoteAddr.getAddress().getHostAddress();
 	}
 	
@@ -125,10 +123,7 @@ abstract class ACARSChannel<T> implements Serializable, Closeable {
 		return NetworkUtils.getSourceAddress(_remoteAddr);
 	}
 	
-	/**
-	 * Returns the remote host name.
-	 * @return the host name
-	 */
+	@Override
 	public String getRemoteHost() {
 		return _remoteAddr.getHostName();
 	}

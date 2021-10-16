@@ -1,4 +1,4 @@
-// Copyright 2011, 2012, 2014, 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014, 2015, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 7.0
+ * @version 10.2
  * @since 4.0
  */
 
@@ -148,7 +148,7 @@ public class TCPChannel extends ACARSChannel<String> {
 			// If we started getting compressed data assume we're switching
 			if (_compress.getCompression() == Compression.NONE) {
 				_compress.setCompression(Compression.GZIP);
-				log.info(getRemoteAddress() + " auto-switching to GZIP compression");
+				log.info(getRemoteAddr() + " auto-switching to GZIP compression");
 			}
 		} else if (!_compress.hasBuffer())
 			_msgBuffer.append(new String(rawData, UTF_8));
@@ -238,7 +238,7 @@ public class TCPChannel extends ACARSChannel<String> {
 								_wSelector.selectedKeys().clear();
 							}
 							
-							throw new IOException("Write timeout for " + getRemoteAddress());
+							throw new IOException("Write timeout for " + getRemoteAddr());
 						}
 					}
 				}
@@ -246,13 +246,13 @@ public class TCPChannel extends ACARSChannel<String> {
 
 			_stats.addMessageOut();
 		} catch (ClosedSelectorException cse) {
-			log.info("Cannot write to " + getRemoteAddress() + " - selector closed");
+			log.info("Cannot write to " + getRemoteAddr() + " - selector closed");
 		} catch (AsynchronousCloseException ace) {
-			log.warn("Connection for " + getRemoteAddress() + " closed during write");
+			log.warn("Connection for " + getRemoteAddr() + " closed during write");
 		} catch (IOException ie) {
-			log.warn("Error writing to channel for " + getRemoteAddress() + " - " + ie.getMessage());
+			log.warn("Error writing to channel for " + getRemoteAddr() + " - " + ie.getMessage());
 		} catch (Exception e) {
-			log.error("Error writing to socket " + getRemoteAddress() + " - " + e.getMessage(), e);
+			log.error("Error writing to socket " + getRemoteAddr() + " - " + e.getMessage(), e);
 		}
 
 		// Update statistics
