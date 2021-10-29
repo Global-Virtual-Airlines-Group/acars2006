@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -40,8 +40,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 
 		// Build the PIREP
 		Flight fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
-		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), 1);
-		afr.setLeg(StringUtils.parse(getChildText(e, "leg", "1"), 1));
+		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
 		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.valueOf(getChildText(e, "isDivert", "false")).booleanValue());
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
@@ -146,6 +145,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setTime(4, StringUtils.parse(getChildText(e, "time4X", "0"), 0));
 		afr.setBoardTime(StringUtils.parse(getChildText(e, "timeBoard", "0"), 0));
 		afr.setDeboardTime(StringUtils.parse(getChildText(e, "timeDeboard", "0"), 0));
+		afr.setOnlineTime(StringUtils.parse(getChildText(e, "timeOnline", "0"), 0));
 
 		// Save the PIREP and return
 		msg.setPIREP(afr);
