@@ -23,7 +23,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -79,6 +79,18 @@ public class IPCDaemon implements Runnable {
 								SystemData.add("airports", apdao.getAll());
 								break;
 								
+							case AIRPORT_RENAME:
+								IDEvent ie = (IDEvent) event;
+								if (ie.getData() == null) break;
+								log.warn("ACARS renaming Airport " + ie.getData() + " to " + ie.getID());
+								break;
+								
+							case AIRCRAFT_RENAME:
+								ie = (IDEvent) event;
+								if (ie.getData() == null) break;
+								log.warn("ACARS renaming Aircraft " + ie.getData() + " to " + ie.getID());
+								break;
+								
 							case TZ_RELOAD:
 								log.warn("ACARS Reloading Time Zones");
 								GetTimeZone tzdao = new GetTimeZone(con);
@@ -86,7 +98,7 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case MVS_RELOAD:
-								log.warn("Reloading persistent Voice channels");
+								log.warn("ACARS Reloading persistent Voice channels");
 								GetMVSChannel chdao = new GetMVSChannel(con);
 								Map<String, Channel> channels = CollectionUtils.createMap(chdao.getAll(), Channel::getName);
 								VoiceChannels vc = VoiceChannels.getInstance();
@@ -140,7 +152,7 @@ public class IPCDaemon implements Runnable {
 								
 								// Reload the user
 								final int id = usr.getID();
-								log.warn("Invalidated User " + usr.getName());
+								log.warn("ACARS Invalidated User " + usr.getName());
 								CacheManager.invalidate("Pilots", usr.cacheKey());
 								Collection<ACARSConnection> cons = acPool.getAll(c -> c.isAuthenticated() && (c.getUser().getID() == id));
 								for (ACARSConnection ac : cons) {
@@ -156,7 +168,7 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case CACHE_FLUSH:
-								IDEvent ie = (IDEvent) event;
+								ie = (IDEvent) event;
 								CacheManager.invalidate(ie.getID(), false);
 								log.warn("ACARS flushing cache " + ie.getID());
 								break;
