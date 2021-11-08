@@ -3,7 +3,7 @@
 <project default="deploy">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="17" target="17" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="16" target="16" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
@@ -64,7 +64,7 @@
 			</fileset>
 		</scp>
 	</target>
-	
+
 	<!-- Deploy to PROD server -->	
 	<target name="prod_deploy" depends="compile">
 		<loadproperties srcFile="data/build_deploy.properties" />
