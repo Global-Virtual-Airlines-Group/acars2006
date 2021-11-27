@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for Weather data messages.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 2.2
  */
 
@@ -48,6 +48,7 @@ class WeatherFormatter extends ElementFormatter {
 				ew.setAttribute("wSpeed", String.valueOf(m.getWindSpeed()));
 				ew.setAttribute("wDir", String.valueOf(m.getWindDirection()));
 				ew.setAttribute("wGust", String.valueOf(m.getWindGust()));
+				ew.setAttribute("pressure", StringUtils.format(m.getPressure(), "00.00"));
 				if (m.getILS() != ILSCategory.NONE)
 					ew.setAttribute("ils", m.getILS().toString());
 			}
