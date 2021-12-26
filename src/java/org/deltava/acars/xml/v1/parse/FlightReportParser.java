@@ -50,10 +50,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setDate(Instant.now());
 		afr.setSubmittedOn(afr.getDate());
 		afr.setRestoreCount(StringUtils.parse(e.getChildTextTrim("restoreCount"), 0));
-		boolean hasRestore = Boolean.valueOf(getChildText(e, "hasRestore", "false")).booleanValue(); // TODO: remove once 156 is minimum
-		if (hasRestore && (afr.getRestoreCount() == 0))
-			afr.setRestoreCount(1);
-		
 		afr.setAirportD(getAirport(e.getChildTextTrim("airportD")));
 		afr.setAirportA(getAirport(e.getChildTextTrim("airportA")));
 		afr.setRemarks(e.getChildText("remarks"));
@@ -89,6 +85,10 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 			afr.setTakeoffTime(LocalDateTime.parse(e.getChildTextTrim("takeoffTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
 			afr.setLandingTime(LocalDateTime.parse(e.getChildTextTrim("landingTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
 			afr.setEndTime(LocalDateTime.parse(e.getChildTextTrim("gateTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			if (XMLUtils.hasElement(e, "tocTime"))
+				afr.setTOCTime(LocalDateTime.parse(e.getChildTextTrim("tocTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
+			if (XMLUtils.hasElement(e, "todTime"))
+				afr.setTODTime(LocalDateTime.parse(e.getChildTextTrim("todTime"), dfb.toFormatter()).toInstant(ZoneOffset.UTC));
 		} catch (Exception pex) {
 			throw new XMLException("Invalid Date/Time - " + pex.getMessage(), pex);
 		}
