@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.time.Duration;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to return airport taxi times.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 8.6
  */
 
@@ -45,6 +45,7 @@ public class TaxiTimeCommand extends DataCommand {
 			TaxiTime tt = ttdao.getTaxiTime(a); Duration d = isTakeoff ? tt.getOutboundTime() : tt.getInboundTime();
 			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
 			ackMsg.setEntry("taxiTime", String.valueOf(d.toSeconds()));
+			ackMsg.setEntry("year", String.valueOf(tt.getYear()));
 			ctx.push(ackMsg);
 		} catch (DAOException de) {
 			log.error("Error loading taxi times - " + de.getMessage(), de);
