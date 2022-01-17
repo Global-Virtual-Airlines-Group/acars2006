@@ -21,7 +21,7 @@ public class FlightReportMessage extends AbstractMessage {
    
    private boolean _customCabinSize;
    private int _paxWeight = DEFAULT_PAX_WEIGHT;
-
+   
    /**
     * Creates a new Flight Report message.
     * @param msgFrom the Pilot sending the message

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -68,7 +68,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		InfoMessage info = ac.getFlightInfo();
 		UserData usrLoc = ac.getUserData();
 		AirlineInformation usrAirline = SystemData.getApp(usrLoc.getAirlineCode());
-		afr.addStatusUpdate(usrLoc.getID(), HistoryType.LIFECYCLE, "Submitted via ACARS server");
 
 		// Adjust the times
 		afr.setStartTime(afr.getStartTime().plusMillis(ac.getTimeOffset()));
@@ -76,6 +75,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		afr.setTakeoffTime(afr.getTakeoffTime().plusMillis(ac.getTimeOffset()));
 		afr.setLandingTime(afr.getLandingTime().plusMillis(ac.getTimeOffset()));
 		afr.setEndTime(afr.getEndTime().plusMillis(ac.getTimeOffset()));
+		if (ac.getTimeOffset() > 5000)
+			afr.addStatusUpdate(0, HistoryType.UPDATE, String.format("Adjusted times by %d ms", Long.valueOf(ac.getTimeOffset())));
+		
+		afr.addStatusUpdate(usrLoc.getID(), HistoryType.LIFECYCLE, "Submitted via ACARS server");
 
 		// If we have no flight info, then push it back
 		if (info == null) {
@@ -346,8 +349,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				if ((aSID != null) && (!aSID.getCode().equals(info.getSID()))) {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.SID);
 					awdao.writeSIDSTAR(flightID, aSID);
-					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed SID was " + info.getSID() + ", actual was " + aSID.getCode());
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Filed SID was %s, actual was %s", info.getSID(), aSID.getCode()));
 				}
 				
 				// Check what STAR we filed
@@ -367,8 +369,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				if ((aSTAR != null) && (!aSTAR.getCode().equals(info.getSTAR()))) {
 					awdao.clearTerminalRoutes(flightID, TerminalRoute.Type.STAR);
 					awdao.writeSIDSTAR(flightID, aSTAR);
-					if ((ac.getVersion() > 2) || p.isInRole("Developer"))
-						afr.addStatusUpdate(0, HistoryType.SYSTEM, "Filed STAR was " + info.getSTAR() + ", actual was " + aSTAR.getCode());
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Filed STAR was %s, actual was %s", info.getSTAR(), aSTAR.getCode()));
 				}
 			}
 			
@@ -400,7 +401,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Save the PIREP ID in the ACK message and send the ACK
 			ackMsg.setEntry("pirepID", afr.getHexID());
 			ackMsg.setEntry("flightID", Integer.toHexString(afr.getDatabaseID(DatabaseID.ACARS)));
-			ackMsg.setEntry("protocol", "https");
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 			ctx.push(ackMsg, ac.getID(), true);
 			
@@ -465,7 +465,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			log.info("PIREP " + afr.getID() + " [Flight " + afr.getDatabaseID(DatabaseID.ACARS) + "] from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error(ac.getUserID() + " - " + de.getMessage(), de);
+			log.error(String.format("%s - %s", ac.getUserID(), de.getMessage()), de);
 			ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
 			ctx.push(ackMsg, ac.getID(), true);
 		} finally {

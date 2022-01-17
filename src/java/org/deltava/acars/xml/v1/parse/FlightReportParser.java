@@ -1,9 +1,10 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
 import java.time.format.DateTimeFormatterBuilder;
 
+import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
@@ -146,6 +147,15 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setBoardTime(StringUtils.parse(getChildText(e, "timeBoard", "0"), 0));
 		afr.setDeboardTime(StringUtils.parse(getChildText(e, "timeDeboard", "0"), 0));
 		afr.setOnlineTime(StringUtils.parse(getChildText(e, "timeOnline", "0"), 0));
+		
+		// Parse status messages
+		if (XMLUtils.hasElement(e, "msgs")) {
+			for (Element me : e.getChild("msgs").getChildren()) {
+				Instant dt = StringUtils.parseInstant(me.getAttributeValue("time"), "MM/dd/yyyy HH:mm:ss");
+				FlightHistoryEntry upd = new FlightHistoryEntry(0, HistoryType.USER, user.getID(), dt, me.getText());
+				afr.addStatusUpdate(upd);
+			}
+		}
 
 		// Save the PIREP and return
 		msg.setPIREP(afr);
