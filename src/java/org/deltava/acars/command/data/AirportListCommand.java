@@ -45,9 +45,9 @@ public class AirportListCommand extends DataCommand {
 		try {
 			GetAirport dao = new GetAirport(ctx.getConnection());
 			dao.setAppCode(appCode);
+			airports.addAll(dao.getTourAirports(ac.getUserData().getDB()));
 			airports.addAll(dao.getAll().values());
 			airports.addAll(dao.getEventAirports());
-			airports.addAll(dao.getTourAirports());
 		} catch (DAOException de) {
 			log.error("Cannot load airports - " + de.getMessage(), de);
 			Map<?, ?> allAirports = (Map<?, ?>) SystemData.getObject("airports");
