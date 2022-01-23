@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -241,6 +241,17 @@ public class InfoCommand extends ACARSCommand {
 					log.info("Validated Dispatcher " + ud.getID() + " for " + env.getOwnerID());
 			}
 			
+			// Validate the dispatch log
+			if (msg.getDispatchLogID() != 0) {
+				GetACARSLog aldao = new GetACARSLog(c);
+				DispatchLogEntry dle = aldao.getDispatchLog(msg.getDispatchLogID());
+				if (dle == null) {
+					log.warn("Invalid Dispatch Log ID - " + msg.getDispatchLogID());
+					msg.setDispatchLogID(0);
+				} else
+					log.info("Validated Dispatch Log " + dle.getID() + " for " + env.getOwnerID());
+			}
+			
 			// Start a transaction
 			ctx.startTX();
 			
@@ -285,7 +296,7 @@ public class InfoCommand extends ACARSCommand {
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			msg.setFlightID(oldID);
-			log.error("Pilot = " + con.getUserID() + ", RouteID = " + msg.getRouteID() + ", DispatcherID = " + msg.getDispatcherID());
+			log.error("Pilot = " + con.getUserID() + ", ID = " + oldID + ", RouteID = " + msg.getRouteID() + ", DispatcherID = " + msg.getDispatcherID());
 			log.error(de.getMessage(), de);
 		} finally {
 			ctx.release();
