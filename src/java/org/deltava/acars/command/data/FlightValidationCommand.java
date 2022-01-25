@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -19,10 +19,9 @@ import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 /**
- * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a
- * valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
+ * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 2.3
  */
 
@@ -93,7 +92,7 @@ public class FlightValidationCommand extends DataCommand {
 				GetTour trdao = new GetTour(con);
 				Collection<Tour> possibleTours = trdao.findLeg(new ScheduleRoute(airportD, airportA), null, ud.getDB());
 				possibleTours.removeIf(t -> !t.isActiveOn(now));
-				isValid |= possibleTours.isEmpty();
+				isValid |= !possibleTours.isEmpty();
 				rspMsg.setEntry("possibleTour", String.valueOf(!possibleTours.isEmpty()));
 			}
 			
