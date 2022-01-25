@@ -13,6 +13,7 @@ import org.deltava.comparators.AirportComparator;
 
 import org.deltava.dao.*;
 
+import org.deltava.util.CollectionUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -45,9 +46,10 @@ public class AirportListCommand extends DataCommand {
 		try {
 			GetAirport dao = new GetAirport(ctx.getConnection());
 			dao.setAppCode(appCode);
-			airports.addAll(dao.getTourAirports(ac.getUserData().getDB()));
-			airports.addAll(dao.getAll().values());
-			airports.addAll(dao.getEventAirports());
+			Map<String, Airport> aps = CollectionUtils.createMap(dao.getAll().values(), Airport::getIATA);
+			dao.getTourAirports(ac.getUserData().getDB()).forEach(a -> addAirportCodes(aps, a));
+			dao.getEventAirports().forEach(a -> addAirportCodes(aps, a));
+			airports.addAll(aps.values());
 		} catch (DAOException de) {
 			log.error("Cannot load airports - " + de.getMessage(), de);
 			Map<?, ?> allAirports = (Map<?, ?>) SystemData.getObject("airports");
@@ -58,5 +60,13 @@ public class AirportListCommand extends DataCommand {
 
 		rspMsg.addAll(airports);
 		ctx.push(rspMsg);
+	}
+	
+	private static void addAirportCodes(Map<String, Airport> airports, Airport a) {
+		Airport a2 = airports.get(a.getICAO());
+		if (a2 != null)
+			a.getAirlineCodes().forEach(a2::addAirlineCode);
+		else
+			airports.put(a.getICAO(), a);
 	}
 }
