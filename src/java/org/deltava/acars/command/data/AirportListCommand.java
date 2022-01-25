@@ -63,7 +63,7 @@ public class AirportListCommand extends DataCommand {
 	}
 	
 	private static void addAirportCodes(Map<String, Airport> airports, Airport a) {
-		Airport a2 = airports.get(a.getICAO());
+		Airport a2 = airports.get(a.getIATA());
 		if (a2 != null)
 			a.getAirlineCodes().forEach(a2::addAirlineCode);
 		else
