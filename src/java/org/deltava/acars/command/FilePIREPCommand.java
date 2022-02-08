@@ -266,9 +266,16 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Check dispatch log
 			if ((afr.getDatabaseID(DatabaseID.DISPATCH) != info.getDispatchLogID()) && (info.getDispatchLogID() == 0)) {
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Setting ACARS Dispatch Log to " + afr.getDatabaseID(DatabaseID.DISPATCH));
-				SetDispatch dlwdao = new SetDispatch(con);
-				dlwdao.link(afr.getDatabaseID(DatabaseID.DISPATCH), info.getFlightID());
+				GetACARSLog aldao = new GetACARSLog(con);
+				DispatchLogEntry dle = aldao.getDispatchLog(afr.getDatabaseID(DatabaseID.DISPATCH));
+				if (dle != null) {
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Setting ACARS Dispatch Log to " + afr.getDatabaseID(DatabaseID.DISPATCH));
+					SetDispatch dlwdao = new SetDispatch(con);
+					dlwdao.link(afr.getDatabaseID(DatabaseID.DISPATCH), info.getFlightID());	
+				} else {
+					afr.addStatusUpdate(0, HistoryType.SYSTEM, "Cannot find Dispatch Log " + afr.getDatabaseID(DatabaseID.DISPATCH));
+					afr.setDatabaseID(DatabaseID.DISPATCH, 0);
+				}
 			}
 
 			// Clean up the memcached track data
