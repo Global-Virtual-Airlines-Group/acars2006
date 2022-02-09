@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Base64;
@@ -13,7 +13,7 @@ import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
 
 import org.deltava.crypt.AESEncryptor;
-
+import org.deltava.crypt.CryptoException;
 import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
@@ -22,7 +22,7 @@ import org.deltava.util.*;
 /**
  * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -73,10 +73,13 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 			System.arraycopy(vs, 0, k, 12, Math.min(4, vs.length));
 			
 			// Decrypt
-			AESEncryptor aes = new AESEncryptor(k, iv);
-			byte[] rawPwd = aes.decrypt(pwdData);
-			pwd = new String(rawPwd, StandardCharsets.UTF_8);
-			log.info(String.format("pwd = %s", pwd));
+			try {
+				AESEncryptor aes = new AESEncryptor(k, iv);
+				byte[] rawPwd = aes.decrypt(pwdData);
+				pwd = new String(rawPwd, StandardCharsets.UTF_8);
+			} catch (CryptoException ce) {
+				log.warn(String.format("Error decrypting password for %s - %s", userID, ce.getMessage()));
+			}
 		}
 		
 		// Create the bean and use this protocol version for responses
