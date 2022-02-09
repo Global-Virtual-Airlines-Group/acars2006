@@ -151,8 +151,10 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Parse status messages
 		if (XMLUtils.hasElement(e, "msgs")) {
 			for (Element me : e.getChild("msgs").getChildren()) {
+				int userID = StringUtils.parse(me.getAttributeValue("userID"), user.getID());
+				HistoryType ht = EnumUtils.parse(HistoryType.class, me.getAttributeValue("type"), HistoryType.USER);
 				Instant dt = StringUtils.parseInstant(me.getAttributeValue("time"), "MM/dd/yyyy HH:mm:ss");
-				FlightHistoryEntry upd = new FlightHistoryEntry(0, HistoryType.USER, user.getID(), dt, me.getText());
+				FlightHistoryEntry upd = new FlightHistoryEntry(0, ht, userID, dt, me.getText());
 				afr.addStatusUpdate(upd);
 			}
 		}
