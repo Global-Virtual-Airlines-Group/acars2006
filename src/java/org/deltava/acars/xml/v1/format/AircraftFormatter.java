@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2010, 2011, 2012, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Aircraft data messages.
  * @author Luke
- * @version 9.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -48,6 +48,7 @@ class AircraftFormatter extends ElementFormatter {
 			ae.setAttribute("academyOnly", String.valueOf(a.getAcademyOnly()));
 			ae.addContent(XMLUtils.createElement("fullName", a.getFullName()));
 			ae.addContent(XMLUtils.createElement("family", a.getFamily()));
+			ae.addContent(XMLUtils.createElement("icao", a.getICAO()));
 			ae.addContent(XMLUtils.createElement("engineType", a.getEngineType()));
 			ae.addContent(XMLUtils.createElement("cruiseSpeed", String.valueOf(a.getCruiseSpeed())));
 			ae.addContent(XMLUtils.createElement("baseFuel", String.valueOf(a.getBaseFuel())));
