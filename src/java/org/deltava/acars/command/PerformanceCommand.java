@@ -1,4 +1,4 @@
-// Copyright 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
@@ -16,7 +16,7 @@ import org.deltava.dao.acars.SetSystemInfo;
 /**
  * An ACARS server command to handle client performance counter messages.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 8.6
  */
 
@@ -49,10 +49,10 @@ public class PerformanceCommand extends ACARSCommand {
 			dao.write(msg);
 			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID()));
 		} catch (IllegalArgumentException iae) {
-			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), iae.getMessage()));
+			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), iae.getMessage(), true));
 		} catch (DAOException de) {
 			log.error(de.getMessage(), de);
-			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), de.getMessage()));
+			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), de.getMessage(), true));
 		} finally {
 			ctx.release();
 		}
