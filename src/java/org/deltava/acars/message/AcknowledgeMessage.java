@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2018, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2018, 2019, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.Pilot;
 /**
  * An ACARS Acknowledgement message.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -36,8 +36,20 @@ public class AcknowledgeMessage extends AbstractMessage {
 	 * @param errorMsg the error message
 	 */
 	public AcknowledgeMessage(Pilot msgFrom, long parentID, String errorMsg) {
+		this(msgFrom, parentID, errorMsg, false);
+	}
+	
+	/**
+	 * Creates an error message.
+	 * @param msgFrom the originating pilot, either the author or the system
+	 * @param parentID the parent message ID
+	 * @param errorMsg the error message
+	 * @param sendClientError TRUE to request that the client generates an error log, otherwise FASLE
+	 */
+	public AcknowledgeMessage(Pilot msgFrom, long parentID, String errorMsg, boolean sendClientError) {
 		this(msgFrom, parentID);
 		setEntry("error", errorMsg);
+		setEntry("clientError", "true");
 	}
 	
 	/**
