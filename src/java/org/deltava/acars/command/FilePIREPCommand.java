@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -249,7 +249,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			fsh.calculateRunways();
 			
 			// Set misc options
-			afr.setAverageFrameRate(fddao.getFrameRate(flightID));
+			afr.setAverageFrameRate(fddao.getFrameRate(flightID).getAverage());
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
 			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());

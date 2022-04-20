@@ -1,4 +1,4 @@
-// Copyright 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -6,16 +6,15 @@ import org.jdom2.Element;
 import org.deltava.acars.message.PerformanceMessage;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.acars.TaskTimerData;
+import org.deltava.beans.acars.*;
 
 import org.deltava.util.StringUtils;
-
 import org.deltava.acars.xml.*;
 
 /**
  * A parser for ACARS client performance counter messages.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 8.6
  */
 
@@ -41,6 +40,29 @@ public class PerformanceParser extends XMLElementParser<PerformanceMessage> {
 			ttd.setTotal(StringUtils.parse(getChildText(te, "total", "0"), 0, false));
 			ttd.setStdDev(StringUtils.parse(getChildText(te, "stdDev", "0"), 0.0));
 			msg.addTimerData(ttd);
+		}
+		
+		for (Element ce : e.getChildren("perfctrs")) {
+			String v = ce.getTextTrim(); 
+			if (v.indexOf('.') > -1) 
+				msg.addCounter(ce.getName(), StringUtils.parse(v, 0d));
+			else
+				msg.addCounter(ce.getName(), StringUtils.parse(v, 0));
+		}
+		
+		Element fre = e.getChild("framerates");
+		if (fre != null) {
+			FrameRates fr = new FrameRates();
+			fr.setSize(StringUtils.parse(getChildText(fre, "size", "0"), 0));
+			fr.setMin(StringUtils.parse(getChildText(fre, "min", "0"), 0));
+			fr.setMax(StringUtils.parse(getChildText(fre, "max", "0"), 0));
+			fr.setAverage(StringUtils.parse(getChildText(fre, "avg", "0.0"), 0d));
+			fr.setPercentile(1, StringUtils.parse(getChildText(fre, "p1", "0"), 0));
+			fr.setPercentile(5, StringUtils.parse(getChildText(fre, "p5", "0"), 0));
+			fr.setPercentile(50, StringUtils.parse(getChildText(fre, "p50", "0"), 0));
+			fr.setPercentile(95, StringUtils.parse(getChildText(fre, "p95", "0"), 0));
+			fr.setPercentile(99, StringUtils.parse(getChildText(fre, "p99", "0"), 0));
+			msg.setFrames(fr);
 		}
 		
 		return msg;
