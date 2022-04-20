@@ -1,4 +1,4 @@
-// Copyright 2016, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2019, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -6,7 +6,7 @@ import java.sql.*;
 import org.deltava.acars.message.*;
 
 import org.deltava.beans.Simulator;
-import org.deltava.beans.acars.TaskTimerData;
+import org.deltava.beans.acars.*;
 
 import org.deltava.dao.*;
 
@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * A Data Access Object to write user system data to the database.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 6.4
  */
 
@@ -117,6 +117,29 @@ public class SetSystemInfo extends DAO {
 			commitTransaction();
 		} catch (SQLException se) {
 			rollbackTransaction();
+			throw new DAOException(se);
+		}
+	}
+
+	/**
+	 * Writes frame rate data to the database.
+	 * @param fr a FrameRates bean
+	 * @throws DAOException if a JDBC error occurs
+	 */
+	public void write(FrameRates fr) throws DAOException {
+		try (PreparedStatement ps = prepareWithoutLimits("REPLACE INTO acars.FRAMERATES (ID, SIZE, MIN, MAX, P1, P5, P50, P95, P99, AVERAGE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+			ps.setInt(1, fr.getID());
+			ps.setInt(2, fr.getSize());
+			ps.setInt(3, fr.getMin());
+			ps.setInt(4, fr.getMax());
+			ps.setInt(5, fr.getPercentile(1));
+			ps.setInt(6, fr.getPercentile(5));
+			ps.setInt(7, fr.getPercentile(50));
+			ps.setInt(8, fr.getPercentile(95));
+			ps.setInt(9, fr.getPercentile(99));
+			ps.setDouble(10, fr.getAverage());
+			executeUpdate(ps, 1);
+		} catch (SQLException se) {
 			throw new DAOException(se);
 		}
 	}

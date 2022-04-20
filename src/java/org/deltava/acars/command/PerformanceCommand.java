@@ -37,6 +37,8 @@ public class PerformanceCommand extends ACARSCommand {
 		boolean idOK = (info != null) && (info.getFlightID() != msg.getFlightID());
 		try {
 			Connection con = ctx.getConnection();
+			ctx.startTX();
+			
 			if (!idOK) {
 				GetACARSData idao = new GetACARSData(con);
 				FlightInfo inf = idao.getInfo(msg.getFlightID());
@@ -47,12 +49,17 @@ public class PerformanceCommand extends ACARSCommand {
 			
 			SetSystemInfo dao = new SetSystemInfo(con);
 			dao.write(msg);
+			if (msg.getFrames() != null)
+				dao.write(msg.getFrames());
+			
+			ctx.commitTX();
 			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID()));
-		} catch (IllegalArgumentException iae) {
-			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), iae.getMessage(), true));
-		} catch (DAOException de) {
-			log.error(de.getMessage(), de);
-			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), de.getMessage(), true));
+		} catch (DAOException | IllegalArgumentException ex) {
+			if (ex instanceof DAOException)
+				log.error(ex.getMessage(), ex);
+			
+			ctx.rollbackTX();
+			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), ex.getMessage(), true));
 		} finally {
 			ctx.release();
 		}
