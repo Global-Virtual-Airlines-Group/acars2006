@@ -17,7 +17,7 @@ public class PerformanceMessage extends AbstractMessage {
 	
 	private int _flightID;
 	private final Collection<TaskTimerData> _tt = new LinkedHashSet<TaskTimerData>();
-	private final Map<String, Number> _ctrs = new HashMap<String, Number>();
+	private final Map<String, Integer> _ctrs = new HashMap<String, Integer>();
 	private FrameRates _frames;
 
 	/**
@@ -58,8 +58,8 @@ public class PerformanceMessage extends AbstractMessage {
 	 * @param defaultValue the default value if the counter does not exist
 	 * @return the counter value, or the default
 	 */
-	public Number getCounter(String key, Number defaultValue) {
-		return _ctrs.getOrDefault(key, defaultValue);
+	public int getCounter(String key, int defaultValue) {
+		return _ctrs.getOrDefault(key, Integer.valueOf(defaultValue)).intValue();
 	}
 	
 	/**
@@ -87,15 +87,6 @@ public class PerformanceMessage extends AbstractMessage {
 		_ctrs.put(label, Integer.valueOf(value));
 	}
 	
-	/**
-	 * Adds a floating point performance counter.
-	 * @param label the counter name
-	 * @param value the counter value
-	 */
-	public void addCounter(String label, double value) {
-		_ctrs.put(label, Double.valueOf(value));
-	}
-
 	/**
 	 * Updates the Flight ID for this data collection.
 	 * @param id the flight ID
