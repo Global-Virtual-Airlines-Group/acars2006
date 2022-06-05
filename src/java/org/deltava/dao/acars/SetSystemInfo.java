@@ -97,8 +97,13 @@ public class SetSystemInfo extends DAO {
 				executeUpdate(ps, 0);
 			}
 			
+			try (PreparedStatement ps = prepareWithoutLimits("DELETE FROM acars.PERFCOUNTER WHERE (ID=?)")) {
+				ps.setInt(1, pm.getFlightID());
+				executeUpdate(ps, 0);
+			}
+			
 			// Write the timers
-			try (PreparedStatement ps = prepare("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN, STDDEV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+			try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN, STDDEV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
 				ps.setInt(1, pm.getFlightID());
 				for (TaskTimerData ttd : pm.getTimers()) {
 					ps.setString(2, ttd.getName());
@@ -112,6 +117,18 @@ public class SetSystemInfo extends DAO {
 				}
 			
 				executeUpdate(ps, 1, pm.getTimers().size());
+			}
+			
+			// Write the counters
+			try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFCOUNTER (ID, NAME, VALUE) VALUES (?, ?, ?)")) {
+				ps.setInt(1, pm.getFlightID());
+				for (String ctrName : pm.getCounters()) {
+					ps.setString(2, ctrName);
+					ps.setInt(3, pm.getCounter(ctrName, 0));
+					ps.addBatch();
+				}
+				
+				executeUpdate(ps, pm.getCounters().size());
 			}
 			
 			commitTransaction();
