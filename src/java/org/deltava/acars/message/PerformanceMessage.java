@@ -69,6 +69,22 @@ public class PerformanceMessage extends AbstractMessage {
 	public Collection<TaskTimerData> getTimers() {
 		return _tt;
 	}
+	
+	/**
+	 * Returns if there are any performance counter values.
+	 * @return TRUE if there is at least one counter value, otherwise FALSE
+	 */
+	public boolean hasCounters() {
+		return (_ctrs.size() > 0);
+	}
+	
+	/**
+	 * Returns if there are any task timer values.
+	 * @return TRUE if there is at least one timer value, otherwise FALSE
+	 */
+	public boolean hasTimers() {
+		return (_tt.size() > 0);
+	}
 
 	/**
 	 * Adds task timer data to this message.
