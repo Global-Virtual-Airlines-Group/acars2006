@@ -103,32 +103,36 @@ public class SetSystemInfo extends DAO {
 			}
 			
 			// Write the timers
-			try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN, STDDEV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
-				ps.setInt(1, pm.getFlightID());
-				for (TaskTimerData ttd : pm.getTimers()) {
-					ps.setString(2, ttd.getName());
-					ps.setInt(3, ttd.getTickSize());
-					ps.setLong(4, ttd.getCount());
-					ps.setLong(5, ttd.getTotal());
-					ps.setInt(6, ttd.getMax());
-					ps.setInt(7, ttd.getMin());
-					ps.setDouble(8, ttd.getStdDev());
-					ps.addBatch();
-				}
+			if (pm.hasTimers()) {
+				try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFINFO (ID, TIMER, TICKSIZE, COUNT, TOTAL, MAX, MIN, STDDEV) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+					ps.setInt(1, pm.getFlightID());
+					for (TaskTimerData ttd : pm.getTimers()) {
+						ps.setString(2, ttd.getName());
+						ps.setInt(3, ttd.getTickSize());
+						ps.setLong(4, ttd.getCount());
+						ps.setLong(5, ttd.getTotal());
+						ps.setInt(6, ttd.getMax());
+						ps.setInt(7, ttd.getMin());
+						ps.setDouble(8, ttd.getStdDev());
+						ps.addBatch();
+					}
 			
-				executeUpdate(ps, 1, pm.getTimers().size());
+					executeUpdate(ps, 1, pm.getTimers().size());
+				}
 			}
 			
 			// Write the counters
-			try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFCOUNTER (ID, NAME, VALUE) VALUES (?, ?, ?)")) {
-				ps.setInt(1, pm.getFlightID());
-				for (String ctrName : pm.getCounters()) {
-					ps.setString(2, ctrName);
-					ps.setInt(3, pm.getCounter(ctrName, 0));
-					ps.addBatch();
-				}
+			if (pm.hasCounters()) {
+				try (PreparedStatement ps = prepareWithoutLimits("INSERT INTO acars.PERFCOUNTER (ID, NAME, VALUE) VALUES (?, ?, ?)")) {
+					ps.setInt(1, pm.getFlightID());
+					for (String ctrName : pm.getCounters()) {
+						ps.setString(2, ctrName);
+						ps.setInt(3, pm.getCounter(ctrName, 0));
+						ps.addBatch();
+					}
 				
-				executeUpdate(ps, pm.getCounters().size());
+					executeUpdate(ps, pm.getCounters().size());
+				}
 			}
 			
 			commitTransaction();
