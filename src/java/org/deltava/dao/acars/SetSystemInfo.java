@@ -131,7 +131,7 @@ public class SetSystemInfo extends DAO {
 						ps.addBatch();
 					}
 				
-					executeUpdate(ps, pm.getCounters().size());
+					executeUpdate(ps, 1, pm.getCounters().size());
 				}
 			}
 			
