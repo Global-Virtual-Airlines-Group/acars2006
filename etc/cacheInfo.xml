@@ -13,6 +13,7 @@
     <cache id="Airspace" expires="86400" remote="true" />
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
+	<cache id="Alternates" remote="true" expires="86400" />
 	<cache id="Gates" remote="true" expires="86400" />
 	<cache id="GateUsage" remote="true" expires="86400" />
 	<cache id="ACARSRunways" remote="true" expires="86400" />
