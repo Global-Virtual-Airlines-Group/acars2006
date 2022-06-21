@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2016, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's hidden status.
  * @author Luke
- * @version 9.1
+ * @version 10.2
  * @since 2.2
  */
 
@@ -34,7 +34,7 @@ public class HiddenCommand extends DataCommand {
 		}
 		
 		// Set the pilot's hidden flag
-		boolean isNowHidden = Boolean.valueOf(msg.getFlag("isHidden")).booleanValue(); 
+		boolean isNowHidden = Boolean.parseBoolean(msg.getFlag("isHidden")); 
 		ac.setUserHidden(isNowHidden);
 		
 		// Send the update message

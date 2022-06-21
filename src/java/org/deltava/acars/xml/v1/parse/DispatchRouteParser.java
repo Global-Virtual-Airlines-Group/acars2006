@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2012, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.beans.Pilot;
@@ -12,7 +12,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for route request messages.
  * @author Luke
- * @version 4.2
+ * @version 10.2
  * @since 2.0
  */
 
@@ -31,7 +31,7 @@ class DispatchRouteParser extends XMLElementParser<RouteRequestMessage> {
 		RouteRequestMessage msg = new RouteRequestMessage(user);
 		msg.setAirportD(SystemData.getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(SystemData.getAirport(getChildText(e, "airportA", null)));
-		msg.setExternalRoutes(Boolean.valueOf(e.getAttributeValue("external")).booleanValue());
+		msg.setExternalRoutes(Boolean.parseBoolean(e.getAttributeValue("external")));
 		return msg;
 	}
 }

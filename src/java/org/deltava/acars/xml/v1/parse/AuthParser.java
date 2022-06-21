@@ -48,15 +48,15 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		// Parse the userID
 		UserID id = new UserID(userID);
 		boolean isDBID = !id.hasAirlineCode();
-		isDBID |= Boolean.valueOf(getChildText(e, "isID", null)).booleanValue();
+		isDBID |= Boolean.parseBoolean(getChildText(e, "isID", null));
 		if (isDBID && (id.getUserID() < 1))
 			throw new XMLException("Invalid Database ID - " + userID);
 		
 		// Get version and client type
 		ClientInfo info = new ClientInfo(StringUtils.parse(getChildText(e, "version", "v1.2").substring(1, 2), 2), StringUtils.parse(getChildText(e, "build", "0"), 0), StringUtils.parse(getChildText(e, "beta", "0"), 0));
-		if (Boolean.valueOf(getChildText(e, "dispatch", null)).booleanValue())
+		if (Boolean.parseBoolean(getChildText(e, "dispatch", null)))
 			info.setClientType(ClientType.DISPATCH);
-		else if (Boolean.valueOf(getChildText(e, "atc", null)).booleanValue())
+		else if (Boolean.parseBoolean(getChildText(e, "atc", null)))
 			info.setClientType(ClientType.ATC);
 		
 		// Handle encrypted password if present
@@ -85,8 +85,8 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 		// Create the bean and use this protocol version for responses
 		AuthenticateMessage msg = new AuthenticateMessage(userID, pwd);
 		msg.setClientInfo(info);
-		msg.setHidden(Boolean.valueOf(getChildText(e, "stealth", null)).booleanValue());
-		msg.setHasCompression(Boolean.valueOf(getChildText(e, "compress", null)).booleanValue());
+		msg.setHidden(Boolean.parseBoolean(getChildText(e, "stealth", null)));
+		msg.setHasCompression(Boolean.parseBoolean(getChildText(e, "compress", null)));
 		msg.setDatabaseID(isDBID);
 		
 		// Get the user's local UTC time

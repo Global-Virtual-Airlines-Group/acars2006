@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -92,19 +92,19 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
-			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
-			msg.setReplay(Boolean.valueOf(getChildText(e, "isReplay", "false")).booleanValue());
+			msg.setLogged(Boolean.parseBoolean(getChildText(e, "isLogged", "true")));
+			msg.setReplay(Boolean.parseBoolean(getChildText(e, "isReplay", "false")));
 			msg.setRestoreCount(Integer.parseInt(getChildText(e, "restoreCount", "0")));
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
-			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
+			msg.setTXActive(Boolean.parseBoolean(getChildText(e, "txActive", "true")));
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
 			msg.setNAV1(getChildText(e, "nav1", "109.90"));
 			msg.setNAV2(getChildText(e, "nav2", "109.90"));
 			msg.setADF1(getChildText(e, "adf1", null));
 			msg.setVASFree(Integer.parseInt(getChildText(e, "vasFree", "0")));
 			msg.setGroundOperations(Integer.parseInt(getChildText(e, "groundOps", "0")));
-			msg.setNetworkConnected(Boolean.valueOf(getChildText(e, "networkConnected", "false")).booleanValue());
-			msg.setACARSConnected(Boolean.valueOf(getChildText(e, "acarsConnected", "true")).booleanValue());
+			msg.setNetworkConnected(Boolean.parseBoolean(getChildText(e, "networkConnected", "false")));
+			msg.setACARSConnected(Boolean.parseBoolean(getChildText(e, "acarsConnected", "true")));
 			double alt = Double.parseDouble(getChildText(e, "msl", "0"));
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);

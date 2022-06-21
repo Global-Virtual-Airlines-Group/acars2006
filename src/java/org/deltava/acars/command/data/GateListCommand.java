@@ -1,4 +1,4 @@
-// Copyright 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 8.4
  */
 
@@ -42,7 +42,7 @@ public class GateListCommand extends DataCommand {
 		Simulator sim = (inf == null) ? EnumUtils.parse(Simulator.class, msg.getFlag("sim"), Simulator.FSX) : inf.getSimulator();
 		
 		// Get the airport / airline / isDeparture
-		boolean isDeparture = Boolean.valueOf(msg.getFlag("isDeparture")).booleanValue();
+		boolean isDeparture = Boolean.parseBoolean(msg.getFlag("isDeparture"));
 		rspMsg.setAirport(SystemData.getAirport(msg.getFlag("airport")));
 		Airport aA = SystemData.getAirport(msg.getFlag("airportA"));
 		Airline al = SystemData.getAirline(msg.getFlag("airline"));
