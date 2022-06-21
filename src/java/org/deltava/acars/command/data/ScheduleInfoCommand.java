@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -51,10 +51,10 @@ public class ScheduleInfoCommand extends DataCommand {
 		sc.setEquipmentTypes(StringUtils.split(msg.getFlag("eqType"), ","));
 		sc.setDBName(usrLoc.getDB());
 		sc.setCheckDispatchRoutes(true);
-		sc.setExcludeHistoric(Boolean.valueOf(msg.getFlag("excludeHistoric")).booleanValue() ? Inclusion.EXCLUDE : Inclusion.ALL);
+		sc.setExcludeHistoric(Boolean.parseBoolean(msg.getFlag("excludeHistoric")) ? Inclusion.EXCLUDE : Inclusion.ALL);
 		sc.setFlightsPerRoute(sc.isPopulated() ? 0 : 3);
 		sc.setSortBy("RAND()");
-		sc.setDispatchOnly(Boolean.valueOf(msg.getFlag("dispatchOnly")).booleanValue() ? Inclusion.INCLUDE : Inclusion.ALL);
+		sc.setDispatchOnly(Boolean.parseBoolean(msg.getFlag("dispatchOnly")) ? Inclusion.INCLUDE : Inclusion.ALL);
 		sc.setFlightsPerRoute(StringUtils.parse(msg.getFlag("maxPerRoute"), 0));
 		if ((sc.getMaxResults() < 1) || (sc.getMaxResults() > 150))
 			sc.setMaxResults(50);

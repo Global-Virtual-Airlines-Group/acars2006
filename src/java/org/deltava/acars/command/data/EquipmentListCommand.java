@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -36,8 +36,8 @@ public class EquipmentListCommand extends DataCommand {
 		ACARSConnection ac = ctx.getACARSConnection();
 		
 		AircraftMessage rspMsg = new AircraftMessage(env.getOwner(), msg.getID());
-		rspMsg.setShowProfile(Boolean.valueOf(msg.getFlag("showProfile")).booleanValue());
-		rspMsg.setShowPolicy(Boolean.valueOf(msg.getFlag("showPolicy")).booleanValue());
+		rspMsg.setShowProfile(Boolean.parseBoolean(msg.getFlag("showProfile")));
+		rspMsg.setShowPolicy(Boolean.parseBoolean(msg.getFlag("showPolicy")));
 		try {
 			Connection con = ctx.getConnection();
 			

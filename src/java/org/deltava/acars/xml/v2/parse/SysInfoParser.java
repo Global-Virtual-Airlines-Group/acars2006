@@ -1,4 +1,4 @@
-// Copyright 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -14,7 +14,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for ACARS system information messages.
  * @author Luke
- * @version 6.4
+ * @version 10.2
  * @since 6.4
  */
 
@@ -33,8 +33,8 @@ public class SysInfoParser extends XMLElementParser<SystemInfoMessage> {
 		msg.setOSVersion(getChildText(e, "os", "?"));
 		msg.setCLRVersion(getChildText(e, "clr", "?"));
 		msg.setDotNETVersion(getChildText(e, "dotNET", "?"));
-		msg.setIs64Bit(Boolean.valueOf(getChildText(e, "is64", "false")).booleanValue());
-		msg.setIsSLI(Boolean.valueOf(getChildText(e, "isSLI", "false")).booleanValue());
+		msg.setIs64Bit(Boolean.parseBoolean(getChildText(e, "is64", "false")));
+		msg.setIsSLI(Boolean.parseBoolean(getChildText(e, "isSLI", "false")));
 		msg.setMemorySize(StringUtils.parse(getChildText(e, "memory", "0"), 0));
 		msg.setSockets(StringUtils.parse(getChildText(e, "sockets", "1"), 1));
 		msg.setCores(StringUtils.parse(getChildText(e, "cores", "1"), msg.getSockets()));

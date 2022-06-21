@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2012, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to display approach charts.
  * @author Luke
- * @version 9.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -42,7 +42,7 @@ public class ChartsCommand extends DataCommand {
 		}
 		
 		// Check if we are not including PDF charts
-		boolean noPDF = Boolean.valueOf(msg.getFlag("noPDF")).booleanValue();
+		boolean noPDF = Boolean.parseBoolean(msg.getFlag("noPDF"));
 		try {
 			Connection con = ctx.getConnection();
 

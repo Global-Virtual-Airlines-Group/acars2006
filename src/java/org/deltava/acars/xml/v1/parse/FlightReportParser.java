@@ -43,7 +43,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		Flight fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
 		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(FlightReport.ATTR_ACARS, true);
-		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.valueOf(getChildText(e, "isDivert", "false")).booleanValue());
+		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.parseBoolean(getChildText(e, "isDivert", "false")));
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 		afr.setDatabaseID(DatabaseID.DISPATCH, StringUtils.parse(e.getChildTextTrim("dispatchLogID"), 0));
 		afr.setStatus(FlightStatus.SUBMITTED);
@@ -62,7 +62,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
 		afr.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
-		msg.setCustomCabinSize(Boolean.valueOf(getChildText(e, "customCabin", "false")).booleanValue());
+		msg.setCustomCabinSize(Boolean.parseBoolean(getChildText(e, "customCabin", "false")));
 		msg.setPaxWeight(StringUtils.parse(getChildText(e, "passengerWeight", String.valueOf(FlightReportMessage.DEFAULT_PAX_WEIGHT)), FlightReportMessage.DEFAULT_PAX_WEIGHT));
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
@@ -76,7 +76,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
 
 		// Check if it's a checkride
-		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.valueOf(e.getChildTextTrim("checkRide")).booleanValue());
+		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.parseBoolean(e.getChildTextTrim("checkRide")));
 
 		// Set the times
 		try {

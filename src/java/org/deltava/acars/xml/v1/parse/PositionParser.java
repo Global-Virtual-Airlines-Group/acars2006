@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 9.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -90,10 +90,10 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setVisibility(Double.parseDouble(getChildText(e, "viz", "9999")) * 2.56);	// Fix because ACARS2 multiplied by 100 instead of 256
 			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
-			msg.setLogged(Boolean.valueOf(getChildText(e, "isLogged", "true")).booleanValue());
-			msg.setReplay(Boolean.valueOf(getChildText(e, "noFlood", "false")).booleanValue());
+			msg.setLogged(Boolean.parseBoolean(getChildText(e, "isLogged", "true")));
+			msg.setReplay(Boolean.parseBoolean(getChildText(e, "noFlood", "false")));
 			msg.setFrameRate(Integer.parseInt(getChildText(e, "frameRate", "0")));
-			msg.setTXActive(Boolean.valueOf(getChildText(e, "txActive", "true")).booleanValue());
+			msg.setTXActive(Boolean.parseBoolean(getChildText(e, "txActive", "true")));
 			msg.setTXCode(Integer.parseInt(getChildText(e, "txCode", "2200")));
 			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (Exception ex) {

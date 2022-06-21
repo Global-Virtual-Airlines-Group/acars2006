@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2012, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2012, 2017, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A parser for DispatchRequest elements.
  * @author Luke
- * @version 8.0
+ * @version 10.2
  * @since 2.0
  */
 
@@ -31,7 +31,7 @@ class DispatchRequestParser extends XMLElementParser<RequestMessage> {
 		
 		// Create the message
 		RequestMessage msg = new RequestMessage(user);
-		msg.setAutoDispatch(Boolean.valueOf(e.getAttributeValue("autoDispatch")).booleanValue());
+		msg.setAutoDispatch(Boolean.parseBoolean(e.getAttributeValue("autoDispatch")));
 		
 		// Get the max gross weight of the aircraft
 		Element ie = e.getChild("info");

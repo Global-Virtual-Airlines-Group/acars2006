@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.Instant;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 10.1
+ * @version 10.2
  * @since 1.0
  */
 
@@ -65,12 +65,12 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setAirportD(getAirport(getChildText(e, "airportD", null)));
 		msg.setAirportA(getAirport(getChildText(e, "airportA", null)));
 		msg.setAirportL(SystemData.getAirport(getChildText(e, "airportL", null)));
-		msg.setCheckRide(Boolean.valueOf(getChildText(e, "checkRide", null)).booleanValue());
-		msg.setNoRideCheck(Boolean.valueOf(getChildText(e, "noRideCheck", null)).booleanValue());
-		msg.setComplete(Boolean.valueOf(getChildText(e, "complete", null)).booleanValue());
-		msg.setDispatchPlan(Boolean.valueOf(getChildText(e, "dispatchPlan", "false")).booleanValue());
-		msg.setScheduleValidated(Boolean.valueOf(getChildText(e, "scheduleValidated", "false")).booleanValue());
-		msg.setServerRequested(Boolean.valueOf(getChildText(e, "serverRequested", "false")).booleanValue());
+		msg.setCheckRide(Boolean.parseBoolean(getChildText(e, "checkRide", null)));
+		msg.setNoRideCheck(Boolean.parseBoolean(getChildText(e, "noRideCheck", null)));
+		msg.setComplete(Boolean.parseBoolean(getChildText(e, "complete", null)));
+		msg.setDispatchPlan(Boolean.parseBoolean(getChildText(e, "dispatchPlan", "false")));
+		msg.setScheduleValidated(Boolean.parseBoolean(getChildText(e, "scheduleValidated", "false")));
+		msg.setServerRequested(Boolean.parseBoolean(getChildText(e, "serverRequested", "false")));
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "routeID", "0"), 0));
 		msg.setNetwork(EnumUtils.parse(OnlineNetwork.class,getChildText(e, "network", null), null));
@@ -98,8 +98,8 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		// Read operating system info
 		int osCode = StringUtils.parse(getChildText(e, "platform", "0"), OperatingSystem.UNKNOWN.ordinal());
 		msg.setPlatform(OperatingSystem.values()[osCode]);
-		msg.setIsSim64Bit(Boolean.valueOf(getChildText(e, "is64Bit", "false")).booleanValue() || (msg.getSimulator() == Simulator.P3Dv4));
-		msg.setIsACARS64Bit(Boolean.valueOf(getChildText(e, "isACARS64Bit", "false")).booleanValue());
+		msg.setIsSim64Bit(Boolean.parseBoolean(getChildText(e, "is64Bit", "false")) || (msg.getSimulator() == Simulator.P3Dv4));
+		msg.setIsACARS64Bit(Boolean.parseBoolean(getChildText(e, "isACARS64Bit", "false")));
 		
 		// Read pax (122+) if present
 		msg.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));

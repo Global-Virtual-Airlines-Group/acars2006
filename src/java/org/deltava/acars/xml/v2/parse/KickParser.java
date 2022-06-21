@@ -1,4 +1,4 @@
-// Copyright 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.beans.Pilot;
@@ -9,7 +9,7 @@ import org.deltava.acars.xml.XMLElementParser;
 /**
  * A Parser for Disconnect elements.
  * @author Luke
- * @version 8.7
+ * @version 10.2
  * @since 8.7
  */
 
@@ -24,7 +24,7 @@ class KickParser extends XMLElementParser<KickMessage> {
 	public KickMessage parse(org.jdom2.Element e, Pilot user) {
 		
 		// Create the bean and set the receipients
-		KickMessage msg = new KickMessage(user, Boolean.valueOf(getChildText(e, "block", "false")).booleanValue());
+		KickMessage msg = new KickMessage(user, Boolean.parseBoolean(getChildText(e, "block", "false")));
 		msg.setRecipient(getChildText(e, "to", null));
 		return msg;
 	}

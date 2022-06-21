@@ -33,7 +33,7 @@ public class TaxiTimeCommand extends DataCommand {
 		
 		// Get the message
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		boolean isTakeoff = Boolean.valueOf(msg.getFlag("isTakeoff")).booleanValue();
+		boolean isTakeoff = Boolean.parseBoolean(msg.getFlag("isTakeoff"));
 		Airport a = SystemData.getAirport(msg.getFlag("airport"));
 		if (a == null) {
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown Airport - " + msg.getFlag("airport")));

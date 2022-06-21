@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2012, 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2012, 2017, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.jdom2.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for DispatchInfo elements.
  * @author Luke
- * @version 9.0
+ * @version 10.2
  * @since 2.1
  */
 
@@ -35,8 +35,8 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 		
 		// Get the flight Data
 		Element fe = e.getChild("flight");
-		msg.setRouteValid(Boolean.valueOf(fe.getAttributeValue("routeValid")).booleanValue());
-		msg.setNoSave(Boolean.valueOf(fe.getAttributeValue("noSave")).booleanValue());
+		msg.setRouteValid(Boolean.parseBoolean(fe.getAttributeValue("routeValid")));
+		msg.setNoSave(Boolean.parseBoolean(fe.getAttributeValue("noSave")));
 		msg.setRouteID(StringUtils.parse(fe.getAttributeValue("routeID"), 0));
 		msg.setLogID(StringUtils.parse(fe.getAttributeValue("logID"), 0));
 		msg.setAirline(SystemData.getAirline(getChildText(fe, "airline", user.getAirlineCode())));
@@ -71,8 +71,7 @@ class DispatchInfoParser extends XMLElementParser<FlightDataMessage> {
 			NavigationDataBean nd = NavigationDataBean.create(nt, lat, lng);
 			nd.setCode(wpe.getAttributeValue("code"));
 			nd.setRegion(wpe.getAttributeValue("region"));
-			boolean inTR = Boolean.valueOf(wpe.getAttributeValue("tr")).booleanValue();
-			if (inTR)
+			if (Boolean.parseBoolean(wpe.getAttributeValue("tr")))
 				nd.setAirway(".");
 			else
 				nd.setAirway(wpe.getAttributeValue("airway"));
