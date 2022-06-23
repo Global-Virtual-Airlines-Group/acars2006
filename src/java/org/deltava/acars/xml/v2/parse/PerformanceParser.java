@@ -44,8 +44,11 @@ public class PerformanceParser extends XMLElementParser<PerformanceMessage> {
 		
 		Element pe = e.getChild("perfctrs");
 		if (pe != null) {
-			for (Element ce : pe.getChildren())
-				msg.addCounter(ce.getName(), StringUtils.parse(ce.getTextTrim(), 0));	
+			for (Element ce : pe.getChildren()) {
+				int value = StringUtils.parse(ce.getTextTrim(), 0);
+				if (value != 0)
+					msg.addCounter(ce.getName(), value);
+			}
 		}
 		
 		Element fre = e.getChild("framerates");
