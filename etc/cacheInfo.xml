@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <caches>
 	<!-- Pilot data caches -->
-	<cache id="UserData" remote="true" expires="864000" />
-	<cache id="Pilots" remote="true" expires="14400" />
+	<cache id="UserData" remote="true" expires="4d" />
+	<cache id="Pilots" remote="true" expires="2d" />
 
 	<!-- Navigation Data caches -->
-    <cache id="NavData" expires="86400" remote="true" />
-    <cache id="NavAirway" expires="86400" remote="true" />
-    <cache id="NavRunway" expires="86400" remote="true" />
-    <cache id="NavSIDSTAR" expires="86400" remote="true" />
-    <cache id="NavRoute" expires="86400" remote="true" />
-    <cache id="Airspace" expires="86400" remote="true" />
+    <cache id="NavData" expires="2d" remote="true" />
+    <cache id="NavAirway" expires="18h" remote="true" />
+    <cache id="NavRunway" expires="1d" remote="true" />
+    <cache id="NavSIDSTAR" expires="1d" remote="true" />
+    <cache id="NavRoute" expires="12h" remote="true" />
+    <cache id="Airspace" expires="1d" remote="true" />
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
-	<cache id="Alternates" remote="true" expires="86400" />
-	<cache id="Gates" remote="true" expires="86400" />
-	<cache id="GateUsage" remote="true" expires="86400" />
-	<cache id="ACARSRunways" remote="true" expires="86400" />
+	<cache id="Alternates" remote="true" expires="2d" />
+	<cache id="Gates" remote="true" expires="2d" />
+	<cache id="GateUsage" remote="true" expires="1d" />
+	<cache id="ACARSRunways" remote="true" expires="1d" />
 	<cache id="GeoCountryL1" geo="true" expires="86400" max="2048" precision="0.05" />
 	<cache id="GeoCountry" remote="true" geo="true" expires="864000" precision="0.01" />
-	<cache id="TaxiTime" remote="true" expires="86400" />
+	<cache id="TaxiTime" remote="true" expires="1d" />
 	
 	<!-- VATSIM caches -->
     <cache id="ATORatings" expires="14400" remote="true" />
@@ -38,16 +38,16 @@
 	<cache id="ACARSTrackCAS" max="128" expires="30" />
 
 	<!-- System caches -->
-	<cache id="AircraftInfo" max="96" expires="3600" />
-	<cache id="AircraftInfoALL" max="6" expires="3600" />
-	<cache id="EquipmentTypes" max="24" expires="3600" />
-	<cache id="Accomplishments" max="24" expires="3600" />
-	<cache id="IATACodes" max="4" expires="7200" />
-	<cache id="ScheduleSource" remote="true" expires="3600" />
-	<cache id="EliteLevel" max="32" expires="86400" />
-	<cache id="EliteStatus" expires="14400" remote="true" />
+	<cache id="AircraftInfo" max="96" expires="2h" />
+	<cache id="AircraftInfoALL" max="6" expires="1h" />
+	<cache id="EquipmentTypes" max="24" expires="4h" />
+	<cache id="Accomplishments" max="24" expires="2h" />
+	<cache id="IATACodes" max="4" expires="2h" />
+	<cache id="ScheduleSource" remote="true" expires="1h" />
+	<cache id="EliteLevel" max="32" expires="2d" />
+	<cache id="EliteStatus" expires="4h" remote="true" />
 
-	<cache id="IPInfo" remote="true" expires="345600" />
-	<cache id="IPBlock" remote="true" expires="345600" />
+	<cache id="IPInfo" remote="true" expires="4d" />
+	<cache id="IPBlock" remote="true" expires="4d" />
 	<cache id="MessageTemplate" max="16" />
 </caches>
