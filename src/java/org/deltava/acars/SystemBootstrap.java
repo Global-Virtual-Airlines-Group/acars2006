@@ -22,16 +22,18 @@ import org.deltava.beans.schedule.Airport;
 import org.deltava.security.Authenticator;
 
 import org.deltava.util.*;
+import org.deltava.util.jmx.*;
 import org.deltava.util.cache.CacheLoader;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
 import org.gvagroup.jdbc.*;
+import org.gvagroup.tomcat.SharedWorker;
 
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 10.0
+ * @version 10.2
  * @since 1.0
  */
 
@@ -51,16 +53,18 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	public void contextDestroyed(ServletContextEvent e) {
 		_daemons.clear();
 		_dGroup.interrupt();
+		SharedWorker.clear(Thread.currentThread().getContextClassLoader());
 		
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(_dGroup, 2500);
+		JMXUtils.clear();
 		RedisUtils.shutdown();
 		_jdbcPool.close();
 		
 		// Clear shared data
 		String code = SystemData.get("airline.code");
 		SharedData.purge(code);
-		log.error("Shut down " + code);
+		log.error(String.format("Shut down %s", code));
 	}
 	
 	/**
@@ -90,6 +94,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			_jdbcPool.setDriver(SystemData.get("jdbc.driver"));
 			_jdbcPool.setSocket(SystemData.get("jdbc.socket"));
 			_jdbcPool.connect(SystemData.getInt("jdbc.pool_size"));
+			JMXConnectionPool jmxpool = new JMXConnectionPool(code, _jdbcPool);
+			JMXUtils.register("org.gvagroup:type=JDBCPool,name=" + code, jmxpool);
+			SharedWorker.register(new JMXRefreshTask(jmxpool, 60000));
 		} catch (ClassNotFoundException cnfe) {
 			log.error("Cannot load JDBC driver class - " + SystemData.get("jdbc.Driver"));
 		} catch (ConnectionPoolException cpe) {
@@ -109,6 +116,11 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		} catch(IOException ie) {
 			log.warn("Cannot configure caches from code - " + ie.getMessage());
 		}
+
+		// Load caches into JMX
+		JMXCacheManager cm = new JMXCacheManager(code);
+		JMXUtils.register("org.gvagroup:type=CacheManager,name=" + code, cm);
+		SharedWorker.register(new JMXRefreshTask(cm, 60000));
 		
 		// Get and load the authenticator
 		String authClass = SystemData.get("security.auth");

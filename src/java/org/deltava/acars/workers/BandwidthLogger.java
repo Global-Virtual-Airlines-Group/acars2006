@@ -1,17 +1,20 @@
-// Copyright 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2017, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
+
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.sql.Connection;
 
 import org.deltava.acars.beans.*;
+import org.deltava.acars.jmx.BandwidthMBeanImpl;
 import org.deltava.beans.acars.*;
 
 import org.deltava.dao.DAOException;
 import org.deltava.dao.acars.SetBandwidth;
 
+import org.deltava.util.jmx.JMXUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.jdbc.ConnectionPool;
@@ -20,7 +23,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 7.4
+ * @version 10.2
  * @since 2.1
  */
 
@@ -28,6 +31,9 @@ public class BandwidthLogger extends Worker {
 	
 	private ConnectionPool _jdbcPool;
 	private final Map<String, ConnectionStats> _lastBW = new HashMap<String, ConnectionStats>();
+	
+	private static final String JMX_NAME = "org.gvagroup:type=Bandwidth,name=ACARS";
+	private final BandwidthMBeanImpl _jmx = new BandwidthMBeanImpl(new Bandwidth(Instant.now()));
 
 	/**
 	 * Initializes the Worker.
@@ -36,19 +42,19 @@ public class BandwidthLogger extends Worker {
 		super("Bandwidth Logger", 90, BandwidthLogger.class);
 	}
 	
-	/**
-	 * Initializes the Worker.
-	 * @see Worker#open()
-	 */
 	@Override
 	public void open() {
 		super.open();
 		_jdbcPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		JMXUtils.register(JMX_NAME, _jmx);
 	}
 
-	/**
-	 * Executes the thread.
-	 */
+	@Override
+	public void close() {
+		JMXUtils.remove(JMX_NAME);
+		super.close();
+	}
+
 	@Override
 	public void run() {
 		log.info("Started");
@@ -88,13 +94,14 @@ public class BandwidthLogger extends Worker {
 				// Remove the unused entries
 				_lastBW.keySet().removeAll(IDs);
 
-				// Init the bean to store period statistics
+				// Init the bean to store period statistics and update JMX
 				Bandwidth bw = new Bandwidth(Instant.now());
 				bw.setConnections(stats.size());
 				bw.setErrors(errors);
 				bw.setMessages(msgsIn, msgsOut);
 				bw.setBytes(bytesIn, bytesOut);
 				bw.setBytesSaved(bytesSaved);
+				_jmx.update(bw);
 				
 				// Write the bean
 				Connection con = null;
