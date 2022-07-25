@@ -16,7 +16,7 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.TerminalRoute;
 import org.deltava.beans.schedule.*;
-import org.deltava.beans.stats.Tour;
+import org.deltava.beans.stats.*;
 import org.deltava.beans.testing.*;
 
 import org.deltava.dao.*;
@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 1.0
  */
 
@@ -176,7 +176,7 @@ public class InfoCommand extends ACARSCommand {
 			} else if (properCRHandling && msg.isCheckRide())
 				ackMsg.setEntry("checkRide", "true");
 			
-			// Check for ontime
+			// Check for on-time data
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
 				Flight fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
@@ -185,6 +185,11 @@ public class InfoCommand extends ACARSCommand {
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null) {
+					GetACARSOnTime otdao = new GetACARSOnTime(c);
+					OnTimeStatsEntry otStats = otdao.getOnTimeStatistics(msg);
+					ackMsg.setEntry("onTimeLegs", String.valueOf(otStats.getOnTimeLegs()));
+					ackMsg.setEntry("onTimeTotal", String.valueOf(otStats.getTotalLegs()));
+					
 					ScheduleEntry se = oth.getScheduleEntry();
 					ackMsg.setEntry("onTimeFlight", se.getFlightCode());
 					ackMsg.setEntry("onTimeLeg", String.valueOf(se.getLeg()));
