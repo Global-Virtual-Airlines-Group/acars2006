@@ -186,7 +186,7 @@ public class InfoCommand extends ACARSCommand {
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null) {
 					GetACARSOnTime otdao = new GetACARSOnTime(c);
-					OnTimeStatsEntry otStats = otdao.getOnTimeStatistics(msg);
+					OnTimeStatsEntry otStats = otdao.getOnTimeStatistics(msg, usrLoc.getDB());
 					ackMsg.setEntry("onTimeLegs", String.valueOf(otStats.getOnTimeLegs()));
 					ackMsg.setEntry("onTimeTotal", String.valueOf(otStats.getTotalLegs()));
 					
