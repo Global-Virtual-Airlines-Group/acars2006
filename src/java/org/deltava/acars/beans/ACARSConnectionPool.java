@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.ACARSException;
 
+import org.deltava.beans.Compression;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.GeoLocation;
 
@@ -27,7 +28,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 9.1
+ * @version 10.3
  * @since 1.0
  */
 
