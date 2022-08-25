@@ -1,4 +1,4 @@
-// Copyright 2011, 2012, 2014, 2015, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014, 2015, 2016, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -11,7 +11,10 @@ import java.nio.channels.*;
 
 import org.deltava.acars.util.DataCompressor;
 import org.deltava.acars.xml.ProtocolInfo;
+
 import org.deltava.beans.acars.ConnectionStats;
+
+import org.deltava.beans.Compression;
 
 import org.deltava.util.system.SystemData;
 
@@ -20,7 +23,7 @@ import org.apache.log4j.Logger;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 4.0
  */
 

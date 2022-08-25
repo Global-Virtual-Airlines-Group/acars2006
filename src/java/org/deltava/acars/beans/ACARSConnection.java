@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 1.0
  */
 

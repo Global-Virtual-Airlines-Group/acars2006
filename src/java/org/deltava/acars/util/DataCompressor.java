@@ -1,15 +1,15 @@
-// Copyright 2015, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2015, 2016, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.io.*;
 import java.util.zip.*;
 
-import org.deltava.acars.beans.Compression;
+import org.deltava.beans.Compression;
 
 /**
  * A class to compress and decompress stream data.
  * @author Luke
- * @version 6.4
+ * @version 10.3
  * @since 6.4
  */
 
@@ -18,7 +18,6 @@ public class DataCompressor {
 	private static final int MAGIC = 0x8B1FAC00;
 	
 	private final DataBuffer _buffer = new DataBuffer(256);
-	
 	private Compression _c = Compression.NONE;
 
 	/**
@@ -118,19 +117,17 @@ public class DataCompressor {
 	 */
 	public static byte[] decompress(byte[] data, Compression c) {
 		if (c == Compression.NONE) return data;
-		try (ByteArrayOutputStream out = new ByteArrayOutputStream(512)) {
-			try (PacketInputStream is = new PacketInputStream(new ByteArrayInputStream(data))) {
-				int magic = is.readInt32(); // check header
-				if (magic != MAGIC) return null;
-				int compressedSize = is.readInt32(); // check size
-				if (data.length != (compressedSize + 8)) return null;
-				try (InputStream in = new GZIPInputStream(is, 1024)) {
-					byte[] buffer = new byte[1024]; 
-					int bytesRead = in.read(buffer);
-					while (bytesRead > 0) {
-						out.write(buffer, 0, bytesRead);
-						bytesRead = in.read(buffer);
-					}
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream(512); PacketInputStream is = new PacketInputStream(new ByteArrayInputStream(data))) {
+			int magic = is.readInt32(); // check header
+			if (magic != MAGIC) return null;
+			int compressedSize = is.readInt32(); // check size
+			if (data.length != (compressedSize + 8)) return null;
+			try (InputStream in = new GZIPInputStream(is, 1024)) {
+				byte[] buffer = new byte[1024]; 
+				int bytesRead = in.read(buffer);
+				while (bytesRead > 0) {
+					out.write(buffer, 0, bytesRead);
+					bytesRead = in.read(buffer);
 				}
 			}	
 			

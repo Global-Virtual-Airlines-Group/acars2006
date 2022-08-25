@@ -3,7 +3,7 @@ package org.deltava.acars.util;
 import java.io.*;
 import java.util.Arrays;
 
-import org.deltava.acars.beans.Compression;
+import org.deltava.beans.Compression;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -14,14 +14,12 @@ public class TestDataCompressor extends TestCase {
 	
 	private static String loadFile(String fileName) {
 		StringBuilder buf = new StringBuilder();
-		try (InputStream is = new FileInputStream(fileName)) {
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(is)))	{
-				String data = br.readLine();
-				while (data != null) {
-					buf.append(data);
-					buf.append(System.getProperty("line.separator"));
-					data = br.readLine(); 
-				}
+		try (InputStream is = new FileInputStream(fileName); BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+			String data = br.readLine();
+			while (data != null) {
+				buf.append(data);
+				buf.append(System.getProperty("line.separator"));
+				data = br.readLine(); 
 			}
 		} catch (IOException ie) {
 			// empty
