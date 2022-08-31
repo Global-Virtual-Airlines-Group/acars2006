@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 1.0
  */
 
@@ -189,6 +189,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
 			afr.setRank(p.getRank());
 			afr.setSimulator(info.getSimulator());
+			afr.setTailCode(info.getTailCode());
 
 			// Convert the date into the user's local time zone
 			LocalDate pd = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).toLocalDate();
