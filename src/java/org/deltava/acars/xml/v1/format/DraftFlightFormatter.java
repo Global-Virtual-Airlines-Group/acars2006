@@ -1,7 +1,9 @@
-// Copyright 2006, 2008, 2009, 2010, 2012, 2014 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2010, 2012, 2014, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
+
+import org.deltava.acars.beans.DraftFlightPackage;
 
 import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.DraftPIREPMessage;
@@ -12,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 5.3
+ * @version 10.3
  * @since 1.0
  */
 
@@ -32,8 +34,9 @@ class DraftFlightFormatter extends ElementFormatter {
 		// Create the element
 		Element pe = initResponse(msg.getType());
 		Element e = initDataResponse(pe, "pireps");
-		for (FlightReport fr : dfmsg.getResponse()) {
+		for (DraftFlightPackage dfp : dfmsg.getResponse()) {
 			Element fe = new Element("pirep");
+			DraftFlightReport fr = dfp.getFlightReport();
 			fe.setAttribute("id", StringUtils.formatHex(fr.getID()));
 			fe.setAttribute("airline", fr.getAirline().getCode());
 			fe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
