@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 10.1
+ * @version 10.3
  * @since 1.0
  */
 
@@ -64,7 +64,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	private boolean _noRideCheck;
 	private boolean _serverRequested;
 	
-	private boolean _dispatchPlan;
+	private DispatchType _dispatcher = DispatchType.NONE;
 	private int _dispatcherID;
 	private int _routeID;
 	private int _dispatchLogID;
@@ -261,8 +261,8 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		return _checkRide;
 	}
 	
-	public boolean isDispatchPlan() {
-		return _dispatchPlan;
+	public DispatchType getDispatcher() {
+		return _dispatcher;
 	}
 	
 	public int getDispatcherID() {
@@ -370,8 +370,8 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		_serverRequested = isSrvReq;
 	}
 	
-	public void setDispatchPlan(boolean isDP) {
-		_dispatchPlan = isDP;
+	public void setDispatcher(DispatchType dsp) {
+		_dispatcher = dsp;
 	}
 	
 	public void setDispatcherID(int id) {

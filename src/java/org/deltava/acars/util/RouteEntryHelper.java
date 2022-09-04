@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 9.0
+ * @version 10.3
  * @since 1.0
  */
 
@@ -66,7 +66,7 @@ public final class RouteEntryHelper {
 		result.setLoadFactor(imsg.getLoadFactor());
 		result.setPassengers(imsg.getPassengers());
 		result.setBusy(con.getUserBusy());
-		result.setDispatchPlan(imsg.isDispatchPlan());
+		result.setDispatcher(imsg.getDispatcher());
 		result.setCheckRide(imsg.isCheckRide());
 		result.setID(imsg.getFlightID());
 		result.setPhaseName(msg.getPhase().getName());

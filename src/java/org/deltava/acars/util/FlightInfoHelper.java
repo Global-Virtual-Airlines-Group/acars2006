@@ -1,4 +1,4 @@
-// Copyright 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import org.deltava.acars.message.InfoMessage;
@@ -7,7 +7,7 @@ import org.deltava.beans.acars.FlightInfo;
 /**
  * A utility class to convert FlightInfo messages to Flight Information beans.
  * @author Luke
- * @version 10.1
+ * @version 10.3
  * @since 10.0
  */
 
@@ -40,7 +40,7 @@ public class FlightInfoHelper {
 		inf.setAutopilotType(msg.getAutopilotType());
 		inf.setDispatcherID(msg.getDispatcherID());
 		inf.setDispatchLogID(msg.getDispatchLogID());
-		inf.setDispatchPlan(msg.isDispatchPlan());
+		inf.setDispatcher(msg.getDispatcher());
 		inf.setIsACARS64Bit(msg.getIsACARS64Bit());
 		inf.setIsSim64Bit(msg.getIsSim64Bit());
 		inf.setPassengers(msg.getPassengers());

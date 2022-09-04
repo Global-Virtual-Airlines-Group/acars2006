@@ -68,7 +68,7 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setCheckRide(Boolean.parseBoolean(getChildText(e, "checkRide", null)));
 		msg.setNoRideCheck(Boolean.parseBoolean(getChildText(e, "noRideCheck", null)));
 		msg.setComplete(Boolean.parseBoolean(getChildText(e, "complete", null)));
-		msg.setDispatchPlan(Boolean.parseBoolean(getChildText(e, "dispatchPlan", "false")));
+		
 		msg.setScheduleValidated(Boolean.parseBoolean(getChildText(e, "scheduleValidated", "false")));
 		msg.setServerRequested(Boolean.parseBoolean(getChildText(e, "serverRequested", "false")));
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
@@ -76,6 +76,10 @@ class FlightInfoParser extends XMLElementParser<InfoMessage> {
 		msg.setNetwork(EnumUtils.parse(OnlineNetwork.class,getChildText(e, "network", null), null));
 		msg.setTX(StringUtils.parse(getChildText(e, "tx", String.valueOf(TXCode.DEFAULT_IFR)), TXCode.DEFAULT_IFR));
 		msg.setAutopilotType(EnumUtils.parse(AutopilotType.class, getChildText(e, "autopilotType", "DEFAULT"), AutopilotType.DEFAULT));
+		
+		// Load dispatch type (180+)
+		boolean isDispatch = Boolean.parseBoolean(getChildText(e, "dispatchPlan", "false"));
+		msg.setDispatcher(isDispatch ? DispatchType.DISPATCH : EnumUtils.parse(DispatchType.class, getChildText(e, "dispatcher", "none"), DispatchType.NONE));
 		
 		// Parse the simulator
 		String sim = getChildText(e, "fs_ver", "2004");
