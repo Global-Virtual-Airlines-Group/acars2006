@@ -1,8 +1,12 @@
-// Copyright 2005, 2006, 2014, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2014, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import org.deltava.acars.beans.MessageEnvelope;
+import java.util.*;
 
+import org.deltava.beans.flight.*;
+import org.deltava.beans.simbrief.BriefingPackage;
+
+import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.*;
@@ -12,7 +16,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 10.0
+ * @version 10.3
  * @since 1.0
  */
 
@@ -31,7 +35,15 @@ public class DraftFlightCommand extends DataCommand {
 		DraftPIREPMessage rspMsg = new DraftPIREPMessage(env.getOwner(), msg.getID());
 		try {
 			GetFlightReports frdao = new GetFlightReports(ctx.getConnection());
-			rspMsg.addAll(frdao.getDraftReports(env.getOwner().getID(), null, ctx.getDB()));
+			
+			// Load the flights and briefing packages
+			Map<Integer, BriefingPackage> sbPkgs = new HashMap<Integer, BriefingPackage>();
+			List<FlightReport> flights = frdao.getDraftReports(env.getOwner().getID(), null, ctx.getDB());
+			for (FlightReport dfr : flights)
+				sbPkgs.put(Integer.valueOf(dfr.getID()), frdao.getSimBrief(dfr.getID(), ctx.getDB()));
+			
+			// Combine and convert into DraftFlightPackage
+			flights.stream().map(DraftFlightReport.class::cast).map(dfr -> new DraftFlightPackage(dfr, sbPkgs.get(Integer.valueOf(dfr.getID())))).forEach(rspMsg::add);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
 			log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);

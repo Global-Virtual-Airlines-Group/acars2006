@@ -1,19 +1,19 @@
-// Copyright 2006, 2009, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2009, 2018, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.data;
 
 import org.deltava.beans.Pilot;
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.acars.beans.DraftFlightPackage;
 
 import org.deltava.acars.message.*;
 
 /**
- * An ACARS data response message to store draft PIREPs.
+ * An ACARS data response message to store draft Flight Reports and briefing packages.
  * @author Luke
- * @version 8.4
+ * @version 10.3
  * @since 1.0
  */
 
-public class DraftPIREPMessage extends DataResponseMessage<FlightReport> {
+public class DraftPIREPMessage extends DataResponseMessage<DraftFlightPackage> {
 
 	/**
 	 * Instantiates the message.
