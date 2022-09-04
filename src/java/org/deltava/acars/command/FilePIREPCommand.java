@@ -253,7 +253,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setAverageFrameRate(fddao.getFrameRate(flightID).getAverage());
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
-			afr.setAttribute(FlightReport.ATTR_DISPATCH, info.isDispatchPlan());
+			afr.setAttribute(FlightReport.ATTR_DISPATCH, (info.getDispatcher() == DispatchType.DISPATCH));
+			afr.setAttribute(FlightReport.ATTR_SIMBRIEF, (info.getDispatcher() == DispatchType.SIMBRIEF));
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 			
@@ -320,7 +321,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			awdao.writeGates(flightID, inf.getGateD(), inf.getGateA());
 			
 			// Check if we're a dispatch plan
-			if (msg.isDispatch() && !info.isDispatchPlan()) {
+			if (msg.isDispatch() && (info.getDispatcher() != DispatchType.DISPATCH)) {
 				log.warn("Flight " + flightID + " was not set as Dispatch, but PIREP has Dispatch flag!");
 				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
 				
