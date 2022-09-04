@@ -48,7 +48,6 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
-			fe.addContent(XMLUtils.createElement("lf", StringUtils.format(fr.getLoadFactor(), "0.000")));
 			fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
 			if (fr.getNetwork() != null)
 				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
@@ -62,11 +61,14 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayA", pkg.getRunwayA()));
+				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("cruiseAlt", pkg.getCruiseAltitude()));
 				fe.addContent(XMLUtils.createElement("baseFPURL", pkg.getBasePlanURL()));
 				fe.addContent(XMLUtils.createElement("taxiFuel", String.valueOf(pkg.getTaxiFuel())));
 				fe.addContent(XMLUtils.createElement("baseFuel", String.valueOf(pkg.getBaseFuel())));
 				fe.addContent(XMLUtils.createElement("enrouteFuel", String.valueOf(pkg.getEnrouteFuel())));
 				fe.addContent(XMLUtils.createElement("alternateFuel", String.valueOf(pkg.getAlternateFuel())));
+				if (pkg.getAirportL() != null)
+					fe.addContent(XMLUtils.createElement("airportL", pkg.getAirportL().getICAO()));
 				
 				// Load flightplans
 				for (FlightPlan fp : pkg.getFlightPlans()) {
