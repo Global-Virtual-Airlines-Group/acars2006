@@ -48,6 +48,7 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
+			fe.addContent(XMLUtils.createElement("comments", fr.getComments(), true));
 			fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
 			if (fr.getNetwork() != null)
 				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
@@ -58,6 +59,7 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
 				fe.setAttribute("isSimBrief", "true");
+				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayA", pkg.getRunwayA()));
