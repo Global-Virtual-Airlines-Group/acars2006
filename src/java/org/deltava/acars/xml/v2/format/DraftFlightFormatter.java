@@ -9,6 +9,7 @@ import org.deltava.acars.message.data.DraftPIREPMessage;
 
 import org.deltava.beans.flight.*;
 import org.deltava.beans.simbrief.*;
+import org.deltava.beans.schedule.Airport;
 
 import org.deltava.util.*;
 
@@ -19,7 +20,7 @@ import org.deltava.util.*;
  * @since 1.0
  */
 
-class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
+class DraftFlightFormatter extends ElementFormatter {
 
 	/**
 	 * Formats a DraftPIREPMessage bean into an XML element.
@@ -69,8 +70,8 @@ class DraftFlightFormatter extends org.deltava.acars.xml.XMLElementFormatter {
 				fe.addContent(XMLUtils.createElement("baseFuel", String.valueOf(pkg.getBaseFuel())));
 				fe.addContent(XMLUtils.createElement("enrouteFuel", String.valueOf(pkg.getEnrouteFuel())));
 				fe.addContent(XMLUtils.createElement("alternateFuel", String.valueOf(pkg.getAlternateFuel())));
-				if (pkg.getAirportL() != null)
-					fe.addContent(XMLUtils.createElement("airportL", pkg.getAirportL().getICAO()));
+				for (Airport a : pkg.getAlternates())
+					fe.addContent(formatAirport(a, "alternate"));
 				
 				// Load flightplans
 				for (FlightPlan fp : pkg.getFlightPlans()) {
