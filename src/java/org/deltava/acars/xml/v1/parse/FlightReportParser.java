@@ -8,6 +8,7 @@ import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
+import org.deltava.beans.acars.DispatchType;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
@@ -19,7 +20,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for FlightReport elements.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 1.0
  */
 
@@ -74,6 +75,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Check for dispatch data
 		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
 		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
+		if (msg.getDispatcher() != DispatchType.DISPATCH)
+			msg.setDispatcher(EnumUtils.parse(DispatchType.class, getChildText(e, "dispatcher", "none"), DispatchType.NONE));
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.parseBoolean(e.getChildTextTrim("checkRide")));
