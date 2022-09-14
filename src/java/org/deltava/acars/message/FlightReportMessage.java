@@ -1,13 +1,14 @@
-// Copyright 2005, 2009, 2010, 2018, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2009, 2010, 2018, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.Pilot;
+import org.deltava.beans.acars.DispatchType;
 import org.deltava.beans.flight.ACARSFlightReport;
 
 /**
  * An ACARS Message used to pass PIREP data.
  * @author Luke
- * @version 10.1
+ * @version 10.3
  * @since 1.0
  */
 
@@ -16,6 +17,7 @@ public class FlightReportMessage extends AbstractMessage {
 	public static final int DEFAULT_PAX_WEIGHT = 170;
    
    private ACARSFlightReport _afr;
+   private DispatchType _dsp;
    private int _dispatcherID;
    private int _routeID;
    
@@ -37,13 +39,13 @@ public class FlightReportMessage extends AbstractMessage {
    public ACARSFlightReport getPIREP() {
       return _afr;
    }
-   
+
    /**
-    * Returns whether this flight used a Dispatch-generated flight plan.
-    * @return TRUE if Dispatch used, otherwise FALSE
+    * Returns the dispatch type used on this PIREP.
+    * @return the DispatchType
     */
-   public boolean isDispatch() {
-	   return (_routeID != 0);
+   public DispatchType getDispatcher() {
+	   return _dsp;
    }
    
    /**
@@ -92,6 +94,16 @@ public class FlightReportMessage extends AbstractMessage {
     */
    public void setDispatcherID(int id) {
 	   _dispatcherID = id;
+	   if (id > 0)
+		   _dsp = DispatchType.DISPATCH;
+   }
+   
+   /**
+    * Updates the dispatcher type used on this flight.
+    * @param dsp the DispatchType
+    */
+   public void setDispatcher(DispatchType dsp) {
+	   _dsp = dsp;
    }
    
    /**

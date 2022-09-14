@@ -258,6 +258,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 			
+			// Check for dispatch data
+			if (msg.getDispatcher() != info.getDispatcher())
+				afr.addStatusUpdate(0,  HistoryType.SYSTEM, String.format("Flight Dispatcher = %s, Message = %s", msg.getDispatcher(), info.getDispatcher()));
+			
 			// Start the transaction
 			ctx.startTX();
 
@@ -321,7 +325,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			awdao.writeGates(flightID, inf.getGateD(), inf.getGateA());
 			
 			// Check if we're a dispatch plan
-			if (msg.isDispatch() && (info.getDispatcher() != DispatchType.DISPATCH)) {
+			if ((msg.getDispatcher() == DispatchType.DISPATCH) && (info.getDispatcher() != DispatchType.DISPATCH)) {
 				log.warn("Flight " + flightID + " was not set as Dispatch, but PIREP has Dispatch flag!");
 				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
 				
