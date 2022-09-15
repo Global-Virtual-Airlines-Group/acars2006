@@ -259,8 +259,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 			
 			// Check for dispatch data
-			if (msg.getDispatcher() != info.getDispatcher())
+			if (msg.getDispatcher() != info.getDispatcher()) {
 				afr.addStatusUpdate(0,  HistoryType.SYSTEM, String.format("Flight Dispatcher = %s, Message = %s", msg.getDispatcher(), info.getDispatcher()));
+				log.warn(String.format("Flight Dispatcher = %s, Message = %s for Flight %d", msg.getDispatcher(), info.getDispatcher(), Integer.valueOf(info.getFlightID())));
+			}
 			
 			// Start the transaction
 			ctx.startTX();
