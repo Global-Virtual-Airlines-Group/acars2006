@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 9.1
+ * @version 10.3
  * @since 1.0
  */
 
@@ -113,6 +113,7 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.GATES, new GateListCommand());
 		_subCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 		_subCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
+		_subCommands.put(DataRequest.SBDATA, new SimBriefTextCommand());
 
 		// Initialize dispatch commands
 		_subCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
