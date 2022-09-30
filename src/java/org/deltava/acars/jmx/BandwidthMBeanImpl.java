@@ -1,12 +1,14 @@
-// Copyright 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.jmx;
+
+import java.time.Instant;
 
 import org.deltava.beans.acars.Bandwidth;
 
 /**
  * A JMX MBean implementation for ACARS bandwidth statistics. 
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 10.2
  */
 
@@ -29,6 +31,11 @@ public class BandwidthMBeanImpl implements BandwidthMBean {
 	 */
 	public void update(Bandwidth b) {
 		_b = b;
+	}
+
+	@Override
+	public Instant getUpdateTime() {
+		return _b.getDate();
 	}
 
 	@Override
