@@ -1,17 +1,25 @@
-// Copyright 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.jmx;
+
+import java.time.Instant;
 
 import javax.management.MXBean;
 
 /**
  * A JMX MBean for ACARS bandwidth statistics. 
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 10.2
  */
 
 @MXBean
 public interface BandwidthMBean {
+	
+	/**
+	 * The last update time.
+	 * @return the update date/time
+	 */
+	public Instant getUpdateTime();
 
 	/**
 	 * Returns the inbound bandwidth during the time period.
