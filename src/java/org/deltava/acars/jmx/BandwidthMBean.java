@@ -1,7 +1,7 @@
 // Copyright 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.jmx;
 
-import java.time.Instant;
+import java.util.Date;
 
 import javax.management.MXBean;
 
@@ -19,7 +19,7 @@ public interface BandwidthMBean {
 	 * The last update time.
 	 * @return the update date/time
 	 */
-	public Instant getUpdateTime();
+	public Date getUpdateTime();
 
 	/**
 	 * Returns the inbound bandwidth during the time period.

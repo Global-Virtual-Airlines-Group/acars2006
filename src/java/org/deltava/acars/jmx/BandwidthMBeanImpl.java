@@ -1,7 +1,7 @@
 // Copyright 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.jmx;
 
-import java.time.Instant;
+import java.util.Date;
 
 import org.deltava.beans.acars.Bandwidth;
 
@@ -34,8 +34,8 @@ public class BandwidthMBeanImpl implements BandwidthMBean {
 	}
 
 	@Override
-	public Instant getUpdateTime() {
-		return _b.getDate();
+	public Date getUpdateTime() {
+		return new Date(_b.getDate().toEpochMilli());
 	}
 
 	@Override
