@@ -38,7 +38,7 @@
 	<cache id="AircraftInfoALL" max="6" expires="1h" />
 	<cache id="EquipmentTypes" max="24" expires="4h" />
 	<cache id="Accomplishments" max="24" expires="2h" />
-	<cache id="IATACodes" max="4" expires="2h" />
+	<cache id="IATACodes" remote="true" expires="4h" />
 	<cache id="ScheduleSource" remote="true" expires="1h" />
 	<cache id="EliteLevel" max="32" expires="2d" />
 	<cache id="EliteStatus" expires="4h" remote="true" />
