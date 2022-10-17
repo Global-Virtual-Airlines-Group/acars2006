@@ -17,11 +17,11 @@ import org.deltava.dao.*;
 
 public class SetInfo extends DAO {
 
-	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, FLIGHT_NUM, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, "
+	private static final String ISQL = "INSERT INTO acars.FLIGHTS (PILOT_ID, AIRLINE, FLIGHT, CREATED, EQTYPE, CRUISE_ALT, AIRPORT_D, AIRPORT_A, AIRPORT_L, ROUTE, "
 		+ "REMARKS, FSVERSION, SCHED_VALID, DISPATCHER, MP, REMOTE_ADDR, REMOTE_HOST, CLIENT_BUILD, BETA_BUILD, SIM_MAJOR, SIM_MINOR, TX, APTYPE, "
-		+ "PLATFORM, IS64, ACARS64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		+ "PLATFORM, IS64, ACARS64) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, INET6_ATON(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
-	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, FLIGHT_NUM=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, "
+	private static final String USQL = "UPDATE acars.FLIGHTS SET PILOT_ID=?, AIRLINE=?, FLIGHT=?, CREATED=?, EQTYPE=?, CRUISE_ALT=?, AIRPORT_D=?, AIRPORT_A=?, "
 		+ "AIRPORT_L=?, ROUTE=?, REMARKS=?, FSVERSION=?, SCHED_VALID=?, DISPATCHER=?, MP=?, REMOTE_ADDR=INET6_ATON(?), REMOTE_HOST=?, CLIENT_BUILD=?, "
 		+ "BETA_BUILD=?, SIM_MAJOR=?, SIM_MINOR=?, TX=?, APTYPE=?, PLATFORM=?, IS64=?, ACARS64=?, END_TIME=NULL WHERE (ID=?) LIMIT 1";
 	
@@ -45,32 +45,33 @@ public class SetInfo extends DAO {
 			startTransaction();
 			try (PreparedStatement ps = prepareWithoutLimits(isNew ? ISQL : USQL)) {
 				ps.setInt(1, ac.getUser().getID());
-				ps.setString(2, msg.getFlightCode());
-				ps.setTimestamp(3, createTimestamp(msg.getStartTime()));
-				ps.setString(4, msg.getEquipmentType());
-				ps.setString(5, msg.getAltitude());
-				ps.setString(6, msg.getAirportD().getIATA());
-				ps.setString(7, msg.getAirportA().getIATA());
-				ps.setString(8, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
-				ps.setString(9, msg.getRoute());
-				ps.setString(10, msg.getComments());
-				ps.setInt(11, msg.getSimulator().getCode());
-				ps.setBoolean(12, msg.isScheduleValidated());
-				ps.setInt(13, msg.getDispatcher().ordinal());
-				ps.setBoolean(14, (msg.getLivery() != null));
-				ps.setString(15, ac.getRemoteAddr());
-				ps.setString(16, ac.getRemoteHost());
-				ps.setInt(17, ac.getClientBuild());
-				ps.setInt(18, ac.getBeta());
-				ps.setInt(19, msg.getSimMajor());
-				ps.setInt(20, msg.getSimMinor());
-				ps.setInt(21, msg.getTX());
-				ps.setInt(22, msg.getAutopilotType().ordinal());
-				ps.setInt(23, msg.getPlatform().ordinal());
-				ps.setBoolean(24, msg.getIsSim64Bit());
-				ps.setBoolean(25, msg.getIsACARS64Bit());
+				ps.setString(2,  msg.getAirline().getCode());
+				ps.setInt(3, msg.getFlightNumber());
+				ps.setTimestamp(4, createTimestamp(msg.getStartTime()));
+				ps.setString(5, msg.getEquipmentType());
+				ps.setString(6, msg.getAltitude());
+				ps.setString(7, msg.getAirportD().getIATA());
+				ps.setString(8, msg.getAirportA().getIATA());
+				ps.setString(9, (msg.getAirportL() == null) ? null : msg.getAirportL().getIATA());
+				ps.setString(10, msg.getRoute());
+				ps.setString(11, msg.getComments());
+				ps.setInt(12, msg.getSimulator().getCode());
+				ps.setBoolean(13, msg.isScheduleValidated());
+				ps.setInt(14, msg.getDispatcher().ordinal());
+				ps.setBoolean(15, (msg.getLivery() != null));
+				ps.setString(16, ac.getRemoteAddr());
+				ps.setString(17, ac.getRemoteHost());
+				ps.setInt(18, ac.getClientBuild());
+				ps.setInt(19, ac.getBeta());
+				ps.setInt(20, msg.getSimMajor());
+				ps.setInt(21, msg.getSimMinor());
+				ps.setInt(22, msg.getTX());
+				ps.setInt(23, msg.getAutopilotType().ordinal());
+				ps.setInt(24, msg.getPlatform().ordinal());
+				ps.setBoolean(25, msg.getIsSim64Bit());
+				ps.setBoolean(26, msg.getIsACARS64Bit());
 				if (!isNew)
-					ps.setInt(26, msg.getFlightID());
+					ps.setInt(27, msg.getFlightID());
 			
 				executeUpdate(ps, 1);
 			}
