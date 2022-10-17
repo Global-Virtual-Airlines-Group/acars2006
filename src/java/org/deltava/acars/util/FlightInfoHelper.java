@@ -29,7 +29,8 @@ public class FlightInfoHelper {
 		inf.setAirportD(msg.getAirportD());
 		inf.setAirportA(msg.getAirportA());
 		inf.setAirportL(msg.getAirportL());
-		inf.setFlightCode(msg.getFlightCode());
+		inf.setAirline(msg.getAirline());
+		inf.setFlight(msg.getFlightNumber());
 		inf.setScheduleValidated(msg.isScheduleValidated());
 		inf.setAltitude(msg.getAltitude());
 		inf.setEquipmentType(msg.getEquipmentType());

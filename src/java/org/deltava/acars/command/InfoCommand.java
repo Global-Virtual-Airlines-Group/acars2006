@@ -177,10 +177,9 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Check for on-time data
 			if (msg.isScheduleValidated() && (msg.getSimStartTime() != null) && !msg.isCheckRide()) {
-				Flight fe = FlightCodeParser.parse(msg.getFlightCode(), usrLoc.getAirlineCode());
 				ScheduleSearchCriteria ssc = new ScheduleSearchCriteria("TIME_D"); ssc.setDBName(usrLoc.getDB());
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
-				ssc.setExcludeHistoric((fe == null) || !fe.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);
+				ssc.setExcludeHistoric(!msg.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null) {
