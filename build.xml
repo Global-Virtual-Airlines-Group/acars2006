@@ -35,7 +35,7 @@
 		<!-- Upload the web configuration -->
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
 			<fileset file="WEB-INF/web.xml">
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -47,7 +47,7 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -57,7 +57,7 @@
 		<!-- Upload the config file to the app server -->
 		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
 			<fileset dir="etc" includes="*.*" excludes="log4j.test.properties">
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.dev.txt" />
 				</modified>
@@ -81,7 +81,7 @@
 		<!-- Upload the web configuration -->
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
 			<fileset file="WEB-INF/web.xml">
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
@@ -93,7 +93,7 @@
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
@@ -103,14 +103,14 @@
 		<!-- Upload the config file to the app server -->
 		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/classes/etc" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
 			<fileset dir="etc/prod" includes="*.*">
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
 			</fileset>
 			<fileset dir="etc" excludes="log4j.test.properties">
 				<include name="cacheInfo.xml" />
-				<modified seldirs="false" algorithm="digest" update="true" delayupdate="false">
+				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
 					<param name="cache.cachefile" value="../.local_data/acars.cache.txt" />
 				</modified>
