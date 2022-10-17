@@ -162,7 +162,8 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			InfoMessage inf = ac.getFlightInfo();
 			FlightInfo info = new FlightInfo(0);
 			if (inf != null) {
-				info.setFlightCode(inf.getFlightCode());
+				info.setAirline(inf.getAirline());
+				info.setFlight(inf.getFlightNumber());
 				info.setAirportD(inf.getAirportD());
 				info.setAirportA(inf.getAirportA());
 				info.setStartTime(inf.getStartTime());
