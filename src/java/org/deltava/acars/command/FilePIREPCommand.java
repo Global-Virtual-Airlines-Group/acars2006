@@ -189,7 +189,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setDatabaseID(DatabaseID.PILOT, p.getID());
 			afr.setRank(p.getRank());
 			afr.setSimulator(info.getSimulator());
-			afr.setTailCode(info.getTailCode());
+			if (StringUtils.isEmpty(afr.getTailCode()))
+				afr.setTailCode(info.getTailCode());
 
 			// Convert the date into the user's local time zone
 			LocalDate pd = ZonedDateTime.ofInstant(afr.getDate(), p.getTZ().getZone()).toLocalDate();
