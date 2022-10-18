@@ -59,6 +59,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setCapabilities(StringUtils.parse(getChildText(e, "capabilities", "0"), 0, true));
 		afr.setAircraftCode(getChildText(e, "code", null));
 		afr.setNetwork(EnumUtils.parse(OnlineNetwork.class, getChildText(e, "network", null), null));
+		afr.setTailCode(getChildText(e, "tailCode", null));
 		
 		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
 		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
