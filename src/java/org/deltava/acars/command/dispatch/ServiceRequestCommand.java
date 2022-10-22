@@ -114,10 +114,12 @@ public class ServiceRequestCommand extends DispatchCommand {
 			
 			// Find the closest gate
 			GetGates gdao = new GetGates(con);
-			gdao.setQueryMax(25);
-			msg.setArrivalGates(gdao.getPopularGates(msg, msg.getSimulator(), false));
+			GateHelper gh = new GateHelper(msg, msg.getAirline(), 25, false);
+			gh.addDepartureGates(gdao.getGates(msg.getAirportD(), msg.getSimulator()), gdao.getUsage(msg, true));
+			gh.addArrivalGates(gdao.getGates(msg.getAirportA(), msg.getSimulator()), gdao.getUsage(msg, false));
+			msg.setArrivalGates(gh.getArrivalGates());
 			SortedSet<Gate> gates = new TreeSet<Gate>(new GeoComparator(msg, true));
-			gates.addAll(gdao.getGates(msg.getAirportD(), msg.getSimulator()));
+			gates.addAll(gh.getDepartureGates());
 			if (!gates.isEmpty())
 				msg.setClosestGate(gates.first());
 			

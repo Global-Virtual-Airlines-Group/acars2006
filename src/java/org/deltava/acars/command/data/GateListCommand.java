@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 8.4
  */
 
@@ -53,21 +53,35 @@ public class GateListCommand extends DataCommand {
 		// 2. Load all gates for Airport that have our Airline, sort based on popularity 
 		// 3. Load all gates for Airport, sort based on popularlity
 		
-		List<Gate> gates = new ArrayList<Gate>(); final Airline a = al;
+		List<Gate> gates = new ArrayList<Gate>();
 		try {
 			GetGates gdao = new GetGates(ctx.getConnection());
 			gdao.setQueryMax(40);
 			if ((rspMsg.getAirport() == null) && (inf != null) && inf.isPopulated()) {
-				List<Gate> popGates = gdao.getPopularGates(inf, sim, isDeparture);
-				popGates.stream().filter(g -> g.getAirlines().contains(a)).forEach(gates::add);
-				rspMsg.setAirport(isDeparture ? inf.getAirportD() : inf.getAirportA());
+				GateHelper gh = new GateHelper(inf, al, 40, false);
 				rspMsg.setRouteUsage(true);
+				if (isDeparture) {
+					gh.addDepartureGates(gdao.getGates(inf.getAirportD(), sim), gdao.getUsage(inf, true));
+					gates.addAll(gh.getDepartureGates());
+					rspMsg.setAirport(inf.getAirportD());
+				} else {
+					gh.addArrivalGates(gdao.getGates(inf.getAirportA(), sim), gdao.getUsage(inf, false));
+					gates.addAll(gh.getArrivalGates());
+					rspMsg.setAirport(inf.getAirportA());
+				}
 			} else if ((rspMsg.getAirport() != null) && (aA != null)) {
 				RoutePair rp = new ScheduleRoute(rspMsg.getAirport(), aA);
-				List<Gate> popGates = gdao.getPopularGates(rp, sim, isDeparture);
-				popGates.stream().filter(g -> g.getAirlines().contains(a)).forEach(gates::add);
-				rspMsg.setAirport(isDeparture ? rp.getAirportD() : rp.getAirportA());
+				GateHelper gh = new GateHelper(rp, al, 40, false);
 				rspMsg.setRouteUsage(true);
+				if (isDeparture) {
+					gh.addDepartureGates(gdao.getGates(rp.getAirportD(), sim), gdao.getUsage(rp, true));
+					gates.addAll(gh.getDepartureGates());
+					rspMsg.setAirport(rp.getAirportD());
+				} else {
+					gh.addArrivalGates(gdao.getGates(rp.getAirportA(), sim), gdao.getUsage(rp, false));
+					gates.addAll(gh.getArrivalGates());
+					rspMsg.setAirport(rp.getAirportA());
+				}
 			}
 				
 			if (gates.isEmpty() && (rspMsg.getAirport() != null)) {
@@ -86,11 +100,6 @@ public class GateListCommand extends DataCommand {
 			log.warn(String.format("Unknown Airport - %s", msg.getFlag("airport")));
 			return;
 		}
-		
-		// Filter based on airline
-		gates.stream().filter(g -> g.getAirlines().contains(a)).forEach(rspMsg::add);
-		if (rspMsg.getResponse().isEmpty())
-			rspMsg.addAll(gates);
 		
 		rspMsg.setMaxAge(5500);
 		ctx.push(rspMsg);
