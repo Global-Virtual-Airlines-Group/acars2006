@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 10.2
+ * @version 10.3
  * @since 1.0
  */
 
@@ -48,7 +48,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				msg.setDate(LocalDateTime.parse(msgDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC));
 			msg.setSimTime((simDE != null) ? LocalDateTime.parse(simDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC) : msg.getDate());
 		} catch (Exception ex) {
-			log.warn("Unparseable date from " + user + " - " + ex.getMessage());
+			log.warn(String.format("Unparseable date from %s - %s", user, ex.getMessage()));
 		}
 
 		// Get the basic information
@@ -110,8 +110,11 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			double a2 =(Math.floor(alt) - alt);
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
 			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
+		} catch (NumberFormatException nfe) {
+			log.error(nfe.getMessage(), nfe);
+			throw new XMLException(String.format("Error parsing v2 Position data - %s", nfe.getMessage()), nfe);
 		} catch (Exception ex) {
-			throw new XMLException("Error parsing v2 Position data - " + ex.getMessage(), ex);
+			throw new XMLException(String.format("Error parsing v2 Position data - %s", ex.getMessage()), ex);
 		}
 		
 		// Parse ATC info
@@ -136,7 +139,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				msg.setATC2(ctr);
 			}
 		} catch (Exception ex) {
-			throw new XMLException("Error parsing ATC data - " + ex.getMessage(), ex);
+			throw new XMLException(String.format("Error parsing ATC data - %s", ex.getMessage()), ex);
 		}
 
 		return msg;
