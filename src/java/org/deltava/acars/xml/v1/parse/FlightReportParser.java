@@ -58,6 +58,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setFDE(getChildText(e, "fde", null));
 		afr.setCapabilities(StringUtils.parse(getChildText(e, "capabilities", "0"), 0, true));
 		afr.setAircraftCode(getChildText(e, "code", null));
+		afr.setAuthor(getChildText(e, "author", null));
+		afr.setAircraftPath(getChildText(e, "acPath", null));
 		afr.setNetwork(EnumUtils.parse(OnlineNetwork.class, getChildText(e, "network", null), null));
 		afr.setTailCode(getChildText(e, "tailCode", null));
 		
