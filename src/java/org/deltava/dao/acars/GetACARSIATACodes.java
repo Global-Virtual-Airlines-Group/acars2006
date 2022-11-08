@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2016, 2017, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2016, 2017, 2018, 2019, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -15,7 +15,7 @@ import org.deltava.util.cache.*;
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 9.0
+ * @version 10.3
  * @since 5.1
  */
 
@@ -46,11 +46,11 @@ public class GetACARSIATACodes extends DAO {
 			return new LinkedHashMap<String, IATACodes>(results);
 		
 		// Build the SQL statement
-		StringBuilder sqlBuf = new StringBuilder("SELECT P.EQTYPE, AP.CODE, COUNT(AP.ID) AS CNT FROM ");
+		StringBuilder sqlBuf = new StringBuilder("SELECT P.EQTYPE, AM.CODE, COUNT(AM.ID) AS CNT FROM ");
 		sqlBuf.append(dbName);
 		sqlBuf.append(".PIREPS P, ");
 		sqlBuf.append(dbName);
-		sqlBuf.append(".ACARS_PIREPS AP WHERE (P.ID=AP.ID) AND (P.STATUS=?) AND (LENGTH(AP.CODE)>2) GROUP BY P.EQTYPE, AP.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
+		sqlBuf.append(".ACARS_METADATA AM WHERE (P.ID=AP.ID) AND (P.STATUS=?) AND (LENGTH(AM.CODE)>2) GROUP BY P.EQTYPE, AM.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
 		
 		try (PreparedStatement ps = prepareWithoutLimits(sqlBuf.toString())) {
 			ps.setInt(1, FlightStatus.OK.ordinal());
