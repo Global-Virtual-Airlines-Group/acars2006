@@ -89,7 +89,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setCeiling(Integer.parseInt(getChildText(e, "ceiling", "9999")));
 			msg.setTemperature(Integer.parseInt(getChildText(e, "temp", "-100")));
 			msg.setPressure(Integer.parseInt(getChildText(e, "pressure", "0")));
-			msg.setFuelFlow(Integer.parseInt(getChildText(e, "fuelFlow", "0")));
+			msg.setFuelFlow(StringUtils.parse(getChildText(e, "fuelFlow", "0"), 0));
 			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			msg.setSimRate(Integer.parseInt(getChildText(e, "simrate", "256")));
 			msg.setLogged(Boolean.parseBoolean(getChildText(e, "isLogged", "true")));
