@@ -50,7 +50,7 @@ public class GetACARSIATACodes extends DAO {
 		sqlBuf.append(dbName);
 		sqlBuf.append(".PIREPS P, ");
 		sqlBuf.append(dbName);
-		sqlBuf.append(".ACARS_METADATA AM WHERE (P.ID=AP.ID) AND (P.STATUS=?) AND (LENGTH(AM.CODE)>2) GROUP BY P.EQTYPE, AM.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
+		sqlBuf.append(".ACARS_METADATA AM WHERE (P.ID=AM.ID) AND (P.STATUS=?) AND (LENGTH(AM.CODE)>2) GROUP BY P.EQTYPE, AM.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
 		
 		try (PreparedStatement ps = prepareWithoutLimits(sqlBuf.toString())) {
 			ps.setInt(1, FlightStatus.OK.ordinal());
