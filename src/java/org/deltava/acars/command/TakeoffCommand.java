@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-
+import org.deltava.beans.GeoLocation;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
 
@@ -16,13 +16,13 @@ import org.deltava.comparators.GeoComparator;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetTakeoff;
-
+import org.deltava.util.GeoUtils;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 9.1
+ * @version 10.3
  * @since 2.8
  */
 
@@ -82,7 +82,11 @@ public class TakeoffCommand extends ACARSCommand {
 			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg.getLocation(), msg.getHeading());
 			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
-				int dist = r.distanceFeet(msg.getLocation());
+				GeoLocation rw = (r.getThresholdLength() > 0) ? r.getThreshold() : r;
+				int dist = r.distanceFeet(msg.getLocation()) - r.getThresholdLength();
+				double delta = GeoUtils.delta(r.getHeading(), GeoUtils.course(rw, msg.getLocation()));
+				if (delta > 90)
+					dist = -dist;
 				
 				// Send the ack
 				AcknowledgeMessage ackMsg = new AcknowledgeMessage(msg.getSender(), msg.getID());
