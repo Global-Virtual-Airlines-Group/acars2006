@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -31,7 +31,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 9.2
+ * @version 10.3
  * @since 1.0
  */
 
@@ -72,7 +72,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			latestClient = abdao.getLatestBuild(cInfo);
 			boolean isOK = abdao.isValid(cInfo);
 			if (!isOK || (latestClient == null)) {
-				String ct = cInfo.getClientType().getName();
+				String ct = cInfo.getClientType().getDescription();
 				if (latestClient == null)
 					throw new ACARSException(String.format("Unknown/Deprecated ACARS %s Version - %d", ct, Integer.valueOf(cInfo.getVersion())));	
 				else if (cInfo.isBeta())
