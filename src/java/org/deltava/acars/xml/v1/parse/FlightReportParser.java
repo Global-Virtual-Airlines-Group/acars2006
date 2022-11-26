@@ -2,7 +2,8 @@
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
-import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.*;
+import java.time.temporal.ChronoField;
 
 import org.jdom2.Element;
 import org.apache.log4j.Logger;
@@ -156,12 +157,12 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		
 		// Parse status messages
 		if (XMLUtils.hasElement(e, "msgs")) {
+			DateTimeFormatter mdtf = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
 			for (Element me : e.getChild("msgs").getChildren()) {
-				int userID = StringUtils.parse(me.getAttributeValue("userID"), user.getID());
 				HistoryType ht = EnumUtils.parse(HistoryType.class, me.getAttributeValue("type"), HistoryType.USER);
-				Instant dt = StringUtils.parseInstant(me.getAttributeValue("time"), "MM/dd/yyyy HH:mm:ss");
-				FlightHistoryEntry upd = new FlightHistoryEntry(0, ht, userID, dt, me.getText());
-				afr.addStatusUpdate(upd);
+				int userID = (ht == HistoryType.USER) ? StringUtils.parse(me.getAttributeValue("userID"), user.getID()) : 0;
+				Instant dt = LocalDateTime.parse(me.getAttributeValue("time"), mdtf).toInstant(ZoneOffset.UTC);
+				afr.addStatusUpdate(new FlightHistoryEntry(0, ht, userID, dt, me.getText()));
 			}
 		}
 
