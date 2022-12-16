@@ -1,4 +1,4 @@
-// Copyright 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 10.1
+ * @version 10.3
  * @since 9.0
  */
 
@@ -59,48 +59,52 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		ForkJoinPool pool = new ForkJoinPool(6, new LoaderFactory(), this, false);
-		while (!Thread.currentThread().isInterrupted()) {
-			_status.setMessage("Downloading network data");
-			_status.execute();
+		try (ForkJoinPool pool = new ForkJoinPool(6, new LoaderFactory(), this, false)) {
+			while (!Thread.currentThread().isInterrupted()) {
+				_status.setMessage("Downloading network data");
+				_status.execute();
 
-			try {
-				long sleepTime = (SLEEP_INTERVAL * 1000);
-				List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
-				if (!tasks.isEmpty()) {
-					tasks.forEach(pool::submit); TaskTimer tt = new TaskTimer();
-					pool.awaitQuiescence((SLEEP_INTERVAL - 2), TimeUnit.SECONDS);
-					long ms = tt.stop(); sleepTime -= ms;
-					_status.complete();
-					if (!pool.isQuiescent()) {
-						log.warn("Pool still active after " + ms + "ms");
-						sleepTime += (SLEEP_INTERVAL * 1000);
-					}
-
-					// Record the update times for outage tracking
-					Connection c = null; tasks.removeIf(l -> !l.isUpdated());
+				try {
+					long sleepTime = (SLEEP_INTERVAL * 1000);
+					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
 					if (!tasks.isEmpty()) {
-						_status.setMessage("Updating data validity");
-						
-						try {
-							c = _jdbcPool.getConnection();
-							SetOnlineTrack twdao = new SetOnlineTrack(c);
-							for (Loader l : tasks)
-								twdao.writePull(l.getNetwork(), l.getLastUpdate());
-						} catch (DAOException de) {
-							log.error("Error writing update times - " + de.getMessage(), de);
-						} finally {
-							_jdbcPool.release(c);
+						tasks.forEach(pool::submit);
+						TaskTimer tt = new TaskTimer();
+						pool.awaitQuiescence((SLEEP_INTERVAL - 2), TimeUnit.SECONDS);
+						long ms = tt.stop();
+						sleepTime -= ms;
+						_status.complete();
+						if (!pool.isQuiescent()) {
+							log.warn("Pool still active after " + ms + "ms");
+							sleepTime += (SLEEP_INTERVAL * 1000);
+						}
+
+						// Record the update times for outage tracking
+						Connection c = null;
+						tasks.removeIf(l -> !l.isUpdated());
+						if (!tasks.isEmpty()) {
+							_status.setMessage("Updating data validity");
+
+							try {
+								c = _jdbcPool.getConnection();
+								SetOnlineTrack twdao = new SetOnlineTrack(c);
+								for (Loader l : tasks)
+									twdao.writePull(l.getNetwork(), l.getLastUpdate());
+							} catch (DAOException de) {
+								log.error("Error writing update times - " + de.getMessage(), de);
+							} finally {
+								_jdbcPool.release(c);
+							}
 						}
 					}
-				}
 
-				_status.setMessage("Idle");
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+					_status.setMessage("Idle");
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
 			}
 		}
 	}
