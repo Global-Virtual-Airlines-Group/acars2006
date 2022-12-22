@@ -20,7 +20,8 @@
 	<cache id="GeoCountryL1" geo="true" expires="86400" max="2048" precision="0.05" />
 	<cache id="GeoCountry" remote="true" geo="true" expires="864000" precision="0.01" />
 	<cache id="TaxiTime" remote="true" expires="1d" />
-	
+	<cache id="ATIS" remote="true" expires="900'"/>
+
 	<!-- Weather caches -->
 	<cache id="METAR" max="256" expires="1800" />
 	<cache id="TAF" max="256" expires="1800" />
