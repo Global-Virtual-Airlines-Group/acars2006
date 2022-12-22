@@ -1,4 +1,4 @@
-// Copyright 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.online;
 
 import java.io.*;
@@ -11,8 +11,7 @@ import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.*;
 
 import org.deltava.dao.file.*;
-import org.deltava.dao.http.GetURL;
-import org.deltava.dao.http.DAO.Compression;
+import org.deltava.dao.http.*;
 import org.deltava.dao.DAOException;
 
 import org.deltava.util.system.SystemData;
@@ -20,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for VATSIM.
  * @author Luke
- * @version 10.1
+ * @version 10.3
  * @since 9.0
  */
 
