@@ -114,6 +114,7 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 		_subCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
 		_subCommands.put(DataRequest.SBDATA, new SimBriefTextCommand());
+		_subCommands.put(DataRequest.ATIS, new ATISCommand());
 
 		// Initialize dispatch commands
 		_subCommands.put(DispatchRequest.SVCREQ, new ServiceRequestCommand());
