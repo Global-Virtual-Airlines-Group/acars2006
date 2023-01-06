@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 10.2
+ * @version 10.4
  * @since 1.0
  */
 
@@ -163,7 +163,7 @@ public class IPCDaemon implements Runnable {
 								break;
 								
 							case CACHE_STATS:
-								Collection<CacheInfo> info = CacheManager.getCacheInfo();
+								Collection<CacheInfo> info = CacheManager.getCacheInfo(true);
 								SharedData.addData(SharedData.ACARS_CACHEINFO, (Serializable) info);
 								break;
 								
