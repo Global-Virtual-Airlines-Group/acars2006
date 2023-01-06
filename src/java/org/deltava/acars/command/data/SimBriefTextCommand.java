@@ -1,4 +1,4 @@
-// Copyright 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to return SimBrief briefing packages.
  * @author Luke
- * @version 10.3
+ * @version 10.4
  * @since 10.3
  */
 
@@ -32,8 +32,8 @@ public class SimBriefTextCommand extends DataCommand {
 		int id = StringUtils.parse(msg.getFlag("id"), 0);
 
 		try {
-			GetFlightReports frdao = new GetFlightReports(ctx.getConnection());
-			BriefingPackage pkg = frdao.getSimBrief(id, ctx.getDB());
+			GetSimBriefPackages sbdao = new GetSimBriefPackages(ctx.getConnection());
+			BriefingPackage pkg = sbdao.getSimBrief(id, ctx.getDB());
 			if (pkg == null) {
 				ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown Flight Report - " + id));
 				return;
