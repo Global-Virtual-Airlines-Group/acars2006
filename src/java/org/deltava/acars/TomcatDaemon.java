@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2010, 2011, 2016, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2010, 2011, 2016, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 9.0
+ * @version 10.4
  * @since 1.0
  */
 
@@ -87,7 +87,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 		_threads.values().forEach(w -> { log.debug("Stopping " + w.getName()); w.close(); });
 
 		// Display shutdown message
-		ThreadUtils.kill(_workers, 1500);
+		ThreadUtils.kill(_threads.keySet(), 1500);
 		log.info("Terminated");
 	}
 

@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 10.3
+ * @version 10.4
  * @since 9.0
  */
 
@@ -53,13 +53,23 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 				l.init(inf.getValidDate().minusSeconds(15), inf.getValidDate());
 		}
 	}
+	
+	private static Runnable runnableWrapper(CountDownLatch lt, Runnable r)  {
+		return new Runnable() {
+			@Override
+			public void run() {
+				r.run();
+				lt.countDown();
+			}
+		};
+	}
 
 	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		try (ForkJoinPool pool = new ForkJoinPool(6, new LoaderFactory(), this, false)) {
+		try (@SuppressWarnings("preview") ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
 			while (!Thread.currentThread().isInterrupted()) {
 				_status.setMessage("Downloading network data");
 				_status.execute();
@@ -68,13 +78,14 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 					long sleepTime = (SLEEP_INTERVAL * 1000);
 					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
 					if (!tasks.isEmpty()) {
-						tasks.forEach(pool::submit);
+						CountDownLatch lt = new CountDownLatch(tasks.size());
+						tasks.forEach(t -> pool.submit(runnableWrapper(lt, t)));
 						TaskTimer tt = new TaskTimer();
-						pool.awaitQuiescence((SLEEP_INTERVAL - 2), TimeUnit.SECONDS);
+						boolean isComplete = lt.await((SLEEP_INTERVAL - 2), TimeUnit.SECONDS);
 						long ms = tt.stop();
 						sleepTime -= ms;
 						_status.complete();
-						if (!pool.isQuiescent()) {
+						if (!isComplete) {
 							log.warn("Pool still active after " + ms + "ms");
 							sleepTime += (SLEEP_INTERVAL * 1000);
 						}

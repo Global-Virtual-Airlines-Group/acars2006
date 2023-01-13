@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -33,7 +33,7 @@ import org.gvagroup.tomcat.SharedWorker;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 10.2
+ * @version 10.4
  * @since 1.0
  */
 
@@ -42,21 +42,17 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	private static final Logger log = Logger.getLogger(SystemBootstrap.class);
 	
 	private ConnectionPool _jdbcPool;
-	
-	private final ThreadGroup _dGroup = new ThreadGroup("ACARS System Daemons");
 	private final Map<Thread, Runnable> _daemons = new HashMap<Thread, Runnable>();
 
-	/**
-	 * Web application termination callback handler.
-	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent e) {
+		Collection<Thread> threads = new ArrayList<Thread>(_daemons.keySet());
 		_daemons.clear();
-		_dGroup.interrupt();
+		threads.forEach(Thread::interrupt);
 		SharedWorker.clear(Thread.currentThread().getContextClassLoader());
 		
 		// Shut down the JDBC connection pool
-		ThreadUtils.kill(_dGroup, 2500);
+		ThreadUtils.kill(threads, 2500);
 		JMXUtils.clear();
 		RedisUtils.shutdown();
 		_jdbcPool.close();
@@ -67,9 +63,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		log.error(String.format("Shut down %s", code));
 	}
 	
-	/**
-	 * Web application initializaton callback handler.
-	 */
 	@Override
 	public void contextInitialized(ServletContextEvent e) {
 		e.getServletContext().setAttribute("startedOn", java.time.Instant.now());
@@ -210,8 +203,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	/*
 	 * Helper method to spawn a system daemon.
 	 */
+	@SuppressWarnings("preview")
 	private void spawnDaemon(Runnable sd) {
-		Thread dt = new Thread(_dGroup, sd, sd.toString());
+		Thread dt = Thread.ofVirtual().name(sd.toString()).unstarted(sd);
 		dt.setDaemon(true);
 		dt.setUncaughtExceptionHandler(this);
 		synchronized (_daemons) {
@@ -220,9 +214,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 	}
 
-	/**
-	 * Uncaught exception handler.
-	 */
+	@SuppressWarnings("preview")
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		Runnable r = _daemons.get(t);
@@ -235,7 +227,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		log.error(e.getMessage(), e);
 		
 		// Spawn a new daemon
-		Thread nt = new Thread(r, r.toString());
+		Thread nt = Thread.ofVirtual().name(r.toString()).unstarted(r);
 		nt.setDaemon(true);
 		nt.setUncaughtExceptionHandler(this);
 		synchronized (_daemons) {
