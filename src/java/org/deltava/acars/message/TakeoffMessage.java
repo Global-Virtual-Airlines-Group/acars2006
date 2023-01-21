@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2018, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2018, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -8,7 +8,7 @@ import org.deltava.beans.schedule.*;
 /**
  * An ACARS message to track takeoffs and landings.
  * @author Luke
- * @version 9.0
+ * @version 10.4
  * @since 2.8
  */
 
@@ -16,6 +16,7 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	
 	private GeospaceLocation _loc;
 	private int _hdg;
+	private int _vSpeed;
 	
 	private boolean _isTakeoff;
 	private ILSCategory _ils;
@@ -48,6 +49,14 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	 */
 	public int getHeading() {
 		return _hdg;
+	}
+	
+	/**
+	 * Returns the vertical speed at takeoff/touchdown.
+	 * @return the speed in feet/minute
+	 */
+	public int getVSpeed() {
+		return _vSpeed;
 	}
 	
 	@Override
@@ -106,6 +115,14 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	 */
 	public void setHeading(int hdg) {
 		_hdg = hdg;
+	}
+	
+	/**
+	 * Updates the vertical speed at takeoff/touchdown.
+	 * @param vs the speed in feet/minute
+	 */
+	public void setVSpeed(int vs) {
+		_vSpeed = vs;
 	}
 	
 	/**
