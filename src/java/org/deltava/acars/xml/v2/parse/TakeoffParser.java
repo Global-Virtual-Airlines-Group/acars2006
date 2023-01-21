@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2011, 2012, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2011, 2012, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -15,7 +15,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for takeoff/touchdown messages. 
  * @author Luke
- * @version 10.2
+ * @version 10.4
  * @since 2.8
  */
 
@@ -43,6 +43,7 @@ class TakeoffParser extends XMLElementParser<TakeoffMessage> {
 		// Create the message
 		TakeoffMessage msg = new TakeoffMessage(usr);
 		msg.setLocation(loc);
+		msg.setVSpeed(StringUtils.parse(getChildText(e, "vSpeed", "0"), 0));
 		msg.setHeading(StringUtils.parse(getChildText(e, "hdg", "0"), 0));
 		msg.setTakeoff(Boolean.parseBoolean(e.getAttributeValue("takeoff")));
 		if (!msg.isTakeoff())

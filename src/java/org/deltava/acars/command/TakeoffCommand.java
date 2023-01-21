@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 import org.deltava.beans.GeoLocation;
+import org.deltava.beans.flight.LandingScorer;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
 
@@ -22,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 10.3
+ * @version 10.4
  * @since 2.8
  */
 
@@ -88,12 +89,17 @@ public class TakeoffCommand extends ACARSCommand {
 				if (delta > 90)
 					dist = -dist;
 				
-				// Send the ack
+				// Build the ack
 				AcknowledgeMessage ackMsg = new AcknowledgeMessage(msg.getSender(), msg.getID());
 				ackMsg.setEntry("airport", a.getICAO());
 				ackMsg.setEntry("rwy", r.getName());
 				ackMsg.setEntry("distance", String.valueOf(dist));
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
+				
+				// Calculate landing score
+				if (!msg.isTakeoff())
+					ackMsg.setEntry("score", String.valueOf(LandingScorer.score(msg.getVSpeed(), dist)));
+				
 				ctx.push(ackMsg);
 			}
 			
