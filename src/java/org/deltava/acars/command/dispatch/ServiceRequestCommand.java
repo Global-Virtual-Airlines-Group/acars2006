@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 10.3
+ * @version 10.5
  * @since 2.0
  */
 
@@ -115,8 +115,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 			// Find the closest gate
 			GetGates gdao = new GetGates(con);
 			GateHelper gh = new GateHelper(msg, msg.getAirline(), 25, false);
-			gh.addDepartureGates(gdao.getGates(msg.getAirportD(), msg.getSimulator()), gdao.getUsage(msg, true));
-			gh.addArrivalGates(gdao.getGates(msg.getAirportA(), msg.getSimulator()), gdao.getUsage(msg, false));
+			gh.addDepartureGates(gdao.getGates(msg.getAirportD()), gdao.getUsage(msg, true));
+			gh.addArrivalGates(gdao.getGates(msg.getAirportA()), gdao.getUsage(msg, false));
 			msg.setArrivalGates(gh.getArrivalGates());
 			SortedSet<Gate> gates = new TreeSet<Gate>(new GeoComparator(msg, true));
 			gates.addAll(gh.getDepartureGates());

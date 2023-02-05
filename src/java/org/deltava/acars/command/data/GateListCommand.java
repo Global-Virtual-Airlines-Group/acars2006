@@ -1,4 +1,4 @@
-// Copyright 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 10.3
+ * @version 10.5
  * @since 8.4
  */
 
@@ -56,11 +56,11 @@ public class GateListCommand extends DataCommand {
 				GateHelper gh = new GateHelper(inf, al, 40, false);
 				rspMsg.setRouteUsage(true);
 				if (isDeparture) {
-					gh.addDepartureGates(gdao.getGates(inf.getAirportD(), sim), gdao.getUsage(inf, true));
+					gh.addDepartureGates(gdao.getGates(inf.getAirportD()), gdao.getUsage(inf, true));
 					rspMsg.setAirport(inf.getAirportD());
 					rspMsg.addAll(gh.getDepartureGates());
 				} else {
-					gh.addArrivalGates(gdao.getGates(inf.getAirportA(), sim), gdao.getUsage(inf, false));
+					gh.addArrivalGates(gdao.getGates(inf.getAirportA()), gdao.getUsage(inf, false));
 					rspMsg.setAirport(inf.getAirportA());
 					rspMsg.addAll(gh.getArrivalGates());
 				}
@@ -69,18 +69,18 @@ public class GateListCommand extends DataCommand {
 				GateHelper gh = new GateHelper(rp, al, 40, false);
 				rspMsg.setRouteUsage(true);
 				if (isDeparture) {
-					gh.addDepartureGates(gdao.getGates(rp.getAirportD(), sim), gdao.getUsage(rp, true));
+					gh.addDepartureGates(gdao.getGates(rp.getAirportD()), gdao.getUsage(rp, true));
 					rspMsg.setAirport(rp.getAirportD());
 					rspMsg.addAll(gh.getDepartureGates());
 				} else {
-					gh.addArrivalGates(gdao.getGates(rp.getAirportA(), sim), gdao.getUsage(rp, false));
+					gh.addArrivalGates(gdao.getGates(rp.getAirportA()), gdao.getUsage(rp, false));
 					rspMsg.setAirport(rp.getAirportA());
 					rspMsg.addAll(gh.getArrivalGates());
 				}
 			}
 				
 			if (rspMsg.getResponse().isEmpty() && (rspMsg.getAirport() != null)) {
-				List<Gate> allGates = gdao.getGates(rspMsg.getAirport(), sim);
+				List<Gate> allGates = gdao.getGates(rspMsg.getAirport());
 				Collections.sort(allGates, new GateComparator(GateComparator.USAGE));
 				rspMsg.addAll(allGates);
 			}
