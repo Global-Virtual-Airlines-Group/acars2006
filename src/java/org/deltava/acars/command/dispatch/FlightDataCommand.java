@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2012, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2012, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.sql.Connection;
@@ -16,7 +16,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 9.1
+ * @version 10.5
  * @since 1.1
  */
 
@@ -63,9 +63,9 @@ public class FlightDataCommand extends DispatchCommand {
 			// Populate the gates
 			GetGates gdao = new GetGates(c);
 			if (msg.getGateD() != null)
-				msg.setGateD(gdao.getGate(msg.getAirportD(), msg.getSimulator(), msg.getGateD().getName()));
+				msg.setGateD(gdao.getGate(msg.getAirportD(), msg.getGateD().getName()));
 			if (msg.getGateA() != null)
-				msg.setGateA(gdao.getGate(msg.getAirportA(), msg.getSimulator(), msg.getGateA().getName()));
+				msg.setGateA(gdao.getGate(msg.getAirportA(), msg.getGateA().getName()));
 			
 			// Log things
 			if ((dc != null) && (msg.getLogID() == 0)) {
