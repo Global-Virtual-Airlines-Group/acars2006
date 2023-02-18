@@ -24,7 +24,7 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.*;
 import org.deltava.util.jmx.*;
 import org.deltava.util.cache.CacheLoader;
-import org.deltava.util.system.SystemData;
+import org.deltava.util.system.*;
 
 import org.gvagroup.common.SharedData;
 import org.gvagroup.jdbc.*;
@@ -33,7 +33,7 @@ import org.gvagroup.tomcat.SharedWorker;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 10.4
+ * @version 10.5
  * @since 1.0
  */
 
@@ -72,6 +72,18 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		String code = SystemData.get("airline.code");
 		log.info("Starting " + code);
 		SharedData.addApp(code);
+		
+		// Load Secrets
+		if (SystemData.has("security.secrets")) {
+			try {
+				SecretManager sm = new PropertiesSecretManager(SystemData.get("security.secrets"));
+				sm.load();
+				sm.getKeys().forEach(k -> SystemData.add(k, sm.get(k)));
+				log.info(String.format("Loaded %d secrets from %s", Integer.valueOf(sm.size()), SystemData.get("security.secrets")));
+			} catch (IOException ie) {
+				log.error("Error loading secrets - " + ie.getMessage(), ie);
+			}
+		}
 		
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
@@ -206,7 +218,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	@SuppressWarnings("preview")
 	private void spawnDaemon(Runnable sd) {
 		Thread dt = Thread.ofVirtual().name(sd.toString()).unstarted(sd);
-		dt.setDaemon(true);
 		dt.setUncaughtExceptionHandler(this);
 		synchronized (_daemons) {
 			_daemons.put(dt, sd);
@@ -228,7 +239,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Spawn a new daemon
 		Thread nt = Thread.ofVirtual().name(r.toString()).unstarted(r);
-		nt.setDaemon(true);
 		nt.setUncaughtExceptionHandler(this);
 		synchronized (_daemons) {
 			_daemons.remove(t);
