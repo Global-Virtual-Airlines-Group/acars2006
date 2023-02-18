@@ -8,14 +8,12 @@ import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.message.data.GateMessage;
 
-import org.deltava.beans.Simulator;
 import org.deltava.beans.navdata.Gate;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.comparators.GateComparator;
 
 import org.deltava.dao.*;
-import org.deltava.util.EnumUtils;
 import org.deltava.util.system.SystemData;
 
 /**
@@ -39,7 +37,6 @@ public class GateListCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		GateMessage rspMsg = new GateMessage(env.getOwner(), msg.getID());		
 		InfoMessage inf = ctx.getACARSConnection().getFlightInfo();
-		Simulator sim = (inf == null) ? EnumUtils.parse(Simulator.class, msg.getFlag("sim"), Simulator.FSX) : inf.getSimulator();
 		
 		// Get the airport / airline / isDeparture
 		boolean isDeparture = Boolean.parseBoolean(msg.getFlag("isDeparture"));
