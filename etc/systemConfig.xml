@@ -20,8 +20,6 @@
 	<jdbc>
 		<driver>com.mysql.cj.jdbc.Driver</driver>
 		<url>jdbc:mysql://localhost/acars</url>
-		<user>dva</user>
-		<pwd>***REMOVED***</pwd>
 		<socket>/run/mysql/mysql.sock</socket>
 		
 		<map name="connectProperties">
@@ -62,11 +60,6 @@
 		<!-- FlightAware download data -->
 		<flightaware>
 			<enabled type="Boolean">true</enabled>
-			<flightXML>
-				<user>gvagroup</user>			
-				<v2>***REMOVED***</v2>
-				<v3>***REMOVED***</v3>			
-			</flightXML>
 		</flightaware>
 		<cache>/var/cache/sched</cache>
 	</schedule>
@@ -80,6 +73,7 @@
 	</weather>
 
 	<security>
+		<secrets>/usr/local/tomcat/conf/acars_secrets.properties</secrets>
 		<auth>org.deltava.security.ApacheSQLAuthenticator</auth>
 		<baseDN>ou=dva,o=sce</baseDN>
 	</security>
@@ -106,6 +100,7 @@
 			<network>VATSIM</network>
 			<network>IVAO</network>
 			<network>PilotEdge</network>
+			<network>POSCON</network>
 		</list>
 
 		<vatsim>
@@ -188,7 +183,7 @@
 		</position>
 
 		<voice>
-			<enabled type="Boolean">true</enabled>
+			<enabled type="Boolean">false</enabled>
 			<port type="Integer">15527</port>		
 
 			<!-- Roles able to create temporary channels -->
