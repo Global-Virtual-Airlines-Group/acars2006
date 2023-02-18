@@ -1,7 +1,8 @@
-// Copyright 2005, 2006, 2007, 2010, 2011, 2016, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2010, 2011, 2016, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -13,7 +14,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 10.4
+ * @version 10.5
  * @since 1.0
  */
 
@@ -93,9 +94,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 
 	@Override
 	public Collection<WorkerStatus> getWorkers() {
-		Collection<WorkerStatus> results = new TreeSet<WorkerStatus>();
-		_threads.values().forEach(t -> results.addAll(t.getStatus()));
-		return results;
+		return _threads.values().stream().map(Worker::getStatus).flatMap(Collection::stream).collect(Collectors.toCollection(TreeSet::new));
 	}
 	
 	@Override
