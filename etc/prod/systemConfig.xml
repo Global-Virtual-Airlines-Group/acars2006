@@ -23,8 +23,6 @@
 	<jdbc>
 		<driver>com.mysql.cj.jdbc.Driver</driver>
 		<url>jdbc:mysql://mysql.gva.aws/acars</url>
-		<user>dva</user>
-		<pwd>m4n3l5</pwd>
 		<socket>/run/mysql/mysql.sock</socket>
 		
 		<map name="connectProperties">
@@ -71,11 +69,6 @@
 		<!-- FlightAware download data -->
 		<flightaware>
 			<enabled type="Boolean">true</enabled>
-			<flightXML>
-				<user>gvagroup</user>			
-				<v2>18f14fe837c03e585d20b955d797fd711cd907b0</v2>
-				<v3>e8865f4fd85717e58df556ec8e56909ef23b9581</v3>			
-			</flightXML>
 		</flightaware>
 	</schedule>
 	
