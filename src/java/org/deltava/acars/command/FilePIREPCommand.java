@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 10.3
+ * @version 10.5
  * @since 1.0
  */
 
@@ -325,7 +325,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			SetACARSRunway awdao = new SetACARSRunway(con);
 			FlightInfo inf = fsh.getACARSInfo();
 			awdao.writeRunways(flightID, inf.getRunwayD(), inf.getRunwayA());
-			awdao.writeGates(flightID, inf.getGateD(), inf.getGateA());
+			awdao.writeGates(inf);
 			
 			// Check if we're a dispatch plan
 			if ((msg.getDispatcher() == DispatchType.DISPATCH) && (info.getDispatcher() != DispatchType.DISPATCH)) {
