@@ -1,15 +1,12 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
 import java.time.format.*;
-import java.time.temporal.ChronoField;
 
-import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import org.deltava.beans.*;
-import org.deltava.beans.acars.DispatchType;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
@@ -19,9 +16,9 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.xml.*;
 
 /**
- * A parser for FlightReport elements.
+ * A parser for v1 FlightReport elements.
  * @author Luke
- * @version 10.3
+ * @version 10.5
  * @since 1.0
  */
 
@@ -63,24 +60,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setAircraftPath(getChildText(e, "acPath", null));
 		afr.setNetwork(EnumUtils.parse(OnlineNetwork.class, getChildText(e, "network", null), null));
 		afr.setTailCode(getChildText(e, "tailCode", null));
-		
-		// Check for SDK and load data (this is really v2, but no sense making a new parser for a three element delta)
-		afr.setSDK(getChildText(e, "sdk", ACARSFlightReport.GENERIC_SDK));
-		afr.setPassengers(StringUtils.parse(getChildText(e, "pax", "0"), 0));
-		msg.setCustomCabinSize(Boolean.parseBoolean(getChildText(e, "customCabin", "false")));
-		msg.setPaxWeight(StringUtils.parse(getChildText(e, "passengerWeight", String.valueOf(FlightReportMessage.DEFAULT_PAX_WEIGHT)), FlightReportMessage.DEFAULT_PAX_WEIGHT));
-		String lf = getChildText(e, "loadFactor", "0");
-		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
-		if (Double.isNaN(afr.getLoadFactor())) {
-			log.warn("Invalid load factor from " + user.getPilotCode() + " - " + lf);
-			afr.setLoadFactor(0);
-		}
-			
-		// Check for dispatch data
-		msg.setDispatcherID(StringUtils.parse(getChildText(e, "dispatcherID", "0"), 0));
-		msg.setRouteID(StringUtils.parse(getChildText(e, "dispatchRouteID", "0"), 0));
-		if (msg.getDispatcher() != DispatchType.DISPATCH)
-			msg.setDispatcher(EnumUtils.parse(DispatchType.class, getChildText(e, "dispatcher", "none"), DispatchType.NONE));
 
 		// Check if it's a checkride
 		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.parseBoolean(e.getChildTextTrim("checkRide")));
@@ -155,17 +134,6 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setDeboardTime(StringUtils.parse(getChildText(e, "timeDeboard", "0"), 0));
 		afr.setOnlineTime(StringUtils.parse(getChildText(e, "timeOnline", "0"), 0));
 		
-		// Parse status messages
-		if (XMLUtils.hasElement(e, "msgs")) {
-			DateTimeFormatter mdtf = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
-			for (Element me : e.getChild("msgs").getChildren()) {
-				HistoryType ht = EnumUtils.parse(HistoryType.class, me.getAttributeValue("type"), HistoryType.USER);
-				int userID = (ht == HistoryType.USER) ? StringUtils.parse(me.getAttributeValue("userID"), user.getID()) : 0;
-				Instant dt = LocalDateTime.parse(me.getAttributeValue("time"), mdtf).toInstant(ZoneOffset.UTC);
-				afr.addStatusUpdate(new FlightHistoryEntry(0, ht, userID, dt, me.getText()));
-			}
-		}
-
 		// Save the PIREP and return
 		msg.setPIREP(afr);
 		return msg;
