@@ -1,4 +1,4 @@
-// Copyright 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.deltava.acars.message.*;
@@ -6,7 +6,7 @@ import org.deltava.acars.message.*;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 9.1
+ * @version 10.5
  * @since 2.7
  */
 
@@ -24,6 +24,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		super.init();
 		
 		// Core parsers
+		_eParsers.put(MessageType.PIREP, new FlightReportParser());
 		_eParsers.put(MessageType.TOTD, new TakeoffParser());
 		_eParsers.put(MessageType.MPUPDATE, new MPLocationParser());
 		_eParsers.put(MessageType.MPINIT, new MPInitParser());
