@@ -6,7 +6,7 @@ import org.jdom2.Element;
 import org.deltava.beans.*;
 import org.deltava.beans.flight.ILSCategory;
 import org.deltava.beans.schedule.GeoPosition;
-
+import org.deltava.util.EnumUtils;
 import org.deltava.util.StringUtils;
 
 import org.deltava.acars.message.TakeoffMessage;
@@ -15,7 +15,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for takeoff/touchdown messages. 
  * @author Luke
- * @version 10.4
+ * @version 10.5
  * @since 2.8
  */
 
@@ -31,23 +31,21 @@ class TakeoffParser extends XMLElementParser<TakeoffMessage> {
 	public TakeoffMessage parse(Element e, Pilot usr) throws XMLException {
 		
 		// Create the location
-		GeospaceLocation loc = null;
+		TakeoffMessage msg = new TakeoffMessage(usr);
 		try {
 			double lat = Double.parseDouble(e.getAttributeValue("lat"));
 			double lng = Double.parseDouble(e.getAttributeValue("lng"));
-			loc = new GeoPosition(lat, lng, StringUtils.parse(e.getAttributeValue("alt"), 0));
+			msg.setLocation(new GeoPosition(lat, lng, StringUtils.parse(e.getAttributeValue("alt"), 0)));
 		} catch (Exception ex) {
 			throw new XMLException("Cannot parse takeoff location - " + ex.getMessage());
 		}
 		
 		// Create the message
-		TakeoffMessage msg = new TakeoffMessage(usr);
-		msg.setLocation(loc);
 		msg.setVSpeed(StringUtils.parse(getChildText(e, "vSpeed", "0"), 0));
 		msg.setHeading(StringUtils.parse(getChildText(e, "hdg", "0"), 0));
 		msg.setTakeoff(Boolean.parseBoolean(e.getAttributeValue("takeoff")));
 		if (!msg.isTakeoff())
-			msg.setILS(ILSCategory.get(getChildText(e, "ils", "CATI")));
+			msg.setILS(EnumUtils.parse(ILSCategory.class, getChildText(e, "ils", "CATI"), ILSCategory.NONE));
 			
 		return msg;
 	}
