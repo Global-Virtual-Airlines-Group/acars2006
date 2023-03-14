@@ -105,7 +105,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
 		afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
 		afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
-		afr.setLandingCategory(ILSCategory.get(getChildText(e, "landingCat", "")));
+		afr.setLandingCategory(EnumUtils.parse(ILSCategory.class, getChildText(e, "landingCat", ""), ILSCategory.NONE));
 		afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
 		afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
 			

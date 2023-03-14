@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -21,8 +21,8 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for v2 FlightReport elements.
  * @author Luke
- * @version 10.3
- * @since 1.0
+ * @version 10.5
+ * @since 10.5
  */
 
 class FlightReportParser extends XMLElementParser<FlightReportMessage> {
@@ -133,7 +133,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setLandingVSpeed(StringUtils.parse(getChildText(e, "landingVSpeed", "-1"), 0));
 		afr.setLandingG(StringUtils.parse(getChildText(e, "landingG", "0.0"), 0.0d));
 		afr.setLandingN1(StringUtils.parse(getChildText(e, "landingN1", "0.0"), 0.0d));
-		afr.setLandingCategory(ILSCategory.get(getChildText(e, "landingCat", "")));
+		afr.setLandingCategory(EnumUtils.parse(ILSCategory.class, getChildText(e, "landingCat", ""), ILSCategory.NONE));
 		afr.setGateFuel(StringUtils.parse(getChildText(e, "gateFuel", "0"), 0));
 		afr.setGateWeight(StringUtils.parse(getChildText(e, "gateWeight", "1"), 0));
 			
