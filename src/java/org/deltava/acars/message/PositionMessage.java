@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
@@ -12,7 +12,7 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 10.1
+ * @version 10.5
  * @since 1.0
  */
 
@@ -309,7 +309,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public void setN1(int eng, double nn1) {
-		_n1[eng] = nn1;
+		_n1[eng - 1] = nn1;
 	}
 
 	public void setAvgN2(double nn2) {
@@ -317,7 +317,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public void setN2(int eng, double nn2) {
-		_n2[eng] = nn2;
+		_n2[eng - 2] = nn2;
 	}
 	
 	public void setWeight(int w) {
