@@ -317,7 +317,7 @@ public class PositionMessage extends LocationMessage {
 	}
 	
 	public void setN2(int eng, double nn2) {
-		_n2[eng - 2] = nn2;
+		_n2[eng - 1] = nn2;
 	}
 	
 	public void setWeight(int w) {
