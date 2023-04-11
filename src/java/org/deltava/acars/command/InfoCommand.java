@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 10.3
+ * @version 10.6
  * @since 1.0
  */
 
@@ -124,7 +124,7 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
-				ScheduleRoute rt = new ScheduleRoute(msg.getAirportD(), msg.getAirportA());
+				RoutePair rt = RoutePair.of(msg.getAirportD(), msg.getAirportA());
 				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
 				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
