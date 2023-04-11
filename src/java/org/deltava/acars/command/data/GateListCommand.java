@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 10.5
+ * @version 10.6
  * @since 8.4
  */
 
@@ -62,7 +62,7 @@ public class GateListCommand extends DataCommand {
 					rspMsg.addAll(gh.getArrivalGates());
 				}
 			} else if ((rspMsg.getAirport() != null) && (aA != null)) {
-				RoutePair rp = new ScheduleRoute(rspMsg.getAirport(), aA);
+				RoutePair rp = RoutePair.of(rspMsg.getAirport(), aA);
 				GateHelper gh = new GateHelper(rp, al, 40, false);
 				rspMsg.setRouteUsage(true);
 				if (isDeparture) {
