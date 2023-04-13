@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 10.3
+ * @version 10.6
  * @since 1.0
  */
 
@@ -51,6 +51,7 @@ class DraftFlightFormatter extends ElementFormatter {
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			fe.addContent(XMLUtils.createElement("comments", fr.getComments(), true));
 			fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
+			fe.addContent(XMLUtils.createElement("tourID", String.valueOf(fr.getDatabaseID(DatabaseID.TOUR))));
 			if (fr.getNetwork() != null)
 				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
 			if (!StringUtils.isEmpty(fr.getRoute()))
