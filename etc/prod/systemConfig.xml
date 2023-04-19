@@ -8,9 +8,6 @@
 		<code>ACARS</code>
 		<db>DVA</db>
 		<default>DVA</default>
-		<voice>
-			<url>rw.deltava.org/DAL</url>
-		</voice>
 
 		<!-- Default airline codes -->
 		<map name="defaultCodes">
@@ -185,7 +182,7 @@
 		</position>
 
 		<voice>
-			<enabled type="Boolean">true</enabled>
+			<enabled type="Boolean">false</enabled>
 			<port type="Integer">15527</port>		
 
 			<!-- Roles able to create temporary channels -->
