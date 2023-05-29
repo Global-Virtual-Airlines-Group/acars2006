@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.deltava.acars.message.*;
@@ -9,7 +9,7 @@ import org.deltava.acars.message.mp.*;
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 2.8
  */
 
@@ -39,7 +39,6 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		// Data formatters
 		_eFormatters.put(AlternateAirportMessage.class, new AlternateAirportFormatter());
 		_eFormatters.put(AppInfoMessage.class, new AppInfoFormatter());
-		_eFormatters.put(ChannelListMessage.class, new ChannelListFormatter());
 		_eFormatters.put(AirportMessage.class, new AirportFormatter());
 		_eFormatters.put(IATACodeMessage.class, new IATACodeFormatter());
 		_eFormatters.put(RunwayListMessage.class, new RunwayListFormatter());
