@@ -71,10 +71,6 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.MPUPDATE, new MPInfoCommand());
 		_commands.put(MessageType.MPINIT, new InitCommand());
 		_commands.put(MessageType.MPREMOVE, new RemoveCommand());
-		_commands.put(MessageType.VOICETOGGLE, new VoiceToggleCommand());
-		_commands.put(MessageType.VOICE, new VoiceMixCommand());
-		_commands.put(MessageType.MUTE, new MuteCommand());
-		_commands.put(MessageType.SWCHAN, new SwitchChannelCommand());
 		_commands.put(MessageType.WARN, new WarnCommand());
 		_commands.put(MessageType.COMPRESS, new CompressionCommand());
 		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
@@ -101,7 +97,6 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.WX, new WeatherCommand());
 		_subCommands.put(DataRequest.APINFO, new AirportInfoCommand());
 		_subCommands.put(DataRequest.APPINFO, new AppInfoCommand());
-		_subCommands.put(DataRequest.CHLIST, new VoiceChannelListCommand());
 		_subCommands.put(DataRequest.LOAD, new LoadFactorCommand());
 		_subCommands.put(DataRequest.ONLINE, new OnlinePresenceCommand());
 		_subCommands.put(DataRequest.LASTAP, new LastAirportCommand());
