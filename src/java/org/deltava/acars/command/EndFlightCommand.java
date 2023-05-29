@@ -1,9 +1,9 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.time.Instant;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import static org.deltava.acars.workers.Worker.*;
 
@@ -17,13 +17,13 @@ import org.deltava.dao.DAOException;
 /**
  * An ACARS Command to log the completion of a flight.
  * @author Luke
- * @version 8.6
+ * @version 11.0
  * @since 1.0
  */
 
 public class EndFlightCommand extends ACARSCommand {
 
-	private static final Logger log = Logger.getLogger(EndFlightCommand.class);
+	private static final Logger log = LogManager.getLogger(EndFlightCommand.class);
 
 	/**
 	 * Executes the command.

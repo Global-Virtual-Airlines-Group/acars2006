@@ -1,21 +1,20 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.pool;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.time.Instant;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.gvagroup.ipc.WorkerState;
 import org.gvagroup.ipc.WorkerStatus;
 
 /**
- * A Thread Pool executor that implements built-in queueing. This allows the thread pool to
- * continue to take work units even if the dynamic thread pool reaches its maximum size. 
+ * A Thread Pool executor that implements built-in queueing. This allows the thread pool to continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 7.4
+ * @version 11.0
  * @since 2.0
  */
 
@@ -103,7 +102,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	 */
 	public QueueingThreadPool(int coreSize, int maxSize, long keepAliveTime, Class<?> logClass) {
 		super(coreSize, Math.max(coreSize, maxSize), keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(4, true));
-		log = Logger.getLogger(logClass);
+		log = LogManager.getLogger(logClass);
 		_tFactory = new PoolWorkerFactory(logClass.getSimpleName());
 		setThreadFactory(_tFactory);
 		setRejectedExecutionHandler(new QueueHandler());
@@ -168,8 +167,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	}
 
 	/**
-	 * After a thread has completed execution, if there are queued entries they are removed from
-	 * the queue and executed again.
+	 * After a thread has completed execution, if there are queued entries they are removed from the queue and executed again.
 	 */
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {

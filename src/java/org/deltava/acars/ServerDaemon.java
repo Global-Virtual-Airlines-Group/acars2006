@@ -1,11 +1,11 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
 
 import java.util.*;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.ACARSConnectionPool;
 
@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 1.0
  */
 
@@ -48,8 +48,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	protected ACARSConnectionPool _conPool;
  	
  	protected void initLog(Class<?> loggerClass) {
- 		PropertyConfigurator.configure("etc/log4j.properties");
-        log = Logger.getLogger(loggerClass);
+        log = LogManager.getLogger(loggerClass);
  	}
  	
  	protected void initAuthenticator() {
@@ -146,8 +145,6 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
-		if (SystemData.getBoolean("acars.voice.enabled"))
-			tasks.add(new VoiceReader());
 
  		// Turn the workers into threads
  		for (Worker w : tasks) {

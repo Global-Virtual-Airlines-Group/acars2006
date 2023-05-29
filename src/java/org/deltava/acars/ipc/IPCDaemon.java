@@ -5,15 +5,13 @@ import java.util.*;
 import java.io.Serializable;
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.*;
-import org.deltava.beans.mvs.*;
 import org.deltava.acars.beans.*;
 
 import org.deltava.dao.*;
 
-import org.deltava.util.CollectionUtils;
 import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
@@ -23,13 +21,13 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 10.4
+ * @version 11.0
  * @since 1.0
  */
 
 public class IPCDaemon implements Runnable {
 
-	private static final Logger log = Logger.getLogger(IPCDaemon.class);
+	private static final Logger log = LogManager.getLogger(IPCDaemon.class);
 	
 	/**
 	 * Returns the thread name.
@@ -95,37 +93,6 @@ public class IPCDaemon implements Runnable {
 								log.warn("ACARS Reloading Time Zones");
 								GetTimeZone tzdao = new GetTimeZone(con);
 								tzdao.initAll();
-								break;
-								
-							case MVS_RELOAD:
-								log.warn("ACARS Reloading persistent Voice channels");
-								GetMVSChannel chdao = new GetMVSChannel(con);
-								Map<String, Channel> channels = CollectionUtils.createMap(chdao.getAll(), Channel::getName);
-								VoiceChannels vc = VoiceChannels.getInstance();
-								
-								// Update existing channels
-								for (Map.Entry<String, Channel> me : channels.entrySet()) {
-									PopulatedChannel pc = vc.get(me.getKey());
-									if (pc == null) {
-										log.warn("Added new MVS channel " + me.getKey());
-										vc.add(null, me.getValue());
-									} else if (pc.size() == 0) {
-										vc.remove(me.getKey());
-										vc.add(null, me.getValue());
-										log.warn("Updated MVS channel " + me.getKey());
-									} else
-										log.warn("MVS channel " + me.getKey() + " not empty!");
-								}
-								
-								// Delete old channels
-								for (PopulatedChannel pc : vc.getChannels()) {
-									Channel c = pc.getChannel();
-									if (!c.getIsTemporary() && !channels.containsKey(c.getName())) {
-										log.warn("Removing MVS channel " + c.getName());
-										vc.remove(c.getName());
-									}
-								}
-								
 								break;
 								
 							case USER_SUSPEND:

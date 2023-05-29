@@ -1,10 +1,10 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016, 2017, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2016, 2017, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.Restriction;
@@ -23,13 +23,13 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 1.0
  */
 
 public class DiagnosticCommand extends ACARSCommand {
 
-	private static final Logger log = Logger.getLogger(DiagnosticCommand.class);
+	private static final Logger log = LogManager.getLogger(DiagnosticCommand.class);
 
 	/**
 	 * Executes the command.

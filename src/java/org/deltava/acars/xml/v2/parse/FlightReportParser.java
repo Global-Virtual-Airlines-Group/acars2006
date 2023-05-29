@@ -6,7 +6,7 @@ import java.time.format.*;
 import java.time.temporal.ChronoField;
 
 import org.jdom2.Element;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.DispatchType;
@@ -27,7 +27,7 @@ import org.deltava.acars.xml.*;
 
 class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 	
-	private static final Logger log = Logger.getLogger(FlightReportParser.class);
+	private static final Logger log = LogManager.getLogger(FlightReportParser.class);
 	
 	/**
 	 * Convert an XML flight report element into a FlightReportMessage.

@@ -1,11 +1,11 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
 import java.time.format.*;
 import java.time.temporal.ChronoField;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.jdom2.*;
 
@@ -22,13 +22,13 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 1.0
  */
 
 class PositionParser extends XMLElementParser<PositionMessage> {
 	
-	private static final Logger log = Logger.getLogger(PositionParser.class);
+	private static final Logger log = LogManager.getLogger(PositionParser.class);
 	private final DateTimeFormatter _mdtf = new DateTimeFormatterBuilder().appendPattern("MM/dd/yyyy HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
 	
 	/**

@@ -1,11 +1,9 @@
-// Copyright 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.online;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-
-import org.apache.log4j.Logger;
 
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.*;
@@ -19,13 +17,11 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for VATSIM.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 9.0
  */
 
 public class VATSIMLoader extends Loader {
-	
-	private static final Logger log = Logger.getLogger(VATSIMLoader.class);
 	
 	private final ExecutorService _tp = Executors.newFixedThreadPool(2);
 	

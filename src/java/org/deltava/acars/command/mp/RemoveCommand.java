@@ -1,9 +1,9 @@
-// Copyright 2008, 2010, 2016, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010, 2016, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -12,13 +12,13 @@ import org.deltava.acars.message.mp.RemoveMessage;
 /**
  * An ACARS Server command to remove an aircraft from a multi-player session.
  * @author Luke
- * @version 8.6
+ * @version 11.0
  * @since 2.2
  */
 
 public class RemoveCommand extends ACARSCommand {
 	
-	private static final Logger log = Logger.getLogger(RemoveCommand.class);
+	private static final Logger log = LogManager.getLogger(RemoveCommand.class);
 
 	/**
 	 * Executes the command.

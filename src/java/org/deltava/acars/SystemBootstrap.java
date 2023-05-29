@@ -7,15 +7,13 @@ import java.util.*;
 
 import javax.servlet.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.dao.*;
 import org.deltava.mail.MailerDaemon;
-import org.deltava.acars.beans.*;
 import org.deltava.acars.ipc.IPCDaemon;
 
 import org.deltava.beans.flight.ETOPSHelper;
-import org.deltava.beans.mvs.Channel;
 import org.deltava.beans.navdata.Airspace;
 import org.deltava.beans.schedule.Airport;
 
@@ -33,13 +31,13 @@ import org.gvagroup.tomcat.SharedWorker;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 10.6
+ * @version 11.0
  * @since 1.0
  */
 
 public class SystemBootstrap implements ServletContextListener, Thread.UncaughtExceptionHandler {
 	
-	private static final Logger log = Logger.getLogger(SystemBootstrap.class);
+	private static final Logger log = LogManager.getLogger(SystemBootstrap.class);
 	
 	private ConnectionPool _jdbcPool;
 	private final Map<Thread, Runnable> _daemons = new HashMap<Thread, Runnable>();
@@ -183,16 +181,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			log.info("Loading restricted Airspace");
 			GetAirspace asdao = new GetAirspace(c);
 			Airspace.init(asdao.getRestricted());
-			
-			// Load MVS voice channels if enabled
-			if (SystemData.getBoolean("acars.voice.enabled")) {
-				GetMVSChannel chdao = new GetMVSChannel(c);
-				VoiceChannels vc = VoiceChannels.getInstance();
-				Collection<Channel> channels = chdao.getAll();
-				channels.forEach(ch -> vc.add(null, ch));
-				log.info("Loaded " + channels.size() + " persistent Voice channels");
-				SharedData.addData(SharedData.MVS_POOL, vc);
-			}
 		} catch (Exception ex) {
 			log.error("Error retrieving data - " + ex.getMessage(), ex);
 		} finally {

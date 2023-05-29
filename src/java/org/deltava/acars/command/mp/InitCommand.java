@@ -1,9 +1,9 @@
-// Copyright 2008, 2010, 2011, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2010, 2011, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.mp;
 
 import java.util.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.Flight;
 
@@ -19,13 +19,13 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to download position data for all multi-player aircraft in range.
  * @author Luke
- * @version 8.6
+ * @version 11.0
  * @since 2.2
  */
 
 public class InitCommand extends ACARSCommand {
 	
-	private static final Logger log = Logger.getLogger(InitCommand.class);
+	private static final Logger log = LogManager.getLogger(InitCommand.class);
 
 	/**
 	 * Executes the command.

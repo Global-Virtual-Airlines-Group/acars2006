@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.sql.Connection;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -27,7 +27,7 @@ import org.deltava.util.system.SystemData;
 
 public class WarnCommand extends ACARSCommand {
 	
-	private static final Logger log = Logger.getLogger(WarnCommand.class);
+	private static final Logger log = LogManager.getLogger(WarnCommand.class);
 	
 	/**
 	 * Executes the command.

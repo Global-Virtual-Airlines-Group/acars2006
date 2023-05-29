@@ -5,7 +5,7 @@ import java.util.*;
 import java.time.*;
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
@@ -33,13 +33,13 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 10.5
+ * @version 11.0
  * @since 1.0
  */
 
 public class FilePIREPCommand extends PositionCacheCommand {
 
-	private static final Logger log = Logger.getLogger(FilePIREPCommand.class);
+	private static final Logger log = LogManager.getLogger(FilePIREPCommand.class);
 
 	/**
 	 * Executes the command.

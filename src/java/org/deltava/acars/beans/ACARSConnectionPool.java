@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.nio.channels.*;
 import java.time.Instant;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.ACARSException;
 
@@ -28,13 +28,13 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 1.0
  */
 
 public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Serializable {
 
-	private transient static final Logger log = Logger.getLogger(ACARSConnectionPool.class);
+	private transient static final Logger log = LogManager.getLogger(ACARSConnectionPool.class);
 
 	// Hard-coded anonymous inactivity timeout (in ms)
 	private static final long ANONYMOUS_INACTIVITY_TIMEOUT = 22500;
@@ -428,7 +428,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		try {
 			_w.lock();
 			c.close();
-			VoiceChannels.getInstance().remove(c.getID());
 			while (_cons.containsValue(c))
 				_cons.values().remove(c);
 			while (_conLookup.containsValue(c))
