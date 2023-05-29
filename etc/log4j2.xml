@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration name="Golgotha-DEV" status="warn" dest="out">
+        <appenders>
+                <rollingFile name="applog" bufferSize="2048" fileName="/var/log/tomcat/catalina.log" filePattern="/var/log/tomcat/catalina.log.%d{yyyy-MM-dd}" ignoreExceptions="false">
+                        <PatternLayout pattern="%d %-5p %-19c{1} %m%n" />
+                        <Policies>
+                                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                        </Policies>
+                </rollingFile>
+        </appenders>
+        <loggers>
+                <root level="debug">
+                        <appender-ref ref="applog" level="info" />
+                </root>
+        </loggers>
+</configuration>
