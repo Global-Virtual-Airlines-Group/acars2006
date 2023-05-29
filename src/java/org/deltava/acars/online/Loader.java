@@ -1,10 +1,10 @@
-// Copyright 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.online;
 
 import java.time.Instant;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.OnlineNetwork;
 import org.deltava.beans.servinfo.NetworkInfo;
@@ -23,7 +23,7 @@ import org.deltava.util.cache.*;
 
 public abstract class Loader implements Runnable {
 	
-	private final Logger log = Logger.getLogger(getClass());
+	protected final Logger log = LogManager.getLogger(getClass());
 	
 	private Instant _lastUpdate = Instant.ofEpochMilli(0);
 	private Instant _lastRun = Instant.ofEpochMilli(0);

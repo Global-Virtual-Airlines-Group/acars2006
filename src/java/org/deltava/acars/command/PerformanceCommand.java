@@ -1,9 +1,9 @@
-// Copyright 2019, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.sql.Connection;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.message.*;
 
@@ -16,13 +16,13 @@ import org.deltava.dao.acars.SetSystemInfo;
 /**
  * An ACARS server command to handle client performance counter messages.
  * @author Luke
- * @version 10.2
+ * @version 11.0
  * @since 8.6
  */
 
 public class PerformanceCommand extends ACARSCommand {
 	
-	private static final Logger log = Logger.getLogger(PerformanceCommand.class); 
+	private static final Logger log = LogManager.getLogger(PerformanceCommand.class); 
 
 	/**
 	 * Executes the command.

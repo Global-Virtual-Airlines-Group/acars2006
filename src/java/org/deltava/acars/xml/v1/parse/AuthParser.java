@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2016, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.util.Base64;
@@ -7,7 +7,7 @@ import java.time.format.*;
 import java.time.temporal.ChronoField;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.*;
@@ -22,13 +22,13 @@ import org.deltava.util.*;
 /**
  * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 10.2
+ * @version 11.0
  * @since 1.0
  */
 
 class AuthParser extends XMLElementParser<AuthenticateMessage> {
 	
-	private static final Logger log = Logger.getLogger(AuthParser.class);
+	private static final Logger log = LogManager.getLogger(AuthParser.class);
 
 	/**
 	 * Convert an XML authentication element into an AuthenticationMessage.

@@ -1,6 +1,6 @@
 package org.deltava.acars.util;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.*;
 
 import java.util.*;
 
@@ -17,14 +17,7 @@ public class TestSquawkGenerator extends TestCase {
 		super.setUp();
 		
 		// Init Log4j
-		PropertyConfigurator.configure("etc/log4j.test.properties");
-		log = Logger.getLogger(TestSquawkGenerator.class);
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		LogManager.shutdown();
-		super.tearDown();
+		log = LogManager.getLogger(TestSquawkGenerator.class);
 	}
 
 	public void testGenerate() {

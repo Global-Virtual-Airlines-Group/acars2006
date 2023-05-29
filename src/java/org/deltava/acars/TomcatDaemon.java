@@ -4,7 +4,7 @@ package org.deltava.acars;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.workers.*;
 import org.deltava.util.ThreadUtils;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 10.5
+ * @version 11.0
  * @since 1.0
  */
 
@@ -24,7 +24,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 	public void run() {
 
 		// Initialize the logger, connection pool and server tasks
-		log = Logger.getLogger("ACARSDaemon");
+		log = LogManager.getLogger("ACARSDaemon");
 		initACARSConnectionPool();
 		initTasks();
 

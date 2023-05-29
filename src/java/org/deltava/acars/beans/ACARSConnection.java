@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -6,7 +6,7 @@ import java.net.*;
 
 import java.nio.channels.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
@@ -22,13 +22,13 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 1.0
  */
 
 public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddressBean, ViewEntry, ClientVersion, Closeable {
 
-	protected transient static final Logger log = Logger.getLogger(ACARSConnection.class);
+	protected transient static final Logger log = LogManager.getLogger(ACARSConnection.class);
 	
 	// Channels
 	private TCPChannel _tcp;

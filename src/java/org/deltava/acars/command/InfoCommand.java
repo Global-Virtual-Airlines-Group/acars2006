@@ -5,7 +5,7 @@ import java.util.*;
 import java.time.*;
 import java.sql.Connection;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
@@ -27,13 +27,13 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 10.6
+ * @version 11.0
  * @since 1.0
  */
 
 public class InfoCommand extends ACARSCommand {
 
-	private static final Logger log = Logger.getLogger(InfoCommand.class);
+	private static final Logger log = LogManager.getLogger(InfoCommand.class);
 
 	/**
 	 * Executes the command.

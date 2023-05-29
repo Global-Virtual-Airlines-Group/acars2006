@@ -1,24 +1,24 @@
-// Copyright 2011, 2013, 2014, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2013, 2014, 2016, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import org.deltava.util.NetworkUtils;
 
 /**
  * An object to handle UDP voice connections.
  * @author Luke
- * @version 10.2
+ * @version 11.0
  * @since 4.0
  */
 
 public class UDPChannel extends ACARSChannel<byte[]> {
 
-	private static transient final Logger log = Logger.getLogger(UDPChannel.class);
+	private static transient final Logger log = LogManager.getLogger(UDPChannel.class);
 	private transient DatagramChannel _dc;
 
 	/**

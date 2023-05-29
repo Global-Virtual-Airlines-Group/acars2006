@@ -1,4 +1,4 @@
-// Copyright 2011, 2012, 2014, 2015, 2016, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2012, 2014, 2015, 2016, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.*;
 import java.nio.channels.*;
 
+import org.apache.logging.log4j.*;
+
 import org.deltava.acars.util.DataCompressor;
 import org.deltava.acars.xml.ProtocolInfo;
 
@@ -18,18 +20,16 @@ import org.deltava.beans.Compression;
 
 import org.deltava.util.system.SystemData;
 
-import org.apache.log4j.Logger;
-
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 4.0
  */
 
 public class TCPChannel extends ACARSChannel<String> {
 	
-	private static transient final Logger log = Logger.getLogger(TCPChannel.class);
+	private static transient final Logger log = LogManager.getLogger(TCPChannel.class);
 	
 	private transient static final String MAGIC_RESET_CODE = "</!ACARSReset>";
 	

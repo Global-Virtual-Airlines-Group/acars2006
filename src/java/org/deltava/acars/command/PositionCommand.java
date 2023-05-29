@@ -1,10 +1,10 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
 import java.util.concurrent.*;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import static org.deltava.acars.workers.Worker.*;
 
@@ -26,13 +26,13 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 9.2
+ * @version 11.0
  * @since 1.0
  */
 
 public class PositionCommand extends PositionCacheCommand {
 
-	private static final Logger log = Logger.getLogger(PositionCommand.class);
+	private static final Logger log = LogManager.getLogger(PositionCommand.class);
 	
 	private final int MIN_INTERVAL = SystemData.getInt("acars.position.min", 2000);
 	private final int ATC_INTERVAL = SystemData.getInt("acars.position.atc", 2000);
