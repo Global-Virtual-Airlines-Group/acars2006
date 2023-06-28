@@ -22,7 +22,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 10.6
+ * @version 11.0
  * @since 1.0
  */
 
@@ -56,7 +56,7 @@ public class DraftFlightCommand extends DataCommand {
 			for (TourProgress tp : tourProgress) {
 				Tour t = tdao.get(tp.getTourID(), ctx.getDB());
 				if ((t.getMatchLeg() || t.getMatchEquipment()) && (tp.getLegs() < t.getFlightCount())) {
-					ScheduleEntry tl = t.getFlights().get(tp.getLegs() + 1);
+					ScheduleEntry tl = t.getFlights().get(tp.getLegs());
 					DraftFlightReport dfr = new DraftFlightReport(tl);
 					dfr.setDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
 					dfr.setDatabaseID(DatabaseID.TOUR, t.getID());
