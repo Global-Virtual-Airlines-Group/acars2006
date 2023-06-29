@@ -1,4 +1,4 @@
-// Copyright 2014, 2015, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2014, 2015, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return a flight number.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 5.4
  */
 
@@ -77,8 +77,7 @@ public class FlightNumberCommand extends DataCommand {
 				rspMsg.setEntry("etops", re.name());
 				
 				// Show departure time
-				if (se instanceof FlightTimes) {
-					FlightTimes ft = (FlightTimes) se;
+				if (se instanceof FlightTimes ft) {
 					if (ft.getTimeD() != null)
 						rspMsg.setEntry("timeD", StringUtils.format(ft.getTimeD(), "HH:mm"));
 				}

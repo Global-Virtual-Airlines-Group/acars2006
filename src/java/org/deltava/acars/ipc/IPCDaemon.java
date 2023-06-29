@@ -53,8 +53,8 @@ public class IPCDaemon implements Runnable {
 					con = cPool.getConnection();
 					for (SystemEvent event : events) {
 						Pilot usr = null; GetPilot pdao = new GetPilot(con);
-						if (event instanceof UserEvent) {
-							int userID = ((UserEvent) event).getUserID();
+						if (event instanceof UserEvent ue) {
+							int userID = ue.getUserID();
 							GetUserData uddao = new GetUserData(con);
 							UserData ud = uddao.get(userID);
 							usr = pdao.get(ud);

@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2011, 2012, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2011, 2012, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -13,7 +13,7 @@ import org.deltava.util.XMLUtils;
 /**
  * An XML Formatter for Chart data messages.
  * @author Luke
- * @version 9.0
+ * @version 11.0
  * @since 1.0
  */
 
@@ -45,8 +45,7 @@ public class ChartsFormatter extends ElementFormatter {
 			Element ce = new Element("chart");
 			ce.setAttribute("name", c.getName());
 			ce.setAttribute("id", String.valueOf(c.getID()));
-			if (c instanceof ExternalChart) {
-				ExternalChart ec = (ExternalChart) c;
+			if (c instanceof ExternalChart ec) {
 				ce.setAttribute("src", ec.getSource());
 				ce.addContent(XMLUtils.createElement("url", ec.getURL()));
 			}

@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An XML formatter for dispatch route info messages.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 2.0
  */
 
@@ -56,14 +56,13 @@ public class DispatchRouteFormatter extends ElementFormatter {
 		// Add the routes
 		for (PopulatedRoute rp : rmsg.getPlans()) {
 			Element re = formatRoute(rp);
-			if (rp instanceof ExternalFlightRoute) {
+			if (rp instanceof ExternalFlightRoute erp) {
 				re.setAttribute("external", "true");
-				re.addContent(XMLUtils.createElement("source", ((ExternalFlightRoute) rp).getSource(), true));
+				re.addContent(XMLUtils.createElement("source", erp.getSource(), true));
 			}
 			
 			// Add dispatch route properties
-			if (rp instanceof DispatchRoute) {
-				DispatchRoute dr = (DispatchRoute) rp;
+			if (rp instanceof DispatchRoute dr) {
 				re.setAttribute("useCount", String.valueOf(dr.getUseCount()));
 				Airline a = dr.getAirline();
 				if ((a == null) && (f != null))

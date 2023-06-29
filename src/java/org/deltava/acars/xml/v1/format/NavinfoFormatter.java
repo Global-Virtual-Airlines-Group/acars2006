@@ -1,4 +1,4 @@
-// Copyright 2006, 2012, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2012, 2016, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -14,7 +14,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Navigation Data messages.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 1.0
  */
 
@@ -35,8 +35,7 @@ class NavinfoFormatter extends ElementFormatter {
 		
 		// Create the element
 		Element pe = initResponse(msg.getType());
-		if (navaid instanceof Runway) {
-			Runway r = (Runway) navaid;
+		if (navaid instanceof Runway r) {
 			Element e = initDataResponse(pe, "runways");
 			Element re = new Element("runway");
 			re.setAttribute("lat", StringUtils.format(r.getLatitude(), "##0.0000"));
@@ -50,8 +49,7 @@ class NavinfoFormatter extends ElementFormatter {
 				re.addContent(XMLUtils.createElement("freq", r.getFrequency()));
 
 			e.addContent(re);
-		} else if (navaid instanceof NavigationRadioBean) {
-			NavigationRadioBean nrb = (NavigationRadioBean) navaid;
+		} else if (navaid instanceof NavigationRadioBean nrb) {
 			Element e = initDataResponse(pe, "navaid");
 			Element ne = new Element("navaid");
 			ne.setAttribute("lat", StringUtils.format(nrb.getLatitude(), "##0.0000"));

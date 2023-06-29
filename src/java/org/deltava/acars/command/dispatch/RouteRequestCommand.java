@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2012, 2016, 2018, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Dispatch Command to load flight routes.
  * @author Luke
- * @version 9.1
+ * @version 11.0
  * @since 2.0
  */
 
@@ -75,8 +75,8 @@ public class RouteRequestCommand extends DispatchCommand {
 			// Populate the routes and add to the message
 			helper.populateRoutes();
 			for (FlightRoute rt : helper.getRoutes()) {
-				if (rt instanceof DispatchRoute)
-					((DispatchRoute) rt).setAirline(SystemData.getAirline(ac.getUserData().getAirlineCode()));
+				if (rt instanceof DispatchRoute dr)
+					dr.setAirline(SystemData.getAirline(ac.getUserData().getAirlineCode()));
 					
 				rmsg.addPlan((PopulatedRoute) rt);
 			}

@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2012, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.*;
 /**
  * An XML formatter for multi-player position update messages.
  * @author Luke
- * @version 4.2
+ * @version 11.0
  * @since 2.2
  */
 
@@ -61,8 +61,7 @@ public class MPUpdateFormatter extends XMLElementFormatter {
 			le.setAttribute("l", String.valueOf(lmsg.getLights()));
 			
 			// Add transponder data if we have it
-			if (lmsg instanceof PositionMessage) {
-				PositionMessage pmsg = (PositionMessage) lmsg;
+			if (lmsg instanceof PositionMessage pmsg) {
 				le.setAttribute("tx", String.valueOf(pmsg.getTXActive()));
 				le.setAttribute("txCode", String.valueOf(pmsg.getTXCode()));
 			}
