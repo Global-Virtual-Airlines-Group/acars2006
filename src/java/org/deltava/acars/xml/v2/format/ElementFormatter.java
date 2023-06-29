@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2016, 2018, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2016, 2018, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import java.time.*;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A formatter to create XML command elements.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 1.0
  */
 
@@ -79,8 +79,7 @@ abstract class ElementFormatter extends XMLElementFormatter {
 		re.addContent(XMLUtils.createElement("route", rt.getRoute(), true));
 
 		// Add the waypoints
-		if (rt instanceof PopulatedRoute) {
-			PopulatedRoute pr = (PopulatedRoute) rt;
+		if (rt instanceof PopulatedRoute pr) {
 			Element wpe = new Element("waypoints");
 			for (NavigationDataBean nd : pr.getWaypoints()) {
 				Element we = new Element("waypoint");

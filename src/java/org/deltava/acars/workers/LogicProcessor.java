@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 10.3
+ * @version 11.0
  * @since 1.0
  */
 
@@ -252,8 +252,7 @@ public class LogicProcessor extends Worker {
 						log.debug(reqType + " message from " + env.getOwnerID());
 
 					ACARSCommand cmd = null;
-					if (msg instanceof SubRequestMessage) {
-						SubRequestMessage srmsg = (SubRequestMessage) msg;
+					if (msg instanceof SubRequestMessage srmsg) {
 						cmd = _subCommands.get(srmsg.getRequestType());
 						reqType = srmsg.getRequestType().getCode();
 						if (cmd != null) {

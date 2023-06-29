@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2016, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import org.deltava.beans.navdata.*;
@@ -6,7 +6,7 @@ import org.deltava.beans.navdata.*;
 /**
  * A bean to wrap a navaid with a radio name and heading.
  * @author Luke
- * @version 10.0
+ * @version 11.0
  * @since 1.0
  */
 
@@ -27,8 +27,8 @@ public class NavigationRadioBean extends NavigationFrequencyBean {
 		setCode(navaid.getCode());
 		_hdg = hdg;
 		_radio = (radioName != null) ? radioName.toLowerCase() : null;
-		if (navaid instanceof NavigationFrequencyBean)
-			setFrequency(((NavigationFrequencyBean) navaid).getFrequency());
+		if (navaid instanceof NavigationFrequencyBean nfb)
+			setFrequency(nfb.getFrequency());
 	}
 
 	/**

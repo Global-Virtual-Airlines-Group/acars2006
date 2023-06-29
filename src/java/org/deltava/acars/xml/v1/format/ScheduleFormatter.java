@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2012, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Flight Schedule messages.
  * @author Luke
- * @version 4.2
+ * @version 11.0
  * @since 1.0
  */
 
@@ -41,8 +41,8 @@ class ScheduleFormatter extends ElementFormatter {
 			ScheduleEntry entry = i.next();
 			Element se = new Element("flight");
 			se.setAttribute("code", entry.getFlightCode());
-			if (entry instanceof ScheduleSearchEntry)
-				se.setAttribute("routes", String.valueOf(((ScheduleSearchEntry) entry).getDispatchRoutes()));
+			if (entry instanceof ScheduleSearchEntry sse)
+				se.setAttribute("routes", String.valueOf(sse.getDispatchRoutes()));
 			
 			// Add values
 			se.addContent(XMLUtils.createElement("airline", entry.getAirline().getCode()));

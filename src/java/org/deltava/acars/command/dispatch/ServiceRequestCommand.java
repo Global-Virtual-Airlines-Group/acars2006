@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 10.5
+ * @version 11.0
  * @since 2.0
  */
 
@@ -139,10 +139,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			helper.loadWeather();
 			helper.calculateBestTerminalRoute();
 			helper.populateRoutes();
-			for (FlightRoute fr : helper.getRoutes()) {
-				if (fr instanceof PopulatedRoute)
-					plans.add((PopulatedRoute) fr);
-			}
+			helper.getRoutes().stream().filter(PopulatedRoute.class::isInstance).map(PopulatedRoute.class::cast).forEach(plans::add);
 		} catch (DAOException de) {
 			log.error("Cannot validate/load route - " + de.getMessage(), de);
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot validate route - " + de.getMessage()));

@@ -108,7 +108,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			
 			// Validate the password
 			try (org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR)) {
-				if (auth instanceof SQLAuthenticator) ((SQLAuthenticator) auth).setConnection(c); 
+				if (auth instanceof SQLAuthenticator sa) sa.setConnection(c); 
 				auth.authenticate(usr, msg.getPassword());
 			}
 			
