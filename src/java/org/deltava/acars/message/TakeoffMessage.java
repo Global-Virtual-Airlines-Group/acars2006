@@ -8,13 +8,13 @@ import org.deltava.beans.schedule.*;
 /**
  * An ACARS message to track takeoffs and landings.
  * @author Luke
- * @version 10.4
+ * @version 11.0
  * @since 2.8
  */
 
-public class TakeoffMessage extends AbstractMessage implements RoutePair {
+public class TakeoffMessage extends AbstractMessage implements RoutePair, GeoLocation {
 	
-	private GeospaceLocation _loc;
+	private final GeoLocation _loc;
 	private int _hdg;
 	private int _vSpeed;
 	
@@ -29,18 +29,12 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	/**
 	 * Creates a new Message.
 	 * @param msgFrom the originating Pilot
+	 * @param loc the takeoff/touchdown location
 	 */
-	public TakeoffMessage(Pilot msgFrom) {
+	public TakeoffMessage(Pilot msgFrom, GeoLocation loc) {
 		super(MessageType.TOTD, msgFrom);
 		setProtocolVersion(2);
-	}
-	
-	/**
-	 * Returns the takeoff/landing location.
-	 * @return the location
-	 */
-	public GeospaceLocation getLocation() {
-		return _loc;
+		_loc = loc;
 	}
 	
 	/**
@@ -67,6 +61,16 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	@Override
 	public Airport getAirportA() {
 		return _airportA;
+	}
+
+	@Override
+	public double getLatitude() {
+		return _loc.getLatitude();
+	}
+
+	@Override
+	public double getLongitude() {
+		return _loc.getLongitude();
 	}
 	
 	/**
@@ -99,14 +103,6 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair {
 	 */
 	public String getEquipmentType() {
 		return _eqType;
-	}
-	
-	/**
-	 * Updates the takeoff/touchdown location.
-	 * @param loc the location
-	 */
-	public void setLocation(GeospaceLocation loc) {
-		_loc = loc;
 	}
 	
 	/**
