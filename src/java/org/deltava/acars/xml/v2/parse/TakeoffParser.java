@@ -15,7 +15,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for takeoff/touchdown messages. 
  * @author Luke
- * @version 10.5
+ * @version 11.0
  * @since 2.8
  */
 
@@ -31,11 +31,11 @@ class TakeoffParser extends XMLElementParser<TakeoffMessage> {
 	public TakeoffMessage parse(Element e, Pilot usr) throws XMLException {
 		
 		// Create the location
-		TakeoffMessage msg = new TakeoffMessage(usr);
+		TakeoffMessage msg = null;
 		try {
 			double lat = Double.parseDouble(e.getAttributeValue("lat"));
 			double lng = Double.parseDouble(e.getAttributeValue("lng"));
-			msg.setLocation(new GeoPosition(lat, lng, StringUtils.parse(e.getAttributeValue("alt"), 0)));
+			msg = new TakeoffMessage(usr, new GeoPosition(lat, lng, StringUtils.parse(e.getAttributeValue("alt"), 0)));
 		} catch (Exception ex) {
 			throw new XMLException("Cannot parse takeoff location - " + ex.getMessage());
 		}

@@ -56,7 +56,7 @@ public class TakeoffCommand extends ACARSCommand {
 		
 		// Find the closest airport
 		List<Airport> airports = new ArrayList<Airport>(SystemData.getAirports().values());
-		Collections.sort(airports, new GeoComparator(msg.getLocation()));
+		Collections.sort(airports, new GeoComparator(msg));
 		Airport closestAirport = airports.get(0);
 		
 		// Check if we're the closest
@@ -80,12 +80,12 @@ public class TakeoffCommand extends ACARSCommand {
 
 			// Get the runway
 			GetNavData nvdao = new GetNavData(con);
-			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg.getLocation(), msg.getHeading());
+			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg, msg.getHeading());
 			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
 				GeoLocation rw = (r.getThresholdLength() > 0) ? r.getThreshold() : r;
-				int dist = r.distanceFeet(msg.getLocation()) - r.getThresholdLength();
-				double delta = GeoUtils.delta(r.getHeading(), GeoUtils.course(rw, msg.getLocation()));
+				int dist = r.distanceFeet(msg) - r.getThresholdLength();
+				double delta = GeoUtils.delta(r.getHeading(), GeoUtils.course(rw, msg));
 				if (delta > 90)
 					dist = -dist;
 				
