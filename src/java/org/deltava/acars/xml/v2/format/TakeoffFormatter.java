@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -13,7 +13,7 @@ import org.deltava.util.XMLUtils;
 /**
  * A formatter for Takeoff/Touchdown messages.
  * @author Luke
- * @version 4.2
+ * @version 11.0
  * @since 2.8
  */
 
@@ -49,8 +49,10 @@ public class TakeoffFormatter extends XMLElementFormatter {
 		pe.addContent(XMLUtils.createElement("eqType", tmsg.getEquipmentType()));
 		pe.addContent(XMLUtils.createElement("airportD", tmsg.getAirportD().getICAO()));
 		pe.addContent(XMLUtils.createElement("airportA", tmsg.getAirportA().getICAO()));
-		if (tmsg.isTakeoff())
+		if (tmsg.isTakeoff()) {
 			pe.addContent(XMLUtils.createElement("ils", String.valueOf(tmsg.getILS())));
+			pe.addContent(XMLUtils.createElement("score", String.valueOf(tmsg.getScore())));
+		}
 		
 		return pe;
 	}

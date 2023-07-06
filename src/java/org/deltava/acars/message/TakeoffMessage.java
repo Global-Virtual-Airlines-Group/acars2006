@@ -20,6 +20,7 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair, GeoLoc
 	
 	private boolean _isTakeoff;
 	private ILSCategory _ils;
+	private double _score;
 	
 	private String _flightCode;
 	private String _eqType;
@@ -106,6 +107,14 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair, GeoLoc
 	}
 	
 	/**
+	 * Returns the landing score.
+	 * @return the score
+	 */
+	public double getScore() {
+		return _score;
+	}
+	
+	/**
 	 * Updates the takeoff/touchdown heading.
 	 * @param hdg the heading in degrees
 	 */
@@ -167,5 +176,13 @@ public class TakeoffMessage extends AbstractMessage implements RoutePair, GeoLoc
 	 */
 	public void setAirportA(Airport a) {
 		_airportA = a;
+	}
+	
+	/**
+	 * Updates the landing score.
+	 * @param score the score
+	 */
+	public void setScore(double score) {
+		_score = score;
 	}
 }
