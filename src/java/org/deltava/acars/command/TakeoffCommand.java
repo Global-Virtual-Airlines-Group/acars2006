@@ -94,11 +94,14 @@ public class TakeoffCommand extends ACARSCommand {
 				ackMsg.setEntry("airport", a.getICAO());
 				ackMsg.setEntry("rwy", r.getName());
 				ackMsg.setEntry("distance", String.valueOf(dist));
+				ackMsg.setEntry("threshold", String.valueOf(r.getThresholdLength()));
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
 				
 				// Calculate landing score
-				if (!msg.isTakeoff())
-					ackMsg.setEntry("score", String.valueOf(LandingScorer.score(msg.getVSpeed(), dist)));
+				if (!msg.isTakeoff()) {
+					msg.setScore(LandingScorer.score(msg.getVSpeed(), dist));
+					ackMsg.setEntry("score", String.valueOf(msg.getScore()));
+				}
 				
 				ctx.push(ackMsg);
 			}
