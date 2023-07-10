@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 10.6
+ * @version 11.0
  * @since 8.4
  */
 
@@ -53,11 +53,11 @@ public class GateListCommand extends DataCommand {
 				GateHelper gh = new GateHelper(inf, al, 40, false);
 				rspMsg.setRouteUsage(true);
 				if (isDeparture) {
-					gh.addDepartureGates(gdao.getGates(inf.getAirportD()), gdao.getUsage(inf, true));
+					gh.addDepartureGates(gdao.getGates(inf.getAirportD()), gdao.getUsage(inf, true, ctx.getDB()));
 					rspMsg.setAirport(inf.getAirportD());
 					rspMsg.addAll(gh.getDepartureGates());
 				} else {
-					gh.addArrivalGates(gdao.getGates(inf.getAirportA()), gdao.getUsage(inf, false));
+					gh.addArrivalGates(gdao.getGates(inf.getAirportA()), gdao.getUsage(inf, false, ctx.getDB()));
 					rspMsg.setAirport(inf.getAirportA());
 					rspMsg.addAll(gh.getArrivalGates());
 				}
@@ -66,11 +66,11 @@ public class GateListCommand extends DataCommand {
 				GateHelper gh = new GateHelper(rp, al, 40, false);
 				rspMsg.setRouteUsage(true);
 				if (isDeparture) {
-					gh.addDepartureGates(gdao.getGates(rp.getAirportD()), gdao.getUsage(rp, true));
+					gh.addDepartureGates(gdao.getGates(rp.getAirportD()), gdao.getUsage(rp, true, ctx.getDB()));
 					rspMsg.setAirport(rp.getAirportD());
 					rspMsg.addAll(gh.getDepartureGates());
 				} else {
-					gh.addArrivalGates(gdao.getGates(rp.getAirportA()), gdao.getUsage(rp, false));
+					gh.addArrivalGates(gdao.getGates(rp.getAirportA()), gdao.getUsage(rp, false, ctx.getDB()));
 					rspMsg.setAirport(rp.getAirportA());
 					rspMsg.addAll(gh.getArrivalGates());
 				}
