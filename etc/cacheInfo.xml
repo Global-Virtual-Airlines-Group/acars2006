@@ -3,6 +3,11 @@
 	<!-- Pilot data caches -->
 	<cache id="UserData" remote="true" expires="4d" />
 	<cache id="Pilots" remote="true" expires="2d" />
+	
+	<!-- SkyMiles caches -->
+	<cache id="EliteLevel" max="16" expires="24h" />
+	<cache id="EliteStatus" max="512" expires="24h" remote="true" />
+	<cache id="EliteYearlyTotal" max="512" expires="12h" />
 
 	<!-- Navigation Data caches -->
     <cache id="NavData" expires="2d" remote="true" />
