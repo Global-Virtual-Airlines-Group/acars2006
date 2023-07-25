@@ -1,4 +1,4 @@
-// Copyright 2010, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2016, 2018, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message.dispatch;
 
 import org.deltava.beans.Pilot;
@@ -10,11 +10,11 @@ import org.deltava.acars.message.DispatchRequest;
 /**
  * An ACARS message to store route plotting requests.
  * @author Luke
- * @version 8.4
+ * @version 11.1
  * @since 3.0
  */
 
-public class RoutePlotMessage extends DispatchMessage {
+public class RoutePlotMessage extends DispatchMessage implements RoutePair {
 	
 	private Airport _airportD;
 	private Airport _airportA;
@@ -34,18 +34,12 @@ public class RoutePlotMessage extends DispatchMessage {
 		super(DispatchRequest.ROUTEPLOT, msgFrom);
 	}
 	
-	/**
-	 * Returns the departure Airport.
-	 * @return the departure Airport
-	 */
+	@Override
 	public Airport getAirportD() {
 		return _airportD;
 	}
 
-	/**
-	 * Returns the arrival Airport.
-	 * @return the arrival Airport
-	 */
+	@Override
 	public Airport getAirportA() {
 		return _airportA;
 	}
