@@ -10,9 +10,10 @@ import org.deltava.acars.message.AcknowledgeMessage;
 import org.deltava.acars.message.dispatch.RoutePlotMessage;
 
 import org.deltava.acars.command.*;
-
+import org.deltava.beans.Simulator;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.*;
+import org.deltava.beans.stats.RunwayUsage;
 import org.deltava.beans.wx.METAR;
 
 import org.deltava.comparators.RunwayComparator;
@@ -23,7 +24,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to plot a flight route.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 3.0
  */
 
@@ -55,9 +56,14 @@ public class RoutePlotCommand extends DispatchCommand {
 			
 			// Get best runways
 			UsagePercentFilter rf = new UsagePercentFilter(10); 
-			GetACARSRunways rwdao = new GetACARSRunways(con);
-			List<? extends Runway> dRwys = rf.filter(rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), true));
-			List<? extends Runway> aRwys = rf.filter(rwdao.getPopularRunways(msg.getAirportD(), msg.getAirportA(), false));
+			GetNavRoute navdao = new GetNavRoute(con);
+			GetRunwayUsage rwdao = new GetRunwayUsage(con);
+			List<Runway> depRwys = navdao.getRunways(msg.getAirportD(), Simulator.P3Dv4);
+			List<Runway> arrRwys = navdao.getRunways(msg.getAirportA(), Simulator.P3Dv4);
+			RunwayUsage dru = rwdao.getPopularRunways(msg, true);
+			RunwayUsage aru = rwdao.getPopularRunways(msg, false);
+			List<? extends Runway> dRwys = rf.filter(dru.apply(depRwys));
+			List<? extends Runway> aRwys = rf.filter(aru.apply(arrRwys));
 			
 			// Sort runways based on wind heading
 			if ((wxD != null) && (wxD.getWindSpeed() > 0)) {
@@ -77,9 +83,6 @@ public class RoutePlotCommand extends DispatchCommand {
 			rt.setComments("User-Requested Route");
 			rt.setRoute(msg.getRoute());
 			
-			// Load the waypoints for the route
-			GetNavRoute navdao = new GetNavRoute(con);
-
 			// Load best SID
 			if (!StringUtils.isEmpty(msg.getSID()) && (msg.getSID().contains("."))) {
 				StringTokenizer tkns = new StringTokenizer(msg.getSID(), ".");

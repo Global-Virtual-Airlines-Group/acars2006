@@ -1,12 +1,14 @@
-// Copyright 2009, 2010, 2015, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2010, 2015, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
 import java.sql.Connection;
 import java.time.LocalDate;
 
+import org.deltava.beans.Simulator;
 import org.deltava.beans.acars.TaxiTime;
-import org.deltava.beans.schedule.Airport;
+import org.deltava.beans.schedule.*;
+import org.deltava.beans.stats.RunwayUsage;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.wx.METAR;
 
@@ -25,7 +27,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport weather and runway choices.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 2.6
  */
 
@@ -55,9 +57,14 @@ public class AirportInfoCommand extends DataCommand {
 			UsageWindFilter rf = new UsageWindFilter(10, -7);
 			rf.setWinds(wxD);
 			
-			// Get the runway choices
-			GetACARSRunways rwdao = new GetACARSRunways(c);
-			List<? extends Runway> rwyD = rf.filter(rwdao.getPopularRunways(aD, aA, true));
+			// Get the runways
+			GetNavData nddao = new GetNavData(c);
+			GetRunwayUsage rwdao = new GetRunwayUsage(c);
+			List<Runway> rwys = nddao.getRunways(aD, Simulator.P3Dv4);
+			RunwayUsage dru = rwdao.getPopularRunways(RoutePair.of(aD, aA), true);
+			
+			// Convert to RunwayUsage and sort with weather/usage in mind
+			List<RunwayUse> rwyD = dru.apply(rwys);
 			if (wxD != null)
 				rwyD.sort(new RunwayComparator(wxD.getWindDirection(), wxD.getWindSpeed(), true));
 			
@@ -79,7 +86,11 @@ public class AirportInfoCommand extends DataCommand {
 				TaxiTime ttA = ttdao.getTaxiTime(aA, year);
 				METAR wxA = wxdao.getMETAR(aA.getICAO());
 				rf.setWinds(wxA);
-				List<? extends Runway> rwyA = rf.filter(rwdao.getPopularRunways(aD, aA, false));
+				
+				// Get runways
+				rwys = nddao.getRunways(aA, Simulator.P3Dv4);
+				RunwayUsage aru = rwdao.getPopularRunways(RoutePair.of(aD, aA), false);
+				List<RunwayUse> rwyA = aru.apply(rwys);
 				if (wxA != null)
 					rwyA.sort(new RunwayComparator(wxA.getWindDirection(), wxA.getWindSpeed(), true));
 				

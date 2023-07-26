@@ -1,4 +1,4 @@
-// Copyright 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -12,15 +12,15 @@ import org.deltava.acars.message.data.RunwayListMessage;
 
 import org.deltava.beans.Simulator;
 import org.deltava.beans.navdata.*;
-import org.deltava.beans.schedule.Airport;
-
+import org.deltava.beans.schedule.*;
+import org.deltava.beans.stats.RunwayUsage;
 import org.deltava.dao.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS data command to return popular runways for an Airport.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 8.4
  */
 
@@ -36,9 +36,8 @@ public class PopularRunwaysCommand extends DataCommand {
 		
 		// Get the message and the airports
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
-		Airport aD = SystemData.getAirport(msg.getFlag("airportD"));
-		Airport aA = SystemData.getAirport(msg.getFlag("airportA"));
-		if ((aD == null) || (aA == null)) {
+		RoutePair rp = RoutePair.of(SystemData.getAirport(msg.getFlag("airportD")), SystemData.getAirport(msg.getFlag("airportA")));
+		if (!rp.isPopulated()) {
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Unknown airports " + msg.getFlag("airportD") + " / " + msg.getFlag("airportA")));
 			return;
 		}
@@ -46,28 +45,28 @@ public class PopularRunwaysCommand extends DataCommand {
 		// Get the sim version for the runway surface
 		InfoMessage imsg = ctx.getACARSConnection().getFlightInfo();
 		Simulator sim = (imsg == null) ? Simulator.P3Dv4 : imsg.getSimulator();
-		Map<String, Surface> sfcs = new HashMap<String, Surface>();
 		
 		// Create the response
 		RunwayListMessage rspMsg = new RunwayListMessage(env.getOwner(), msg.getID(), true);
-		rspMsg.setAirportD(aD); rspMsg.setAirportA(aA);
+		rspMsg.setAirportD(rp.getAirportD()); rspMsg.setAirportA(rp.getAirportA());
 		
 		try {
 			Connection con = ctx.getConnection();
 			
 			// Load runway surfaces
 			GetNavData navdao = new GetNavData(con);
-			navdao.getRunways(aD, sim).forEach(rw -> sfcs.put(rw.getCode() + "-" + rw.getName(), rw.getSurface()));
-			navdao.getRunways(aA, sim).forEach(rw -> sfcs.put(rw.getCode() + "-" + rw.getName(), rw.getSurface()));
+			List<Runway> dRwys = navdao.getRunways(rp.getAirportD(), sim);
+			List<Runway> aRwys = navdao.getRunways(rp.getAirportA(), sim);
 			
 			// Load popular runways
 			UsagePercentFilter rf = new UsagePercentFilter(10);
-			GetACARSRunways ardao = new GetACARSRunways(con);
-			rf.filter(ardao.getPopularRunways(aD, aA, true)).forEach(rspMsg::add);
-			rf.filter(ardao.getPopularRunways(aD, aA, false)).forEach(rspMsg::add);
-			
-			// Apply the surfaces
-			rspMsg.getResponse().forEach(rw -> rw.setSurface(sfcs.getOrDefault(rw.getCode() + "-" + rw.getName(), Surface.UNKNOWN)));
+			GetRunwayUsage ardao = new GetRunwayUsage(con);
+			RunwayUsage dru = ardao.getPopularRunways(rp, true);
+			RunwayUsage aru = ardao.getPopularRunways(rp, false);
+			rf.filter(dru.apply(dRwys)).forEach(rspMsg::add);
+			rf.filter(aru.apply(aRwys)).forEach(rspMsg::add);
+
+			// Push the response
 			rspMsg.setMaxAge(4500);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
