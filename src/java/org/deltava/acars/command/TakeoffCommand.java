@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 2.8
  */
 
@@ -109,7 +109,7 @@ public class TakeoffCommand extends ACARSCommand {
 			// Send out a system message to the others if not a bounce
 			if (!isBounce) {
 				String aCode = ac.getUserData().getAirlineCode();
-				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> (c.getProtocolVersion() > 1) && c.isAuthenticated() && aCode.equals(c.getUserData().getAirlineCode()));
+				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> (c.getProtocolVersion() > 1) && c.isAuthenticated() && (c.getID() != ac.getID()) && aCode.equals(c.getUserData().getAirlineCode()));
 				cons.forEach(c -> ctx.push(msg, c.getID(), false));
 			}
 		} catch (DAOException de) {
