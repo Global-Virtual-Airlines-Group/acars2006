@@ -13,7 +13,7 @@ import org.deltava.util.XMLUtils;
 /**
  * A formatter for Takeoff/Touchdown messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 2.8
  */
 
@@ -49,7 +49,7 @@ public class TakeoffFormatter extends XMLElementFormatter {
 		pe.addContent(XMLUtils.createElement("eqType", tmsg.getEquipmentType()));
 		pe.addContent(XMLUtils.createElement("airportD", tmsg.getAirportD().getICAO()));
 		pe.addContent(XMLUtils.createElement("airportA", tmsg.getAirportA().getICAO()));
-		if (tmsg.isTakeoff()) {
+		if (!tmsg.isTakeoff()) {
 			pe.addContent(XMLUtils.createElement("ils", String.valueOf(tmsg.getILS())));
 			pe.addContent(XMLUtils.createElement("score", String.valueOf(tmsg.getScore())));
 		}
