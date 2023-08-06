@@ -31,7 +31,7 @@ import org.gvagroup.tomcat.SharedWorker;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -63,6 +63,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	
 	@Override
 	public void contextInitialized(ServletContextEvent e) {
+		TaskTimer tt = new TaskTimer();
 		e.getServletContext().setAttribute("startedOn", java.time.Instant.now());
 		
 		// Initialize system data
@@ -196,6 +197,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
+		log.warn("Started {} in {}ms", code, Long.valueOf(tt.stop()));
 		
 		// Wait a bit for the daemons to spool up
 		ThreadUtils.sleep(225);
