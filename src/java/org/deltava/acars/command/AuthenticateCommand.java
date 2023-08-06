@@ -28,10 +28,12 @@ import org.deltava.security.*;
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
+import org.gvagroup.common.SharedData;
+
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -244,7 +246,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 			
 			// Get elite status
-			if (aInfo.getHasElite()) {
+			EliteProgram ep = (EliteProgram) SharedData.get(SharedData.ELITE_INFO + aInfo.getCode());
+			if (ep != null) {
 				GetElite eldao = new GetElite(c);
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteScorer.getStatusYear(Instant.now()), ud.getDB());
 				if (!status.isEmpty())
