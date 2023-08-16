@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2016 Global Virtual Airlines Group. All Rights Reseved.
+// Copyright 2006, 2007, 2016, 2022 Global Virtual Airlines Group. All Rights Reseved.
 package org.deltava.acars.security;
 
 import java.time.Instant;
@@ -11,7 +11,7 @@ import org.deltava.acars.beans.ACARSConnection;
 /**
  * A bean to track temporarily banned ACARS users.
  * @author Luke
- * @version 7.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -97,12 +97,9 @@ public class BannedUser implements Comparable<BannedUser> {
 		_expiryTime = (dt == null) ? Instant.now() : dt;
 	}
 
-	/**
-	 * Checks equality by comparing remote Addresses and database ID.
-	 */
 	@Override
 	public boolean equals(Object o) {
-		return (o instanceof BannedUser) && (compareTo((BannedUser) o) == 0);
+		return (o instanceof BannedUser bu) && (compareTo(bu) == 0);
 	}
 	
 	@Override
@@ -115,9 +112,6 @@ public class BannedUser implements Comparable<BannedUser> {
 		return toString().hashCode();
 	}
 
-	/**
-	 * Compare two banned users by comparing the user ID and IP address.
-	 */
 	@Override
 	public int compareTo(BannedUser usr2) {
 		int tmpResult = _usrData.compareTo(usr2._usrData);
