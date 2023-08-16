@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -150,7 +150,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	@Override
 	public boolean equals(Object o2) {
-		return (o2 instanceof ACARSConnection) ? (_id == ((ACARSConnection) o2)._id) : false;
+		return (o2 instanceof ACARSConnection ac2) ? (_id == ac2._id) : false;
 	}
 	
 	public ConnectionStats getTCPStatistics() {

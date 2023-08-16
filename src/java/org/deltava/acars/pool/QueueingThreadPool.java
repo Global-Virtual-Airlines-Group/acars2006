@@ -14,7 +14,7 @@ import org.gvagroup.ipc.WorkerStatus;
 /**
  * A Thread Pool executor that implements built-in queueing. This allows the thread pool to continue to take work units even if the dynamic thread pool reaches its maximum size. 
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 2.0
  */
 
@@ -63,9 +63,9 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		
 		@Override
 		public void rejectedExecution(Runnable r, ThreadPoolExecutor pool) {
-			if ((r instanceof PoolWorker) && (!pool.isTerminating())) {
+			if ((r instanceof PoolWorker pw) && (!pool.isTerminating())) {
 				long now = System.currentTimeMillis();
-				_queuedEntries.add(new PoolQueueEntry((PoolWorker) r));
+				_queuedEntries.add(new PoolQueueEntry(pw));
 
 				// Check if we log
 				int size = _queuedEntries.size();
@@ -79,10 +79,8 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 				if (!_queueBackup && queueBackup) {
 					_queueBackup = true;
 					log.error("Queue appears backed up, size = " + size);
-					for (Iterator<Map.Entry<Integer, LatencyWorkerStatus>> i = _status.entrySet().iterator(); i.hasNext(); ) {
-						Map.Entry<Integer, ? extends WorkerStatus> e = i.next();
+					for (Map.Entry<Integer, LatencyWorkerStatus> e : _status.entrySet())
 						log.error("Worker " + e.getKey() + " = " + e.getValue().getMessage());
-					}
 				} else if (((now - _lastEntryTime) > 2500) && (size > 3)) 
 					log.warn("Thread pool full - queueing entry #" + size);
 				else
@@ -140,11 +138,10 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 		super.beforeExecute(t, r);
-		if ((!(r instanceof PoolWorker)) || (!(t instanceof PoolWorkerFactory.PoolThread)))
+		if ((!(r instanceof PoolWorker pw)) || (!(t instanceof PoolWorkerFactory.PoolThread pt)))
 			return;
 		
 		// Get the worker status
-		PoolWorkerFactory.PoolThread pt = (PoolWorkerFactory.PoolThread) t;
 		LatencyWorkerStatus ws = _status.get(Integer.valueOf(pt.getID()));
 		if (ws == null) {
 			ws = new LatencyWorkerStatus(pt.getName(), _sortOrderBase + pt.getID(), 1024);
@@ -161,7 +158,6 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		// Inject the worker status
 		ws.setStatus(WorkerState.RUNNING);
 		ws.execute();
-		PoolWorker pw = (PoolWorker) r;
 		pw.setStatus(ws);
 		pt.setStatus(ws);
 	}
@@ -172,8 +168,8 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	@Override
 	protected void afterExecute(Runnable r, Throwable t) {
 		super.afterExecute(r, t);
-		if (r instanceof PoolWorker) {
-			WorkerStatus ws = ((PoolWorker) r).getStatus();
+		if (r instanceof PoolWorker pw) {
+			WorkerStatus ws = pw.getStatus();
 			ws.complete();
 			ws.setMessage("Idle");
 		}
@@ -187,17 +183,12 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		}
 	}
 	
-	/**
-	 * Worker thread termination handler.
-	 * @param pt the worker thread
-	 * @param e the Exception 
-	 */
 	@Override
 	public void workerTerminated(PoolWorkerFactory.PoolThread pt, Throwable e) {
 		_tFactory.removeID(pt.getID());
 		if (e != null)
 			log.error(pt.getName() + " - "  + e.getMessage(), e);
 		else
-			log.info(pt.getName() + " shut down");
+			log.info("{} shut down", pt.getName());
 	}
 }
