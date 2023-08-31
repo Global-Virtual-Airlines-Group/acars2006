@@ -14,7 +14,7 @@ import org.deltava.acars.message.data.RunwayListMessage;
 /**
  * A formatter for Runway List messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 8.4
  */
 
@@ -51,8 +51,10 @@ class RunwayListFormatter extends ElementFormatter {
 			re.setAttribute("width", String.valueOf(r.getWidth()));
 			re.setAttribute("magVar", StringUtils.format(r.getMagVar(), "#0.000"));
 			re.setAttribute("surface", r.getSurface().getName());
-			if (r.getOldCode() != null)
-				re.setAttribute("oldCode", r.getOldCode());
+			if (r.getAlternateCode() != null) {
+				re.setAttribute("oldCode", r.getAlternateCode());
+				re.setAttribute("isAltNew", String.valueOf(r.isAltNew()));
+			}
 			if ((r.getFrequency() != null) && (!"-".equals(r.getFrequency())))
 				re.addContent(XMLUtils.createElement("freq", r.getFrequency()));
 			if (r instanceof UseCount uc)
