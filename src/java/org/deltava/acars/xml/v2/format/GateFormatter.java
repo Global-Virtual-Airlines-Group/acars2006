@@ -1,4 +1,4 @@
-// Copyright 2018, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -7,13 +7,12 @@ import org.deltava.acars.message.Message;
 import org.deltava.acars.message.data.GateMessage;
 
 import org.deltava.beans.navdata.Gate;
-import org.deltava.beans.navdata.GateZone;
 import org.deltava.util.*;
 
 /**
  * An XML formatter for Gate data messages.
  * @author Luke
- * @version 10.0
+ * @version 11.1
  * @since 8.4
  */
 
@@ -38,7 +37,6 @@ class GateFormatter extends ElementFormatter {
 		for (Gate g : gmsg.getResponse()) {
 			Element ge = new Element("gate");
 			ge.setAttribute("name", g.getName());
-			ge.setAttribute("isIntl", String.valueOf(g.getZone() != GateZone.DOMESTIC));
 			ge.setAttribute("zone", String.valueOf(g.getZone()));
 			ge.setAttribute("lat", StringUtils.format(g.getLatitude(), "##0.0000"));
 			ge.setAttribute("lng", StringUtils.format(g.getLongitude(), "##0.0000"));
