@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ import org.deltava.acars.message.*;
 /**
  * A utility class to turn PositionMessages into {@link ACARSMapEntry} beans.
  * @author Luke
- * @version 10.3
+ * @version 11.1
  * @since 1.0
  */
 
@@ -50,9 +50,7 @@ public final class RouteEntryHelper {
 		Pilot usr = con.getUser();
 		PositionMessage msg = con.getPosition();
 		InfoMessage imsg = con.getFlightInfo();
-		if ((usr == null) || (msg == null) || (imsg == null))
-			return null;
-		else if (msg.isFlagSet(ACARSFlags.PAUSED))
+		if ((usr == null) || (msg == null) || (imsg == null) || msg.isFlagSet(ACARSFlags.PAUSED))
 			return null;
 		
 		// Build the MapRouteEntry bean
@@ -87,6 +85,8 @@ public final class RouteEntryHelper {
 		result.setAirportD(imsg.getAirportD());
 		result.setAirportA(imsg.getAirportA());
 		result.setNetwork(imsg.getNetwork());
+		result.setNetworkConnected(msg.getNetworkConnected());
+		result.setACARSConnected(msg.getACARSConnected());
 		result.setAOA(msg.getAngleOfAttack());
 		result.setG(msg.getG());
 		result.setFuelRemaining(msg.getFuelRemaining());
