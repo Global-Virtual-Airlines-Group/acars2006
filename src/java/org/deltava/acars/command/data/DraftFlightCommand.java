@@ -22,7 +22,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -52,19 +52,22 @@ public class DraftFlightCommand extends DataCommand {
 				sbPkgs.put(Integer.valueOf(dfr.getID()), sbdao.getSimBrief(dfr.getID(), ctx.getDB()));
 			
 			// See if the user has any tours
-			Collection<TourProgress> tourProgress = tdao.getPilotProgress(env.getOwner().getID(), ctx.getDB());
-			for (TourProgress tp : tourProgress) {
-				Tour t = tdao.get(tp.getTourID(), ctx.getDB());
-				if ((t.getMatchLeg() || t.getMatchEquipment()) && (tp.getLegs() < t.getFlightCount())) {
-					ScheduleEntry tl = t.getFlights().get(tp.getLegs());
-					DraftFlightReport dfr = new DraftFlightReport(tl);
-					dfr.setDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
-					dfr.setDatabaseID(DatabaseID.TOUR, t.getID());
-					dfr.setTimeD(tl.getTimeD().toLocalDateTime());
-					dfr.setTimeA(tl.getTimeA().toLocalDateTime());
-					dfr.setRemarks(String.format("%s Leg %d", t.getName(), Integer.valueOf(tp.getLegs() + 1)));
-					if (flights.stream().allMatch(f -> (FlightNumber.compare(f, dfr) != 0)))
-						flights.add(dfr);
+			boolean requestTours = Boolean.parseBoolean(msg.getFlag("tours"));
+			if (requestTours) {
+				Collection<TourProgress> tourProgress = tdao.getPilotProgress(env.getOwner().getID(), ctx.getDB());
+				for (TourProgress tp : tourProgress) {
+					Tour t = tdao.get(tp.getTourID(), ctx.getDB());
+					if ((t.getMatchLeg() || t.getMatchEquipment()) && (tp.getLegs() < t.getFlightCount())) {
+						ScheduleEntry tl = t.getFlights().get(tp.getLegs());
+						DraftFlightReport dfr = new DraftFlightReport(tl);
+						dfr.setDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
+						dfr.setDatabaseID(DatabaseID.TOUR, t.getID());
+						dfr.setTimeD(tl.getTimeD().toLocalDateTime());
+						dfr.setTimeA(tl.getTimeA().toLocalDateTime());
+						dfr.setRemarks(String.format("%s Leg %d", t.getName(), Integer.valueOf(tp.getLegs() + 1)));
+						if (flights.stream().allMatch(f -> (FlightNumber.compare(f, dfr) != 0)))
+							flights.add(dfr);
+					}
 				}
 			}
 			
