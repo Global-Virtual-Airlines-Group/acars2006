@@ -23,8 +23,10 @@
 		<socket>/run/mysql/mysql.sock</socket>
 		
 		<map name="connectProperties">
-		    <useSSL>false</useSSL>
 			<useCompression>false</useCompression>
+			<sslMode>DISABLED</sslMode>
+			<allowPublicKeyRetrieval>true</allowPublicKeyRetrieval>
+			<defaultAuthenticationPlugin>caching_sha2_password</defaultAuthenticationPlugin>
 			<characterEncoding>utf-8</characterEncoding>
 			<connectionCollation>latin1_swedish_ci</connectionCollation>
 			<connectTimeout>1000</connectTimeout>
