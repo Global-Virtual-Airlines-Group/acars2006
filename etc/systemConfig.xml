@@ -20,11 +20,11 @@
 	<jdbc>
 		<driver>com.mysql.cj.jdbc.Driver</driver>
 		<url>jdbc:mysql://localhost/acars</url>
-		<socket>/run/mysql/mysql.sock</socket>
+		<!--  <socket>/run/mysql/mysql.sock</socket>  -->
 		
 		<map name="connectProperties">
 			<sslMode>DISABLED</sslMode>
-			<allowPublicKeyRetrieval>true</allowPublicKeyRetrieval>
+			<serverRSAPublicKeyFile>/usr/local/tomcat/conf/mysql_sha256_pub.pem</serverRSAPublicKeyFile>
 			<useCompression>false</useCompression>
 			<characterEncoding>utf-8</characterEncoding>
 			<connectionCollation>latin1_swedish_ci</connectionCollation>
