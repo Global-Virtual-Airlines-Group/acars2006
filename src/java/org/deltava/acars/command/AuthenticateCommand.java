@@ -246,8 +246,8 @@ public class AuthenticateCommand extends ACARSCommand {
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 			
 			// Get elite status
-			EliteProgram ep = (EliteProgram) SharedData.get(SharedData.ELITE_INFO + aInfo.getCode());
-			if (ep != null) {
+			Object epo = SharedData.get(SharedData.ELITE_INFO + aInfo.getCode());
+			if (epo != null) {
 				GetElite eldao = new GetElite(c);
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteScorer.getStatusYear(Instant.now()), ud.getDB());
 				if (!status.isEmpty())
