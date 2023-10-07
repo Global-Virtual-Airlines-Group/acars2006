@@ -22,7 +22,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -139,7 +139,6 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		tasks.add(new NetworkReader());
 		tasks.add(new InputTranslator());
 		tasks.add(new LogicProcessor());
-		tasks.add(new MPAggregator());
 		tasks.add(new OnlineStatusLoader());
 		tasks.add(new GeoLocator());
 		tasks.add(new OutputDispatcher());
@@ -164,7 +163,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	@Override
  	public void uncaughtException(Thread t, Throwable e) {
  		if (!_threads.containsKey(t)) {
- 			log.warn("Unknown worker thread " + t.getName());
+ 			log.warn("Unknown worker thread {}", t.getName());
  			return;
  		}
  		
