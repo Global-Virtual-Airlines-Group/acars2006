@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlnes Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlnes Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -11,7 +11,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write Flight Information entries.
  * @author Luke
- * @version 10.3
+ * @version 11.1
  * @since 1.0
  */
 
@@ -58,7 +58,7 @@ public class SetInfo extends DAO {
 				ps.setInt(12, msg.getSimulator().getCode());
 				ps.setBoolean(13, msg.isScheduleValidated());
 				ps.setInt(14, msg.getDispatcher().ordinal());
-				ps.setBoolean(15, (msg.getLivery() != null));
+				ps.setBoolean(15, false);
 				ps.setString(16, ac.getRemoteAddr());
 				ps.setString(17, ac.getRemoteHost());
 				ps.setInt(18, ac.getClientBuild());

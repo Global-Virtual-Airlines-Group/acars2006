@@ -6,7 +6,7 @@ import org.deltava.acars.message.*;
 /**
  * A parser for ACARS Protocol v2 messages.
  * @author Luke
- * @version 10.5
+ * @version 11.1
  * @since 2.7
  */
 
@@ -26,8 +26,6 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		// Core parsers
 		_eParsers.put(MessageType.PIREP, new FlightReportParser());
 		_eParsers.put(MessageType.TOTD, new TakeoffParser());
-		_eParsers.put(MessageType.MPUPDATE, new MPLocationParser());
-		_eParsers.put(MessageType.MPINIT, new MPInitParser());
 		_eParsers.put(MessageType.VOICETOGGLE, new VoiceToggleParser());
 		_eParsers.put(MessageType.MUTE, new MuteParser());
 		_eParsers.put(MessageType.SWCHAN, new SwitchChannelParser());

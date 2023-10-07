@@ -10,7 +10,6 @@ import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
 import org.deltava.acars.command.data.*;
 import org.deltava.acars.command.dispatch.*;
-import org.deltava.acars.command.mp.*;
 import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
@@ -25,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -68,9 +67,6 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.ERROR, new ErrorCommand());
 		_commands.put(MessageType.DIAG, new DiagnosticCommand());
 		_commands.put(MessageType.TOTD, new TakeoffCommand());
-		_commands.put(MessageType.MPUPDATE, new MPInfoCommand());
-		_commands.put(MessageType.MPINIT, new InitCommand());
-		_commands.put(MessageType.MPREMOVE, new RemoveCommand());
 		_commands.put(MessageType.WARN, new WarnCommand());
 		_commands.put(MessageType.COMPRESS, new CompressionCommand());
 		_commands.put(MessageType.SYSINFO, new SystemInfoCommand());
