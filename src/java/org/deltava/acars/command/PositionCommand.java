@@ -1,7 +1,6 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.util.Collection;
 import java.util.concurrent.*;
 
 import org.apache.logging.log4j.*;
@@ -15,8 +14,6 @@ import org.deltava.beans.servinfo.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.acars.message.mp.MPUpdateMessage;
-import org.deltava.acars.message.dispatch.ScopeInfoMessage;
 
 import org.deltava.dao.redis.SetTrack;
 
@@ -26,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -148,34 +145,7 @@ public class PositionCommand extends PositionCacheCommand {
 		
 		// Send it to any dispatchers that are around
 		if (!msg.isReplay()) {
-			Collection<ACARSConnection> scopes = ctx.getACARSConnectionPool().getMP(msg);
-			scopes.remove(ac);
-			if (!scopes.isEmpty()) {
-				MPUpdateMessage updmsg = new MPUpdateMessage(false);
-				MPUpdate upd = new MPUpdate(ac.getUserData().getID(), msg);
-				upd.setFlightID(info.getFlightID());
-				upd.setCallsign(info.getFlightCode());
-				updmsg.add(upd);
-			
-				// Queue the message
-				for (ACARSConnection rac : scopes) {
-					ScopeInfoMessage sc = rac.getScope();
-					if (sc == null) {
-						if (rac.getUser().isInRole("Developer"))
-							MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
-					} else if (sc.getAllTraffic() || (sc.getNetwork() == network))
-						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
-					else if ((network == null) && (sc.getNetwork() == OnlineNetwork.ACARS))
-						MP_UPDATE.add(new MessageEnvelope(updmsg, rac.getID()));
-				}
-				
-				// If we have ATC around, decrease position interval
-				if ((ac.getUpdateInterval() > ATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
-					ac.setUpdateInterval(ATC_INTERVAL);
-					ctx.push(new UpdateIntervalMessage(ac.getUser(), ATC_INTERVAL));
-					log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
-				}
-			} else if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
+			if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
 				ac.setUpdateInterval(NOATC_INTERVAL);
 				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL));
 				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");

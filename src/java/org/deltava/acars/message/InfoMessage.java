@@ -141,6 +141,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		return _engineCount;
 	}
 	
+	@Deprecated
 	public String getLivery() {
 		return _livery;
 	}
@@ -325,6 +326,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		_engineCount = cnt;
 	}
 	
+	@Deprecated
 	public void setLivery(String code) {
 		_livery = code;
 	}

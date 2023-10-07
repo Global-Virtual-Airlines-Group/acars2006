@@ -201,12 +201,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	}
 	
 	public int getMPRange() {
-		if (_scope != null) 
-			return _scope.getRange();
-		else if (getIsMP())
-			return _range;
-		else
-			return -1;
+		return (_scope != null) ? _scope.getRange() : -1;
 	}
 	
 	public boolean getUserBusy() {
@@ -223,10 +218,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	
 	public int getWarningScore() {
 		return _warningScore;
-	}
-	
-	public boolean getIsMP() {
-		return (_fInfo != null) && (_fInfo.getLivery() != null);
 	}
 
 	public long getLastActivity() {
@@ -463,12 +454,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	@Override
 	public String getRowClassName() {
-		if (_isDispatch)
-			return "opt2";
-		else if (getIsMP())
-			return "opt3";
-		
-		return null;
+		return (_isDispatch) ? "opt2" : null;
 	}
 	
 	@Override
@@ -489,14 +475,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	 */
 	String read() throws IOException {
 		return _tcp.read();
-	}
-	
-	/**
-	 * Logs reading a voice packet.
-	 * @param bytes the number of bytes
-	 */
-	public void logVoice(int bytes) {
-		_udp.read(bytes);
 	}
 	
 	/**
