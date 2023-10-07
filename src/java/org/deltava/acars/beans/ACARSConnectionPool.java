@@ -330,6 +330,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 * @param loc the Location
 	 * @return a List of ACARSConnection beans
 	 */
+	@Deprecated
 	public List<ACARSConnection> getMP(GeoLocation loc) {
 		if (loc == null)
 			return Collections.emptyList();
