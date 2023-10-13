@@ -47,7 +47,7 @@ public class PositionCommand extends PositionCacheCommand {
 		PositionMessage msg = (PositionMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
 		if (ac == null) {
-			log.warn("Missing Connection for " + env.getOwnerID());
+			log.warn("Missing Connection for {}", env.getOwnerID());
 			return;
 		} else if (ac.getClientType() != ClientType.PILOT) {
 			log.warn("ATC/Dispatch Client sending Position Report!");
@@ -61,7 +61,7 @@ public class PositionCommand extends PositionCacheCommand {
 		InfoMessage info = ac.getFlightInfo();
 		PositionMessage oldPM = ac.getPosition();
 		if (info == null) {
-			log.warn("No Flight Information for " + ac.getUserID());
+			log.warn("No Flight Information for {}", ac.getUserID());
 			ackMsg.setEntry("sendInfo", "true");
 			ctx.push(ackMsg);
 			return;
@@ -141,29 +141,29 @@ public class PositionCommand extends PositionCacheCommand {
 		// Log message received
 		ctx.push(ackMsg);
 		if (log.isDebugEnabled())
-			log.debug("Received position from " + ac.getUserID());
+			log.debug("Received position from {}", ac.getUserID());
 		
 		// Send it to any dispatchers that are around
 		if (!msg.isReplay()) {
 			if ((ac.getUpdateInterval() < NOATC_INTERVAL) && (ac.getProtocolVersion() > 1)) {
 				ac.setUpdateInterval(NOATC_INTERVAL);
 				ctx.push(new UpdateIntervalMessage(ac.getUser(), NOATC_INTERVAL));
-				log.info("Update interval for " + ac.getUserID() + " set to " + ATC_INTERVAL + "ms");
+				log.info("Update interval for {} set to {}ms", ac.getUserID(), Integer.valueOf(ATC_INTERVAL));
 			}
 			
 			// Check for prohibited airspace
 			Airspace a = Airspace.isRestricted(msg);
 			if (a != null) {
-				log.info(env.getOwnerID() + " in airspace " + a.getID());
+				log.info("{} in airspace {}", env.getOwnerID(), a.getID());
 				msg.setAirspaceType(a.getType());
 				if (!msg.isLogged())
 					queue(msg);
 
 				if ((oldPM == null) || !oldPM.getAirspaceType().isRestricted()) {
 					msg.setAirspaceType(a.getType());
-					log.warn(env.getOwnerID() + " breached restricted airspace " + a.getID());
+					log.warn("{} breached restricted airspace {}", env.getOwnerID(), a.getID());
 					SystemTextMessage sysMsg = new SystemTextMessage();
-					sysMsg.addMessage("Entry into restricted airspace " + a.getID());
+					sysMsg.addMessage(String.format("Entry into restricted airspace %s", a.getID()));
 					sysMsg.setWarning(true);
 					ctx.push(sysMsg, env.getConnectionID(), true);
 				}
