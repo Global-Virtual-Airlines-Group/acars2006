@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2016, 2017, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2017, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 2.1
  */
 
@@ -118,14 +118,14 @@ public class BandwidthLogger extends Worker {
 						bwdao.aggregate(zdt.toInstant(), 60);
 					}
 				} catch (DAOException de) {
-					log.error(de.getMessage(), de);
+					log.atError().withThrowable(de).log(de.getMessage());
 				} finally {
 					_jdbcPool.release(con);
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 			}
 			
 			_status.complete();

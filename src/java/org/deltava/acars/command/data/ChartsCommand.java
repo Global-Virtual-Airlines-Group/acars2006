@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to display approach charts.
  * @author Luke
- * @version 10.6
+ * @version 11.1
  * @since 1.0
  */
 
@@ -61,7 +61,7 @@ public class ChartsCommand extends DataCommand {
 			} else
 				ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading charts for " + msg.getFlag("id") + " - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading charts for {} - {}", msg.getFlag("id"), de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load " + msg.getFlag("id") + " charts"));
 		} finally {
 			ctx.release();

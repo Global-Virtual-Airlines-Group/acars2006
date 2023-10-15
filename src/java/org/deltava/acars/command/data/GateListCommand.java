@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to list available airport gates.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 8.4
  */
 
@@ -82,14 +82,14 @@ public class GateListCommand extends DataCommand {
 				rspMsg.addAll(allGates);
 			}
 		} catch (DAOException de) {
-			log.error("Error loading Gates - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading Gates - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}
 		
 		// Sanity check the reply
 		if (rspMsg.getAirport() == null) {
-			log.warn(String.format("Unknown Airport - %s", msg.getFlag("airport")));
+			log.warn("Unknown Airport - {}", msg.getFlag("airport"));
 			return;
 		}
 		

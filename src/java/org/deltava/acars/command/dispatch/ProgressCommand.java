@@ -1,4 +1,4 @@
-// Copyright 2007, 2009, 2012, 2015, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2009, 2012, 2015, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to process Dispatcher progress requests.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 2.1
  */
 
@@ -73,7 +73,7 @@ public class ProgressCommand extends DispatchCommand {
 			GetFIR fdao = new GetFIR(con);
 			rmsg.setFIR(fdao.search(pos));
 		} catch (DAOException de) {
-			log.error("Error calculating alternates - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error calculating alternates - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

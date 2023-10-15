@@ -1,4 +1,4 @@
-// Copyright 2011, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 10.1
+ * @version 11.1
  * @since 4.0
  */
 
@@ -95,11 +95,11 @@ public class LoadFactorCommand extends DataCommand {
 							ackMsg.setEntry("extraPax", String.valueOf(pax > opts.getSeats()));
 						}
 					} else
-						log.warn("No policy options for the " + a.getName() + " in " + ud.getAirlineCode());
+						log.warn("No policy options for the {} in {}", a.getName(), ud.getAirlineCode());
 				} else
-					log.warn("Unknown aircraft type - " + msg.getFlag("eqType"));
+					log.warn("Unknown aircraft type - {}", msg.getFlag("eqType"));
 			} catch (DAOException de) {
-				log.error(de.getMessage(), de);
+				log.atError().withThrowable(de).log(de.getMessage());
 			} finally {
 				ctx.release();
 			}

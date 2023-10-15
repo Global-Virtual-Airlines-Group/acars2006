@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2019, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to modify a user's warning level. 
  * @author Luke
- * @version 10.0
+ * @version 11.1
  * @since 4.0
  */
 
@@ -95,9 +95,9 @@ public class WarnCommand extends ACARSCommand {
 			
 			ctx.commitTX();
 		} catch (DAOException de) {
+			log.atError().withThrowable(de).log("Error writing user warning - {}", de.getMessage());
 			ctx.rollbackTX();
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(ctx.getUser(), msg.getID());
-			log.error("Error writing user warning - " + de.getMessage(), de);
 			ackMsg.setEntry("error", de.getMessage());
 		} finally {
 			ctx.release();

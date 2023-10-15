@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server worker to generate XML messages and dispatch them to the proper connection.
  * @author Luke
- * @version 8.1
+ * @version 11.1
  * @since 1.0
  */
 
@@ -89,7 +89,7 @@ public final class OutputDispatcher extends Worker {
 				Class<?> pClass = Class.forName(pkg + ".format.Formatter");
 				_formatters.put(Integer.valueOf(version.substring(1)), (MessageFormatter) pClass.getDeclaredConstructor().newInstance());
 			} catch (Exception e) {
-				log.error("Error loading " + version + " Message Formatter", e);
+				log.atError().withThrowable(e).log("Error loading {} Message Formatter", version);
 			}
 		}
 		
@@ -117,8 +117,7 @@ public final class OutputDispatcher extends Worker {
 				while (env != null) {
 					Message msg = env.getMessage();
 					_status.setMessage("Dispatching message to " + env.getOwnerID());
-					if (log.isDebugEnabled())
-						log.debug("Dispatching message to " + env.getOwnerID());
+					log.debug("Dispatching message to {}", env.getOwnerID());
 
 					// Determine the protocol version for each message
 					ACARSConnection ac = _pool.get(env.getConnectionID());
@@ -140,7 +139,7 @@ public final class OutputDispatcher extends Worker {
 						MessageFormatter fmt = _formatters.get(Integer.valueOf(ac.getProtocolVersion()));
 						if (fmt == null) {
 							fmt = _defaultFmt;
-							log.warn("No formatter found for protocol v" + ac.getProtocolVersion() + " - using v" + fmt.getProtocolVersion());
+							log.warn("No formatter found for protocol v{} - using v{}", Integer.valueOf(ac.getProtocolVersion()), Integer.valueOf(fmt.getProtocolVersion()));
 						}
 
 						try {
@@ -153,7 +152,7 @@ public final class OutputDispatcher extends Worker {
 								doc.setTime(msg.getTime());
 							}
 						} catch (Exception e) {
-							log.error("Cannot dispatch - " + e.getMessage(), e);
+							log.atError().withThrowable(e).log("Cannot dispatch - {}", e.getMessage());
 						}
 					}
 
@@ -184,7 +183,7 @@ public final class OutputDispatcher extends Worker {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 			} finally {
 				users.clear();
 				docs.clear();

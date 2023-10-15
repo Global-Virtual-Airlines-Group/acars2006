@@ -70,7 +70,7 @@ public class PopularRunwaysCommand extends DataCommand {
 			rspMsg.setMaxAge(4500);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading runway popularity - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading runway popularity - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load runway list"));
 		} finally {
 			ctx.release();

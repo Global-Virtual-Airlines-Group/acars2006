@@ -14,7 +14,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server daemon to be run in a Tomcat instance.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -56,8 +56,8 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 						_threads.put(wt, w);
 						wt.start();
 					} else if (ws.getExecutionTime() > MAX_EXEC) {
-						log.warn(t.getName() + " stuck for " + ws.getExecutionTime() + "ms, restarting");
-						log.warn("Last activity - " + ws.getMessage());
+						log.warn("{} stuck for {}ms, restarting", t.getName(), Long.valueOf(ws.getExecutionTime()));
+						log.warn("Last activity - {}", ws.getMessage());
 
 						// Kill the worker thread
 						ThreadUtils.kill(t, 1250);
@@ -76,7 +76,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error("Error restarting worker - " + e.getMessage(), e);
+				log.atError().withThrowable(e).log("Error restarting worker - {}", e.getMessage());
 			}
 		}
 		
@@ -85,7 +85,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 
 		// Try to close the workers down
 		ThreadUtils.sleep(250);
-		_threads.values().forEach(w -> { log.debug("Stopping " + w.getName()); w.close(); });
+		_threads.values().forEach(w -> { log.debug("Stopping {}", w.getName()); w.close(); });
 
 		// Display shutdown message
 		ThreadUtils.kill(_threads.keySet(), 1500);

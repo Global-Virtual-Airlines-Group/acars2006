@@ -1,4 +1,4 @@
-// Copyright 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS worker thread to asynchronously geolocate position updates.
  * @author Luke
- * @version 7.4
+ * @version 11.1
  * @since 7.4
  */
 
@@ -108,7 +108,7 @@ public class GeoLocator extends Worker {
 							msg.setCountry(c);
 						}
 					} catch (DAOException de) {
-						log.error(de.getMessage(), de);
+						log.atError().withThrowable(de).log(de.getMessage());
 					} finally {
 						upds.clear();
 						_jdbcPool.release(con);
@@ -117,7 +117,7 @@ public class GeoLocator extends Worker {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 			} finally {
 				execTime = Math.min(9750, System.currentTimeMillis() - startTime);
 				_status.complete();

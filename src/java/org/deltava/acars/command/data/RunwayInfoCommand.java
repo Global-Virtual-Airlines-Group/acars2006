@@ -1,4 +1,4 @@
-// Copyright 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.acars.beans.MessageEnvelope;
@@ -16,7 +16,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return Airport runway information.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 8.6
  */
 
@@ -53,7 +53,7 @@ public class RunwayInfoCommand extends DataCommand {
 			rspMsg.addAll(navdao.getRunways(a, sim));
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading runway info - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading runway info - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load runway list - " + de.getMessage()));
 		} finally {
 			ctx.release();

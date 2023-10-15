@@ -92,11 +92,11 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 			// Check execution time
 			long execTime = _tcp.getLastActivityTime() - startTime;
 			if (execTime > 1250)
-				log.warn("Excessive connect time - " + execTime + "ms");
+				log.warn("Excessive connect time - {}ms", Long.valueOf(execTime));
 		} catch (IOException ie) {
 			// Log our error and shut the connection
 			try {
-				log.error("Cannot set non-blocking I/O from " + sc.getRemoteAddress());
+				log.error("Cannot set non-blocking I/O from {}", sc.getRemoteAddress());
 				sc.close();
 			} catch (Exception e) {
 				// empty
@@ -115,7 +115,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 			boolean isNew = !NetworkUtils.getSourceAddress(srcAddr).equals(_udp.getAddress());
 			if (isNew) {
 				_udp.setRemoteAddress(srcAddr, dc);
-				log.warn("Switched voice source address for " + getUserID() + " to " + getVoiceSourceAddr());
+				log.warn("Switched voice source address for {} to {}", getUserID(), getVoiceSourceAddr());
 				return true;
 			}
 				
@@ -126,7 +126,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 			_udp = new UDPChannel(_id, dc, srcAddr);
 			_isMuted = false;
 		} catch (IOException ie) {
-			log.error("Error creating Voice socket for " + getUserID() + " - " + ie.getMessage(), ie);
+			log.atError().withThrowable(ie).log("Error creating Voice socket for {} - {}", getUserID(), ie.getMessage());
 		}
 		
 		return false;

@@ -27,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -55,14 +55,14 @@ public class InfoCommand extends ACARSCommand {
 			log.warn("Dispatch Client requesting flight ID!");
 			return;
 		} else if (!con.getUserID().equals(env.getOwnerID()))
-			log.warn(String.format("Connection owned by %s, Envelope owned by %s", con.getUserID(), env.getOwnerID()));
+			log.warn("Connection owned by {}, Envelope owned by {}", con.getUserID(), env.getOwnerID());
 
 		// Build the acknowledge message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 
 		// Check for a duplicate Flight ID request
 		if (assignID && (curInfo != null) && (curInfo.getFlightID() != 0) && !curInfo.isComplete()) {
-			log.warn(String.format("Duplicate Flight ID request from %s - assigning Flight ID %d", con.getUserID(), Integer.valueOf(curInfo.getFlightID())));
+			log.warn("Duplicate Flight ID request from {} - assigning Flight ID {}", con.getUserID(), Integer.valueOf(curInfo.getFlightID()));
 			ackMsg.setEntry("flight_id", String.valueOf(curInfo.getFlightID()));
 			ackMsg.setEntry("dispatchLogID", String.valueOf(curInfo.getDispatchLogID()));
 			ackMsg.setEntry("tx", String.valueOf(curInfo.getTX()));
@@ -80,8 +80,8 @@ public class InfoCommand extends ACARSCommand {
 				GetPositionCount pcdao = new GetPositionCount(c);
 				List<PositionCount> flightIDs = pcdao.find(usrLoc.getID(), msg.getStartTime());
 				if (flightIDs.size() > 0) {
-					log.warn(String.format("%s requesting new Flight ID", con.getUserID()));
-					flightIDs.forEach(pc -> log.warn(String.format("Flight %d = %d records", Integer.valueOf(pc.getID()), Integer.valueOf(pc.getPositionCount()))));
+					log.warn("{} requesting new Flight ID", con.getUserID());
+					flightIDs.forEach(pc -> log.warn("Flight {} = {} records", Integer.valueOf(pc.getID()), Integer.valueOf(pc.getPositionCount())));
 					msg.setFlightID(flightIDs.get(0).getID());
 					assignID = false; 
 				}
@@ -106,9 +106,9 @@ public class InfoCommand extends ACARSCommand {
 					msg.setFlightID(0);
 				} else {
 					isValidated = info.isScheduleValidated();
-					log.warn(String.format("%s revalidating Flight %d", msg.isServerRequsted() ? "Server" : "Client", Integer.valueOf(msg.getFlightID())));
+					log.warn("{} revalidating Flight {}", msg.isServerRequsted() ? "Server" : "Client", Integer.valueOf(msg.getFlightID()));
 					if ((msg.getDispatcher() != info.getDispatcher()) || (msg.getDispatcherID() != info.getDispatcherID())) {
-						log.warn(String.format("Flight %d dispatcher was [%s/%d], now [%s/%d]", Integer.valueOf(msg.getFlightID()), info.getDispatcher(), Integer.valueOf(info.getDispatcherID()), msg.getDispatcher(), Integer.valueOf(msg.getDispatcherID())));
+						log.warn("Flight {} dispatcher was [{}/{}], now [{}/{}]", Integer.valueOf(msg.getFlightID()), info.getDispatcher(), Integer.valueOf(info.getDispatcherID()), msg.getDispatcher(), Integer.valueOf(msg.getDispatcherID()));
 						if (msg.getDispatcherID() == 0) {
 							msg.setDispatcher(info.getDispatcher());
 							msg.setDispatcherID(info.getDispatcherID());
@@ -204,7 +204,7 @@ public class InfoCommand extends ACARSCommand {
 				AircraftPolicyOptions opts = ac.getOptions(usrLoc.getAirlineCode());
 				if (msg.getSeats() == 0) msg.setSeats(opts.getSeats());
 			} else {
-				log.warn(String.format("Unknown aircraft type - %s", msg.getEquipmentType()));
+				log.warn("Unknown aircraft type - {}", msg.getEquipmentType());
 				msg.setEngineCount(2);
 			}
 				
@@ -215,11 +215,11 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Log unknown SID/STAR
 			if ((sid == null) && (!StringUtils.isEmpty(msg.getSID())))
-				log.warn(String.format("Unknown SID - %s",msg.getSID()));
+				log.warn("Unknown SID - {}",msg.getSID());
 			else if ((sid != null) && !sid.getCode().equals(msg.getSID()))
 				msg.setSID(sid.getCode());
 			if ((star == null) && (!StringUtils.isEmpty(msg.getSTAR())))
-				log.warn(String.format("Unknown STAR - %s", msg.getSTAR()));
+				log.warn("Unknown STAR - {}", msg.getSTAR());
 			else if ((star != null) && !star.getCode().equals(msg.getSTAR()))
 				msg.setSTAR(star.getCode());
 			
@@ -228,7 +228,7 @@ public class InfoCommand extends ACARSCommand {
 				GetACARSRoute ardao = new GetACARSRoute(c);
 				DispatchRoute rt = ardao.getRoute(msg.getRouteID());
 				if (rt == null) {
-					log.warn(String.format("Invalid Dispatch Route ID - %d", Integer.valueOf(msg.getRouteID())));
+					log.warn("Invalid Dispatch Route ID - {}", Integer.valueOf(msg.getRouteID()));
 					msg.setRouteID(0);
 				}
 			}
@@ -238,10 +238,10 @@ public class InfoCommand extends ACARSCommand {
 				GetUserData uddao = new GetUserData(c);
 				UserData ud = uddao.get(msg.getDispatcherID());
 				if (ud == null) {
-					log.warn(String.format("Invalid Dispatcher ID - %d", Integer.valueOf(msg.getDispatcherID())));
+					log.warn("Invalid Dispatcher ID - {}", Integer.valueOf(msg.getDispatcherID()));
 					msg.setDispatcherID(0);
 				} else
-					log.info(String.format("Validated Dispatcher %d for %s", Integer.valueOf(ud.getID()), env.getOwnerID()));
+					log.info("Validated Dispatcher {} for {}", Integer.valueOf(ud.getID()), env.getOwnerID());
 			}
 			
 			// Validate the dispatch log
@@ -249,10 +249,10 @@ public class InfoCommand extends ACARSCommand {
 				GetACARSLog aldao = new GetACARSLog(c);
 				DispatchLogEntry dle = aldao.getDispatchLog(msg.getDispatchLogID());
 				if (dle == null) {
-					log.warn(String.format("Invalid Dispatch Log ID - %d", Integer.valueOf(msg.getDispatchLogID())));
+					log.warn("Invalid Dispatch Log ID - {}", Integer.valueOf(msg.getDispatchLogID()));
 					msg.setDispatchLogID(0);
 				} else
-					log.info(String.format("Validated Dispatch Log %d for %s", Integer.valueOf(dle.getID()), env.getOwnerID()));
+					log.info("Validated Dispatch Log {} for {}", Integer.valueOf(dle.getID()), env.getOwnerID());
 			}
 			
 			// Start a transaction
@@ -270,7 +270,7 @@ public class InfoCommand extends ACARSCommand {
 					if ((tx2 == null) || (tx2.getID() == usrLoc.getID()))
 						msg.setTX(tx.getCode());
 					else
-						log.warn(String.format("Squawk code %s already assigned", tx));
+						log.warn("Squawk code {} already assigned", tx);
 				}
 			}
 			
@@ -299,17 +299,17 @@ public class InfoCommand extends ACARSCommand {
 		} catch (DAOException de) {
 			ctx.rollbackTX();
 			msg.setFlightID(oldID);
-			log.error("Pilot = " + con.getUserID() + ", ID = " + oldID + ", RouteID = " + msg.getRouteID() + ", DispatcherID = " + msg.getDispatcherID());
-			log.error(de.getMessage(), de);
+			log.error("Pilot = {}, ID = {}, RouteID = {}, DispatcherID = {}", con.getUserID(), Integer.valueOf(oldID), Integer.valueOf(msg.getRouteID()), Integer.valueOf(msg.getDispatcherID()));
+			log.atError().withThrowable(de).log(de.getMessage());
 		} finally {
 			ctx.release();
 		}
 
 		// Log returned flight id
 		if (assignID)
-			log.info(String.format("Assigned Flight ID %d to %s", Integer.valueOf(msg.getFlightID()), env.getOwnerID()));
+			log.info("Assigned Flight ID {} to {}", Integer.valueOf(msg.getFlightID()), env.getOwnerID());
 		else
-			log.info(String.format("%s resuming Flight %d", env.getOwnerID(), Integer.valueOf(msg.getFlightID())));
+			log.info("{} resuming Flight {}", env.getOwnerID(), Integer.valueOf(msg.getFlightID()));
 
 		// Create the ack message and envelope - these are always acknowledged
 		ackMsg.setEntry("flight_id", String.valueOf(msg.getFlightID()));

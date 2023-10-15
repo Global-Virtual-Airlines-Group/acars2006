@@ -64,11 +64,11 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
            auth.init(Authenticator.DEFAULT_PROPS_FILE);
            SystemData.add(SystemData.AUTHENTICATOR, auth);
         } catch (ClassNotFoundException cnfe) {
-           log.error("Cannot find authenticator class " + authClass);
+           log.error("Cannot find authenticator class {}", authClass);
         } catch (SecurityException se) {
-           log.error("Error initializing authenticator - " + se.getMessage());
+           log.error("Error initializing authenticator - {}", se.getMessage());
         } catch (Exception ex) {
-           log.error("Error starting authenticator - " + ex.getClass().getName() + " - " + ex.getMessage());
+           log.error("Error starting authenticator - {} - {}", ex.getClass().getName(), ex.getMessage());
         }
  	}
 
@@ -86,9 +86,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	        jdbcPool.setDriver(SystemData.get("jdbc.driver"));
  	        jdbcPool.connect(SystemData.getInt("jdbc.pool_size"));
  	    } catch (ClassNotFoundException cnfe) {
- 	        log.error("Cannot load JDBC driver class - " + SystemData.get("jdbc.Driver"));
+ 	        log.error("Cannot load JDBC driver class - {}", SystemData.get("jdbc.Driver"));
  	    } catch (ConnectionPoolException cpe) {
- 	        log.error("Error connecting to JDBC data source - " + cpe.getCause().getMessage());
+ 	        log.error("Error connecting to JDBC data source - {}", cpe.getCause().getMessage());
  	    }
  	    
  	    SystemData.add(SystemData.JDBC_POOL, jdbcPool);
@@ -109,7 +109,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
             GetAirport dao = new GetAirport(c);
             SystemData.add("airports", dao.getAll());
  		} catch (Exception de) {
- 			log.error("Error loading Airports - " + de.getMessage());
+ 			log.error("Error loading Airports - {}", de.getMessage());
  		} finally {
  			pool.release(c);
  		}
@@ -155,7 +155,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  			t.setUncaughtExceptionHandler(this);
  			t.setDaemon(true);
  			_threads.put(t, w);
- 			log.debug("Starting " + w.getName());
+ 			log.debug("Starting {}", w.getName());
  			t.start();
  		}
  	}
@@ -168,7 +168,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		}
  		
  		// Log the error
- 		log.error(t.getName() + " error: " + e.getMessage(), e);
+ 		log.atError().withThrowable(e).log("{} error: {}", t.getName(), e.getMessage());
  		
  		// Get the worker and remove it
  		Worker w = _threads.get(t);

@@ -16,7 +16,7 @@ import org.deltava.dao.acars.SetSystemInfo;
 /**
  * An ACARS server command to handle client performance counter messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 8.6
  */
 
@@ -56,7 +56,7 @@ public class PerformanceCommand extends ACARSCommand {
 			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID()));
 		} catch (DAOException | IllegalArgumentException ex) {
 			if (ex instanceof DAOException)
-				log.error(ex.getMessage(), ex);
+				log.atError().withThrowable(ex).log(ex.getMessage());
 			
 			ctx.rollbackTX();
 			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), ex.getMessage(), true));

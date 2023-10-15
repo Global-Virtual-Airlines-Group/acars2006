@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 2.0
  */
 
@@ -54,7 +54,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			GetACARSBuilds abdao = new GetACARSBuilds(con);
 			if (!abdao.isDispatchAvailable(c)) {
 				ctx.release();
-				log.warn(c.getUser().getName() + " requesting Dispatch service using invalid build " + c.getClientBuild());	
+				log.warn("{} requesting Dispatch service using invalid build {}", c.getUser().getName(), Integer.valueOf(c.getClientBuild()));	
 
 				// Send response
 				SystemTextMessage txtMsg = new SystemTextMessage();
@@ -80,7 +80,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 					isOK &= msg.getAirportD().equals(fr.getAirportD());
 					isOK &= msg.getAirportA().equals(fr.getAirportA());
 					if (isOK) {
-						log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using draft PIREP");
+						log.info("Validated route {} to {} using draft PIREP", msg.getAirportD(), msg.getAirportA());
 						routeValid = true;
 					}
 				}
@@ -95,7 +95,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.PILOTEDGE, now, ud.getAirlineCode()).isEmpty();
 				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.POSCON, now, ud.getAirlineCode()).isEmpty();
 				if (routeValid)
-					log.info("Validated route " + msg.getAirportD() + " to " + msg.getAirportA() + " using Online Event");
+					log.info("Validated route {} to {} using Online Event", msg.getAirportD(), msg.getAirportD());
 			}
 			
 			// Set the route validated flag
@@ -141,7 +141,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 			helper.populateRoutes();
 			helper.getRoutes().stream().filter(PopulatedRoute.class::isInstance).map(PopulatedRoute.class::cast).forEach(plans::add);
 		} catch (DAOException de) {
-			log.error("Cannot validate/load route - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannot validate/load route - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot validate route - " + de.getMessage()));
 		} finally {
 			ctx.release();
@@ -155,16 +155,16 @@ public class ServiceRequestCommand extends DispatchCommand {
 				int distance = ac.getLocation().distanceTo(msg);
 				boolean sameAirline = ac.getUserData().getAirlineCode().equals(c.getUserData().getAirlineCode());
 				if (ac.getUser().getID() == c.getUser().getID())
-					log.warn(c.getUserID() + " attempting self dispatch");
+					log.warn("{} attempting self dispatch", c.getUserID());
 				else if (!sameAirline)
-					log.info("Ignorning " + ac.getUserID() + ", different airline");
+					log.info("Ignorning {}, different airline", ac.getUserID());
 				else if (distance <= ac.getRange()) {
 					reqsSent++;
 					ctx.push(msg, ac.getID(), true);
-					log.info("Dispatch service request " + msg.getID() + " sent to " + ac.getUserID() + " " + ac.getID());
+					log.info("Dispatch service request {} send to {} {}", Long.valueOf(msg.getID()), ac.getUserID(), Long.valueOf(ac.getID()));
 				} else {
 					outOfRange++;
-					log.info("Dispatch service request not sent to " + ac.getUserID() + ", distance=" + distance);
+					log.info("Dispatch service request not sent to {}, distance={}", ac.getUserID(), Integer.valueOf(distance));
 				}
 			}
 		}

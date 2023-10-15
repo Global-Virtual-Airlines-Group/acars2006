@@ -78,11 +78,11 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 				
 				if (!_queueBackup && queueBackup) {
 					_queueBackup = true;
-					log.error("Queue appears backed up, size = " + size);
+					log.error("Queue appears backed up, size = {}", Integer.valueOf(size));
 					for (Map.Entry<Integer, LatencyWorkerStatus> e : _status.entrySet())
-						log.error("Worker " + e.getKey() + " = " + e.getValue().getMessage());
+						log.error("Worker {} = {}", e.getKey(), e.getValue().getMessage());
 				} else if (((now - _lastEntryTime) > 2500) && (size > 3)) 
-					log.warn("Thread pool full - queueing entry #" + size);
+					log.warn("Thread pool full - queueing entry #{}", Integer.valueOf(size));
 				else
 					_queueBackup &= queueBackup;
 				
@@ -150,7 +150,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 		
 		// Log thread startup
 		if (pt.isNew()) {
-			log.info("Spawning thread " + pt.getName());
+			log.info("Spawning thread {}", pt.getName());
 			pt.setDeathHandler(this);
 			ws.clear();
 		}
@@ -187,7 +187,7 @@ public class QueueingThreadPool extends ThreadPoolExecutor implements PoolWorker
 	public void workerTerminated(PoolWorkerFactory.PoolThread pt, Throwable e) {
 		_tFactory.removeID(pt.getID());
 		if (e != null)
-			log.error(pt.getName() + " - "  + e.getMessage(), e);
+			log.atError().withThrowable(e).log("{} - {}", pt.getName(), e.getMessage());
 		else
 			log.info("{} shut down", pt.getName());
 	}

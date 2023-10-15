@@ -183,7 +183,7 @@ public class LogicProcessor extends Worker {
 			_status.add(msgLatency);
 			msgLatency = TimeUnit.MILLISECONDS.convert(msgLatency, TimeUnit.NANOSECONDS);
 			if (msgLatency > 500)
-				log.warn(_reqType + " from " + _env.getOwnerID() + " has " + msgLatency + "ms latency");
+				log.warn("{} from {} has {}ms latency", _reqType, _env.getOwnerID(), Long.valueOf(msgLatency));
 
 			// Initialize the command context and execute the command
 			CommandContext ctx = new CommandContext(_pool, _env, _status);
@@ -196,7 +196,8 @@ public class LogicProcessor extends Worker {
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 			stats.success(execTime, ctx.getBackEndTime());
 			NewRelic.recordResponseTimeMetric(_cmd.getClass().getSimpleName(), execTime);
-			if (execTime > _cmd.getMaxExecTime()) log.warn(_cmd.getClass().getName() + " completed in " + execTime + "ms");
+			if (execTime > _cmd.getMaxExecTime())
+				log.warn("{} completed in {}ms", _cmd.getClass().getName(), Long.valueOf(execTime));
 
 			// Instrumentation
 			NewRelic.setRequestAndResponse(new SyntheticRequest(_reqType, _env.getOwnerID()), new SyntheticResponse());
@@ -221,7 +222,7 @@ public class LogicProcessor extends Worker {
 		} catch (InterruptedException ie) {
 			// empty
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.atError().withThrowable(e).log(e.getMessage());
 		}
 
 		super.close();
@@ -244,24 +245,23 @@ public class LogicProcessor extends Worker {
 				while (env != null) {
 					_status.setMessage("Processing Message");
 					Message msg = env.getMessage(); String reqType = msg.getType().getDescription();
-					if (log.isDebugEnabled())
-						log.debug(reqType + " message from " + env.getOwnerID());
+					log.debug("{} message from {}", reqType, env.getOwnerID());
 
 					ACARSCommand cmd = null;
 					if (msg instanceof SubRequestMessage srmsg) {
 						cmd = _subCommands.get(srmsg.getRequestType());
 						reqType = srmsg.getRequestType().getCode();
 						if (cmd != null) {
-							log.info("Data Request (" + reqType + ") from " + env.getOwnerID());
+							log.info("Data Request ({}) from {}", reqType, env.getOwnerID());
 							_cmdPool.execute(new CommandWorker(env, cmd, reqType));
 						} else
-							log.warn("No " + srmsg.getRequestType().getType() + " Command for " + reqType + " request");
+							log.warn("No {} Command for {} request", srmsg.getRequestType().getType(), reqType);
 					} else {
 						cmd = _commands.get(msg.getType());
 						if (cmd != null)
 							_cmdPool.execute(new CommandWorker(env, cmd, reqType));
 						else
-							log.warn("No command for " + reqType + " message");
+							log.warn("No command for {} message", reqType);
 					}
 
 					env = MSG_INPUT.poll();
@@ -269,7 +269,7 @@ public class LogicProcessor extends Worker {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error("Error Processing Message - " + e.getMessage(), e);
+				log.atError().withThrowable(e).log("Error Processing Message - {}", e.getMessage());
 			} finally {
 				_status.complete();				
 			}

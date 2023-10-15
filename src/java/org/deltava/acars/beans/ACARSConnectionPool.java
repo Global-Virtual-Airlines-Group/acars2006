@@ -272,7 +272,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 
 			// Have we exceeded the timeout interval
 			if (idleTime > timeout) {
-				log.warn(con.getUserID() + " logged out after " + idleTime + "ms of inactivity");
+				log.warn("{} logged out after {}ms of inactivity", con.getUserID(), Long.valueOf(idleTime));
 				con.setMuted(con.isVoiceEnabled());
 				con.close();
 				remove(con);
@@ -378,7 +378,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					String srcAddr = NetworkUtils.getSourceAddress(ch.getRemoteAddress());
 					con = _conLookup.get(srcAddr);
 				} catch (IOException ie) {
-					log.error("Error fetching remote address - " + sKey.channel());
+					log.error("Error fetching remote address - {}", sKey.channel());
 				} finally {
 					_r.unlock();
 				}
@@ -406,7 +406,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					}
 				} else {
 					try {
-						log.warn("Cannot read from unknown source address " + sKey.channel());
+						log.warn("Cannot read from unknown source address {}", sKey.channel());
 						sKey.channel().close();
 					} catch (IOException ie) {
 						// empty

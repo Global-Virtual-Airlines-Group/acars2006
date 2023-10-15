@@ -42,7 +42,7 @@ public class EndFlightCommand extends ACARSCommand {
 		// Get the current info
 		InfoMessage iMsg = con.getFlightInfo();
 		if (iMsg == null) {
-			log.warn("No Flight Information for " + con.getUserID());
+			log.warn("No Flight Information for {}", con.getUserID());
 			ackMsg.setEntry("sendInfo", "true");
 			ctx.push(ackMsg);
 			return;
@@ -61,13 +61,13 @@ public class EndFlightCommand extends ACARSCommand {
 			SetInfo infoDAO = new SetInfo(ctx.getConnection());
 			infoDAO.close(iMsg.getFlightID(), true);
 		} catch (DAOException de) {
-			log.error(de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error ending Flihgt - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}
 		
 		// Clear flight info and log
-		log.info("Flight Completed by " + con.getUserID());
+		log.info("Flight Completed by {}", con.getUserID());
 		con.setPosition(null);
 		ctx.push(ackMsg);
 	}

@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2010, 2016, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2010, 2016, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import org.deltava.beans.*;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to display Navigation Data information.  
  * @author Luke
- * @version 10.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -75,7 +75,7 @@ public class NavaidCommand extends DataCommand {
 				ctx.push(rspMsg);
 			}
 		} catch (DAOException de) {
-			log.error("Error loading navaid " + id + " - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading navaid {} - {}", id, de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load navaid " + msg.getFlag("id") + " - " + de.getMessage()));
 		} finally {
 			ctx.release();

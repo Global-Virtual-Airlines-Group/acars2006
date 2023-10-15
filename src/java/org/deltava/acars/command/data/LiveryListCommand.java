@@ -1,4 +1,4 @@
-// Copyright 2008, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2016, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available multi-player livery data.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 2.2
  */
 
@@ -43,7 +43,7 @@ public class LiveryListCommand extends DataCommand {
 			lmsg.addAll(results);
 			ctx.push(lmsg);
 		} catch (DAOException de) {
-			log.error("Error loading MP liveries - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading MP liveries - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load liveries - " + de.getMessage()));
 		} finally {
 			ctx.release();
