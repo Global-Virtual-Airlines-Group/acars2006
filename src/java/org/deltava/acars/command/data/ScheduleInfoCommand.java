@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2008, 2009, 2010, 2011, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.sql.Connection;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to search the Flight Schedule.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 1.0
  */
 
@@ -70,7 +70,7 @@ public class ScheduleInfoCommand extends DataCommand {
 			rspMsg.addAll(sdao.search(sc));
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error searching Schedule - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error searching Schedule - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot search Flight Schedule - " + de.getMessage()));
 		} finally {
 			ctx.release();

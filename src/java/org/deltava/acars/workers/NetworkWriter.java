@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 7.4
+ * @version 11.1
  * @since 1.0
  */
 
@@ -91,7 +91,7 @@ public class NetworkWriter extends Worker {
 		} catch (InterruptedException ie) {
 			log.warn("Interrupted Pool Termination");
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.atError().withThrowable(e).log(e.getMessage());
 		} finally {
 			super.close();
 		}
@@ -133,7 +133,7 @@ public class NetworkWriter extends Worker {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 			}
 		}
 	}

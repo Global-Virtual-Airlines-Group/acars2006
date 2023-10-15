@@ -178,7 +178,7 @@ public class PositionCommand extends PositionCacheCommand {
 		try {
 			flush(false, ctx);
 		} catch (Exception e) {
-			log.error("Error flushing positions - " + e.getMessage(), e);
+			log.atError().withThrowable(e).log("Error flushing positions - {}", e.getMessage());
 		}
 	}
 }

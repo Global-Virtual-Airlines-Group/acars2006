@@ -41,7 +41,7 @@ public class QuitCommand extends ACARSCommand {
 				SetInfo infoDAO = new SetInfo(ctx.getConnection());
 				infoDAO.close(msg.getFlightID(), false);
 			} catch (DAOException de) {
-				log.error(de.getMessage(), de);
+				log.atError().withThrowable(de).log(de.getMessage());
 			} finally {
 				ctx.release();
 			}

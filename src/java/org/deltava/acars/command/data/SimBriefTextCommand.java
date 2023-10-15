@@ -13,7 +13,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to return SimBrief briefing packages.
  * @author Luke
- * @version 10.4
+ * @version 11.1
  * @since 10.3
  */
 
@@ -43,7 +43,7 @@ public class SimBriefTextCommand extends DataCommand {
 			ackMsg.setEntry("pkg", pkg.getBriefingText());
 			ctx.push(ackMsg);
 		} catch (DAOException de) {
-			log.error("Error loading briefing package - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading briefing package - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

@@ -93,7 +93,7 @@ public class RouteRequestCommand extends DispatchCommand {
 				rmsg.setMessage("Loaded " + rmsg.getPlans().size() + " Dispatch routes from database");
 			ctx.push(rmsg);
 		} catch (DAOException de) {
-			log.error("Cannot load route data - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannot load route data - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load route data - " + de.getMessage()));
 		} finally {
 			ctx.release();

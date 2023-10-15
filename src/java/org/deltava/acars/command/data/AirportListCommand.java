@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2010, 2011, 2016, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2010, 2011, 2016, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available Airport data.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 1.0
  */
 
@@ -51,7 +51,7 @@ public class AirportListCommand extends DataCommand {
 			dao.getEventAirports().forEach(a -> addAirportCodes(aps, a));
 			airports.addAll(aps.values());
 		} catch (DAOException de) {
-			log.error("Cannot load airports - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannot load airports - {}", de.getMessage());
 			Map<?, ?> allAirports = (Map<?, ?>) SystemData.getObject("airports");
 			allAirports.values().stream().map(Airport.class::cast).forEach(airports::add);
 		} finally {

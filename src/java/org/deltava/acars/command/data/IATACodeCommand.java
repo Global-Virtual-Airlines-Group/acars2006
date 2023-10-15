@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.acars.message.data.IATACodeMessage;
 /**
  * An ACARS Command to return a list of IATA aircraft codes.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 5.1
  */
 
@@ -63,7 +63,7 @@ public class IATACodeCommand extends DataCommand {
 			rspMsg.addAll(codes.values());
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading FDE codes - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading FDE codes - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

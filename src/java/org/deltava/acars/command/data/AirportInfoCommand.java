@@ -102,7 +102,7 @@ public class AirportInfoCommand extends DataCommand {
 				ctx.push(msgA);
 			}
 		} catch (DAOException de) {
-			log.error("Error getting Airport information - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error getting Airport information - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot fetch Airport info - " + de.getMessage()));
 		} finally {
 			ctx.release();

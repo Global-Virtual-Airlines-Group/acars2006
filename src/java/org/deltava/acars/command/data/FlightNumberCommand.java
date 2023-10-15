@@ -83,7 +83,7 @@ public class FlightNumberCommand extends DataCommand {
 				}
 			}
 		} catch (DAOException de) {
-			log.error("Error searching Schedule - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error searching Schedule - {}", de.getMessage());
 			rspMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
 		} finally {
 			ctx.release();

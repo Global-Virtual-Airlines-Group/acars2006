@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 10.6
+ * @version 11.1
  * @since 2.3
  */
 
@@ -67,7 +67,7 @@ public class FlightValidationCommand extends DataCommand {
 					ETOPS ae = (opts == null) ? ETOPS.ETOPS90 : opts.getETOPS();
 					rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.isWarn(ae, re)));	
 				} else
-					log.warn(String.format("Unknown Aircraft - %s", msg.getFlag("eqType")));
+					log.warn("Unknown Aircraft - {}", msg.getFlag("eqType"));
 			} else
 				rspMsg.setEntry("etopsWarn", String.valueOf(ETOPSHelper.isWarn(ETOPS.ETOPS90, re)));
 
@@ -114,7 +114,7 @@ public class FlightValidationCommand extends DataCommand {
 				rspMsg.setEntry("dispatchRoutes", String.valueOf(dRoutes));
 			}
 		} catch (DAOException de) {
-			log.error("Error searching Schedule - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error searching Schedule - {}", de.getMessage());
 			rspMsg.setEntry("error", "Cannot search Flight Schedule - " + de.getMessage());
 		} finally {
 			ctx.release();

@@ -121,7 +121,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				String remoteAddr = ctx.getACARSConnection().getRemoteAddr();
 				boolean isDSP = (isDispatch || ac2.getIsDispatch());
 				if (!isDSP) {
-					log.warn(String.format("%s (%s) already logged in from %s, closing existing connection from %s", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr));
+					log.warn("{} ({}) already logged in from {}, closing existing connection from {}", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr);
 					ac2.close();
 					ctx.getACARSConnectionPool().remove(ac2);
 					
@@ -129,7 +129,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					SetConnection dao = new SetConnection(c);
 					dao.closeConnection(ac2.getID());
 				} else
-					log.warn(String.format("Dispatcher %s (%s) already logged in from %s, logging in from %s", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr));
+					log.warn("Dispatcher {} ({}) already logged in from {}, logging in from {}", usr.getName(), code, ac2.getRemoteAddr(), remoteAddr);
 			}
 		} catch (SecurityException se) {
 			log.warn("Authentication Failure for " + msg.getUserID());
@@ -146,7 +146,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.push(errMsg);
 			usr = null;
 		} catch (ACARSException ae) {
-			log.warn(msg.getUserID() + " - " + ae.getMessage());	
+			log.warn("{} - {}", msg.getUserID(), ae.getMessage());	
 			ctx.push(new AcknowledgeMessage(null, msg.getID(), ae.getMessage()));
 		} catch (DAOException de) {
 			usr = null;
@@ -159,7 +159,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("Authentication Failed - %s", de.getMessage())));
 		} catch (Exception e) {
 			usr = null;
-			log.error(String.format("Error loading %s - %s", msg.getUserID(), e.getMessage()), e);
+			log.atError().withThrowable(e).log("Error loading {} - {}", msg.getUserID(), e.getMessage());
 			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("Authentication Failed - %s", e.getMessage())));
 		} finally {
 			ctx.release();
@@ -173,7 +173,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		// Calculate the difference in system times, assume 500ms latency - don't allow logins if over 4h off
 		Duration td = Duration.between(msg.getClientUTC(), Instant.now().plusMillis(500));
 		if (td.abs().toSeconds() > 14400) {
-			log.error(String.format("Cannot authenticate %s - system clock %d seconds off", usr.getName(), Long.valueOf(td.toSeconds())));
+			log.warn("Cannot authenticate {} - system clock {} seconds off", usr.getName(), Long.valueOf(td.toSeconds()));
 
 			// Convert times to client date/time
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(msg.getClientUTC(), usr.getTZ().getZone());
@@ -181,7 +181,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			ctx.push(new AcknowledgeMessage(null, msg.getID(), String.format("It is now %s. Your system clock is set to %s (%d seconds off)", zdn, zdt, Long.valueOf(td.toSeconds()))));
 			return;
 		} else if (td.abs().toSeconds() > 900)
-			log.warn(String.format("%s system clock %d seconds off", usr.getName(), Long.valueOf(td.toSeconds())));
+			log.warn("{} system clock {} seconds off", usr.getName(), Long.valueOf(td.toSeconds()));
 
 		// Log the user in
 		con.setUser(usr);
@@ -283,10 +283,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			// Add the user again so they are registered with this user ID
 			ctx.getACARSConnectionPool().add(con);
 		} catch (ACARSException ae) {
-			log.error(String.format("Error logging connection - %s", ae.getMessage()));
+			log.error("Error logging connection - {}", ae.getMessage());
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error(String.format("Error logging connection - %s", de.getMessage()), de);
+			log.atError().withThrowable(de).log("Error logging connection - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

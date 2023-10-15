@@ -20,7 +20,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to disconnect a user from the ACARS server.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 8.7
  */
 
@@ -44,7 +44,7 @@ public class KickCommand extends ACARSCommand {
 		// Load the user
 		ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
 		if (ac == null) {
-			log.warn("Unknown user - " + msg.getRecipient());
+			log.warn("Unknown user - {}", msg.getRecipient());
 			ctx.push(new AcknowledgeMessage(ctx.getUser(), msg.getID(), "Unknown user - " + msg.getRecipient()));
 			return;
 		}
@@ -85,10 +85,10 @@ public class KickCommand extends ACARSCommand {
 				SetPilot pwdao = new SetPilot(con);
 				pwdao.write(p, ac.getUserData().getDB());
 			} else
-				log.warn("Cannot update Pilot record for " + ac.getUser().getName());
+				log.warn("Cannot update Pilot record for {}", ac.getUser().getName());
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error("Cannot log KICK - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannot log KICK - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

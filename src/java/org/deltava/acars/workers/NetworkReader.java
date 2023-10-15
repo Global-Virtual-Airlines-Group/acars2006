@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017, 2019 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 8.7
+ * @version 11.1
  * @since 1.0
  */
 
@@ -92,7 +92,7 @@ public class NetworkReader extends Worker {
 				log.warn("Interrupted");
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.warn("Error on select - " + e.getMessage(), e);
+				log.atWarn().withThrowable(e).log("Error on select - {}" + e.getMessage());
 			}
 			
 			// Wait in case we just added a new connection
@@ -107,7 +107,7 @@ public class NetworkReader extends Worker {
 				// Do select time
 				long selectTime = System.currentTimeMillis();
 				if ((selectTime  - lastExecTime) > 1500)
-					log.warn("Excessive select time - " + (selectTime - lastExecTime) + "ms (" + _pool.size() + " connections)");
+					log.warn("Excessive select time - {}ms ({} connections)", Long.valueOf(selectTime - lastExecTime), Integer.valueOf(_pool.size()));
 				
 				// Write messages
 				if (!msgs.isEmpty())
@@ -120,11 +120,9 @@ public class NetworkReader extends Worker {
 					Collection<Long> conIDs = new HashSet<Long>();
 					for (Iterator<ACARSConnection> ic = disCon.iterator(); ic.hasNext();) {
 						ACARSConnection con = ic.next();
-						log.info("Connection " + StringUtils.formatHex(con.getID()) + " (" + con.getRemoteAddr() + ") disconnected");
+						log.info("Connection {} ({}) disconnected", StringUtils.formatHex(con.getID()), con.getRemoteAddr());
 						if (con.isAuthenticated()) {
-							if (log.isDebugEnabled())
-								log.debug("QUIT Message from " + con.getUser().getName());
-								
+							log.debug("QUIT Message from {}", con.getUser().getName());
 							conIDs.add(Long.valueOf(con.getID()));
 							MSG_INPUT.add(new MessageEnvelope(new QuitMessage(con), con.getID()));
 						}
@@ -136,7 +134,7 @@ public class NetworkReader extends Worker {
 					// Check execution time
 					long execTime = System.currentTimeMillis() - selectTime;
 					if (execTime > 2500)
-						log.warn("Excessive disconnection logging time - " + execTime + "ms (" + _pool.size() + " connections)");
+						log.warn("Excessive disconnection logging time - {}ms ({} connections)", Long.valueOf(execTime), Integer.valueOf(_pool.size()));
 				}
 			}
 			
@@ -156,7 +154,7 @@ public class NetworkReader extends Worker {
 			SetConnection dao = new SetConnection(con);
 			dao.closeConnections(ids);
 		} catch (Exception e) {
-			log.error("Error logging closed Connections - " + e.getMessage(), e);
+			log.atError().withThrowable(e).log("Error logging closed Connections - {}", e.getMessage());
 		} finally {
 			_cPool.release(con);
 		}

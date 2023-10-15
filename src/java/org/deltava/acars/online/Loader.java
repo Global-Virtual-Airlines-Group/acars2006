@@ -17,7 +17,7 @@ import org.deltava.util.cache.*;
 /**
  * An abstract class for common Online Network status loader tasks. 
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 9.0
  */
 
@@ -109,13 +109,12 @@ public abstract class Loader implements Runnable {
 		try {
 			execute();
 		} catch (HTTPDAOException hde) {
-			log.error("Error " + hde.getStatusCode() + " loading " + hde.getMessage());
+			log.error("Error {} loading {}", Integer.valueOf(hde.getStatusCode()), hde.getMessage());
 		} catch (Exception e) {
-			boolean isTimeout = e.getCause() instanceof java.net.SocketTimeoutException;
-			if (isTimeout)
-				log.warn("Timeout loading " + _network + " data");
+			if (e.getCause() instanceof java.net.SocketTimeoutException)
+				log.warn("Timeout loading {} data", _network);
 			else
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 		}
 	}
 }

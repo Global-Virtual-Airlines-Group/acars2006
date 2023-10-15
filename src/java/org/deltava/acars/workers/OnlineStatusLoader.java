@@ -21,7 +21,7 @@ import org.gvagroup.jdbc.ConnectionPool;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 10.4
+ * @version 11.1
  * @since 9.0
  */
 
@@ -102,7 +102,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 								for (Loader l : tasks)
 									twdao.writePull(l.getNetwork(), l.getLastUpdate());
 							} catch (DAOException de) {
-								log.error("Error writing update times - " + de.getMessage(), de);
+								log.atError().withThrowable(de).log("Error writing update times - {}", de.getMessage());
 							} finally {
 								_jdbcPool.release(c);
 							}
@@ -114,7 +114,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
 				} catch (Exception e) {
-					log.error(e.getMessage(), e);
+					log.atError().withThrowable(e).log(e.getMessage());
 				}
 			}
 		}
@@ -122,6 +122,6 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		log.error(t.getName() + " Error - " + e.getMessage(), e);
+		log.atError().withThrowable(e).log("{} Error - {}", t.getName(), e.getMessage());
 	}
 }

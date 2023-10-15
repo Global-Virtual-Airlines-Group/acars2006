@@ -58,7 +58,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Clear shared data
 		String code = SystemData.get("airline.code");
 		SharedData.purge(code);
-		log.error(String.format("Shut down %s", code));
+		log.error("Shut down {}", code);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 				sm.getKeys().forEach(k -> SystemData.add(k, sm.get(k)));
 				log.info(String.format("Loaded %d secrets from %s", Integer.valueOf(sm.size()), SystemData.get("security.secrets")));
 			} catch (IOException ie) {
-				log.error("Error loading secrets - " + ie.getMessage(), ie);
+				log.atError().withThrowable(ie).log("Error loading secrets - {}", ie.getMessage());
 			}
 		}
 		
@@ -102,9 +102,9 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			JMXUtils.register("org.gvagroup:type=JDBCPool,name=" + code, jmxpool);
 			SharedWorker.register(new JMXRefreshTask(jmxpool, 60000));
 		} catch (ClassNotFoundException cnfe) {
-			log.error("Cannot load JDBC driver class - " + SystemData.get("jdbc.Driver"));
+			log.error("Cannot load JDBC driver class - {}", SystemData.get("jdbc.Driver"));
 		} catch (ConnectionPoolException cpe) {
-			log.error("Error connecting to JDBC data source - " + cpe.getCause().getMessage(), cpe.getCause());
+			log.error("Error connecting to JDBC data source - {}", cpe.getCause().getMessage(), cpe.getCause());
 		}
 		
 		// Save the connection pool in the SystemData
@@ -118,7 +118,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
 			CacheLoader.load(is);
 		} catch(IOException ie) {
-			log.warn("Cannot configure caches from code - " + ie.getMessage());
+			log.warn("Cannot configure caches from code - {}", ie.getMessage());
 		}
 
 		// Load caches into JMX
@@ -137,11 +137,11 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			auth.init(Authenticator.DEFAULT_PROPS_FILE);
 			SystemData.add(SystemData.AUTHENTICATOR, auth);
 		} catch (ClassNotFoundException cnfe) {
-			log.error("Cannot find authenticator class " + authClass);
+			log.error("Cannot find authenticator class {}", authClass);
 		} catch (SecurityException se) {
-			log.error("Error initializing authenticator - " + se.getMessage());
+			log.error("Error initializing authenticator - {}", se.getMessage());
 		} catch (Exception ex) {
-			log.error("Error starting authenticator - " + ex.getClass().getName() + " - " + ex.getMessage());
+			log.error("Error starting authenticator - {} - {}", ex.getClass().getName(), ex.getMessage());
 		}
 		
 		// Load data from the database
@@ -183,7 +183,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			GetAirspace asdao = new GetAirspace(c);
 			Airspace.init(asdao.getRestricted());
 		} catch (Exception ex) {
-			log.error("Error retrieving data - " + ex.getMessage(), ex);
+			log.atError().withThrowable(ex).log("Error retrieving data - {}", ex.getMessage());
 		} finally {
 			_jdbcPool.release(c);
 		}
@@ -221,12 +221,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	public void uncaughtException(Thread t, Throwable e) {
 		Runnable r = _daemons.get(t);
 		if (r == null) {
-			log.warn("Unknown Thread - " + t.getName());
+			log.warn("Unknown Thread - {}", t.getName());
 			return;
 		}
 		
 		// Log the error
-		log.error(e.getMessage(), e);
+		log.atError().withThrowable(e).log(e.getMessage());
 		
 		// Spawn a new daemon
 		Thread nt = Thread.ofVirtual().name(r.toString()).unstarted(r);

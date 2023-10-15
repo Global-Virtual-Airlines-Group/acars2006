@@ -23,7 +23,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS server command to execute system administration tasks.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -61,11 +61,11 @@ public class DiagnosticCommand extends ACARSCommand {
 				if (acon != null)
 					cons.add(acon);
 				else
-					log.warn("Cannot kick " + msg.getRequestData());
+					log.warn("Cannot kick {}", msg.getRequestData());
 				
 				for (Iterator<ACARSConnection> i = cons.iterator(); i.hasNext();) {
 					ACARSConnection ac = i.next();
-					log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+					log.warn("Connection {} ({}) KICKED by {}", StringUtils.formatHex(ac.getID()), ac.getUserID(), env.getOwnerID());
 					
 					// Tell the client not to reconnect
 					ctx.push(msg, ac.getID(), true);
@@ -105,9 +105,9 @@ public class DiagnosticCommand extends ACARSCommand {
 							SetPilot pwdao = new SetPilot(con);
 							pwdao.write(p, ud.getDB());
 						} else
-							log.warn("Cannot update Pilot record for " + usr.getName());
+							log.warn("Cannot update Pilot record for {}", usr.getName());
 					} catch (DAOException de) {
-						log.error("Cannot log KICK - " + de.getMessage(), de);
+						log.atError().withThrowable(de).log("Cannot log KICK - {}", de.getMessage());
 					} finally {
 						ctx.release();
 					}
@@ -127,11 +127,11 @@ public class DiagnosticCommand extends ACARSCommand {
 				}
 				
 				// Kick any connections from this address
-				log.warn("Address " + msg.getRequestData() + " BLOCKED by " + env.getOwnerID());
+				log.warn("Address {} BLOCKED by {}", msg.getRequestData(), env.getOwnerID());
 				for (Iterator<ACARSConnection> i = cPool.getAll().iterator(); i.hasNext(); ) {
 					ACARSConnection ac = i.next();
 					if (ac.getRemoteAddr().equals(msg.getRequestData())) {
-						log.warn("Connection " + StringUtils.formatHex(ac.getID()) + " (" + ac.getUserID() + ") KICKED by " + env.getOwnerID());
+						log.warn("Connection {} ({}) KICKED by {}", StringUtils.formatHex(ac.getID()), ac.getUserID(), env.getOwnerID());
 						
 						// Tell the client not to reconnect
 						ctx.push(msg, ac.getID(), true);
@@ -171,9 +171,9 @@ public class DiagnosticCommand extends ACARSCommand {
 								SetPilot pwdao = new SetPilot(con);
 								pwdao.write(p, ud.getDB());
 							} else
-								log.warn("Cannot update Pilot record for " + usr.getName());
+								log.warn("Cannot update Pilot record for {}", usr.getName());
 						} catch (DAOException de) {
-							log.error("Cannot log BLOCK - " + de.getMessage(), de);
+							log.atError().withThrowable(de).log("Cannot log BLOCK - {}", de.getMessage());
 						} finally {
 							ctx.release();
 						}
@@ -231,7 +231,7 @@ public class DiagnosticCommand extends ACARSCommand {
 							}
 						}
 					} catch (DAOException de) {
-						log.error("Cannot send content notification - " + de.getMessage(), de);
+						log.atError().withThrowable(de).log("Cannot send content notification - {}", de.getMessage());
 					} finally {
 						ctx.release();
 					}
@@ -240,7 +240,7 @@ public class DiagnosticCommand extends ACARSCommand {
 				break;
 				
 			default:
-				log.error("Unsupported Diagnostic Message - " + msg.getRequestType());
+				log.error("Unsupported Diagnostic Message - {}", msg.getRequestType());
 		}
 	}
 }

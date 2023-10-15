@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An object to handle TCP control connections.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 4.0
  */
 
@@ -249,13 +249,13 @@ public class TCPChannel extends ACARSChannel<String> {
 
 			_stats.addMessageOut();
 		} catch (ClosedSelectorException cse) {
-			log.info("Cannot write to " + getRemoteAddr() + " - selector closed");
+			log.info("Cannot write to {} - selector closed", getRemoteAddr());
 		} catch (AsynchronousCloseException ace) {
-			log.warn("Connection for " + getRemoteAddr() + " closed during write");
+			log.warn("Connection for {} closed during write", getRemoteAddr());
 		} catch (IOException ie) {
-			log.warn("Error writing to channel for " + getRemoteAddr() + " - " + ie.getMessage());
+			log.warn("Error writing to channel for {} - {}", getRemoteAddr(), ie.getMessage());
 		} catch (Exception e) {
-			log.error("Error writing to socket " + getRemoteAddr() + " - " + e.getMessage(), e);
+			log.atError().withThrowable(e).log("Error writing to socket {} - {}", getRemoteAddr(), e.getMessage());
 		}
 
 		// Update statistics

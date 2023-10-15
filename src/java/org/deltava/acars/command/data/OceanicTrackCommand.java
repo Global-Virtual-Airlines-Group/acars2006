@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2016, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.time.Instant;
@@ -17,7 +17,7 @@ import org.deltava.acars.message.data.OceanicTrackMessage;
 /**
  * An ACARS data command to return available NAT and PACOT data.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 2.2
  */
 
@@ -37,7 +37,7 @@ public class OceanicTrackCommand extends DataCommand {
 		try {
 			rType = OceanicTrackInfo.Type.valueOf(msg.getFlag("type").toUpperCase());
 		} catch (Exception e) {
-			log.warn("Unknown Oceanic Route type - " + msg.getFlag("type"));
+			log.warn("Unknown Oceanic Route type - {}", msg.getFlag("type"));
 		}
 		
 		// Get the date
@@ -55,7 +55,7 @@ public class OceanicTrackCommand extends DataCommand {
 			
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading " + rType + " tracks for " + msg.getFlag("date") + " - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading {} tracks for {} - {}", rType, msg.getFlag("date"), de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load " + msg.getFlag("date") + " " + rType + " data"));
 		} finally {
 			ctx.release();

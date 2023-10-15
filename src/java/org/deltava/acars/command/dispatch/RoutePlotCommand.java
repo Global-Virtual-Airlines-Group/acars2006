@@ -1,4 +1,4 @@
-// Copyright 2010, 2015, 2016, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2015, 2016, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -122,7 +122,7 @@ public class RoutePlotCommand extends DispatchCommand {
 			msg.setResults(rt);
 			ctx.push(msg);
 		} catch (DAOException de) {
-			log.error("Cannot plot route - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannot plot route - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot plot route"));
 		} finally {
 			ctx.release();

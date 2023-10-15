@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2016, 2017, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2016, 2017, 2018, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Worker to translate XML messages into Java objects.
  * @author Luke
- * @version 8.4
+ * @version 11.1
  * @since 1.0
  */
 
@@ -51,7 +51,7 @@ public final class InputTranslator extends Worker {
 				Class<?> pClass = Class.forName(pkg + ".parse.Parser");
 				_parsers.put(Integer.valueOf(version.substring(1)), (MessageParser) pClass.getDeclaredConstructor().newInstance());
 			} catch (Exception e) {
-				log.error("Error loading " + version + " Message Parser", e);
+				log.atError().withThrowable(e).log("Error loading {} Message Parser", version);
 			}
 		}
 	}
@@ -70,8 +70,7 @@ public final class InputTranslator extends Worker {
 				_status.execute();
 				while (env != null) {
 					_status.setMessage("Translating Message from " + env.getOwnerID());
-					if (log.isDebugEnabled())
-						log.debug("Message received from " + env.getOwnerID());
+					log.debug("Message received from {}", env.getOwnerID());
 				
 					// Get the proper message parser
 					MessageParser parser = _parsers.get(Integer.valueOf(env.getVersion()));
@@ -83,7 +82,7 @@ public final class InputTranslator extends Worker {
 								MSG_INPUT.add(new MessageEnvelope(msg, env.getConnectionID()));
 						}
 					} catch (Exception e) {
-						log.warn("Translation Error - " + e.getMessage(), e);
+						log.atWarn().withThrowable(e).log("Translation Error - {}", e.getMessage());
 					}
 					
 					env = RAW_INPUT.poll();
@@ -91,7 +90,7 @@ public final class InputTranslator extends Worker {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				log.atError().withThrowable(e).log(e.getMessage());
 			}
 			
 			_status.complete();

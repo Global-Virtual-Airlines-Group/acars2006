@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * A network information loader for VATSIM.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 9.0
  */
 
@@ -51,7 +51,7 @@ public class VATSIMLoader extends Loader {
 				urldao.setCompression(Compression.GZIP);
 				urldao.download();
 			} catch (Exception e) {
-				log.error(String.format("Error loading %s using %s - %s", _url, urldao.getCompression(), e.getMessage()));
+				log.error("Error loading {} using {} - {}", _url, urldao.getCompression(), e.getMessage());
 			}
 		}
 	}
@@ -64,7 +64,7 @@ public class VATSIMLoader extends Loader {
 			CompletableFuture<Void> ft = CompletableFuture.allOf(sif, tcf);
 			ft.get(28000, TimeUnit.MILLISECONDS);
 		} catch (ExecutionException ee) {
-			log.error("Error downloading VATSIM data - " + ee.getMessage(), ee);
+			log.atError().withThrowable(ee).log("Error downloading VATSIM data - {}", ee.getMessage());
 		} catch (TimeoutException | InterruptedException ie) {
 			log.warn("Timed out waiting for download");
 		}
@@ -76,7 +76,7 @@ public class VATSIMLoader extends Loader {
 			GetVATSIMTransceivers tdao = new GetVATSIMTransceivers(is);
 			positions.addAll(tdao.load());
 		} catch (Exception e) {
-			log.error("Error loading radio positions - " + e.getMessage(), e);
+			log.atError().withThrowable(e).log("Error loading radio positions - {}", e.getMessage());
 		}
 		
 		// Load servinfo

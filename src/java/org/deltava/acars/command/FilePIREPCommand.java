@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -50,7 +50,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 	public void execute(CommandContext ctx, MessageEnvelope env) {
 
 		// Log PIREP filing
-		log.info("Receiving PIREP from " + env.getOwner().getName() + " (" + env.getOwnerID() + ")");
+		log.info("Receiving PIREP from {} ({})", env.getOwner().getName(), env.getOwnerID());
 
 		// Get the Message and the ACARS connection
 		FlightReportMessage msg = (FlightReportMessage) env.getMessage();
@@ -61,7 +61,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		// Generate the response message
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(ac.getUser(), msg.getID());
 		if (!ac.getUserID().equals(env.getOwnerID()))
-			log.warn("Connection owned by " + ac.getUserID() + " Envelope owned by " + env.getOwnerID());
+			log.warn("Connection owned by {} Envelope owned by {}", ac.getUserID(), env.getOwnerID());
 
 		// Get the PIREP data and flight information
 		ACARSFlightReport afr = msg.getPIREP();
@@ -82,7 +82,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 		// If we have no flight info, then push it back
 		if (info == null) {
-			log.warn("No Flight Information for Connection " + StringUtils.formatHex(ac.getID()));
+			log.warn("No Flight Information for Connection {}", StringUtils.formatHex(ac.getID()));
 			ackMsg.setEntry("sendInfo", "true");
 			ctx.push(ackMsg);
 			return;
@@ -91,7 +91,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 		// Ensure we are taking the Flight ID from the latest InfoMessage
 		int flightID = info.getFlightID();
 		if (flightID != afr.getDatabaseID(DatabaseID.ACARS)) {
-			log.warn("Flight Report flightID = " + afr.getDatabaseID(DatabaseID.ACARS) + " Connection flightID = " + flightID);
+			log.warn("Flight Report flightID = {} Connection flightID = {}", Integer.valueOf(afr.getDatabaseID(DatabaseID.ACARS)), Integer.valueOf(flightID));
 			afr.setDatabaseID(DatabaseID.ACARS, flightID);
 		}
 		
@@ -103,7 +103,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ctx.setMessage("Flushing Position Queue");
 			int flushed = flush(true, ctx);
 			if (flushed > 0)
-				log.info("Flushed " + flushed + " Position records from queue");
+				log.info("Flushed {} Position records from queue", Integer.valueOf(flushed));
 
 			// Check for existing PIREP with this flight ID
 			ctx.setMessage("Checking for duplicate Flight Report from " + ac.getUserID());
@@ -119,7 +119,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					ackMsg.setEntry("pirepID", afr2.getHexID());
 					
 					// Log warning and return an ACK
-					log.warn("Flight " + flightID + " already has PIREP");
+					log.warn("Flight {} already has PIREP", Integer.valueOf(flightID));
 					ctx.push(ackMsg);
 					return;
 				}
@@ -127,8 +127,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Check for flight ID filed around the same time
 				List<PositionCount> cnts = pcdao.getDuplicateID(flightID);
 				if (cnts.size() > 1) {
-					log.warn(cnts.size() + " Duplicate Flight records found for Flight " + flightID);
-					cnts.forEach(pc -> log.warn("Flight " + pc.getID() + " = " + pc.getPositionCount() + " records"));
+					log.warn("{} Duplicate Flight records found for Flight {}", Integer.valueOf(cnts.size()), Integer.valueOf(flightID));
+					cnts.forEach(pc -> log.warn("Flight {} = {} records", Integer.valueOf(pc.getID()), Integer.valueOf(pc.getPositionCount())));
 					int dupeID = cnts.get(0).getID(); 
 					afr2 = prdao.getACARS(usrLoc.getDB(), dupeID);
 					
@@ -141,14 +141,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 						ackMsg.setEntry("pirepID", afr2.getHexID());
 
 						// Log warning and return an ACK
-						log.warn("Ignoring duplicate PIREP submission from " + ac.getUserID() + ", FlightID = " + afr2.getDatabaseID(DatabaseID.ACARS));
+						log.warn("Ignoring duplicate PIREP submission from {}, FlightID = {}", ac.getUserID(), Integer.valueOf(afr2.getDatabaseID(DatabaseID.ACARS)));
 						ctx.push(ackMsg);
 						return;
 					}
 					
 					// If the flight ID with the most records is different, use it
 					if (dupeID != flightID) {
-						log.warn(dupeID + " has more positions, switching Flight ID from " + flightID);
+						log.warn("{} has more positions, switching Flight ID from {}", Integer.valueOf(dupeID), Integer.valueOf(flightID));
 						afr.setDatabaseID(DatabaseID.ACARS, dupeID);
 						flightID = dupeID;
 					}
@@ -160,7 +160,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					ctx.release();
 
 					// Log warning and return an ACK
-					log.warn("Ignoring possible duplicate PIREP from " + ac.getUserID());
+					log.warn("Ignoring possible duplicate PIREP from {}", ac.getUserID());
 					ctx.push(ackMsg);
 					return;
 				}
@@ -169,7 +169,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Log number of positions
 			int positionCount = pcdao.getCount(flightID).getPositionCount();
 			if (positionCount == 0)
-				log.warn("No position records for Flight " + info.getFlightID());
+				log.warn("No position records for Flight {}", Integer.valueOf(info.getFlightID()));
 			
 			// Reload the User
 			GetPilotDirectory pdao = new GetPilotDirectory(con);
@@ -262,7 +262,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Check for dispatch data
 			if (msg.getDispatcher() != info.getDispatcher()) {
 				afr.addStatusUpdate(0,  HistoryType.SYSTEM, String.format("Flight Dispatcher = %s, Message = %s", msg.getDispatcher(), info.getDispatcher()));
-				log.warn(String.format("Flight Dispatcher = %s, Message = %s for Flight %d", msg.getDispatcher(), info.getDispatcher(), Integer.valueOf(info.getFlightID())));
+				log.warn("Flight Dispatcher = {}, Message = {} for Flight {}", msg.getDispatcher(), info.getDispatcher(), Integer.valueOf(info.getFlightID()));
 			}
 			
 			// Start the transaction
@@ -329,14 +329,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Check if we're a dispatch plan
 			if ((msg.getDispatcher() == DispatchType.DISPATCH) && (info.getDispatcher() != DispatchType.DISPATCH)) {
-				log.warn("Flight " + flightID + " was not set as Dispatch, but PIREP has Dispatch flag!");
+				log.warn("Flight {} was not set as Dispatch, but PIREP has Dispatch flag!", Integer.valueOf(flightID));
 				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
 				
 				// Validate the dispatch route ID
 				GetACARSRoute ardao = new GetACARSRoute(con);
 				DispatchRoute dr = ardao.getRoute(msg.getRouteID());
 				if (dr == null) {
-					log.warn("Invalid Dispatch Route - " + msg.getRouteID());
+					log.warn("Invalid Dispatch Route - {}", Integer.valueOf(msg.getRouteID()));
 					msg.setRouteID(0);
 				} else
 					awdao.writeDispatch(flightID, msg.getDispatcherID(), msg.getRouteID());
@@ -450,7 +450,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				Mailer mailer = new Mailer(sender);
 				mailer.setContext(mctxt);
 				mailer.send(insList);
-				log.info("Sending Academy Check Ride notification to " + insList);
+				log.info("Sending Academy Check Ride notification to {}", insList);
 			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
 				GetEquipmentType eqdao = new GetEquipmentType(con);
@@ -474,14 +474,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					Mailer mailer = new Mailer(sender);
 					mailer.setContext(mctxt);
 					mailer.send(eqCPs);
-					log.info("Sending Check Ride notification to " + eqCPs);
+					log.info("Sending Check Ride notification to {}", eqCPs);
 				}
 			}
 			
-			log.info("PIREP " + afr.getID() + " [Flight " + afr.getDatabaseID(DatabaseID.ACARS) + "] from " + env.getOwner().getName() + " (" + env.getOwnerID() + ") filed");
+			log.info("PIREP {} [Flight {}] from {} ({}) filed", Integer.valueOf(afr.getID()), Integer.valueOf(afr.getDatabaseID(DatabaseID.ACARS)), env.getOwner().getName(), env.getOwnerID());
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.error(String.format("%s - %s", ac.getUserID(), de.getMessage()), de);
+			log.atError().withThrowable(de).log("{} - {}", ac.getUserID(), de.getMessage());
 			ackMsg.setEntry("error", "PIREP Submission failed - " + de.getMessage());
 			ctx.push(ackMsg, ac.getID(), true);
 		} finally {

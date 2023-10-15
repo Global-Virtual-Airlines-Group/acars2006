@@ -75,7 +75,7 @@ public class DraftFlightCommand extends DataCommand {
 			flights.stream().map(DraftFlightReport.class::cast).map(dfr -> new DraftFlightPackage(dfr, sbPkgs.get(Integer.valueOf(dfr.getID())))).forEach(rspMsg::add);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading draft PIREP data for " + msg.getFlag("id") + " - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error loading draft PIREP data for {} - {}", msg.getFlag("id"), de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load draft Flight Report - " + de.getMessage()));
 		} finally {
 			ctx.release();

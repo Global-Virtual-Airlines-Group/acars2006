@@ -1,4 +1,4 @@
-// Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2007, 2011, 2016, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS data command to return available Aircraft data.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 1.0
  */
 
@@ -60,7 +60,7 @@ public class EquipmentListCommand extends DataCommand {
 			
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.error("Error loading equipment types", de);
+			log.atError().withThrowable(de).log("Error loading equipment types - {}", de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load equipment - " + de.getMessage()));
 		} finally {
 			ctx.release();

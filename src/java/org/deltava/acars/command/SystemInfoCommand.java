@@ -12,7 +12,7 @@ import org.deltava.dao.acars.SetSystemInfo;
 /**
  * An ACARS server command to log client system data.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 6.4
  */
 
@@ -35,7 +35,7 @@ public class SystemInfoCommand extends ACARSCommand {
 			dao.write(msg);
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID()));
 		} catch (DAOException de) {
-			log.error(de.getMessage(), de);
+			log.atError().withThrowable(de).log(de.getMessage());
 		} finally {
 			ctx.release();
 		}

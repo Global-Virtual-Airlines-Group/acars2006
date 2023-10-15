@@ -17,7 +17,7 @@ import org.deltava.util.UserID;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -50,7 +50,7 @@ public class TextMessageCommand extends ACARSCommand {
 		TextMessage txtRsp = null;
 		switch (usr.getACARSRestriction()) {
 			case NOMSGS:
-				log.warn(usr.getName() + " attempted to send message!");
+				log.warn("{} attempted to send message", usr.getName());
 				txtRsp = new TextMessage(null, "ACARS text Message blocked");
 				txtRsp.setRecipient(usr.getPilotCode());
 				ctx.push(txtRsp);
@@ -58,7 +58,7 @@ public class TextMessageCommand extends ACARSCommand {
 				
 			case RESTRICT:
 				if (hasHR) break;
-				log.warn(usr.getName() + " attempted to send message, no HR/Dispatch online");
+				log.warn("{} attempted to send message, no HR/Dispatch online", usr.getName());
 				txtRsp = new TextMessage(null, "ACARS text Message blocked");
 				txtRsp.setRecipient(usr.getPilotCode());
 				ctx.push(txtRsp);
@@ -79,7 +79,7 @@ public class TextMessageCommand extends ACARSCommand {
 		// Push the message back to everyone if needed
 		Pilot rUsr = null;
 		if (msg.isPublic()) {
-			log.info("Public message from " + usr.getPilotCode());
+			log.info("Public message from {}", usr.getPilotCode());
 			UserData usrLoc = ctx.getACARSConnection().getUserData();
 			for (ACARSConnection ac : cons) {
 				UserData ud = ac.getUserData();
@@ -87,7 +87,7 @@ public class TextMessageCommand extends ACARSCommand {
 					ctx.push(txtRsp, ac.getID(), false);
 			}
 		} else {
-			log.info("Message from " + usr.getPilotCode() + " to " + msg.getRecipient());
+			log.info("Message from {} to {}", usr.getPilotCode(), msg.getRecipient());
 			Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();
 			if (usr.isInRole("HR")) {
 				ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
@@ -119,7 +119,7 @@ public class TextMessageCommand extends ACARSCommand {
 			SetMessage dao = new SetMessage(ctx.getConnection());
 			dao.write(msg, (rUsr == null) ? 0 : rUsr.getID());
 		} catch (DAOException de) {
-			log.error("Error writing text message - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Error writing text message - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

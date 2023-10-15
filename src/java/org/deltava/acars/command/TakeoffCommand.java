@@ -44,7 +44,7 @@ public class TakeoffCommand extends ACARSCommand {
 		ACARSConnection ac = ctx.getACARSConnection();
 		InfoMessage info = ac.getFlightInfo();
 		if (info == null) {
-			log.error(ac.getUserID() + " sending Takeoff message - no Flight Info found");
+			log.warn("{} sending Takeoff message - no Flight Info found", ac.getUserID());
 			return;
 		}
 		
@@ -63,7 +63,7 @@ public class TakeoffCommand extends ACARSCommand {
 		Airport a = msg.isTakeoff() ? info.getAirportD() : info.getAirportA();
 		if (!a.equals(closestAirport)) {
 			int distance = a.distanceTo(closestAirport); 
-			log.warn("Closest airport for Flight " + info.getID() + " is " + closestAirport.getICAO() + " implied airport is " + a.getICAO() + " (distance = " + distance + " miles)");
+			log.warn("Closest airport for Flight {} is {} implied airport is {} (distance = {} miles)", ac.getUserID(), closestAirport.getICAO(), a.getICAO(), Integer.valueOf(distance));
 			if (distance > 15) {
 				a = closestAirport;
 				if (msg.isTakeoff())
@@ -113,7 +113,7 @@ public class TakeoffCommand extends ACARSCommand {
 				cons.forEach(c -> ctx.push(msg, c.getID(), false));
 			}
 		} catch (DAOException de) {
-			log.error("Cannnot log takeoff/landing - " + de.getMessage(), de);
+			log.atError().withThrowable(de).log("Cannnot log takeoff/landing - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}

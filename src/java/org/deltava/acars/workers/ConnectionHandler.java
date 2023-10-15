@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -17,7 +17,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 10.0
+ * @version 11.1
  * @since 2.1
  */
 
@@ -63,7 +63,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 			// Check if the address is on the block list or from a banned user
 			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
-				log.warn("Refusing connection from " + con.getRemoteHost() + " (" + con.getRemoteAddr() + ")");
+				log.warn("Refusing connection from {} ({})", con.getRemoteHost(), con.getRemoteAddr());
 				con.close();
 				return;
 			}
@@ -73,14 +73,14 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				ACARSConnection oldCon = _pool.get(con.getRemoteAddr());
 				boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
 				if ((oldCon != null) && oldCon.getIsDispatch())
-					log.info("Duplicate connection from " + con.getRemoteAddr() + " dispatcher (" + oldCon.getUserID() + ")");
+					log.info("Duplicate connection from {} dispatcher ({})", con.getRemoteAddr(), oldCon.getUserID());
 				else if ((oldCon != null) && !killOld) {
 					con.close();
-					log.warn("Duplicate connection from " + con.getRemoteAddr());
+					log.warn("Duplicate connection from {}", con.getRemoteAddr());
 					return;
 				} else if (oldCon != null) {
 					oldCon.close();
-					log.warn("Closing original connection from " + con.getRemoteAddr());
+					log.warn("Closing original connection from {}", con.getRemoteAddr());
 					_pool.remove(oldCon);
 				}
 			}
@@ -92,16 +92,16 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				_sc.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send")));
 				_sc.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
 			} catch (IOException ie) {
-				log.error("Error setting socket options - " + ie.getMessage(), ie);
+				log.atError().withThrowable(ie).log("Error setting socket options - {}", ie.getMessage());
 			}
 
 			// Register the channel with the pool
-			log.info("New Connection from " + con.getRemoteAddr());
+			log.info("New Connection from {}", con.getRemoteAddr());
 			try {
 				_pool.add(con);
 				con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
 			} catch (ACARSException ae) {
-				log.error("Error adding to pool - " + ae.getMessage(), ae);
+				log.atError().withThrowable(ae).log("Error adding to pool - {}", ae.getMessage());
 				con.close();
 			}
 		}
@@ -177,7 +177,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	 */
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		log.error(t.getName() + " - " + e.getMessage(), e);
+		log.atError().withThrowable(e).log("{} - {}", t.getName(), e.getMessage());
 	}
 	
 	/**
@@ -198,7 +198,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				if (_selectCount > maxSelect)
 					updateSelector();
 			} catch (IOException ie) {
-				log.warn("Error on select - " + ie.getMessage());
+				log.warn("Error on select - {}", ie.getMessage());
 			}
 			
 			// See if we have someone waiting to connect
@@ -209,6 +209,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 					if (cc != null) {
 						_status.setMessage("Opening connection from " + NetworkUtils.getSourceAddress(cc.getRemoteAddress()));
 						gen.reset();
+						// TODO: Make a virtual thread on JDK21
 						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());
 						Thread wt = new Thread(wrk, "ConnectWorker-" + wrk.getID());
 						wt.setDaemon(true);
@@ -218,7 +219,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				} catch (ClosedChannelException cce) {
 					// empty
 				} catch (IOException ie) {
-					log.error("Cannot accept connection - " + ie.getMessage(), ie);
+					log.atError().withThrowable(ie).log("Cannot accept connection - {}", ie.getMessage());
 					_status.setStatus(WorkerState.ERROR);
 					_status.complete();
 					throw new RuntimeException("NetworkReader failure");

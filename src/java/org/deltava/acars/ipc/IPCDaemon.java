@@ -21,7 +21,7 @@ import org.gvagroup.jdbc.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -59,7 +59,7 @@ public class IPCDaemon implements Runnable {
 							UserData ud = uddao.get(userID);
 							usr = pdao.get(ud);
 							if (usr == null) {
-								log.warn("Unknown User ID - " + userID);
+								log.warn("Unknown User ID - {}", Integer.valueOf(userID));
 								continue;
 							}
 						}
@@ -80,13 +80,13 @@ public class IPCDaemon implements Runnable {
 							case AIRPORT_RENAME:
 								IDEvent ie = (IDEvent) event;
 								if (ie.getData() == null) break;
-								log.warn("ACARS renaming Airport " + ie.getData() + " to " + ie.getID());
+								log.warn("ACARS renaming Airport {} to {}", ie.getData(), ie.getID());
 								break;
 								
 							case AIRCRAFT_RENAME:
 								ie = (IDEvent) event;
 								if (ie.getData() == null) break;
-								log.warn("ACARS renaming Aircraft " + ie.getData() + " to " + ie.getID());
+								log.warn("ACARS renaming Aircraft {} to {}", ie.getData(), ie.getID());
 								break;
 								
 							case TZ_RELOAD:
@@ -99,13 +99,13 @@ public class IPCDaemon implements Runnable {
 								if (usr == null) break;
 								
 								// Validate all of the connections
-								log.warn(usr.getName() + " Suspended - Validating all Credentials");
+								log.warn("{} Suspended - Validating all Credentials", usr.getName());
 								CacheManager.invalidate("Pilots", usr.cacheKey());
 								for (ACARSConnection ac : acPool.getAll()) {
 									if (ac.isAuthenticated()) {
 										Pilot p = pdao.get(ac.getUserData());
 										if (p.getStatus() != PilotStatus.ACTIVE) {
-											log.warn("Disconnecting " + p.getName() + ", Status = " + p.getStatus().getDescription());
+											log.warn("Disconnecting {}, Status = {}", p.getName(), p.getStatus().getDescription());
 											ac.close();
 											acPool.remove(ac);
 										}
@@ -123,7 +123,7 @@ public class IPCDaemon implements Runnable {
 								CacheManager.invalidate("Pilots", usr.cacheKey());
 								Collection<ACARSConnection> cons = acPool.getAll(c -> c.isAuthenticated() && (c.getUser().getID() == id));
 								for (ACARSConnection ac : cons) {
-									log.info("Updated ACARS Connection record for " + ac.getUser().getName());
+									log.info("Updated ACARS Connection record for {}", ac.getUser().getName());
 									ac.setUser(usr);
 								}
 								
@@ -137,15 +137,15 @@ public class IPCDaemon implements Runnable {
 							case CACHE_FLUSH:
 								ie = (IDEvent) event;
 								CacheManager.invalidate(ie.getID(), false);
-								log.warn("ACARS flushing cache " + ie.getID());
+								log.warn("ACARS flushing cache {}", ie.getID());
 								break;
 								
 							default:
-								log.warn("Unknown System Event ID - " + event.getCode());
+								log.warn("Unknown System Event ID - {}", event.getCode());
 						}
 					}
 				} catch (Exception de) {
-					log.error(de.getMessage(), de);
+					log.atError().withThrowable(de).log(de.getMessage());
 				} finally {
 					cPool.release(con);
 				}

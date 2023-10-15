@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -48,7 +48,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				msg.setDate(LocalDateTime.parse(msgDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC));
 			msg.setSimTime((simDE != null) ? LocalDateTime.parse(simDE.replace('-', '/'), _mdtf).toInstant(ZoneOffset.UTC) : msg.getDate());
 		} catch (Exception ex) {
-			log.warn(String.format("Unparseable date from %s - %s", user, ex.getMessage()));
+			log.warn("Unparseable date from {} - {}", user, ex.getMessage());
 		}
 
 		// Get the basic information
@@ -111,7 +111,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
 			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (NumberFormatException nfe) {
-			log.error(nfe.getMessage(), nfe);
+			log.atError().withThrowable(nfe).log(nfe.getMessage());
 			throw new XMLException(String.format("Error parsing v2 Position data - %s", nfe.getMessage()), nfe);
 		} catch (Exception ex) {
 			throw new XMLException(String.format("Error parsing v2 Position data - %s", ex.getMessage()), ex);
