@@ -4,6 +4,7 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.time.*;
 import java.sql.Connection;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.*;
 
@@ -113,6 +114,13 @@ public class InfoCommand extends ACARSCommand {
 							msg.setDispatcher(info.getDispatcher());
 							msg.setDispatcherID(info.getDispatcherID());
 						}
+					}
+					
+					// Log changes
+					if (curInfo != null) {
+						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg);
+						if (!d.isEmpty())
+							log.info("Changes: {} ", d.stream().map(BeanUtils.PropertyChange::getName).collect(Collectors.toList()));
 					}
 				}
 			}
