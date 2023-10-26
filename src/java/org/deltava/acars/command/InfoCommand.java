@@ -118,9 +118,9 @@ public class InfoCommand extends ACARSCommand {
 					
 					// Log changes
 					if (curInfo != null) {
-						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg);
+						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount");
 						if (!d.isEmpty())
-							log.info("Changes: {} ", d.stream().map(BeanUtils.PropertyChange::getName).collect(Collectors.toList()));
+							log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
 					}
 				}
 			}
