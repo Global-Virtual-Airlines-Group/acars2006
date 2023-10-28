@@ -69,7 +69,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		try (@SuppressWarnings("preview") ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
+		try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
 			while (!Thread.currentThread().isInterrupted()) {
 				_status.setMessage("Downloading network data");
 				_status.execute();

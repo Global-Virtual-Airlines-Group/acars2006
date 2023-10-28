@@ -206,7 +206,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	/*
 	 * Helper method to spawn a system daemon.
 	 */
-	@SuppressWarnings("preview")
 	private void spawnDaemon(Runnable sd) {
 		Thread dt = Thread.ofVirtual().name(sd.toString()).unstarted(sd);
 		dt.setUncaughtExceptionHandler(this);
@@ -216,7 +215,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 	}
 
-	@SuppressWarnings("preview")
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		Runnable r = _daemons.get(t);
