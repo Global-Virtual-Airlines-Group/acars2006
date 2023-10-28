@@ -3,9 +3,8 @@
 <project default="deploy">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="20" target="20" compiler="modern">
-			<compilerarg value="-Xlint:unchecked,deprecation,path,finally" />
-			<compilerarg value="--enable-preview" />
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="21" target="21" compiler="modern">
+			<compilerarg value="-Xlint:unchecked,deprecation,path,finally,-options" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
 		    	<fileset dir="lib">
