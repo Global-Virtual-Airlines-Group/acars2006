@@ -209,9 +209,9 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 					if (cc != null) {
 						_status.setMessage("Opening connection from " + NetworkUtils.getSourceAddress(cc.getRemoteAddress()));
 						gen.reset();
-						// TODO: Make a virtual thread on JDK21
+
 						ConnectWorker wrk = new ConnectWorker(cc, gen.generate());
-						Thread wt = new Thread(wrk, "ConnectWorker-" + wrk.getID());
+						Thread wt = Thread.ofVirtual().name("ConnectWorker-" + wrk.getID()).unstarted(wrk);
 						wt.setDaemon(true);
 						wt.setUncaughtExceptionHandler(this);
 						wt.start();
