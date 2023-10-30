@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved. -->
-<project default="deploy">
+<project default="deploy" xmlns:if="ant:if">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" debuglevel="lines,vars,source" source="21" target="21" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="21" target="21" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally,-options" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
@@ -13,9 +13,45 @@
 	    		<pathelement location="${java.io.tmpdir}/build/golgotha.jar" />
 	    	</classpath>
 		</javac>
+		
+		<!-- Load version constant -->
+		<taskdef classname="org.gvagroup.ant.VersionInfoTask" name="versionInfo">
+			<classpath id="vi.classpath">
+				<pathelement path="${classpath}" />
+				<fileset dir="./lib" includes="golgotha_ipc-*.jar" />
+				<fileset dir="${java.io.tmpdir}/build" includes="golgotha.jar" />
+			</classpath>
+		</taskdef>
+		
+		<versionInfo property="v.major" className="org.deltava.beans.system.VersionInfo" fieldName="MAJOR" />
+		<versionInfo property="v.minor" className="org.deltava.beans.system.VersionInfo" fieldName="MINOR" />
+		<versionInfo property="v.build" className="org.deltava.beans.system.VersionInfo" fieldName="BUILD" />
+		
+		<!-- Save Build date/time in property file -->
+		<propertyfile if:set="jar.compile" file="${java.io.tmpdir}/build/acars/acars_build.properties" comment="Golgotha build properties">
+			<entry key="build.date" value="${build_utc}" />
+			<entry key="build.ant" value="${ant.version}" />
+			<entry key="build.jvm" value="${ant.java.version}" />
+			<entry key="build.os" value="${os.name} ${os.version} ${os.arch}" />
+			<entry key="build.user" value="${user.name}" />
+			<entry key="build.version" value="${v.major} ${v.minor} ${v.build}" />
+		</propertyfile>
+		
+		<!-- Build the manifest -->
+		<manifest if:set="jar.compile" file="${java.io.tmpdir}/build/acars_MANIFEST.MF">
+			<attribute name="Built-By" value="${user.name}" />
+			<section name="common">
+				<attribute name="Specification-Title" value="Golgotha ACARS" />
+				<attribute name="Specification-Version" value="${v.major}.${v.minor}.${v.build}" />
+				<attribute name="Specification-Vendor" value="Global Virtual Airlines Group" />
+				<attribute name="Implementation-Title" value="Golgotha ACARS" />
+				<attribute name="Implementation-Version" value="${v.major}.${v.minor}.${v.build} ${build_utc}" />
+				<attribute name="Implementation-Vendor" value="Global Virtual Airlines Group" />
+			</section>
+		</manifest>
 
 		<!-- Compress the Java classes into a single JAR file -->
-		<jar basedir="${java.io.tmpdir}/build/acars" compress="true" index="true" destfile="${java.io.tmpdir}/build/golgotha_acars.jar" />
+		<jar basedir="${java.io.tmpdir}/build/acars" compress="true" index="true" destfile="${java.io.tmpdir}/build/golgotha_acars.jar" manifest="${java.io.tmpdir}/build/acars_MANIFEST.MF" />
 	</target>
 
 	<!-- Deploy to DEV server -->
