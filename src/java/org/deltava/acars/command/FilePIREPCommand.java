@@ -369,7 +369,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 				
 				// Check what STAR we filed
-				trName = wps.get(wps.size() - 1); trTrans = wps.get(wps.size() - 2);
+				trName = wps.getLast(); trTrans = wps.get(wps.size() - 2);
 				if (!StringUtils.isEmpty(info.getSTAR())) {
 					TerminalRoute fSTAR = navdao.getRoute(afr.getAirportA(), TerminalRoute.Type.STAR, info.getSTAR(), true);
 					if (fSTAR != null) {
