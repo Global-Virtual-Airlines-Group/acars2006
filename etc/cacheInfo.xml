@@ -6,8 +6,8 @@
 	
 	<!-- SkyMiles caches -->
 	<cache id="EliteLevel" max="16" expires="24h" />
-	<cache id="EliteStatus" max="512" expires="24h" remote="true" />
-	<cache id="EliteYearlyTotal" max="512" expires="12h" />
+	<cache id="EliteStatus" expires="24h" remote="true" />
+	<cache id="EliteYearlyTotal" expires="4h" remote="true" />
 
 	<!-- Navigation Data caches -->
     <cache id="NavData" expires="2d" remote="true" />
