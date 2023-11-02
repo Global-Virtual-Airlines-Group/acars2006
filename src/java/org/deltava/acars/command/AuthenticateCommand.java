@@ -275,7 +275,7 @@ public class AuthenticateCommand extends ACARSCommand {
 					swdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
 				}
 			} catch (UnknownHostException uhe) {
-				log.warn(String.format("Unknown Host - %s", con.getRemoteAddr()));
+				log.warn("Unknown Host - {}", con.getRemoteAddr());
 			}
 
 			ctx.commitTX();
@@ -347,14 +347,6 @@ public class AuthenticateCommand extends ACARSCommand {
 				ackMsg.setEntry("maxAccel", "1");
 		}
 		
-		// Check if we can add voice channels
-		if (SystemData.getBoolean("acars.voice.enabled")) {
-			@SuppressWarnings("unchecked")
-			Collection<String> newChannelRoles = (Collection<String>) SystemData.getObject("acars.voice.newChannelRoles");
-			if (newChannelRoles != null)
-				ackMsg.setEntry("tempChannel", String.valueOf(RoleUtils.hasAccess(usr.getRoles(), newChannelRoles)));
-		}
-
 		// Send the ack message
 		ctx.push(ackMsg, env.getConnectionID(), true);
 
