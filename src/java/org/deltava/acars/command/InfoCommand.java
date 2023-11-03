@@ -94,15 +94,15 @@ public class InfoCommand extends ACARSCommand {
 				GetACARSData rdao = new GetACARSData(c);
 				FlightInfo info = rdao.getInfo(msg.getFlightID()); 
 				if (info == null) {
-					log.warn(String.format("%s requesting invalid Flight %d", env.getOwnerID(), Integer.valueOf(msg.getFlightID())));
+					log.warn("{} requesting invalid Flight {}", env.getOwnerID(), Integer.valueOf(msg.getFlightID()));
 					assignID = true;
 					msg.setFlightID(0);
 				} else if (info.getAuthorID() != env.getOwner().getID()) {
-					log.warn(String.format("%s requesting Flight %d - owned by ID %d", env.getOwnerID(), Integer.valueOf(msg.getFlightID()), Integer.valueOf(info.getAuthorID())));
+					log.warn("{} requesting Flight {} - owned by ID {}", env.getOwnerID(), Integer.valueOf(msg.getFlightID()), Integer.valueOf(info.getAuthorID()));
 					assignID = true;
 					msg.setFlightID(0);
 				} else if (info.getArchived() || info.getHasPIREP()) {
-					log.warn(String.format("%d has PIREP or is archived!", Integer.valueOf(msg.getFlightID())));
+					log.warn("{} has PIREP or is archived!", Integer.valueOf(msg.getFlightID()));
 					assignID = true;
 					msg.setFlightID(0);
 				} else {
@@ -118,7 +118,7 @@ public class InfoCommand extends ACARSCommand {
 					
 					// Log changes
 					if (curInfo != null) {
-						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount");
+						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID");
 						if (!d.isEmpty())
 							log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
 					}
@@ -165,7 +165,7 @@ public class InfoCommand extends ACARSCommand {
 					TourFlightHelper tfh = new TourFlightHelper(msg, true);
 					tfh.addFlights(oldPireps);
 					possibleTours.removeIf(t -> (tfh.isLeg(t) < 1));
-					log.info(String.format("Possible Tours found - %s", possibleTours));
+					log.info("Possible Tours found - {}", possibleTours);
 					if (!possibleTours.isEmpty()) {
 						msg.setScheduleValidated(true);
 						ackMsg.setEntry("possibleTour", "true");
