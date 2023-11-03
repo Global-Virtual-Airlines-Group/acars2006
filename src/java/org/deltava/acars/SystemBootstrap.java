@@ -78,7 +78,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 				SecretManager sm = new PropertiesSecretManager(SystemData.get("security.secrets"));
 				sm.load();
 				sm.getKeys().forEach(k -> SystemData.add(k, sm.get(k)));
-				log.info(String.format("Loaded %d secrets from %s", Integer.valueOf(sm.size()), SystemData.get("security.secrets")));
+				log.info("Loaded {} secrets from {}", Integer.valueOf(sm.size()), SystemData.get("security.secrets"));
 			} catch (IOException ie) {
 				log.atError().withThrowable(ie).log("Error loading secrets - {}", ie.getMessage());
 			}

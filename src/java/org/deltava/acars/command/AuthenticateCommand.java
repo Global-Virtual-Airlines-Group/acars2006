@@ -191,7 +191,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		con.setUserHidden(msg.isHidden() && usr.isInRole("HR"));
 		con.setTimeOffset(td.toSeconds());
 		if (msg.getProtocolVersion() > con.getProtocolVersion()) {
-			log.info(String.format("%s requesting protocol v%d", usr.getName(), Integer.valueOf(msg.getProtocolVersion())));
+			log.info("{} requesting protocol v{}", usr.getName(), Integer.valueOf(msg.getProtocolVersion()));
 			con.setProtocolVersion(msg.getProtocolVersion());
 		}
 		
@@ -224,7 +224,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				GetWarnings wdao = new GetWarnings(c);
 				con.setWarningScore(wdao.get(usr.getID()).stream().mapToInt(Warning::getScore).sum());
 				if (con.getWarningScore() >= SystemData.getInt("acars.maxWarnings", 10)) {
-					log.warn(String.format("%s has %d warning score, voice/text disabled", usr.getName(), Integer.valueOf(con.getWarningScore())));
+					log.warn("{} has {} warning score, voice/text disabled", usr.getName(), Integer.valueOf(con.getWarningScore()));
 					usr.setNoVoice(true);
 					usr.setACARSRestriction(Restriction.NOMSGS);
 				}
@@ -375,7 +375,7 @@ public class AuthenticateCommand extends ACARSCommand {
 
 		// Send the message and log
 		ctx.push(sysMsg);
-		log.info(String.format("New Connection from %s (v%d)", usr.getName(), Integer.valueOf(con.getVersion())));
+		log.info("New Connection from {} (v{})", usr.getName(), Integer.valueOf(con.getVersion()));
 	}
 
 	@Override
