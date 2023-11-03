@@ -22,7 +22,7 @@ import org.deltava.util.*;
 /**
  * A Parser for ACARS Authentication elements.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -78,7 +78,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 				byte[] rawPwd = aes.decrypt(pwdData);
 				pwd = new String(rawPwd, StandardCharsets.UTF_8);
 			} catch (CryptoException ce) {
-				log.warn(String.format("Error decrypting password for %s - %s", userID, ce.getMessage()));
+				log.warn("Error decrypting password for {} - {}", userID, ce.getMessage());
 			}
 		}
 		
