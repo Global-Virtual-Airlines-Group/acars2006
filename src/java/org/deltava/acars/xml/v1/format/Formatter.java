@@ -11,7 +11,7 @@ import org.deltava.acars.xml.*;
 /**
  * V1 Protocol Message Formatter.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -32,12 +32,10 @@ public class Formatter extends XMLMessageFormatter {
 		_eFormatters.put(ConnectionMessage.class, new ConnectionFormatter());
 		_eFormatters.put(ControllerMessage.class, new ControllerFormatter());
 		_eFormatters.put(DraftPIREPMessage.class, new DraftFlightFormatter());
-		_eFormatters.put(GenericMessage.class, new GenericFormatter());
 		_eFormatters.put(NavigationDataMessage.class, new NavinfoFormatter());
 		_eFormatters.put(PilotMessage.class, new PilotFormatter());
 		_eFormatters.put(ScheduleMessage.class, new ScheduleFormatter());
 		_eFormatters.put(OceanicTrackMessage.class, new OceanicRouteFormatter());
-		_eFormatters.put(LiveryMessage.class, new LiveryFormatter());
 		_eFormatters.put(WXMessage.class, new WeatherFormatter());
 		_eFormatters.put(AirportInfoMessage.class, new AirportInfoFormatter());
 
