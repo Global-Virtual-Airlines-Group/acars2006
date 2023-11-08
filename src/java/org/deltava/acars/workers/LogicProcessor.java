@@ -86,10 +86,8 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.EQLIST, new EquipmentListCommand());
 		_subCommands.put(DataRequest.SCHED, new ScheduleInfoCommand());
 		_subCommands.put(DataRequest.NAVAIDINFO, new NavaidCommand());
-		_subCommands.put(DataRequest.PVTVOX, new PrivateVoiceCommand());
 		_subCommands.put(DataRequest.ATCINFO, new ATCInfoCommand());
 		_subCommands.put(DataRequest.NATS, new OceanicTrackCommand());
-		_subCommands.put(DataRequest.LIVERIES, new LiveryListCommand());
 		_subCommands.put(DataRequest.WX, new WeatherCommand());
 		_subCommands.put(DataRequest.APINFO, new AirportInfoCommand());
 		_subCommands.put(DataRequest.APPINFO, new AppInfoCommand());
