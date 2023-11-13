@@ -224,7 +224,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				GetWarnings wdao = new GetWarnings(c);
 				con.setWarningScore(wdao.get(usr.getID()).stream().mapToInt(Warning::getScore).sum());
 				if (con.getWarningScore() >= SystemData.getInt("acars.maxWarnings", 10)) {
-					log.warn("{} has {} warning score, voice/text disabled", usr.getName(), Integer.valueOf(con.getWarningScore()));
+					log.warn("{} has {} warning score, messaging disabled", usr.getName(), Integer.valueOf(con.getWarningScore()));
 					usr.setNoVoice(true);
 					usr.setACARSRestriction(Restriction.NOMSGS);
 				}
@@ -246,7 +246,7 @@ public class AuthenticateCommand extends ACARSCommand {
 			heldFlights = frdao.getHeld(ud.getID(), ud.getDB());
 			
 			// Get elite status
-			Object epo = SharedData.get(SharedData.ELITE_INFO + aInfo.getCode());
+			Object epo = SharedData.get(SharedData.ELITE_INFO + ud.getAirlineCode());
 			if (epo != null) {
 				GetElite eldao = new GetElite(c);
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteScorer.getStatusYear(Instant.now()), ud.getDB());
