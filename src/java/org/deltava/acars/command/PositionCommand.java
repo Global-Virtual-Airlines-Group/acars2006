@@ -92,7 +92,7 @@ public class PositionCommand extends PositionCacheCommand {
 					int distance = msg.distanceTo(ctr);
 					if (distance < (ctr.getRange() * 2)) {
 						msg.setATC1(ctr);
-						log.warn("No ATC1 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						log.warn("No ATC1 set from {}, found {}, distance = {}", ac.getUserID(), ctr.getCallsign(), Integer.valueOf(distance));
 						ackMsg.setEntry("reqATC", "true");
 					}
 				}
@@ -104,7 +104,7 @@ public class PositionCommand extends PositionCacheCommand {
 					int distance = msg.distanceTo(ctr);
 					if (distance < (ctr.getRange() * 2)) {
 						msg.setATC2(ctr);
-						log.warn("No ATC2 set from " + ac.getUserID() + ", found " + ctr.getCallsign() + ", distance=" + distance);
+						log.warn("No ATC2 set from {}, found {}, distance = {}", ac.getUserID(), ctr.getCallsign(), Integer.valueOf(distance));
 						ackMsg.setEntry("reqATC", "true");
 					}
 				}
@@ -127,7 +127,7 @@ public class PositionCommand extends PositionCacheCommand {
 		if (msg.isReplay() && msg.isLogged())
 			queue(msg);
 		else if (!msg.isReplay() && !msg.isLogged() && (pmAge < MIN_INTERVAL)) {
-			log.warn("Position flood from " + ac.getUser().getName() + " (" + ac.getUserID() + "), interval=" + pmAge + "ms");
+			log.warn("Position flood from {} ({}), interval={}ms", ac.getUser().getName(), ac.getUserID(), Long.valueOf(pmAge));
 			return;
 		} else {
 			boolean isPaused = msg.isFlagSet(ACARSFlags.PAUSED);

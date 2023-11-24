@@ -47,7 +47,7 @@ public class TomcatDaemon extends ServerDaemon implements Runnable, PoolWorkerIn
 					// Get the thread status
 					ws.setAlive(t.isAlive());
 					if (!t.isAlive()) {
-						log.warn(t.getName() + " not running, restarting");
+						log.warn("{} not running, restarting", t.getName());
 						_threads.remove(t);
 
 						// Restart the worker thread

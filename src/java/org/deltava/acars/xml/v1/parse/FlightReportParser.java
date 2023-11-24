@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for v1 FlightReport elements.
  * @author Luke
- * @version 10.5
+ * @version 11.1
  * @since 1.0
  */
 
@@ -86,7 +86,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 				afr.setDepartureTime(StringUtils.parseInstant(e.getChildTextTrim("startSimTime"), "MM/dd/yyyy HH:mm:ss"));
 				afr.setArrivalTime(StringUtils.parseInstant(e.getChildTextTrim("gateSimTime"), "MM/dd/yyyy HH:mm:ss"));
 			} catch (Exception ex) {
-				log.warn("Error parsing sim time - " + ex.getMessage());
+				log.warn("Error parsing sim time - {}", ex.getMessage());
 			}
 		}
 

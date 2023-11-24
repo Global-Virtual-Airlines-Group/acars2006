@@ -59,9 +59,9 @@ public class NetworkReader extends Worker {
 		_status.setMessage("Closing connections");
 		for (ACARSConnection con : _pool.getAll()) {
 			if (con.isAuthenticated())
-				log.warn("Disconnecting " + con.getUser().getPilotCode() + " (" + con.getRemoteAddr() + ")");
+				log.warn("Disconnecting {} ({})", con.getUserID(), con.getRemoteAddr());
 			else
-				log.warn("Disconnecting (" + con.getRemoteAddr() + ")");
+				log.warn("Disconnecting ({})", con.getRemoteAddr());
 
 			_pool.remove(con);
 		}

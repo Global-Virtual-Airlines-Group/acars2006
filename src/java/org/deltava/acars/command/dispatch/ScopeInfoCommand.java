@@ -1,4 +1,4 @@
-// Copyright 2010, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -11,7 +11,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Dispatch Command for radar scope information messages. 
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 3.0
  */
 
@@ -32,14 +32,14 @@ public class ScopeInfoCommand extends DispatchCommand {
 		// Check the max range - if we're not an Admin/HR limit it
 		int maxRange = SystemData.getInt("mp.max_scope_range", 1500);
 		if (!ctx.getUser().isInRole("HR") && !ctx.getUser().isInRole("Developer") && (msg.getRange() > maxRange)) {
-			log.warn("Setting max range for " + env.getOwnerID() + " to " + maxRange + " miles");
+			log.warn("Setting max range for {} to {} miles", env.getOwnerID(), Integer.valueOf(maxRange));
 			msg.setRange(maxRange);
 		}
 		
 		// Check that it's a valid message - if not, clear the scope center
 		boolean isValid = (msg.getRange() > 2) && (msg.getLatitude() != 0.0);
 		if (!isValid || !ac.getIsDispatch()) {
-			log.info("Clearing radar scope for " + ac.getUserID());
+			log.info("Clearing radar scope for {}", ac.getUserID());
 			ac.setScope(null);
 		} else
 			ac.setScope(msg);

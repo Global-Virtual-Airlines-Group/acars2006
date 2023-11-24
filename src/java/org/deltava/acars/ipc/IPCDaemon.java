@@ -119,7 +119,7 @@ public class IPCDaemon implements Runnable {
 								
 								// Reload the user
 								final int id = usr.getID();
-								log.warn("ACARS Invalidated User " + usr.getName());
+								log.warn("ACARS Invalidated User {}", usr.getName());
 								CacheManager.invalidate("Pilots", usr.cacheKey());
 								Collection<ACARSConnection> cons = acPool.getAll(c -> c.isAuthenticated() && (c.getUser().getID() == id));
 								for (ACARSConnection ac : cons) {

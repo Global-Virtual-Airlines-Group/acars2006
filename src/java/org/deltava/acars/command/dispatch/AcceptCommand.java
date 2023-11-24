@@ -10,7 +10,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to accept Dispatch service requests. 
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 2.0
  */
 
@@ -28,7 +28,7 @@ public class AcceptCommand extends DispatchCommand {
 		AcceptMessage msg = (AcceptMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection(msg.getRecipient());
 		if (ac == null) {
-			log.warn("Unknown recipient ID - " + msg.getRecipient());
+			log.warn("Unknown recipient ID - {}", msg.getRecipient());
 			return;
 		}
 		
@@ -36,7 +36,7 @@ public class AcceptCommand extends DispatchCommand {
 		if ((ac.getDispatcherID() == 0) && !ac.getIsDispatch()) {
 			ACARSConnection dac = ctx.getACARSConnection(env.getConnectionID());
 			ac.setDispatcherID(dac.getID());
-			log.info(dac.getUserID() + " accepted dispatch request from " + ac.getUserID());
+			log.info("{} accepted dispatch request from {}", dac.getUserID(), ac.getUserID());
 			
 			// Send the ACK
 			AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getParentID());
@@ -44,7 +44,7 @@ public class AcceptCommand extends DispatchCommand {
 			ackMsg.setEntry("dispatcherID", String.valueOf(env.getOwner().getID()));
 			ctx.push(ackMsg, ac.getID(), true);
 		} else if (ac.getDispatcherID() != 0)
-			log.info(ac.getUserID() + " already has dispatch service");
+			log.info("{} already has dispatch service", ac.getUserID());
 		
 		// Send a cancel message to all other dispatchers
 		CancelMessage cMsg = new CancelMessage(ac.getUser());
