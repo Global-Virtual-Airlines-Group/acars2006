@@ -28,7 +28,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -444,7 +444,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 	 */
 	public void updateSelector() throws IOException {
 		if (_cSelector != null)
-			log.info("Updating Read Selector after " + _selectCount + " selects");
+			log.info("Updating Read Selector after {} selects", Integer.valueOf(_selectCount));
 		
 		Selector s = null;
 		try {

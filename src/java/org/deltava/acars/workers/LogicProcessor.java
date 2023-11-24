@@ -119,7 +119,7 @@ public class LogicProcessor extends Worker {
 		_subCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		int size = _commands.size() + _subCommands.size();
-		log.info("Loaded " + size + " commands");
+		log.info("Loaded {} commands", Integer.valueOf(size));
 	}
 
 	private class CommandWorker extends PoolWorker {

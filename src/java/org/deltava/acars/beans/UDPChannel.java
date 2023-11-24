@@ -36,7 +36,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 
 		// Register the selector
 		_dc.register(_wSelector, SelectionKey.OP_WRITE);
-		log.info("Enabled voice access from " + NetworkUtils.getSourceAddress(addr));
+		log.info("Enabled voice access from {}", NetworkUtils.getSourceAddress(addr));
 		updateLastActivity();
 	}
 

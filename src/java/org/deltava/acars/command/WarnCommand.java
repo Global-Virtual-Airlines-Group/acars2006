@@ -66,7 +66,7 @@ public class WarnCommand extends ACARSCommand {
 				ac.getUser().setACARSRestriction(Restriction.NOMSGS);
 				disableVoiceText = true;
 			} else if (isMuted && msg.isReset()) {
-				log.info("Reset warnings for " + ac.getUserID());
+				log.info("Reset warnings for {}", ac.getUserID());
 				su.setDescription("Warning level reset");
 				ac.setMuted(false);
 				ac.getUser().setACARSRestriction(Restriction.RESTRICT);

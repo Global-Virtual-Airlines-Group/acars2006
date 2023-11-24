@@ -69,7 +69,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Initialize system data
 		SystemData.init();
 		String code = SystemData.get("airline.code");
-		log.info("Starting " + code);
+		log.info("Starting {}", code);
 		SharedData.addApp(code);
 		
 		// Load Secrets
@@ -131,7 +131,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		try {
 			Class<?> c = Class.forName(authClass);
 			Authenticator auth = (Authenticator) c.getDeclaredConstructor().newInstance();
-			log.debug("Loaded class " + authClass);
+			log.debug("Loaded class {}", authClass);
 
 			// Initialize and store in the servlet context
 			auth.init(Authenticator.DEFAULT_PROPS_FILE);
