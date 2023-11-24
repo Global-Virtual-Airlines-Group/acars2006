@@ -52,7 +52,7 @@ public class NavaidCommand extends DataCommand {
 
 					Runway nav = dao.getRunway(ap, runway.toString(), sim);
 					if (nav != null) {
-						log.info("Loaded Runway data for " + nav.getCode() + " " + runway);
+						log.info("Loaded Runway data for {} {}", nav.getCode(), runway);
 						
 						// Adjust for magnetic variation
 						nav.setHeading(nav.getHeading() + (int)nav.getMagVar());
@@ -69,7 +69,7 @@ public class NavaidCommand extends DataCommand {
 					GeoLocation loc = ((ac.getPosition() == null) || msg.hasFlag("lat")) ? new GeoPosition(StringUtils.parse(msg.getFlag("lat"), 0d), StringUtils.parse(msg.getFlag("lng"), 0d)) : ac.getPosition();
 					NavigationDataBean nav = ndMap.get(id, GeoUtils.isValid(loc) ? loc : ac.getPosition());
 					rspMsg.add(new NavigationRadioBean(msg.getFlag("radio"), nav, msg.getFlag("hdg")));
-					log.info("Loaded Navigation data for " + id);
+					log.info("Loaded Navigation data for {}", id);
 				}
 				
 				ctx.push(rspMsg);

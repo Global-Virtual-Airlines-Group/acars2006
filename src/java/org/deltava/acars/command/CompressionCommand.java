@@ -9,7 +9,7 @@ import org.deltava.acars.message.*;
 /**
  * An ACARS Server Command to enable/disable data compression. 
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 6.4
  */
 
@@ -30,12 +30,12 @@ public class CompressionCommand extends ACARSCommand {
 		final CompressionMessage msg = (CompressionMessage) env.getMessage(); 
 		String cType = msg.getCompression().name().toLowerCase(); 
 		if (ac.getCompression() == msg.getCompression()) {
-			log.info(ac.getUserID() + " requesting " + cType + " compression, already set");
+			log.info("{} requesting {} compression, already set", ac.getUserID(), cType);
 			return;
 		}
 		
 		// Set compression for connection
-		log.info("Setting data compression for " + ac.getUserID() + " to " + cType);
+		log.info("Setting data compression for {} to {}", ac.getUserID(), cType);
 		ac.setCompression(msg.getCompression());
 
 		// Send an ACK

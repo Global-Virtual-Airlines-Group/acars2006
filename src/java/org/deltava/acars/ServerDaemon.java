@@ -58,7 +58,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
         try {
            Class<?> c = Class.forName(authClass);
            Authenticator auth = (Authenticator) c.getDeclaredConstructor().newInstance();
-       	   log.debug("Loaded class " + authClass);
+       	   log.debug("Loaded class {}", authClass);
            
            // Initialize and store in the servlet context
            auth.init(Authenticator.DEFAULT_PROPS_FILE);
@@ -147,7 +147,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 
  		// Turn the workers into threads
  		for (Worker w : tasks) {
- 			log.debug("Initializing " + w.getName());
+ 			log.debug("Initializing {}", w.getName());
  			w.setConnectionPool(_conPool);
  			w.open();
  			
