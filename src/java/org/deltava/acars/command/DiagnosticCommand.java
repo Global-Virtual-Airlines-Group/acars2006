@@ -193,7 +193,7 @@ public class DiagnosticCommand extends ACARSCommand {
 					return;
 				}
 				
-				log.warn("ACARS Content Warning from " + env.getOwnerID());
+				log.warn("ACARS Content Warning from {}", env.getOwnerID());
 				
 				// Search for logged-in HR role members
 				boolean sentMessage = false;

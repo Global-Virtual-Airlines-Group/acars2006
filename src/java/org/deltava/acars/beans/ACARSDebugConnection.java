@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2011, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2011, 2016, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 /**
  * An ACARS Connection that dumps messages to a text file.
  * @author Luke
- * @version 7.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -25,7 +25,7 @@ public class ACARSDebugConnection extends ACARSConnection {
 		try {
 			_debugWriter = new PrintWriter(new FileWriter(debugFile), false);
 		} catch (IOException ie) {
-			log.warn("Error creating debug file " + debugFile.getAbsolutePath());
+			log.warn("Error creating debug file {}", debugFile.getAbsolutePath());
 		}
 
 		// Log connection info

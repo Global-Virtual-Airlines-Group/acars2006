@@ -12,7 +12,7 @@ import org.deltava.util.NetworkUtils;
 /**
  * An object to handle UDP voice connections.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 4.0
  */
 
@@ -108,7 +108,7 @@ public class UDPChannel extends ACARSChannel<byte[]> {
 
 			_stats.addMessageOut();
 		} catch (IOException ie) {
-			log.warn("Error writing to voice channel for " + getRemoteAddr() + " - " + ie.getMessage());
+			log.warn("Error writing to voice channel for {} - {}", getRemoteAddr(), ie.getMessage());
 		}
 	}
 }

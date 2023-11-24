@@ -160,7 +160,7 @@ public class TCPChannel extends ACARSChannel<String> {
 		int sPos = _msgBuffer.indexOf(ProtocolInfo.REQ_ELEMENT_OPEN);
 		if (sPos == -1) {
 			if ((_msgBuffer.length() > 54) && (_msgBuffer.indexOf(ProtocolInfo.XML_HEADER) == -1)) {
-				log.warn("Malformed message from " + getRemoteHost() + " - (" + _msgBuffer.length() + " bytes) " + _msgBuffer.toString());
+				log.warn("Malformed message from {} - ({} bytes) {}", getRemoteHost(), Integer.valueOf(_msgBuffer.length()), _msgBuffer);
 				_msgBuffer.setLength(0);
 			}
 

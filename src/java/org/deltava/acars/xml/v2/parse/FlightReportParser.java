@@ -21,7 +21,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for v2 FlightReport elements.
  * @author Luke
- * @version 10.5
+ * @version 11.1
  * @since 10.5
  */
 
@@ -72,7 +72,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		String lf = getChildText(e, "loadFactor", "0");
 		afr.setLoadFactor(StringUtils.parse(lf, 0.0));
 		if (Double.isNaN(afr.getLoadFactor())) {
-			log.warn("Invalid load factor from " + user.getPilotCode() + " - " + lf);
+			log.warn("Invalid load factor from {} - {}", user.getPilotCode(), lf);
 			afr.setLoadFactor(0);
 		}
 			
@@ -107,7 +107,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 				afr.setDepartureTime(StringUtils.parseInstant(e.getChildTextTrim("startSimTime"), "MM/dd/yyyy HH:mm:ss"));
 				afr.setArrivalTime(StringUtils.parseInstant(e.getChildTextTrim("gateSimTime"), "MM/dd/yyyy HH:mm:ss"));
 			} catch (Exception ex) {
-				log.warn("Error parsing sim time - " + ex.getMessage());
+				log.warn("Error parsing sim time - {}", ex.getMessage());
 			}
 		}
 		

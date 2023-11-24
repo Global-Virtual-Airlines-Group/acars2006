@@ -86,7 +86,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 						sleepTime -= ms;
 						_status.complete();
 						if (!isComplete) {
-							log.warn("Pool still active after " + ms + "ms");
+							log.warn("Pool still active after {}ms", Long.valueOf(ms));
 							sleepTime += (SLEEP_INTERVAL * 1000);
 						}
 

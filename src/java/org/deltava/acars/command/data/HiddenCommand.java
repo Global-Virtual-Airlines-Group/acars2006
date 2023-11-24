@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2016, 2018, 2019, 2020, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2016, 2018, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.data.ConnectionMessage;
 /**
  * An ACARS command to toggle a Pilot's hidden status.
  * @author Luke
- * @version 10.2
+ * @version 11.1
  * @since 2.2
  */
 
@@ -29,7 +29,7 @@ public class HiddenCommand extends DataCommand {
 		DataRequestMessage msg = (DataRequestMessage) env.getMessage();
 		ACARSConnection ac = ctx.getACARSConnection();
 		if (!ac.getUser().isInRole("HR")) {
-			log.warn(ac.getUserID() + " attempting to hide connection!");
+			log.warn("{} attempting to hide connection!", ac.getUserID());
 			return;	
 		}
 		

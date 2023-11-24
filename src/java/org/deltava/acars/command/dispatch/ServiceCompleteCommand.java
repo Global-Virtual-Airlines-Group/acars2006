@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2011, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2011, 2019, 2020, 2023 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import org.deltava.acars.beans.*;
@@ -10,7 +10,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Command to handle Dispatch service completion notifications.
  * @author Luke
- * @version 9.1
+ * @version 11.1
  * @since 2.0
  */
 
@@ -40,17 +40,17 @@ public class ServiceCompleteCommand extends DispatchCommand {
 			if ((dc2 != null) && (dc2.getID() != dspID)) {
 				dspID = dc2.getID();
 				if (dc != null)
-					log.warn("Sending Accept to " + dc2.getUserID() + ", expected " + dc.getUserID());
+					log.warn("Sending Accept to {}, expected {}", dc2.getUserID(), dc.getUserID());
 				else
-					log.warn("Sending Accept to " + dc2.getUserID());
+					log.warn("Sending Accept to {}", dc2.getUserID());
 			} else if (dc2 == null)
-				log.warn("Cannot send Accept to " + dispatcherID);
+				log.warn("Cannot send Accept to {}", dispatcherID);
 			else
-				log.info("Sending Accept to " + dc2.getUserID());
+				log.info("Sending Accept to {}", dc2.getUserID());
 		} else if (dc == null)
-			log.warn("Unknown Dispatch connection - " + dspID);
+			log.warn("Unknown Dispatch connection - {}", Long.valueOf(dspID));
 		else
-			log.info("Sending Accept to " + dc.getUserID());
+			log.info("Sending Accept to {}", dc.getUserID());
 
 		ctx.push(msg, dspID, false);
 	}

@@ -16,7 +16,7 @@ import org.deltava.acars.message.dispatch.FlightDataMessage;
 /**
  * An ACARS server command to process Dispatch Messages.
  * @author Luke
- * @version 10.5
+ * @version 11.1
  * @since 1.1
  */
 
@@ -35,7 +35,7 @@ public class FlightDataCommand extends DispatchCommand {
 		FlightDataMessage msg = (FlightDataMessage) env.getMessage();
 		ACARSConnection con = ctx.getACARSConnection();
 		if ((usr == null) || (con == null) || (!con.getIsDispatch())) {
-			log.warn("Unauthorized dispatch message from " + env.getConnectionID());
+			log.warn("Unauthorized dispatch message from {}", Long.valueOf(env.getConnectionID()));
 			return;
 		}
 
@@ -51,7 +51,7 @@ public class FlightDataCommand extends DispatchCommand {
 			dc = ctx.getACARSConnection(msg.getRecipient());
 			if (dc == null) {
 				ackMsg.setEntry("error", "Unknown recipient - " + msg.getRecipient());
-				log.warn("Cannot send dispatch message to " + msg.getRecipient());
+				log.warn("Cannot send dispatch message to {}", msg.getRecipient());
 			}
 		}
 
@@ -83,7 +83,7 @@ public class FlightDataCommand extends DispatchCommand {
 					SetRoute dao = new SetRoute(c);
 					dao.save(msg, con.getClientBuild());
 				} else {
-					log.warn(con.getUser().getName() + " attempting to save duplicate of Route #" + dupeID);
+					log.warn("{} attempting to save duplicate of Route #{}", con.getUser().getName(), Integer.valueOf(dupeID));
 					msg.setRouteID(dupeID);
 				}
 			}
@@ -91,7 +91,7 @@ public class FlightDataCommand extends DispatchCommand {
 			ctx.commitTX();
 		} catch (DAOException de) {
 			ctx.rollbackTX();
-			log.warn("Cannot save/update route data - " + de.getMessage(), de);
+			log.atWarn().withThrowable(de).log("Cannot save/update route data - {}", de.getMessage());
 		} finally {
 			ctx.release();
 		}
@@ -101,7 +101,7 @@ public class FlightDataCommand extends DispatchCommand {
 		ackMsg.setEntry("logID", String.valueOf(msg.getLogID()));
 		ackMsg.setEntry("msgs", (dc == null) ? "0" : "1");
 		if (dc != null) {
-			log.info("Dispatch info from " + usr.getPilotCode() + " to " + dc.getUserID());
+			log.info("Dispatch info from {} to {}", usr.getPilotCode(), dc.getUserID());
 			ctx.push(msg, dc.getID(), false);
 		}
 

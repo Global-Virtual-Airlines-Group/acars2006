@@ -52,7 +52,7 @@ public class EquipmentListCommand extends DataCommand {
 			// Get the aircraft
 			GetAircraft acdao = new GetAircraft(con);
 			Collection<Aircraft> allAC = acdao.getAll();
-			allAC.stream().filter(a -> a.getApps().isEmpty()).forEach(a -> log.warn("No options for " + a.getName()));
+			allAC.stream().filter(a -> a.getApps().isEmpty()).forEach(a -> log.warn("No options for {}", a.getName()));
 			if (!ac.getIsDispatch())
 				allAC.stream().filter(a -> airlineCodes.stream().anyMatch(aCode -> a.isUsed(aCode))).forEach(rspMsg::add);
 			else

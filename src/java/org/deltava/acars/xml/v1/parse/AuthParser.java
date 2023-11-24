@@ -100,7 +100,7 @@ class AuthParser extends XMLElementParser<AuthenticateMessage> {
 				Instant utcDate = LocalDateTime.parse(utc.replace('-', '/'), mdtf).toInstant(ZoneOffset.UTC);
 				msg.setClientUTC(utcDate);
 			} catch (IllegalArgumentException iae) {
-				log.warn("Unparseable UTC date - " + utc);
+				log.warn("Unparseable UTC date - {}", utc);
 				msg.setClientUTC(Instant.now());
 			}
 		} else

@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for Pilot Client position elements.
  * @author Luke
- * @version 11.0
+ * @version 11.1
  * @since 1.0
  */
 
@@ -57,14 +57,14 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 				msg.setSimTime(msg.getDate());
 			}
 		} catch (Exception ex) {
-			log.warn("Unparseable date from " + user + " - " + de);
+			log.warn("Unparseable date from {} - {}", user, de);
 		}
 
 		// Get the basic information
 		try {
 			msg.setPhase(FlightPhase.fromString(getChildText(e, "phase", "?")));
 			if (msg.getPhase() == FlightPhase.UNKNOWN)
-				log.warn("Unknown flight phase from " + user.getPilotCode() + "- " + getChildText(e, "phase", "?"));
+				log.warn("Unknown flight phase from {} - {}", user.getPilotCode(), getChildText(e, "phase", "?"));
 
 			msg.setHeading(Integer.parseInt(getChildText(e, "hdg", "0")));
 			msg.setPitch(Double.parseDouble(getChildText(e, "pitch", "0")));

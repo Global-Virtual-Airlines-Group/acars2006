@@ -46,7 +46,7 @@ public class NetworkWriter extends Worker {
 			else if (_env instanceof BinaryEnvelope)
 				_con.write((byte[]) _env.getMessage());
 			else
-				log.warn("Unknown envelope type - " + _env.getClass().getSimpleName());
+				log.warn("Unknown envelope type - {}", _env.getClass().getSimpleName());
 			
 			_status.add(System.nanoTime() - _env.getTime());
 		}
