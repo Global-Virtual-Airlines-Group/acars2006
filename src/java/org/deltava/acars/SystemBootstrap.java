@@ -28,6 +28,8 @@ import org.gvagroup.common.SharedData;
 import org.gvagroup.jdbc.*;
 import org.gvagroup.tomcat.SharedWorker;
 
+import com.newrelic.api.agent.NewRelic;
+
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
@@ -225,6 +227,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Log the error
 		log.atError().withThrowable(e).log(e.getMessage());
+		NewRelic.noticeError(e, false);
 		
 		// Spawn a new daemon
 		Thread nt = Thread.ofVirtual().name(r.toString()).unstarted(r);
