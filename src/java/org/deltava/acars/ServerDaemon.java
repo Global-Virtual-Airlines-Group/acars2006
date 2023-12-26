@@ -19,6 +19,8 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.jdbc.*;
 
+import com.newrelic.api.agent.NewRelic;
+
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
@@ -169,6 +171,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		
  		// Log the error
  		log.atError().withThrowable(e).log("{} error: {}", t.getName(), e.getMessage());
+ 		NewRelic.noticeError(e, false);
  		
  		// Get the worker and remove it
  		Worker w = _threads.get(t);

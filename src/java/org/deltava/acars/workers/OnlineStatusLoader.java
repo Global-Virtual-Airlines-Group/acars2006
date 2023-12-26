@@ -18,6 +18,8 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.ipc.WorkerState;
 import org.gvagroup.jdbc.ConnectionPool;
 
+import com.newrelic.api.agent.NewRelic;
+
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
@@ -123,5 +125,6 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		log.atError().withThrowable(e).log("{} Error - {}", t.getName(), e.getMessage());
+		NewRelic.noticeError(e, false);
 	}
 }
