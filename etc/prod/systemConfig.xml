@@ -62,7 +62,7 @@
 	<security>
 		<secrets>/usr/local/tomcat/conf/acars_secrets.properties</secrets>
 		<auth>org.deltava.security.ApacheSQLAuthenticator</auth>
-		<baseDN>ou=dva,o=sce</baseDN>
+		<baseDN>ou=dva,o=gva</baseDN>
 	</security>
 
 	<schedule>
