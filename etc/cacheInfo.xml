@@ -49,6 +49,7 @@
 	<cache id="IATACodes" remote="true" expires="4h" />
 	<cache id="ScheduleSource" remote="true" expires="1h" />
 	<cache id="OnTimeRoute" remote="true" expires="24h" />
+	<cache id="ArchiveMeta" remote="true" expires="7200" />
 
 	<cache id="IPInfo" remote="true" expires="4d" />
 	<cache id="IPBlock" remote="true" expires="4d" />
