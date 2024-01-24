@@ -198,7 +198,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			Duration timeDelta = Duration.between(pd.atStartOfDay(), sd.atStartOfDay());
 			if (sd.getDayOfYear() != pd.getDayOfYear()) {
 				LocalDateTime pldt = LocalDateTime.of(pd, LocalTime.of(12, 0));
-				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date from %s to %s, Pilot in %s (-%d s)", StringUtils.format(sd, "MM/dd/yyyy"), StringUtils.format(pldt.atZone(ZoneOffset.UTC), "MM/dd/yyyy"), p.getTZ(), Long.valueOf(timeDelta.toSeconds())));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Adjusted date from %s to %s, Pilot in %s (%d s)", StringUtils.format(sd, "MM/dd/yyyy"), StringUtils.format(pldt.atZone(ZoneOffset.UTC), "MM/dd/yyyy"), p.getTZ(), Long.valueOf(-timeDelta.toSeconds())));
 				afr.setDate(pldt.atZone(ZoneOffset.UTC).toInstant());
 			}
 
