@@ -36,6 +36,7 @@ public class Parser extends org.deltava.acars.xml.v1.parse.Parser {
 		_eParsers.put(MessageType.PERFORMANCE, new PerformanceParser());
 		_eParsers.put(MessageType.DISCONNECT, new KickParser());
 		_eParsers.put(MessageType.PING, new PingParser());
+		_eParsers.put(MessageType.TAXI, new TaxiTimeParser());
 		
 		// Dispatch parsers
 		_dspParsers.put(DispatchRequest.SCOPEINFO, new ScopeInfoParser());

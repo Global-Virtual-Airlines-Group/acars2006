@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.time.Duration;
@@ -17,7 +17,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to return airport taxi times.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 8.6
  */
 
@@ -40,17 +40,24 @@ public class TaxiTimeCommand extends DataCommand {
 			return;
 		}
 		
+		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
-			TaxiTime tt = ttdao.getTaxiTime(a); Duration d = isTakeoff ? tt.getOutboundTime() : tt.getInboundTime();
-			AcknowledgeMessage ackMsg = 	new AcknowledgeMessage(env.getOwner(), msg.getID());
+			TaxiTime tt = ttdao.getTaxiTime(a); 
+			Duration d = isTakeoff ? tt.getOutboundTime() : tt.getInboundTime();
+			Duration stdv = isTakeoff? tt.getOutboundStdDev() : tt.getInboundStdDev();
+			int cnt = isTakeoff ? tt.getOutboundCount() : tt.getInboundCount();
 			ackMsg.setEntry("taxiTime", String.valueOf(d.toSeconds()));
 			ackMsg.setEntry("year", String.valueOf(tt.getYear()));
-			ctx.push(ackMsg);
+			ackMsg.setEntry("size", String.valueOf(cnt));
+			ackMsg.setEntry("stdDev", String.valueOf(stdv.toSeconds()));
 		} catch (DAOException de) {
+			ackMsg.setEntry("error", "Cannot load taxi time - " + de.getMessage());
 			log.atError().withThrowable(de).log("Error loading taxi times - {}" + de.getMessage());
 		} finally {
 			ctx.release();
 		}
+		
+		ctx.push(ackMsg);
 	}
 }
