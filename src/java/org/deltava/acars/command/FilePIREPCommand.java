@@ -327,6 +327,15 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			awdao.writeRunways(flightID, inf.getRunwayD(), inf.getRunwayA());
 			awdao.writeGates(inf);
 			
+			// Write taxi data if not already submitted
+			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(con); boolean hasTaxiTimes = ttdao.hasTimes(flightID);
+			if (!hasTaxiTimes && (afr.getTaxiOutTime() != null) && (afr.getTaxiInTime() != null))
+				awdao.writeTaxi(inf, (int)afr.getTaxiInTime().toSeconds(), (int)afr.getTaxiOutTime().toSeconds());
+			else if (!hasTaxiTimes) {
+				log.warn("Cannot log taxi in/out times for Flight {} - {} / {}", Integer.valueOf(flightID), afr.getTaxiInTime(), afr.getTaxiOutTime());
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, "Unable to calculate taxi in/out times");
+			}
+			
 			// Check if we're a dispatch plan
 			if ((msg.getDispatcher() == DispatchType.DISPATCH) && (info.getDispatcher() != DispatchType.DISPATCH)) {
 				log.warn("Flight {} was not set as Dispatch, but PIREP has Dispatch flag!", Integer.valueOf(flightID));

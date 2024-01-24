@@ -1,10 +1,10 @@
-// Copyright 2018, 2019, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 /**
  * An enumeration of ACARS message types.
  * @author Luke
- * @version 9.1
+ * @version 11.2
  * @since 8.4
  */
 
@@ -12,9 +12,9 @@ public enum MessageType {
 	POSITION("position", "Position Report"), TEXT("text", "Text Message"), DATAREQ("datareq", "Data Request"), INFO("flight_info", "Flight Information"), ACK("ack", "Acknowledgement"), DIAG("diag", "Diagnostic"), 
 	AUTH("auth", "Authentication"), VIEWER("view", "Flight Viewer"), DATARSP("datarsp", "Data Response"), PING("ping", "Ping"), QUIT("quit", "Disconnect"), ENDFLIGHT("end_flight", "End Flight"),
 	SYSTEM("smsg", "System Message"), PIREP("pirep", "Flight Report"), ERROR("error", "Error"), DISPATCH("dispatch", "Dispatch Data"), TOTD("totd", "Takeoff Touchdown"), MPUPDATE("mp", "MP Update"), 
-	MPINIT("mpinit", "MP Init"), MPREMOVE("mpquit", "MP Remove"), SWCHAN("voxswchan", "Switch Channel"), MUTE("mute", "Mute"), VOICETOGGLE("voxtoggle", "Voice Toggle"), VOICE("vox", "Voice"), 
-	WARN("warn", "Warning"), WARNRESET("warnreset", "Warning Reset"), POSUPDINT("updint", "Update Interval"), VOICEPINGINT("voxping", "Voice Ping Interval"),COMPRESS("compress", "Data Compression"), 
-	SYSINFO("sysinfo", "System Information"), PERFORMANCE("performance", "Client Performance"), DISCONNECT("kick", "Disconnect");
+	MPINIT("mpinit", "MP Init"), MPREMOVE("mpquit", "MP Remove"), SWCHAN("voxswchan", "Switch Channel"), MUTE("mute", "Mute"), WARN("warn", "Warning"), WARNRESET("warnreset", "Warning Reset"), 
+	POSUPDINT("updint", "Update Interval"), COMPRESS("compress", "Data Compression"), SYSINFO("sysinfo", "System Information"), PERFORMANCE("performance", "Client Performance"), DISCONNECT("kick", "Disconnect"),
+	TAXI("taxitime", "Taxi Times");
 	
 	private final String _code;
 	private final String _desc;
