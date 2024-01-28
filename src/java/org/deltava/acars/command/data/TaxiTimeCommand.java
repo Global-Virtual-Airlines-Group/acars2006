@@ -1,7 +1,7 @@
 // Copyright 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
-import java.time.Duration;
+import java.time.*;
 
 import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
@@ -43,7 +43,10 @@ public class TaxiTimeCommand extends DataCommand {
 		AcknowledgeMessage ackMsg = new AcknowledgeMessage(env.getOwner(), msg.getID());
 		try {
 			GetACARSTaxiTimes ttdao = new GetACARSTaxiTimes(ctx.getConnection());
-			TaxiTime tt = ttdao.getTaxiTime(a); 
+			TaxiTime tt = ttdao.getTaxiTime(a, ZonedDateTime.now().getYear());
+			if (tt.isEmpty())
+				tt = ttdao.getTaxiTime(a);
+			
 			Duration d = isTakeoff ? tt.getOutboundTime() : tt.getInboundTime();
 			Duration stdv = isTakeoff? tt.getOutboundStdDev() : tt.getInboundStdDev();
 			int cnt = isTakeoff ? tt.getOutboundCount() : tt.getInboundCount();
