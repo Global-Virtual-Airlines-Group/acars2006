@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 1.0
  */
 
@@ -130,6 +130,10 @@ public class InfoCommand extends ACARSCommand {
 			GetScheduleSearch sdao = new GetScheduleSearch(c);
 			sdao.setSources(rsdao.getSources(true, usrLoc.getDB()));
 			
+			// Load draft flights, we may need these later
+			GetFlightReports prdao = new GetFlightReports(c);
+			Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg, usrLoc.getDB());
+			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
 				RoutePair rt = RoutePair.of(msg.getAirportD(), msg.getAirportA());
@@ -137,9 +141,7 @@ public class InfoCommand extends ACARSCommand {
 				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
 				// If we're not valid, check against draft PIREPs
-				GetFlightReports prdao = new GetFlightReports(c);
 				if (!msg.isScheduleValidated()) {
-					Collection<FlightReport> pireps = prdao.getDraftReports(usrLoc.getID(), msg, usrLoc.getDB());
 					Optional<FlightReport> odfr = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0))).findAny();
 					msg.setScheduleValidated(odfr.isPresent());
 				}
@@ -189,6 +191,9 @@ public class InfoCommand extends ACARSCommand {
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
 				ssc.setExcludeHistoric(!msg.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
+				if (!oth.hasFlights())
+					pireps.stream().filter(DraftFlightReport.class::isInstance).map(DraftFlightReport.class::cast).forEach(oth::add);
+				
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null) {
 					GetACARSOnTime otdao = new GetACARSOnTime(c);
@@ -197,6 +202,7 @@ public class InfoCommand extends ACARSCommand {
 					ackMsg.setEntry("onTimeTotal", String.valueOf(otStats.getTotalLegs()));
 					
 					ScheduleEntry se = oth.getScheduleEntry();
+					ackMsg.setEntry("onTimeDraft", String.valueOf(se.getSource() == ScheduleSource.CUSTOM));
 					ackMsg.setEntry("onTimeFlight", se.getFlightCode());
 					ackMsg.setEntry("onTimeLeg", String.valueOf(se.getLeg()));
 					ackMsg.setEntry("onTimeDeparture", StringUtils.format(se.getTimeD(), "HH:mm"));
