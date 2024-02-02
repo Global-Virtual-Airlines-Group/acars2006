@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2014, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2014, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 1.0
  */
 
@@ -54,10 +54,11 @@ public class DraftFlightCommand extends DataCommand {
 			// See if the user has any tours
 			boolean requestTours = Boolean.parseBoolean(msg.getFlag("tours"));
 			if (requestTours) {
-				Collection<TourProgress> tourProgress = tdao.getPilotProgress(env.getOwner().getID(), ctx.getDB());
+				Collection<TourProgress> tourProgress = tdao.getPilotProgress(env.getOwner().getID(), ctx.getDB()); final Instant now = Instant.now();
 				for (TourProgress tp : tourProgress) {
 					Tour t = tdao.get(tp.getTourID(), ctx.getDB());
-					if ((t.getMatchLeg() || t.getMatchEquipment()) && (tp.getLegs() < t.getFlightCount())) {
+					boolean hasMatch = t.getMatchLeg() || t.getMatchEquipment(); 
+					if ((hasMatch || (tp.getLegs() > 0)) && (tp.getLegs() < t.getFlightCount()) && t.isActiveOn(now)) {
 						ScheduleEntry tl = t.getFlights().get(tp.getLegs());
 						DraftFlightReport dfr = new DraftFlightReport(tl);
 						dfr.setDate(Instant.now().truncatedTo(ChronoUnit.DAYS));
@@ -65,7 +66,7 @@ public class DraftFlightCommand extends DataCommand {
 						dfr.setTimeD(tl.getTimeD().toLocalDateTime());
 						dfr.setTimeA(tl.getTimeA().toLocalDateTime());
 						dfr.setRemarks(String.format("%s Leg %d", t.getName(), Integer.valueOf(tp.getLegs() + 1)));
-						if (flights.stream().allMatch(f -> (FlightNumber.compare(f, dfr) != 0)))
+						if (flights.stream().allMatch(f -> (FlightNumber.compare(f, dfr) != 0))) // make sure we don't have a leg already
 							flights.add(dfr);
 					}
 				}
@@ -75,7 +76,7 @@ public class DraftFlightCommand extends DataCommand {
 			flights.stream().map(DraftFlightReport.class::cast).map(dfr -> new DraftFlightPackage(dfr, sbPkgs.get(Integer.valueOf(dfr.getID())))).forEach(rspMsg::add);
 			ctx.push(rspMsg);
 		} catch (DAOException de) {
-			log.atError().withThrowable(de).log("Error loading draft PIREP data for {} - {}", msg.getFlag("id"), de.getMessage());
+			log.atError().withThrowable(de).log("Error loading draft PIREP data for {} - {}", env.getOwner().getName(), de.getMessage());
 			ctx.push(new AcknowledgeMessage(env.getOwner(), msg.getID(), "Cannot load draft Flight Report - " + de.getMessage()));
 		} finally {
 			ctx.release();
