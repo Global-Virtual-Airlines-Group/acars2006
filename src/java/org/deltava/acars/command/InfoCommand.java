@@ -136,8 +136,7 @@ public class InfoCommand extends ACARSCommand {
 			
 			// Validate against the schedule - do this even if the message claims it's valid
 			if (!isValidated) {
-				RoutePair rt = RoutePair.of(msg.getAirportD(), msg.getAirportA());
-				FlightTime avgTime = sdao.getFlightTime(rt, usrLoc.getDB());
+				FlightTime avgTime = sdao.getFlightTime(msg, usrLoc.getDB());
 				msg.setScheduleValidated(avgTime.getType() != RoutePairType.UNKNOWN);
 				
 				// If we're not valid, check against draft PIREPs
