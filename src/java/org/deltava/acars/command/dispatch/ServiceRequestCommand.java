@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 2.0
  */
 
@@ -153,11 +153,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 		if (!msg.isAutoDispatch() || plans.isEmpty()) {
 			for (ACARSConnection ac : cons) {
 				int distance = ac.getLocation().distanceTo(msg);
-				boolean sameAirline = ac.getUserData().getAirlineCode().equals(c.getUserData().getAirlineCode());
 				if (ac.getUser().getID() == c.getUser().getID())
 					log.warn("{} attempting self dispatch", c.getUserID());
-				else if (!sameAirline)
-					log.info("Ignorning {}, different airline", ac.getUserID());
 				else if (distance <= ac.getRange()) {
 					reqsSent++;
 					ctx.push(msg, ac.getID(), true);
