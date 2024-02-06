@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -33,7 +33,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 1.0
  */
 
@@ -295,10 +295,8 @@ public class AuthenticateCommand extends ACARSCommand {
 		ConnectionMessage drMsg = new ConnectionMessage(usr, DataRequest.ADDUSER, 0); // Set this to zero since the message ID is from another user
 		drMsg.add(con);
 		if (con.getUserHidden()) {
-			for (ACARSConnection ac : ctx.getACARSConnectionPool().getAll()) {
-				if ((ac.getID() != con.getID()) && ac.isAuthenticated() && ac.getUser().isInRole("HR"))
-					ctx.push(drMsg, ac.getID(), false);
-			}
+			Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(ac -> (ac.isAuthenticated() && ac.getUser().isInRole("HR") && (ac.getID() != con.getID())));
+			cons.forEach(c -> ctx.push(msg, c.getID(), false));
 		} else
 			ctx.pushAll(drMsg, env.getConnectionID());
 

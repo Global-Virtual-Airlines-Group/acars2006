@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2009, 2012, 2016, 2019, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -17,7 +17,7 @@ import org.deltava.util.UserID;
 /**
  * An ACARS server command to send text messages.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 1.0
  */
 
@@ -80,12 +80,7 @@ public class TextMessageCommand extends ACARSCommand {
 		Pilot rUsr = null;
 		if (msg.isPublic()) {
 			log.info("Public message from {}", usr.getPilotCode());
-			UserData usrLoc = ctx.getACARSConnection().getUserData();
-			for (ACARSConnection ac : cons) {
-				UserData ud = ac.getUserData();
-				if (ud.getAirlineCode().equals(usrLoc.getAirlineCode()) && (ud.getID() != usrLoc.getID()))
-					ctx.push(txtRsp, ac.getID(), false);
-			}
+			ctx.pushAll(txtRsp, ctx.getACARSConnection().getID());
 		} else {
 			log.info("Message from {} to {}", usr.getPilotCode(), msg.getRecipient());
 			Collection<ACARSConnection> dstC = new ArrayList<ACARSConnection>();

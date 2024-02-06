@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 2.8
  */
 
@@ -108,8 +108,7 @@ public class TakeoffCommand extends ACARSCommand {
 			
 			// Send out a system message to the others if not a bounce
 			if (!isBounce) {
-				String aCode = ac.getUserData().getAirlineCode();
-				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> (c.getProtocolVersion() > 1) && c.isAuthenticated() && (c.getID() != ac.getID()) && aCode.equals(c.getUserData().getAirlineCode()));
+				Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(c -> (c.getProtocolVersion() > 1) && c.isAuthenticated() && (c.getID() != ac.getID()));
 				cons.forEach(c -> ctx.push(msg, c.getID(), false));
 			}
 		} catch (DAOException de) {
