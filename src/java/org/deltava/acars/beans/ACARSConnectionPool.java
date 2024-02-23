@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -28,7 +28,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 1.0
  */
 
@@ -162,6 +162,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			InfoMessage inf = ac.getFlightInfo();
 			FlightInfo info = new FlightInfo(0);
 			if (inf != null) {
+				info.setID(inf.getFlightID());
 				info.setAirline(inf.getAirline());
 				info.setFlight(inf.getFlightNumber());
 				info.setAirportD(inf.getAirportD());
@@ -171,16 +172,19 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				info.setEquipmentType(inf.getEquipmentType());
 				info.setAuthorID(ac.getUser().getID());
 				info.setSimulator(inf.getSimulator());
+				info.setPassengers(inf.getPassengers());
+				info.setLoadType(inf.getLoadType());
+				info.setIsACARS64Bit(inf.getIsACARS64Bit());
+				info.setIsSim64Bit(inf.getIsSim64Bit());
 				if (inf.getFlightID() != 0)
 					info.setID(inf.getFlightID());
-			}
 				
-			// Get the flight phase
-			PositionMessage pm = ac.getPosition();
-			if (pm == null)
-				entry.setFlightPhase((inf == null) ? "N/A" : "Unknown");
-			else
-				entry.setFlightPhase(pm.getPhase().getName());
+				PositionMessage pm = ac.getPosition();
+				if (pm != null)
+					entry.setFlightPhase(pm.getPhase());
+				else
+					log.warn("No position message for Flight {} by {}", Integer.valueOf(inf.getFlightID()), ac.getUserID());
+			}
 				
 			// Save the flight info
 			entry.setFlightInfo(info);
