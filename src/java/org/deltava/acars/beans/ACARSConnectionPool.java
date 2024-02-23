@@ -183,7 +183,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				if (pm != null)
 					entry.setFlightPhase(pm.getPhase());
 				else
-					log.warn("No position message for Flight {} by {}", Integer.valueOf(inf.getFlightID()), ac.getUserID());
+					log.warn("No position message for Flight {} by {} ({})", Integer.valueOf(inf.getFlightID()), ac.getUser().getName(), ac.getUserID());
 			}
 				
 			// Save the flight info
