@@ -8,7 +8,6 @@ import org.apache.logging.log4j.*;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
-import org.deltava.beans.GeoLocation;
 import org.deltava.beans.flight.LandingScorer;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
@@ -83,9 +82,8 @@ public class TakeoffCommand extends ACARSCommand {
 			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg, msg.getHeading());
 			Runway r = lr.getBestRunway();
 			if ((r != null) && !isBounce) {
-				GeoLocation rw = (r.getThresholdLength() > 0) ? r.getThreshold() : r;
 				int dist = r.distanceFeet(msg) - r.getThresholdLength();
-				double delta = GeoUtils.delta(r.getHeading(), GeoUtils.course(rw, msg));
+				double delta = GeoUtils.delta(r.getHeading(), GeoUtils.course(r, msg));
 				if (delta > 90)
 					dist = -dist;
 				
