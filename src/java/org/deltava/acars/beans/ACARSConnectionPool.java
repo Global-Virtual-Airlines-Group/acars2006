@@ -2,13 +2,13 @@
 package org.deltava.acars.beans;
 
 import java.io.*;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.nio.channels.*;
-import java.time.Instant;
 
 import org.apache.logging.log4j.*;
 
@@ -162,7 +162,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			InfoMessage inf = ac.getFlightInfo();
 			FlightInfo info = new FlightInfo(0);
 			if (inf != null) {
-				info.setID(inf.getFlightID());
 				info.setAirline(inf.getAirline());
 				info.setFlight(inf.getFlightNumber());
 				info.setAirportD(inf.getAirportD());
@@ -180,10 +179,12 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 					info.setID(inf.getFlightID());
 				
 				PositionMessage pm = ac.getPosition();
-				if (pm != null)
+				if (pm == null) {
+					Duration d = Duration.ofNanos(System.nanoTime() - inf.getTime());
+					if (d.toSeconds() > 900)
+						log.warn("No position for Flight {} by {} ({}) - Info = {}s Complete={}", Integer.valueOf(inf.getFlightID()), ac.getUser().getName(), ac.getUserID(), Long.valueOf(d.getSeconds()), Boolean.valueOf(inf.isComplete()));
+				} else
 					entry.setFlightPhase(pm.getPhase());
-				else
-					log.warn("No position message for Flight {} by {} ({})", Integer.valueOf(inf.getFlightID()), ac.getUser().getName(), ac.getUserID());
 			}
 				
 			// Save the flight info
