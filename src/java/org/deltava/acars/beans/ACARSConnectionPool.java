@@ -181,7 +181,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 				PositionMessage pm = ac.getPosition();
 				if (pm == null) {
 					Duration d = Duration.ofNanos(System.nanoTime() - inf.getTime());
-					if (d.toSeconds() > 900)
+					if (d.toSeconds() > (inf.isComplete() ? 1500 : 600))
 						log.warn("No position for Flight {} by {} ({}) - Info = {}s Complete={}", Integer.valueOf(inf.getFlightID()), ac.getUser().getName(), ac.getUserID(), Long.valueOf(d.getSeconds()), Boolean.valueOf(inf.isComplete()));
 				} else
 					entry.setFlightPhase(pm.getPhase());
