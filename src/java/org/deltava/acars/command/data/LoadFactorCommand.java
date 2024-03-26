@@ -1,4 +1,4 @@
-// Copyright 2011, 2016, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016, 2019, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -23,32 +23,11 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 11.1
+ * @version 11.2
  * @since 4.0
  */
 
 public class LoadFactorCommand extends DataCommand {
-
-	private class SparseRoute implements RoutePair {
-		private final Airport _aD;
-		private final Airport _aA;
-
-		protected SparseRoute(Airport aD, Airport aA) {
-			super();
-			_aD = aD;
-			_aA = aA;
-		}
-
-		@Override
-		public Airport getAirportD() {
-			return _aD;
-		}
-
-		@Override
-		public Airport getAirportA() {
-			return _aA;
-		}
-	}
 
 	/**
 	 * Executes the command.
@@ -65,7 +44,7 @@ public class LoadFactorCommand extends DataCommand {
 
 		// Check for airport
 		double loadFactor = -1;
-		RoutePair rp = new SparseRoute(SystemData.getAirport(msg.getFlag("airportD")), SystemData.getAirport(msg.getFlag("airportA")));
+		RoutePair rp = RoutePair.of(SystemData.getAirport(msg.getFlag("airportD")), SystemData.getAirport(msg.getFlag("airportA")));
 		if (rp.isPopulated() && msg.hasFlag("eqType")) {
 			try {
 				Connection con = ctx.getConnection();
