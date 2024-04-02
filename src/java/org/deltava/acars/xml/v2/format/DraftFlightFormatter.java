@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 10.6
+ * @version 11.2
  * @since 1.0
  */
 
@@ -61,6 +61,7 @@ class DraftFlightFormatter extends ElementFormatter {
 			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
 				fe.setAttribute("isSimBrief", "true");
+				fe.setAttribute("created", String.valueOf(pkg.getCreatedOn().toEpochMilli()));
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
@@ -71,6 +72,9 @@ class DraftFlightFormatter extends ElementFormatter {
 				fe.addContent(XMLUtils.createElement("baseFuel", String.valueOf(pkg.getBaseFuel())));
 				fe.addContent(XMLUtils.createElement("enrouteFuel", String.valueOf(pkg.getEnrouteFuel())));
 				fe.addContent(XMLUtils.createElement("alternateFuel", String.valueOf(pkg.getAlternateFuel())));
+				fe.addContent(XMLUtils.createElement("pax", String.valueOf(pkg.getPax())));
+				fe.addContent(XMLUtils.createElement("bagWeight", String.valueOf(pkg.getBaggageWeight())));
+				fe.addContent(XMLUtils.createElement("cargoWeight", String.valueOf(pkg.getCargoWeight())));
 				for (Airport a : pkg.getAlternates())
 					fe.addContent(formatAirport(a, "alternate"));
 				
