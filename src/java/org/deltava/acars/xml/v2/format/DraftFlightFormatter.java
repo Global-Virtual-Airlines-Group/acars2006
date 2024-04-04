@@ -50,7 +50,6 @@ class DraftFlightFormatter extends ElementFormatter {
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
 			fe.addContent(XMLUtils.createElement("remarks", fr.getRemarks(), true));
 			fe.addContent(XMLUtils.createElement("comments", fr.getComments(), true));
-			fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
 			fe.addContent(XMLUtils.createElement("tourID", String.valueOf(fr.getDatabaseID(DatabaseID.TOUR))));
 			if (fr.getNetwork() != null)
 				fe.addContent(XMLUtils.createElement("network", fr.getNetwork().toString()));
@@ -61,7 +60,6 @@ class DraftFlightFormatter extends ElementFormatter {
 			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
 				fe.setAttribute("isSimBrief", "true");
-				fe.setAttribute("created", String.valueOf(pkg.getCreatedOn().toEpochMilli()));
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
@@ -85,7 +83,8 @@ class DraftFlightFormatter extends ElementFormatter {
 					fpe.setAttribute("type", fp.getType());
 					fe.addContent(fpe);
 				}
-			}
+			} else
+				fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
 			
 			// Add scheduled departure/arrival times and gates
 			XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("gateD", fr.getGateD()));
