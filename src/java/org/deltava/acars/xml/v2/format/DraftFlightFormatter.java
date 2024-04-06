@@ -59,7 +59,8 @@ class DraftFlightFormatter extends ElementFormatter {
 			// Add SimBrief data if present
 			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
-				fe.setAttribute("isSimBrief", "true");
+				fe.setAttribute("isSimBrief", "true"); // TODO Remove when b188 becomes minimum
+				fe.setAttribute("dispatcher", "SimBrief");
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
@@ -71,8 +72,9 @@ class DraftFlightFormatter extends ElementFormatter {
 				fe.addContent(XMLUtils.createElement("enrouteFuel", String.valueOf(pkg.getEnrouteFuel())));
 				fe.addContent(XMLUtils.createElement("alternateFuel", String.valueOf(pkg.getAlternateFuel())));
 				fe.addContent(XMLUtils.createElement("pax", String.valueOf(pkg.getPax())));
-				fe.addContent(XMLUtils.createElement("bagWeight", String.valueOf(pkg.getBaggageWeight())));
+				fe.addContent(XMLUtils.createElement("baggageWeight", String.valueOf(pkg.getBaggageWeight())));
 				fe.addContent(XMLUtils.createElement("cargoWeight", String.valueOf(pkg.getCargoWeight())));
+				fe.addContent(XMLUtils.createElement("bagWeight", String.valueOf(pkg.getBagWeight())));
 				for (Airport a : pkg.getAlternates())
 					fe.addContent(formatAirport(a, "alternate"));
 				
