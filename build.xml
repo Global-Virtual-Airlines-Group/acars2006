@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved. -->
+<!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved. -->
 <project default="deploy" xmlns:if="ant:if">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="21" target="21" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="22" target="22" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally,-options" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
@@ -58,6 +58,7 @@
 	<target name="deploy" depends="compile">
 		<loadproperties srcFile="data/build_deploy.properties" />
 		<property name="webapp.dev.port" value="22" />
+		<property name="webapp.dev.hosts" value="${user.home}/.ssh/known_hosts" />
 		
 		<taskdef classname="org.gvagroup.ant.LowercaseTask" name="lower">
 			<classpath id="lc.classpath">
@@ -69,7 +70,7 @@
 		<lower property="webapp.dev.user" value="${user.name}" />
 
 		<!-- Upload the web configuration -->
-		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF" port="${webapp.dev.port}" knownhosts="${webapp.dev.hosts}" keyfile="${webapp.dev.key}">
 			<fileset file="WEB-INF/web.xml">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
@@ -79,7 +80,7 @@
 		</scp>
 
 		<!-- Upload the JAR files to the app server -->
-		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/lib" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/lib" port="${webapp.dev.port}" knownhosts="${webapp.dev.hosts}" keyfile="${webapp.dev.key}">
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
@@ -91,7 +92,7 @@
 		</scp>
 
 		<!-- Upload the config file to the app server -->
-		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc" port="${webapp.dev.port}" verbose="yes" trust="yes" keyfile="${webapp.dev.key}">
+		<scp todir="${webapp.dev.user}@${webapp.dev.server}:${webapp.dev.path}/WEB-INF/classes/etc" port="${webapp.dev.port}" knownhosts="${webapp.dev.hosts}" keyfile="${webapp.dev.key}">
 			<fileset dir="etc" includes="*.*" excludes="log4j2-test.xml">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
@@ -105,6 +106,7 @@
 	<target name="prod_deploy" depends="compile">
 		<loadproperties srcFile="data/build_deploy.properties" />
 		<property name="webapp.ssh.port" value="22" />
+		<property name="webapp.ssh.hosts" value="${user.home}/.ssh/known_hosts" />
 		<taskdef classname="org.gvagroup.ant.LowercaseTask" name="lower">
 			<classpath id="lc.classpath">
 				<pathelement path="${classpath}" />
@@ -115,7 +117,7 @@
 		<lower property="webapp.ssh.user" value="${user.name}" />
 
 		<!-- Upload the web configuration -->
-		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}" port="${webapp.ssh.port}" knownhosts="${webapp.ssh.hosts}" keyfile="${webapp.ssh.key}">
 			<fileset file="WEB-INF/web.xml">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
@@ -125,7 +127,7 @@
 		</scp>
 
 		<!-- Upload the JAR files to the app server -->
-		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/lib" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/lib" port="${webapp.ssh.port}" knownhosts="${webapp.ssh.hosts}" keyfile="${webapp.ssh.key}">
 			<fileset dir="${java.io.tmpdir}/build">
 				<include name="golgotha.jar" />
 				<include name="golgotha_acars.jar" />
@@ -137,7 +139,7 @@
 		</scp>
 
 		<!-- Upload the config file to the app server -->
-		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/classes/etc" port="${webapp.ssh.port}" verbose="yes" trust="yes" keyfile="${webapp.ssh.key}">
+		<scp todir="${webapp.ssh.user}@${webapp.ssh.server}:${webapp.ssh.path}/classes/etc" port="${webapp.ssh.port}" knownhosts="${webapp.ssh.hosts}" keyfile="${webapp.ssh.key}">
 			<fileset dir="etc/prod" includes="*.*">
 				<modified seldirs="false" algorithm="digest" update="true" delayupdate="true">
 					<param name="algorithm.algorithm" value="MD5" />
