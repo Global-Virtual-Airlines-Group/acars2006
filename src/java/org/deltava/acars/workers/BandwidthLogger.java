@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2010, 2011, 2016, 2017, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2010, 2011, 2016, 2017, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -17,19 +17,19 @@ import org.deltava.dao.acars.SetBandwidth;
 import org.deltava.util.jmx.JMXUtils;
 import org.deltava.util.system.SystemData;
 
-import org.gvagroup.jdbc.ConnectionPool;
+import org.gvagroup.pool.ConnectionPool;
 import org.gvagroup.ipc.WorkerState;
 
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 2.1
  */
 
 public class BandwidthLogger extends Worker {
 	
-	private ConnectionPool _jdbcPool;
+	private ConnectionPool<Connection> _jdbcPool;
 	private final Map<String, ConnectionStats> _lastBW = new HashMap<String, ConnectionStats>();
 	
 	private static final String JMX_NAME = "org.gvagroup:type=Bandwidth,name=ACARS";
@@ -45,7 +45,7 @@ public class BandwidthLogger extends Worker {
 	@Override
 	public void open() {
 		super.open();
-		_jdbcPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		_jdbcPool = SystemData.getJDBCPool();
 		JMXUtils.register(JMX_NAME, _jmx);
 	}
 

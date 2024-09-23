@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -17,14 +17,14 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
-import org.gvagroup.jdbc.*;
+import org.gvagroup.pool.*;
 
 import com.newrelic.api.agent.NewRelic;
 
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 1.0
  */
 
@@ -78,7 +78,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 
  	    // Initialize the connection pool
  	    log.info("Starting JDBC connection pool");
- 	    ConnectionPool jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
+ 	    JDBCPool jdbcPool = new JDBCPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
  	    jdbcPool.setProperties((Map<?, ?>) SystemData.getObject("jdbc.connectProperties"));
  	    jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
  	    jdbcPool.setURL(SystemData.get("jdbc.url"));
@@ -102,7 +102,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	protected void initAirports() {
  		
  		// Get the Connection Pool
- 		ConnectionPool pool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+ 		JDBCPool pool = (JDBCPool) SystemData.getObject(SystemData.JDBC_POOL);
  		
  		Connection c = null;
  		try {

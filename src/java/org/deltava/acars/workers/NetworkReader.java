@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017, 2019, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2017, 2019, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.sql.Connection;
@@ -13,12 +13,12 @@ import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
-import org.gvagroup.jdbc.ConnectionPool;
+import org.gvagroup.pool.ConnectionPool;
 
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 1.0
  */
 
@@ -26,7 +26,7 @@ public class NetworkReader extends Worker {
 	
 	private static final int MIN_EXEC_INTERVAL = 25; // 25ms between intervals
 	
-	private ConnectionPool _cPool;
+	private ConnectionPool<Connection> _cPool;
 
 	/**
 	 * Initializes the Worker.
@@ -41,7 +41,7 @@ public class NetworkReader extends Worker {
 	@Override
 	public final void open() {
 		super.open();
-		_cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		_cPool = SystemData.getJDBCPool();
 		try {
 			_pool.updateSelector();
 		} catch (Exception e) {

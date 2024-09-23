@@ -16,14 +16,14 @@ import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
-import org.gvagroup.jdbc.ConnectionPool;
+import org.gvagroup.pool.ConnectionPool;
 
 import com.newrelic.api.agent.NewRelic;
 
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 11.2
+ * @version 11.3
  * @since 9.0
  */
 
@@ -32,7 +32,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 	final Cache<NetworkInfo> _cache = CacheManager.get(NetworkInfo.class, "ServInfoData");
 	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader());
 
-	private ConnectionPool _jdbcPool;
+	private ConnectionPool<Connection> _jdbcPool;
 
 	private static final int SLEEP_INTERVAL = 30;
 
@@ -46,7 +46,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 	@Override
 	public void open() {
 		super.open();
-		_jdbcPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		_jdbcPool = SystemData.getJDBCPool();
 		
 		// Init the update dates
 		for (Loader l : LOADERS) {
