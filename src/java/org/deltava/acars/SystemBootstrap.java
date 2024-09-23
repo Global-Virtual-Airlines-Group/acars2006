@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -25,7 +25,7 @@ import org.deltava.util.cache.CacheLoader;
 import org.deltava.util.system.*;
 
 import org.gvagroup.common.SharedData;
-import org.gvagroup.jdbc.*;
+import org.gvagroup.pool.*;
 import org.gvagroup.tomcat.SharedWorker;
 
 import com.newrelic.api.agent.NewRelic;
@@ -33,7 +33,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 1.0
  */
 
@@ -41,7 +41,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	
 	private static final Logger log = LogManager.getLogger(SystemBootstrap.class);
 	
-	private ConnectionPool _jdbcPool;
+	private JDBCPool _jdbcPool;
 	private final Map<Thread, Runnable> _daemons = new HashMap<Thread, Runnable>();
 
 	@Override
@@ -88,7 +88,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
-		_jdbcPool = new ConnectionPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
+		_jdbcPool = new JDBCPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
 		_jdbcPool.setProperties((Map<?, ?>) SystemData.getObject("jdbc.connectProperties"));
 		_jdbcPool.setCredentials(SystemData.get("jdbc.user"), SystemData.get("jdbc.pwd"));
 		_jdbcPool.setURL(SystemData.get("jdbc.url"));

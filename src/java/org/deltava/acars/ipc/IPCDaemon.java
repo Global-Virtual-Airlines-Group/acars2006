@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2019, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.ipc;
 
 import java.util.*;
@@ -16,12 +16,12 @@ import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.*;
-import org.gvagroup.jdbc.*;
+import org.gvagroup.pool.*;
 
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 1.0
  */
 
@@ -42,7 +42,7 @@ public class IPCDaemon implements Runnable {
 	public void run() {
 		log.info("Starting");
 		ACARSConnectionPool acPool = (ACARSConnectionPool) SharedData.get(SharedData.ACARS_POOL);
-		ConnectionPool cPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		ConnectionPool<Connection> cPool = SystemData.getJDBCPool();
 
 		while (!Thread.currentThread().isInterrupted()) {
 			try {

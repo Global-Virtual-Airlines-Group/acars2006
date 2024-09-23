@@ -1,4 +1,4 @@
-// Copyright 2017, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -15,18 +15,18 @@ import org.deltava.util.cache.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
-import org.gvagroup.jdbc.ConnectionPool;
+import org.gvagroup.pool.ConnectionPool;
 
 /**
  * An ACARS worker thread to asynchronously geolocate position updates.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 7.4
  */
 
 public class GeoLocator extends Worker {
 	
-	private ConnectionPool _jdbcPool;
+	private ConnectionPool<Connection> _jdbcPool;
 	private GeoCache<CacheableString> _l1c;
 	private GeoCache<CacheableString> _l2c;
 	
@@ -47,7 +47,7 @@ public class GeoLocator extends Worker {
 	@Override
 	public void open() {
 		super.open();
-		_jdbcPool = (ConnectionPool) SystemData.getObject(SystemData.JDBC_POOL);
+		_jdbcPool = SystemData.getJDBCPool();
 		_l1c = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
 		_l2c = CacheManager.getGeo(CacheableString.class, "GeoCountry");
 	}
