@@ -42,6 +42,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	private static final Logger log = LogManager.getLogger(SystemBootstrap.class);
 	
 	private JDBCPool _jdbcPool;
+	private JedisPool _jedisPool;
 	private final Map<Thread, Runnable> _daemons = new HashMap<Thread, Runnable>();
 
 	@Override
@@ -54,7 +55,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(threads, 2500);
 		JMXUtils.clear();
-		RedisUtils.shutdown();
 		_jdbcPool.close();
 		
 		// Clear shared data
@@ -86,6 +86,26 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			}
 		}
 		
+		// Initialize the Jedis connection pool
+		log.info("Starting Jedis connection pool");
+		_jedisPool = new JedisPool(SystemData.getInt("jedis.pool_max_size", 2), code);
+		_jedisPool.setProperties((Map<?, ?>) SystemData.getObject("jedis.connectProperties"));
+		_jedisPool.setLogStack(SystemData.getBoolean("jedis.log_stack"));
+		try {
+			_jedisPool.connect(SystemData.getInt("jedis.pool_size"));
+			RedisUtils.init(_jedisPool);
+			JMXConnectionPool jmxpool = new JMXConnectionPool(code, _jedisPool);
+			JMXUtils.register("org.gvagroup:type=JedisPool,name=" + code, jmxpool);
+			SharedWorker.register(new JMXRefreshTask(jmxpool, 60000));
+		} catch (ConnectionPoolException cpe) {
+			Throwable t = cpe.getCause();
+			log.atError().withThrowable(t).log("Error connecting to Jedis - {}", t.getMessage());
+		}
+		
+		// Save the connection pool in the SystemData
+		SystemData.add(SystemData.JEDIS_POOL, _jedisPool);
+		SharedData.addData(SharedData.JEDIS_POOL + SystemData.get("airline.code"), _jedisPool);
+		
 		// Initialize the connection pool
 		log.info("Starting JDBC connection pool");
 		_jdbcPool = new JDBCPool(SystemData.getInt("jdbc.pool_max_size", 2), SystemData.get("airline.code"));
@@ -112,9 +132,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		// Save the connection pool in the SystemData
 		SystemData.add(SystemData.JDBC_POOL, _jdbcPool);
 		SharedData.addData(SharedData.JDBC_POOL + SystemData.get("airline.code"), _jdbcPool);
-		
-		// Init Redis
-		RedisUtils.init(SystemData.get("redis.addr"), SystemData.getInt("redis.port", 6379), SystemData.getInt("redis.db", 0), code);
 		
 		// Initialize caches
 		try (InputStream is = ConfigLoader.getStream("/etc/cacheInfo.xml")) {
