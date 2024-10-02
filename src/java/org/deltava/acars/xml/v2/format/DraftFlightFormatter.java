@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 11.2
+ * @version 11.3
  * @since 1.0
  */
 
@@ -59,7 +59,6 @@ class DraftFlightFormatter extends ElementFormatter {
 			// Add SimBrief data if present
 			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
-				fe.setAttribute("isSimBrief", "true"); // TODO Remove when b188 becomes minimum
 				fe.setAttribute("dispatcher", "SimBrief");
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
