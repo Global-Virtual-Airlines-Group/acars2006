@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.concurrent.*;
@@ -23,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server command to process position updates.
  * @author Luke
- * @version 11.1
+ * @version 11.3
  * @since 1.0
  */
 
@@ -135,13 +135,12 @@ public class PositionCommand extends PositionCacheCommand {
 			if (msg.isLogged() && !isPaused)
 				queue(msg);
 			else if (!isPaused)
-				tkdao.write(true, String.valueOf(info.getFlightID()), msg);
+				queue(new TrackUpdate(true, String.valueOf(info.getFlightID()), msg));
 		}
 		
 		// Log message received
 		ctx.push(ackMsg);
-		if (log.isDebugEnabled())
-			log.debug("Received position from {}", ac.getUserID());
+		log.debug("Received position from {}", ac.getUserID());
 		
 		// Send it to any dispatchers that are around
 		if (!msg.isReplay()) {
@@ -174,7 +173,7 @@ public class PositionCommand extends PositionCacheCommand {
 			}
 		}
 
-		// Check if the cache needs to be flushed
+		// Check if the caches need to be flushed
 		try {
 			flush(false, ctx);
 		} catch (Exception e) {
