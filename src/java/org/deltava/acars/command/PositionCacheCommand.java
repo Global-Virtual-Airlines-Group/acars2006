@@ -1,26 +1,29 @@
-// Copyright 2017, 2020 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2020, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
+import java.util.*;
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.concurrent.locks.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.deltava.acars.message.PositionMessage;
 import org.deltava.acars.util.PositionCache;
 
+import org.deltava.beans.acars.TrackUpdate;
 import org.deltava.beans.schedule.Country;
 
 import org.deltava.dao.*;
 import org.deltava.util.cache.*;
 
 import org.deltava.dao.acars.SetPosition;
+import org.deltava.dao.redis.SetTrack;
 
 import org.deltava.jdbc.ConnectionContext;
 
 /**
- * An abstract class for ACARS commands to interact with the Position cache.
+ * An abstract class for ACARS commands to interact with the Position caches.
  * @author Luke
- * @version 9.0
+ * @version 11.3
  * @since 7.3
  */
 
@@ -28,16 +31,25 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	
 	private static final Lock w = new ReentrantLock();
 	private static final PositionCache _posCache = new PositionCache(50, 12500);
+	private static final LinkedBlockingQueue<TrackUpdate> _trkCache = new LinkedBlockingQueue<TrackUpdate>();
 	
 	private static final GeoCache<CacheableString> _cacheL1 = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
 	private static final GeoCache<CacheableString> _cacheL2 = CacheManager.getGeo(CacheableString.class, "GeoCountry");
 
 	/**
-	 * Places a PositionMessage in the cache.
+	 * Places a PositionMessage in the position cache.
 	 * @param msg a PositionMessage
 	 */
 	protected static void queue(PositionMessage msg) {
 		_posCache.queue(msg);
+	}
+	
+	/**
+	 * Places a TrackUpdate in the track cache. 
+	 * @param upd a TrackUpdate
+	 */
+	protected static void queue(TrackUpdate upd) {
+		_trkCache.add(upd);
 	}
 	
 	/**
@@ -70,6 +82,13 @@ abstract class PositionCacheCommand extends ACARSCommand {
 			if (force || _posCache.isFull()) {
 				Connection con = ctx.getConnection();
 				Collection<PositionMessage> msgs = _posCache.drain(); int entries = msgs.size(); // This prevents a drain if the pool is full
+				
+				// Write track updates
+				SetTrack tdao = new SetTrack();
+				Collection<TrackUpdate> upds = new ArrayList<TrackUpdate>();
+				int trkCount = _trkCache.drainTo(upds);
+				if (trkCount > 0)
+					tdao.write(upds);
 					
 				// Geolocation
 				GetCountry cdao = new GetCountry(con);
