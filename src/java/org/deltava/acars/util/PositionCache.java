@@ -1,26 +1,27 @@
-// Copyright 2017 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2017, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.util;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.deltava.beans.Helper;
+import org.deltava.beans.*;
 import org.deltava.util.*;
 
 import org.deltava.acars.message.PositionMessage;
 
 /**
- * An in-memory cache for PositionMessages.
+ * An in-memory cache for PositionMessages and TrackUpdates.
  * @author Luke
- * @version 7.3
+ * @version 11.3
+ * @param <T> the cached update
  * @since 7.3
  */
 
 @Helper(PositionMessage.class)
-public class PositionCache {
+public class PositionCache<T extends GeoLocation> {
 	
-	private final BlockingQueue<PositionMessage> _queue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<T> _queue = new LinkedBlockingQueue<T>();
 	private final AtomicLong _oldestAge = new AtomicLong(0);
 	
 	private final int _maxSize;
@@ -39,15 +40,15 @@ public class PositionCache {
 
 	/**
 	 * Adds a Position report to the queue.
-	 * @param msg the PositionMessage bean
+	 * @param loc the bean
 	 */
-	public void queue(PositionMessage msg) {
+	public void queue(T loc) {
 		if (_queue.isEmpty())
 			_oldestAge.set(System.currentTimeMillis());
 		
 		// Don't add 0/0 pairs
-		if (GeoUtils.isValid(msg))
-			_queue.add(msg);
+		if (GeoUtils.isValid(loc))
+			_queue.add(loc);
 	}
 	
 	/**
@@ -63,10 +64,10 @@ public class PositionCache {
 	
 	/**
 	 * Drains the cache.
-	 * @return a Collection of PositionMessage beans
+	 * @return a Collection of cached objects
 	 */
-	public Collection<PositionMessage> drain() {
-		Collection<PositionMessage> results = new ArrayList<>();
+	public Collection<T> drain() {
+		Collection<T> results = new ArrayList<>();
 		_queue.drainTo(results);
 		return results;
 	}
