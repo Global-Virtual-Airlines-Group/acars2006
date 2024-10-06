@@ -4,7 +4,6 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.sql.Connection;
 import java.util.concurrent.locks.*;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.deltava.acars.message.PositionMessage;
 import org.deltava.acars.util.PositionCache;
@@ -30,8 +29,8 @@ import org.deltava.jdbc.ConnectionContext;
 abstract class PositionCacheCommand extends ACARSCommand {
 	
 	private static final Lock w = new ReentrantLock();
-	private static final PositionCache _posCache = new PositionCache(50, 12500);
-	private static final LinkedBlockingQueue<TrackUpdate> _trkCache = new LinkedBlockingQueue<TrackUpdate>();
+	private static final PositionCache<PositionMessage> _posCache = new PositionCache<PositionMessage>(50, 12500);
+	private static final PositionCache<TrackUpdate> _trkCache = new PositionCache<TrackUpdate>(10, 15000);
 	
 	private static final GeoCache<CacheableString> _cacheL1 = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
 	private static final GeoCache<CacheableString> _cacheL2 = CacheManager.getGeo(CacheableString.class, "GeoCountry");
@@ -49,7 +48,7 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	 * @param upd a TrackUpdate
 	 */
 	protected static void queue(TrackUpdate upd) {
-		_trkCache.add(upd);
+		_trkCache.queue(upd);
 	}
 	
 	/**
@@ -76,19 +75,19 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	protected static int flush(boolean force, ConnectionContext ctx) throws DAOException {
 		if (!w.tryLock())
 			return 0;
+		
+		// Write track updates
+		if (force || _trkCache.isFull()) {
+			SetTrack tdao = new SetTrack();
+			Collection<TrackUpdate> upds = _trkCache.drain();
+			tdao.write(upds);
+		}
 
 		boolean doFree = !ctx.hasConnection();
 		try {
 			if (force || _posCache.isFull()) {
 				Connection con = ctx.getConnection();
 				Collection<PositionMessage> msgs = _posCache.drain(); int entries = msgs.size(); // This prevents a drain if the pool is full
-				
-				// Write track updates
-				SetTrack tdao = new SetTrack();
-				Collection<TrackUpdate> upds = new ArrayList<TrackUpdate>();
-				int trkCount = _trkCache.drainTo(upds);
-				if (trkCount > 0)
-					tdao.write(upds);
 					
 				// Geolocation
 				GetCountry cdao = new GetCountry(con);
