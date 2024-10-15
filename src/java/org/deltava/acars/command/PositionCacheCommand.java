@@ -32,8 +32,7 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	private static final PositionCache<PositionMessage> _posCache = new PositionCache<PositionMessage>(50, 12500);
 	private static final PositionCache<TrackUpdate> _trkCache = new PositionCache<TrackUpdate>(10, 15000);
 	
-	private static final GeoCache<CacheableString> _cacheL1 = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
-	private static final GeoCache<CacheableString> _cacheL2 = CacheManager.getGeo(CacheableString.class, "GeoCountry");
+	private static final GeoCache<CacheableString> _geoCache = CacheManager.getGeo(CacheableString.class, "GeoCountry");
 
 	/**
 	 * Places a PositionMessage in the position cache.
@@ -56,15 +55,8 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	 * @param msg the PositionMessage
 	 */
 	protected static void lookup(PositionMessage msg) {
-		CacheableString id = _cacheL1.get(msg);
-		if (id == null) {
-			id = _cacheL2.get(msg);
-			if (id != null)
-				_cacheL1.add(msg, id);
-		}
-			
-		if (id != null)
-			msg.setCountry(Country.get(id.getValue()));
+		CacheableString id = _geoCache.get(msg);
+		msg.setCountry(Country.get(id.getValue()));
 	}
 	
 	/**

@@ -27,8 +27,7 @@ import org.gvagroup.pool.ConnectionPool;
 public class GeoLocator extends Worker {
 	
 	private ConnectionPool<Connection> _jdbcPool;
-	private GeoCache<CacheableString> _l1c;
-	private GeoCache<CacheableString> _l2c;
+	private GeoCache<CacheableString> _cache;
 	
 	private long _hits = 0;
 	private long _reqs = 0;
@@ -48,8 +47,7 @@ public class GeoLocator extends Worker {
 	public void open() {
 		super.open();
 		_jdbcPool = SystemData.getJDBCPool();
-		_l1c = CacheManager.getGeo(CacheableString.class, "GeoCountryL1");
-		_l2c = CacheManager.getGeo(CacheableString.class, "GeoCountry");
+		_cache = CacheManager.getGeo(CacheableString.class, "GeoCountry");
 	}
 
 	/**
@@ -78,14 +76,7 @@ public class GeoLocator extends Worker {
 					_reqs++;
 					
 					// GeoLocate if we can
-					CacheableString id = _l1c.get(msg);
-					if (id == null) {
-						id = _l2c.get(msg);
-						if (id != null)
-							_l1c.add(msg, id);
-					}
-					
-					// If not, add it to the queue
+					CacheableString id = _cache.get(msg);
 					if (id != null) {
 						msg.setCountry(Country.get(id.getValue()));
 						_hits++;
@@ -103,8 +94,8 @@ public class GeoLocator extends Worker {
 						con = _jdbcPool.getConnection();
 						GetCountry cdao = new GetCountry(con);
 						for (PositionMessage msg : upds) {
-							Country c = cdao.find(msg, true); // This will populate L2 automatically
-							_l1c.add(msg, new CacheableString("", c.getCode()));
+							Country c = cdao.find(msg, true);
+							_cache.add(msg, new CacheableString("", c.getCode()));
 							msg.setCountry(c);
 						}
 					} catch (DAOException de) {
