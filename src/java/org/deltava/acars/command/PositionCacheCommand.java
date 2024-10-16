@@ -56,7 +56,8 @@ abstract class PositionCacheCommand extends ACARSCommand {
 	 */
 	protected static void lookup(PositionMessage msg) {
 		CacheableString id = _geoCache.get(msg);
-		msg.setCountry(Country.get(id.getValue()));
+		if (id != null)
+			msg.setCountry(Country.get(id.getValue()));
 	}
 	
 	/**
