@@ -1,4 +1,4 @@
-// Copyright 2013, 2014, 2016, 2017, 2018, 2019, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2013, 2014, 2016, 2017, 2018, 2019, 2022, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.dao.acars;
 
 import java.sql.*;
@@ -10,18 +10,15 @@ import org.deltava.beans.flight.*;
 
 import org.deltava.dao.*;
 
-import org.deltava.util.cache.*;
-
 /**
  * A Data Access Object to fetch IATA codes used by aircraft.
  * @author Luke
- * @version 10.3
+ * @version 11.3
  * @since 5.1
  */
 
+@Deprecated
 public class GetACARSIATACodes extends DAO {
-	
-	private static final Cache<CacheableMap<String, IATACodes>> _cache = CacheManager.getMap(String.class, IATACodes.class, "IATACodes");
 	
 	/**
 	 * Initializes the Data Access Object.
@@ -39,22 +36,17 @@ public class GetACARSIATACodes extends DAO {
 	 */
 	public Map<String, IATACodes> getAll(String db) throws DAOException {
 		
-		// Check the cache
-		String dbName = formatDBName(db);
-		CacheableMap<String, IATACodes> results = _cache.get(dbName);
-		if (results != null)
-			return new LinkedHashMap<String, IATACodes>(results);
-		
 		// Build the SQL statement
+		String dbName = formatDBName(db);
 		StringBuilder sqlBuf = new StringBuilder("SELECT P.EQTYPE, AM.CODE, COUNT(AM.ID) AS CNT FROM ");
 		sqlBuf.append(dbName);
 		sqlBuf.append(".PIREPS P, ");
 		sqlBuf.append(dbName);
 		sqlBuf.append(".ACARS_METADATA AM WHERE (P.ID=AM.ID) AND (P.STATUS=?) AND (LENGTH(AM.CODE)>2) GROUP BY P.EQTYPE, AM.CODE HAVING (CNT>5) ORDER BY P.EQTYPE, CNT DESC"); 
 		
+		Map<String, IATACodes> results = new LinkedHashMap<String, IATACodes>();
 		try (PreparedStatement ps = prepareWithoutLimits(sqlBuf.toString())) {
 			ps.setInt(1, FlightStatus.OK.ordinal());
-			results = new CacheableMap<String, IATACodes>(dbName);
 			try (ResultSet rs = ps.executeQuery()) {
 				int max = 0; IATACodes c = null;
 				while (rs.next()) {
@@ -76,7 +68,6 @@ public class GetACARSIATACodes extends DAO {
 				}
 			}
 			
-			_cache.add(results);
 			return new LinkedHashMap<String, IATACodes>(results);
 		} catch (SQLException se) {
 			throw new DAOException(se);
