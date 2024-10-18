@@ -15,7 +15,7 @@ import org.deltava.beans.servinfo.*;
 import org.deltava.acars.beans.*;
 import org.deltava.acars.message.*;
 
-import org.deltava.dao.redis.SetTrack;
+import org.deltava.dao.jedis.SetTrack;
 
 import org.deltava.util.*;
 import org.deltava.util.system.SystemData;
@@ -119,9 +119,10 @@ public class PositionCommand extends PositionCacheCommand {
 		}
 		
 		// Clear temporary track if being saved
-		SetTrack tkdao = new SetTrack(); 
-		if (msg.isLogged())
+		if (msg.isLogged()) {
+			SetTrack tkdao = new SetTrack();
 			tkdao.clear(true, String.valueOf(info.getFlightID()));
+		}
 
 		// Queue it up
 		if (msg.isReplay() && msg.isLogged())

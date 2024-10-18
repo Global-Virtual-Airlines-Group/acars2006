@@ -15,7 +15,7 @@ import org.deltava.dao.*;
 import org.deltava.util.cache.*;
 
 import org.deltava.dao.acars.SetPosition;
-import org.deltava.dao.redis.SetTrack;
+import org.deltava.dao.jedis.SetTrack;
 
 import org.deltava.jdbc.ConnectionContext;
 
