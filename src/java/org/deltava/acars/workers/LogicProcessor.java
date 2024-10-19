@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 11.2
+ * @version 11.3
  * @since 1.0
  */
 
@@ -96,7 +96,6 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.ONLINE, new OnlinePresenceCommand());
 		_subCommands.put(DataRequest.LASTAP, new LastAirportCommand());
 		_subCommands.put(DataRequest.ALT, new AlternateAirportCommand());
-		_subCommands.put(DataRequest.IATA, new IATACodeCommand());
 		_subCommands.put(DataRequest.FLIGHTNUM, new FlightNumberCommand());
 		_subCommands.put(DataRequest.FIR, new FIRSearchCommand());
 		_subCommands.put(DataRequest.RUNWAYS, new PopularRunwaysCommand());

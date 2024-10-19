@@ -8,7 +8,7 @@ import org.deltava.acars.message.dispatch.RoutePlotMessage;
 /**
  * V2 Protocol Message Formatter.
  * @author Luke
- * @version 11.2
+ * @version 11.3
  * @since 2.8
  */
 
@@ -38,7 +38,6 @@ public class Formatter extends org.deltava.acars.xml.v1.format.Formatter {
 		_eFormatters.put(AlternateAirportMessage.class, new AlternateAirportFormatter());
 		_eFormatters.put(AppInfoMessage.class, new AppInfoFormatter());
 		_eFormatters.put(AirportMessage.class, new AirportFormatter());
-		_eFormatters.put(IATACodeMessage.class, new IATACodeFormatter());
 		_eFormatters.put(RunwayListMessage.class, new RunwayListFormatter());
 		_eFormatters.put(GateMessage.class, new GateFormatter());
 		_eFormatters.put(ATISMessage.class, new ATISFormatter());
