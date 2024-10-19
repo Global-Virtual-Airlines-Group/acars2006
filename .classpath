@@ -12,9 +12,9 @@
 	<classpathentry kind="lib" path="lib/newrelic-api.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-2.0.6.1.jar" sourcepath="/DVA2006/lib/src/jdom-2.0.6.1-sources.jar"/>
-	<classpathentry kind="lib" path="lib/golgotha_ipc-3.00.jar"/>
 	<classpathentry kind="lib" path="lib/jedis-5.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-api-2.24.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.24.1.jar"/>
+	<classpathentry kind="lib" path="lib/golgotha_ipc-3.01.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
