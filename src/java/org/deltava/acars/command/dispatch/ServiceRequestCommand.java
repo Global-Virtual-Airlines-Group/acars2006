@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.2
+ * @version 11.3
  * @since 2.0
  */
 
@@ -77,8 +77,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !routeValid; ) {
 					FlightReport fr = i.next();
 					boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
-					isOK &= msg.getAirportD().equals(fr.getAirportD());
-					isOK &= msg.getAirportA().equals(fr.getAirportA());
+					isOK &= msg.matches(fr);
 					if (isOK) {
 						log.info("Validated route {} to {} using draft PIREP", msg.getAirportD(), msg.getAirportA());
 						routeValid = true;
@@ -209,6 +208,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 			SystemTextMessage txtMsg = new SystemTextMessage();
 			if (outOfRange > 0)
 				txtMsg.addMessage(outOfRange + " Dispatchers online, but out of range");
+			if (!msg.isRouteValid())
+				txtMsg.addMessage(String.format("%s - %s not found in %s schedule", msg.getAirportD().getIATA(), msg.getAirline().getICAO(), ud.getAirlineCode()));
 			txtMsg.addMessage("No available Dispatchers within range, and no Dispatch routes found.");
 			ctx.push(txtMsg);
 			ctx.push(new CancelMessage(env.getOwner()));
