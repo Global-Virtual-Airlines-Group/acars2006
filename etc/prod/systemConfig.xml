@@ -106,6 +106,7 @@
 			<network>VATSIM</network>
 			<network>IVAO</network>
 			<network>PilotEdge</network>
+			<network>POSCON</network>
 		</list>
 
 		<vatsim>
