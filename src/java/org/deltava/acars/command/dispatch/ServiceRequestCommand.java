@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 2.0
  */
 
@@ -178,8 +178,8 @@ public class ServiceRequestCommand extends DispatchCommand {
 			return;
 		}
 
-		// Return back the routes - only if valid
-		if (!plans.isEmpty() && msg.isRouteValid()) {
+		// Return back the routes
+		if (!plans.isEmpty()) {
 			RouteInfoMessage rmsg = new RouteInfoMessage(c.getUser(), msg.getID());
 			rmsg.setClosestGate(msg.getClosestGate());
 			msg.getArrivalGates().forEach(rmsg::addGate);
@@ -194,6 +194,13 @@ public class ServiceRequestCommand extends DispatchCommand {
 					fNum -= 10000;
 				
 				rmsg.setScheduleInfo(new ScheduleEntry(a, Math.max(1, fNum), 1));
+			}
+			
+			// Send out of schedule warning
+			if (!msg.isRouteValid()) {
+				SystemTextMessage txtMsg = new SystemTextMessage();
+				txtMsg.addMessage(String.format("%s - %s not found in %s schedule", msg.getAirportD().getIATA(), msg.getAirline().getICAO(), ud.getAirlineCode()));
+				ctx.push(txtMsg);
 			}
 			
 			// Build message
