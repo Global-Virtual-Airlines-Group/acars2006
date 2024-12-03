@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.Instant;
@@ -19,14 +19,14 @@ import org.deltava.util.system.SystemData;
 /**
  * A Parser for Flight Information elements.
  * @author Luke
- * @version 10.2
+ * @version 11.4
  * @since 1.0
  */
 
 class FlightInfoParser extends XMLElementParser<InfoMessage> {
 	
 	// FSUIPC Flight Simulator version constants - 2006=FSX, 2008=Prepar3D/ESP, 2017=Prepar3Dv4
-	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017, 2020};
+	private static final int[] FSUIPC_FS_VERSIONS = {95, 98, 2000, 0, 0, 0, 2002, 2004, 2006, 2008, 2008, 0, 2017, 2020, 2024};
 	
 	/**
 	 * Convert an XML flight information element into an InfoMessage.
