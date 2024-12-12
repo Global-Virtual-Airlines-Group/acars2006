@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 1.0
  */
 
@@ -73,7 +73,7 @@ public class LogicProcessor extends Worker {
 		_commands.put(MessageType.PERFORMANCE, new PerformanceCommand());
 		_commands.put(MessageType.DISCONNECT, new KickCommand());
 		_commands.put(MessageType.TAXI, new FlightTaxiCommand());
-		_commands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
+		_commands.forEach((_, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		// Initialize data commands
 		_subCommands.put(DataRequest.BUSY, new BusyCommand());
@@ -116,7 +116,7 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DispatchRequest.RANGE, new ServiceRangeCommand());
 		_subCommands.put(DispatchRequest.SCOPEINFO, new ScopeInfoCommand());
 		_subCommands.put(DispatchRequest.ROUTEPLOT, new RoutePlotCommand());
-		_subCommands.forEach((id, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
+		_subCommands.forEach((_, cmd) -> _cmdStats.put(cmd.getClass().getName(), new CommandStats(cmd.getClass().getSimpleName())));
 
 		int size = _commands.size() + _subCommands.size();
 		log.info("Loaded {} commands", Integer.valueOf(size));
