@@ -3,7 +3,7 @@
 <project default="deploy" xmlns:if="ant:if">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="22" target="22" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="23" target="23" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally,-options" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
