@@ -21,7 +21,7 @@ import org.gvagroup.pool.*;
 /**
  * A daemon to listen for inter-process events.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 1.0
  */
 
@@ -47,10 +47,8 @@ public class IPCDaemon implements Runnable {
 		while (!Thread.currentThread().isInterrupted()) {
 			try {
 				EventDispatcher.waitForEvent();
-				Connection con = null;
 				Collection<SystemEvent> events = EventDispatcher.getEvents();
-				try {
-					con = cPool.getConnection();
+				try (Connection con = cPool.getConnection()) {
 					for (SystemEvent event : events) {
 						Pilot usr = null; GetPilot pdao = new GetPilot(con);
 						if (event instanceof UserEvent ue) {
@@ -146,8 +144,6 @@ public class IPCDaemon implements Runnable {
 					}
 				} catch (Exception de) {
 					log.atError().withThrowable(de).log(de.getMessage());
-				} finally {
-					cPool.release(con);
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();

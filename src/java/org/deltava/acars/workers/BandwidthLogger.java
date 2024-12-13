@@ -23,7 +23,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Worker to log bandwidth statistics. 
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 2.1
  */
 
@@ -104,9 +104,7 @@ public class BandwidthLogger extends Worker {
 				_jmx.update(bw);
 				
 				// Write the bean
-				Connection con = null;
-				try {
-					con = _jdbcPool.getConnection();
+				try (Connection con = _jdbcPool.getConnection()) {
 					SetBandwidth bwdao = new SetBandwidth(con);
 					bwdao.write(bw);
 					
@@ -119,8 +117,6 @@ public class BandwidthLogger extends Worker {
 					}
 				} catch (DAOException de) {
 					log.atError().withThrowable(de).log(de.getMessage());
-				} finally {
-					_jdbcPool.release(con);
 				}
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();

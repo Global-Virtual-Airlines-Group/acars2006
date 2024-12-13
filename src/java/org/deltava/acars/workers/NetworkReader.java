@@ -18,7 +18,7 @@ import org.gvagroup.pool.ConnectionPool;
 /**
  * An ACARS Server task to handle reading from network connections.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 1.0
  */
 
@@ -148,15 +148,11 @@ public class NetworkReader extends Worker {
 	private void logCloseConnections(Collection<Long> ids) {
 		if (ids.isEmpty()) return;
 		_status.setMessage("Loggng Closed Connections");
-		Connection con = null;
-		try {
-			con = _cPool.getConnection();
+		try (Connection con = _cPool.getConnection()) {
 			SetConnection dao = new SetConnection(con);
 			dao.closeConnections(ids);
 		} catch (Exception e) {
 			log.atError().withThrowable(e).log("Error logging closed Connections - {}", e.getMessage());
-		} finally {
-			_cPool.release(con);
 		}
 	}
 }
