@@ -24,7 +24,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 1.0
  */
 
@@ -104,16 +104,12 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		// Get the Connection Pool
  		JDBCPool pool = (JDBCPool) SystemData.getObject(SystemData.JDBC_POOL);
  		
- 		Connection c = null;
- 		try {
- 			c = pool.getConnection();
+ 		try (Connection c = pool.getConnection()) {
             log.info("Loading Airports");
             GetAirport dao = new GetAirport(c);
             SystemData.add("airports", dao.getAll());
  		} catch (Exception de) {
  			log.error("Error loading Airports - {}", de.getMessage());
- 		} finally {
- 			pool.release(c);
  		}
  	}
  	

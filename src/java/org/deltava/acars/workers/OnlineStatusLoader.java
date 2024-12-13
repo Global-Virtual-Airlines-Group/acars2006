@@ -93,20 +93,15 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 						}
 
 						// Record the update times for outage tracking
-						Connection c = null;
 						tasks.removeIf(l -> !l.isUpdated());
 						if (!tasks.isEmpty()) {
 							_status.setMessage("Updating data validity");
-
-							try {
-								c = _jdbcPool.getConnection();
+							try (Connection c = _jdbcPool.getConnection()) {
 								SetOnlineTrack twdao = new SetOnlineTrack(c);
 								for (Loader l : tasks)
 									twdao.writePull(l.getNetwork(), l.getLastUpdate());
 							} catch (DAOException de) {
 								log.atError().withThrowable(de).log("Error writing update times - {}", de.getMessage());
-							} finally {
-								_jdbcPool.release(c);
 							}
 						}
 					}

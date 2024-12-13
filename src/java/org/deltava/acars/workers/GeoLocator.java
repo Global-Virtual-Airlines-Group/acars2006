@@ -20,7 +20,7 @@ import org.gvagroup.pool.ConnectionPool;
 /**
  * An ACARS worker thread to asynchronously geolocate position updates.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 7.4
  */
 
@@ -89,9 +89,7 @@ public class GeoLocator extends Worker {
 				// If we have anything left, hit the db
 				if (upds.size() > 0) {
 					_status.setMessage("Loading Position Updates");
-					Connection con = null;
-					try {
-						con = _jdbcPool.getConnection();
+					try (Connection con = _jdbcPool.getConnection()) {
 						GetCountry cdao = new GetCountry(con);
 						for (PositionMessage msg : upds) {
 							Country c = cdao.find(msg, true);
@@ -102,7 +100,6 @@ public class GeoLocator extends Worker {
 						log.atError().withThrowable(de).log(de.getMessage());
 					} finally {
 						upds.clear();
-						_jdbcPool.release(con);
 					}
 				}
 			} catch (InterruptedException ie) {

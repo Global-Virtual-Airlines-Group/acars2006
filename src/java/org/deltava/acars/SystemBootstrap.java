@@ -33,7 +33,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 11.3
+ * @version 11.4
  * @since 1.0
  */
 
@@ -164,10 +164,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 		
 		// Load data from the database
-		Connection c = null;
-		try {
-			c = _jdbcPool.getConnection();
-
+		try (Connection c = _jdbcPool.getConnection()) {
 			// Load time zones
 			log.info("Loading Time Zones");
 			GetTimeZone dao = new GetTimeZone(c);
@@ -203,8 +200,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			Airspace.init(asdao.getRestricted());
 		} catch (Exception ex) {
 			log.atError().withThrowable(ex).log("Error retrieving data - {}", ex.getMessage());
-		} finally {
-			_jdbcPool.release(c);
 		}
 		
 		// Start the ACARS/Mailer/IPC daemons
