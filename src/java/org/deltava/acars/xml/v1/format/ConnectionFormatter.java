@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020, 2021, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -9,13 +9,14 @@ import org.deltava.acars.message.data.ConnectionMessage;
 
 import org.deltava.beans.Pilot;
 import org.deltava.beans.acars.ConnectionStats;
-import org.deltava.beans.econ.EliteLevel;
+import org.deltava.beans.econ.*;
+
 import org.deltava.util.*;
 
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 10.0
+ * @version 11.5
  * @since 1.0
  */
 
@@ -62,9 +63,12 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));
 				ce.addContent(XMLUtils.createElement("ratings", StringUtils.listConcat(usr.getRatings(), ",")));
 				ce.addContent(XMLUtils.createElement("conTime", String.valueOf((now - con.getStartTime()) / 1000)));
-				if (con.getEliteStatus() != null) {
-					EliteLevel lvl = con.getEliteStatus().getLevel();
-					ce.addContent(XMLUtils.createElement("eliteLevel", lvl.getName()));
+				
+				// Format elite status
+				EliteStatus es = con.getEliteStatus();
+				if (es != null) {
+					EliteLevel lvl = es.getLevel(); boolean isLT = es.getIsLifetime();
+					ce.addContent(XMLUtils.createElement("eliteLevel", isLT ? ((LifetimeStatus) con.getEliteStatus()).getLifetimeName() : lvl.getName()));
 					ce.addContent(XMLUtils.createElement("eliteYear", String.valueOf(lvl.getYear())));
 					ce.addContent(XMLUtils.createElement("eliteColor", String.valueOf(lvl.getColor())));
 				}

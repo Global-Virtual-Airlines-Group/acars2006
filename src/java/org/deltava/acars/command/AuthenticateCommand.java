@@ -11,9 +11,8 @@ import org.apache.logging.log4j.*;
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
-import org.deltava.beans.econ.EliteLifetimeStatus.LifetimeStatus;
-import org.deltava.beans.stats.SystemInformation;
 import org.deltava.beans.system.*;
+import org.deltava.beans.stats.SystemInformation;
 
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
@@ -256,8 +255,10 @@ public class AuthenticateCommand extends ACARSCommand {
 				
 				// Check lifetime status
 				EliteLifetimeStatus els = eldao.getLifetimeStatus(ud.getID(), ud.getDB());
-				if ((els != null) && (els.getLevel().compareTo(con.getEliteStatus().getLevel()) > 0))
+				if (con.getEliteStatus().overridenBy(els)) {
+					log.info("{} {} status overriden by lifetime {}", usr.getName(), con.getEliteStatus().getLevel().getName(), els.getLifetimeStatus().getName());
 					con.setEliteStatus(els.toStatus());
+				}
 			}
 
 			// Start a transaction
