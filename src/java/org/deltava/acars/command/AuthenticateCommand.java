@@ -252,6 +252,11 @@ public class AuthenticateCommand extends ACARSCommand {
 				Map<Integer, EliteStatus> status = eldao.getStatus(List.of(ud), EliteScorer.getStatusYear(Instant.now()), ud.getDB());
 				if (!status.isEmpty())
 					con.setEliteStatus(status.get(ud.cacheKey()));
+				
+				// Check lifetime status
+				EliteLifetimeStatus els = eldao.getLifetimeStatus(ud.getID(), ud.getDB());
+				if ((els != null) && (els.getLevel().compareTo(con.getEliteStatus().getLevel()) > 0))
+					con.setEliteStatus(els.toStatus());
 			}
 
 			// Start a transaction
