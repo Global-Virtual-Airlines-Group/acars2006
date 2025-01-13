@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.net.*;
@@ -11,6 +11,7 @@ import org.apache.logging.log4j.*;
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
+import org.deltava.beans.econ.EliteLifetimeStatus.LifetimeStatus;
 import org.deltava.beans.stats.SystemInformation;
 import org.deltava.beans.system.*;
 
@@ -33,7 +34,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 11.2
+ * @version 11.5
  * @since 1.0
  */
 
@@ -332,8 +333,9 @@ public class AuthenticateCommand extends ACARSCommand {
 		else if (usr.getACARSRestriction() == Restriction.NOMSGS)
 			ackMsg.setEntry("noMsgs", "true");
 		if (con.getEliteStatus() != null) {
+			boolean isLT = con.getEliteStatus().getIsLifetime();
 			EliteLevel lvl = con.getEliteStatus().getLevel();
-			ackMsg.setEntry("eliteLevel", lvl.getName());
+			ackMsg.setEntry("eliteLevel", isLT ? ((LifetimeStatus) con.getEliteStatus()).getLifetimeName() : lvl.getName());
 			ackMsg.setEntry("eliteYear", String.valueOf(lvl.getYear()));
 			ackMsg.setEntry("eliteColor", String.valueOf(lvl.getColor()));
 		}
