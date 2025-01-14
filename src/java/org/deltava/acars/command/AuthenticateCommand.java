@@ -255,7 +255,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				
 				// Check lifetime status
 				EliteLifetimeStatus els = eldao.getLifetimeStatus(ud.getID(), ud.getDB());
-				if (con.getEliteStatus().overridenBy(els)) {
+				if ((con.getEliteStatus() != null) && con.getEliteStatus().overridenBy(els)) {
 					log.info("{} {} status overriden by lifetime {}", usr.getName(), con.getEliteStatus().getLevel().getName(), els.getLifetimeStatus().getName());
 					con.setEliteStatus(els.toStatus());
 				}
