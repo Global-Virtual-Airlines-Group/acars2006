@@ -1,4 +1,4 @@
-// Copyright 2016, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2016, 2022, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import org.jdom2.Element;
@@ -14,7 +14,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for ACARS system information messages.
  * @author Luke
- * @version 10.2
+ * @version 11.5
  * @since 6.4
  */
 
@@ -43,6 +43,7 @@ public class SysInfoParser extends XMLElementParser<SystemInfoMessage> {
 		msg.setTimeZone(getChildText(e, "tz", "?"));
 		msg.setSimulator(Simulator.fromName(getChildText(e, "simulator", ""), Simulator.UNKNOWN));
 		msg.setBridgeInfo(getChildText(e, "bridge", null));
+		msg.setScreenCount(StringUtils.parse(getChildText(e, "screenCount", "1"), 1));
 
 		Element ce = e.getChild("cpu");
 		msg.setCPU(getChildText(e, "cpu", "?"));
