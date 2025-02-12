@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 11.2
+ * @version 11.5
  * @since 1.0
  */
 
@@ -201,7 +201,7 @@ public class InfoCommand extends ACARSCommand {
 					ackMsg.setEntry("onTimeTotal", String.valueOf(otStats.getTotalLegs()));
 					
 					ScheduleEntry se = oth.getScheduleEntry();
-					ackMsg.setEntry("onTimeDraft", String.valueOf(se.getSource() == ScheduleSource.CUSTOM));
+					ackMsg.setEntry("onTimeDraft", String.valueOf(se.getSource() == ScheduleSource.DRAFT));
 					ackMsg.setEntry("onTimeFlight", se.getFlightCode());
 					ackMsg.setEntry("onTimeLeg", String.valueOf(se.getLeg()));
 					ackMsg.setEntry("onTimeDeparture", StringUtils.format(se.getTimeD(), "HH:mm"));
