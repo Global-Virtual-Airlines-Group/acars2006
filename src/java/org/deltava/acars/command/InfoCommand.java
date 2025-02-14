@@ -190,8 +190,7 @@ public class InfoCommand extends ACARSCommand {
 				ssc.setAirportD(msg.getAirportD()); ssc.setAirportA(msg.getAirportA());
 				ssc.setExcludeHistoric(!msg.getAirline().getHistoric() ? Inclusion.EXCLUDE : Inclusion.INCLUDE);
 				OnTimeHelper oth = new OnTimeHelper(sdao.search(ssc));
-				if (!oth.hasFlights())
-					pireps.stream().filter(DraftFlightReport.class::isInstance).map(DraftFlightReport.class::cast).forEach(oth::add);
+				pireps.stream().filter(DraftFlightReport.class::isInstance).map(DraftFlightReport.class::cast).forEach(oth::add);
 				
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
 				if (oth.getScheduleEntry() != null) {
