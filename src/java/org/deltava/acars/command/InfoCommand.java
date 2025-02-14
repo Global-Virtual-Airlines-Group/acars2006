@@ -205,6 +205,7 @@ public class InfoCommand extends ACARSCommand {
 					ackMsg.setEntry("onTimeLeg", String.valueOf(se.getLeg()));
 					ackMsg.setEntry("onTimeDeparture", StringUtils.format(se.getTimeD(), "HH:mm"));
 					ackMsg.setEntry("onTimeArrival", StringUtils.format(se.getTimeA(), "HH:mm"));
+					ackMsg.setEntry("onTimeSource", se.getSource().toString());
 				}
 			}
 			
