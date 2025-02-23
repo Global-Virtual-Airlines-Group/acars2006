@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.parse;
 
 import java.time.*;
@@ -22,7 +22,7 @@ import org.deltava.acars.xml.*;
 /**
  * A Parser for v2 Pilot Client position elements.
  * @author Luke
- * @version 11.1
+ * @version 11.5
  * @since 1.0
  */
 
@@ -109,6 +109,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
+			msg.setAltimeter(Integer.parseInt(getChildText(e, "altimeter", String.valueOf(msg.getAltitude()))));
 			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (NumberFormatException nfe) {
 			log.atError().withThrowable(nfe).log(nfe.getMessage());
