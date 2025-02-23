@@ -109,7 +109,7 @@ class PositionParser extends XMLElementParser<PositionMessage> {
 			msg.setAltitude((int)Math.floor(alt));
 			double a2 =(Math.floor(alt) - alt);
 			msg.setFractionalAltitude(Math.abs((int)(a2 * 1000)));
-			msg.setAltimeter(Integer.parseInt(getChildText(e, "altimeter", String.valueOf(msg.getAltitude()))));
+			msg.setAltimeter(Integer.parseInt(getChildText(e, "altimeter", "0")));
 			msg.setAirspaceType(AirspaceType.fromAltitude(msg.getRadarAltitude(), msg.getAltitude()));
 		} catch (NumberFormatException nfe) {
 			log.atError().withThrowable(nfe).log(nfe.getMessage());
