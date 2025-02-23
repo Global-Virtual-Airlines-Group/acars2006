@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.time.Instant;
@@ -12,13 +12,14 @@ import org.deltava.beans.servinfo.Controller;
 /**
  * An ACARS position report message.
  * @author Luke
- * @version 10.5
+ * @version 11.5
  * @since 1.0
  */
 
 public class PositionMessage extends LocationMessage {
 
 	private int r_altitude;
+	private int _altimeter;
 	private int aspeed;
 	private double mach;
 	private int _fuelRemaining;
@@ -125,6 +126,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public int getPressure() {
 		return _pressure;
+	}
+	
+	public int getAltimeter() {
+		return _altimeter;
 	}
 	
 	public int getAspeed() {
@@ -380,6 +385,10 @@ public class PositionMessage extends LocationMessage {
 	
 	public void setPressure(int p) {
 		_pressure = Math.max(0, p);
+	}
+	
+	public void setAltimeter(int alt) {
+		_altimeter = alt;
 	}
 	
 	public void setGroundOperations(int flags) {
