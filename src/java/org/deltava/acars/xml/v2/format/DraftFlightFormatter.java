@@ -1,4 +1,4 @@
-// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2006, 2008, 2009, 2012, 2017, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v2.format;
 
 import org.jdom2.Element;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 11.3
+ * @version 11.5
  * @since 1.0
  */
 
@@ -84,8 +84,10 @@ class DraftFlightFormatter extends ElementFormatter {
 					fpe.setAttribute("type", fp.getType());
 					fe.addContent(fpe);
 				}
-			} else
+			} else {
 				fe.addContent(XMLUtils.createElement("pax", String.valueOf(fr.getPassengers())));
+				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("cruiseAlt", fr.getAltitude()));
+			}
 			
 			// Add scheduled departure/arrival times and gates
 			XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("gateD", fr.getGateD()));
