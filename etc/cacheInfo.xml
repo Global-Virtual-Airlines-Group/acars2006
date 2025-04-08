@@ -44,7 +44,7 @@
 	<cache id="ACARSTrackCAS" max="128" expires="30" />
 
 	<!-- System caches -->
-	<cache id="AircraftInfo" max="256" expires="7200" />
+	<cache id="AircraftInfo" remote="true" expires="6h" />
 	<cache id="AircraftInfoALL" max="6" expires="1h" />
 	<cache id="EquipmentTypes" max="24" expires="4h" />
 	<cache id="Accomplishments" max="64" expires="2h" />
