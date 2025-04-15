@@ -23,14 +23,14 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 11.5
+ * @version 11.6
  * @since 9.0
  */
 
 public class OnlineStatusLoader extends Worker implements Thread.UncaughtExceptionHandler {
 
 	final Cache<NetworkInfo> _cache = CacheManager.get(NetworkInfo.class, "ServInfoData");
-	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader(), new POSCONLoader());
+	private final Collection<Loader> LOADERS = List.of(new VATSIMLoader(), new PilotEdgeLoader(), new IVAOLoader());
 
 	private ConnectionPool<Connection> _jdbcPool;
 

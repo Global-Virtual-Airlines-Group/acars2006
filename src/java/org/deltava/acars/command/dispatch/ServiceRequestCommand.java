@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.dispatch;
 
 import java.util.*;
@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.4
+ * @version 11.6
  * @since 2.0
  */
 
@@ -92,7 +92,6 @@ public class ServiceRequestCommand extends DispatchCommand {
 				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.VATSIM, now, ud.getAirlineCode()).isEmpty();
 				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.IVAO, now, ud.getAirlineCode()).isEmpty();
 				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.PILOTEDGE, now, ud.getAirlineCode()).isEmpty();
-				routeValid |= !edao.getPossibleEvents(msg, OnlineNetwork.POSCON, now, ud.getAirlineCode()).isEmpty();
 				if (routeValid)
 					log.info("Validated route {} to {} using Online Event", msg.getAirportD(), msg.getAirportD());
 			}
