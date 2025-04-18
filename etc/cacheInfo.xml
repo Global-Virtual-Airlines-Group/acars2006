@@ -27,7 +27,7 @@
 	<cache id="GateUsage" remote="true" expires="1d" />
 	<cache id="RunwayUsage" remote="true" expires="86400" />
 	<cache id="GeoCountry" geo="true" expires="16h" max="3072" precision="0.05" />
-	<cache id="TaxiTime" remote="true" expires="1d" />
+	<cache id="TaxiTime" remote="true" expires="36h" />
 	<cache id="ATIS" remote="true" expires="900" />
 	<cache id="ATISCodes" max="4" expires="3600" />
 
