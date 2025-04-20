@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved. -->
+<!-- Copyright 2005, 2006, 2008, 2010, 2013, 2014, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved. -->
 <project default="deploy" xmlns:if="ant:if">
 	<target name="compile">
 		<mkdir dir="${java.io.tmpdir}/build/acars" />
-		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="23" target="23" compiler="modern">
+		<javac srcdir="src/java" optimize="on" destdir="${java.io.tmpdir}/build/acars" includeantruntime="false" debug="true" updatedProperty="jar.compile" debuglevel="lines,vars,source" source="24" target="24" compiler="modern">
 			<compilerarg value="-Xlint:unchecked,deprecation,path,finally,-options" />
 	    	<classpath id="acars.classpath">
 				<pathelement path="${classpath}" />
