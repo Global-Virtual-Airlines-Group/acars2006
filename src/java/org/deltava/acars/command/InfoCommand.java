@@ -28,7 +28,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 11.5
+ * @version 11.6
  * @since 1.0
  */
 
@@ -193,6 +193,7 @@ public class InfoCommand extends ACARSCommand {
 				pireps.stream().filter(DraftFlightReport.class::isInstance).map(DraftFlightReport.class::cast).forEach(oth::add);
 				
 				ackMsg.setEntry("onTime", String.valueOf(oth.validateDeparture(msg)));
+				ackMsg.setEntry("onTimeTolerance", String.valueOf(oth.getTolerance()));
 				if (oth.getScheduleEntry() != null) {
 					GetACARSOnTime otdao = new GetACARSOnTime(c);
 					OnTimeStatsEntry otStats = otdao.getOnTimeStatistics(msg, usrLoc.getDB());
