@@ -107,7 +107,6 @@ public class InfoCommand extends ACARSCommand {
 					msg.setFlightID(0);
 				} else {
 					isValidated = info.isScheduleValidated();
-					log.warn("{} revalidating Flight {}", msg.isServerRequsted() ? "Server" : "Client", Integer.valueOf(msg.getFlightID()));
 					if ((msg.getDispatcher() != info.getDispatcher()) || (msg.getDispatcherID() != info.getDispatcherID())) {
 						log.warn("Flight {} dispatcher was [{}/{}], now [{}/{}]", Integer.valueOf(msg.getFlightID()), info.getDispatcher(), Integer.valueOf(info.getDispatcherID()), msg.getDispatcher(), Integer.valueOf(msg.getDispatcherID()));
 						if (msg.getDispatcherID() == 0) {
@@ -117,11 +116,11 @@ public class InfoCommand extends ACARSCommand {
 					}
 					
 					// Log changes
-					if (curInfo != null) {
-						List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID");
-						if (!d.isEmpty())
-							log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
-					}
+					List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID");
+					if (!d.isEmpty())
+						log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
+					
+					log.log(d.isEmpty() ? Level.INFO : Level.WARN, "{} revalidating Flight {}", msg.isServerRequsted() ? "Server" : "Client", Integer.valueOf(msg.getFlightID()));
 				}
 			}
 			
