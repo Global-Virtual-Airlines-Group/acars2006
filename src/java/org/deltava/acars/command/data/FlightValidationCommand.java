@@ -1,4 +1,4 @@
-// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2008, 2009, 2011, 2012, 2014, 2015, 2017, 2019, 2020, 2021, 2022, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 11.1
+ * @version 12.0
  * @since 2.3
  */
 
@@ -51,7 +51,7 @@ public class FlightValidationCommand extends DataCommand {
 		
 		// Create the route pair and do ETOPS classification
 		ScheduleRoute rt = new ScheduleRoute(SystemData.getAirline(ud.getAirlineCode()), airportD, airportA);
-		Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, 25);
+		Collection<GeoLocation> gc = GeoUtils.greatCircle(airportD, airportA, GeoUtils.GC_SEGMENT_SIZE);
 		ETOPS re = ETOPSHelper.classify(gc).getResult();
 		rspMsg.setEntry("etops", re.name());
 

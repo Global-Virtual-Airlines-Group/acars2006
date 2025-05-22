@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 11.6
+ * @version 12.0
  * @since 2.0
  */
 
@@ -106,7 +106,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				throw new DAOException("Unknown aircraft - " + msg.getEquipmentType());
 			
 			AircraftPolicyOptions opts = a.getOptions(ud.getAirlineCode());
-			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), 20);
+			Collection<GeoLocation> gc = GeoUtils.greatCircle(msg.getAirportD(), msg.getAirportA(), GeoUtils.GC_SEGMENT_SIZE);
 			ETOPS e = ETOPSHelper.classify(gc).getResult();
 			msg.setETOPSWarning(ETOPSHelper.isWarn(opts.getETOPS(), e));
 			
