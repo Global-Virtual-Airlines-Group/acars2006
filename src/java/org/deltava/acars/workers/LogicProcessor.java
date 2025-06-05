@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 11.4
+ * @version 12.0
  * @since 1.0
  */
 
@@ -156,7 +156,7 @@ public class LogicProcessor extends Worker {
 				if (ac != null)
 					errorMsg += " (" + ac.getRemoteAddr() + ")";
 				
-				log.error(errorMsg);
+				log.warn(errorMsg);
 
 				// Return an ACK requesting a login
 				if (!isAuthenticated) {
