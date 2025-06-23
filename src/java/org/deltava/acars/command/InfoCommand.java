@@ -116,7 +116,7 @@ public class InfoCommand extends ACARSCommand {
 					}
 					
 					// Log changes
-					List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID");
+					List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID", "scheduleValidated");
 					if (!d.isEmpty())
 						log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
 					
