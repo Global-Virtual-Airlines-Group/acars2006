@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2106, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -33,7 +33,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 11.3
+ * @version 12.1
  * @since 1.0
  */
 
@@ -431,6 +431,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ackMsg.setEntry("flightID", Integer.toHexString(afr.getDatabaseID(DatabaseID.ACARS)));
 			ackMsg.setEntry("domain", usrLoc.getDomain());
 			ctx.push(ackMsg, ac.getID(), true);
+			
+			// Notify the other webappps
+			EventDispatcher.send(new IDEvent(EventType.FLIGHT_REPORT, String.valueOf(afr.getID()), usrLoc.getAirlineCode()));
 			
 			// Send a notification message if a check ride, either to the CP/ACP, or the Instructor(s)
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
