@@ -21,11 +21,11 @@
     <cache id="Airspace" expires="1d" remote="true" />
 	<cache id="FIRs" max="512" />
 	<cache id="FIRIDs" max="256" />
-	<cache id="Alternates" remote="true" expires="2d" />
+	<cache id="Alternates" remote="true" expires="3d" />
 	<cache id="Gates" remote="true" expires="2d" />
 	<cache id="GatePairs" remote="true" expires="4d" />
-	<cache id="GateUsage" remote="true" expires="1d" />
-	<cache id="RunwayUsage" remote="true" expires="86400" />
+	<cache id="GateUsage" remote="true" expires="2d" />
+	<cache id="RunwayUsage" remote="true" expires="3d" />
 	<cache id="GeoCountry" geo="true" expires="16h" max="3072" precision="0.05" />
 	<cache id="TaxiTime" remote="true" expires="36h" />
 	<cache id="ATIS" remote="true" expires="900" />
