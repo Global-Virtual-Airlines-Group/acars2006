@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for v1 FlightReport elements.
  * @author Luke
- * @version 11.1
+ * @version 12.2
  * @since 1.0
  */
 
@@ -41,8 +41,8 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		// Build the PIREP
 		Flight fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
 		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), StringUtils.parse(getChildText(e, "leg", "1"), 1));
-		afr.setAttribute(FlightReport.ATTR_ACARS, true);
-		afr.setAttribute(FlightReport.ATTR_DIVERT, Boolean.parseBoolean(getChildText(e, "isDivert", "false")));
+		afr.setAttribute(Attribute.ACARS, true);
+		afr.setAttribute(Attribute.DIVERT, Boolean.parseBoolean(getChildText(e, "isDivert", "false")));
 		afr.setDatabaseID(DatabaseID.ACARS, StringUtils.parse(e.getChildTextTrim("flightID"), 0));
 		afr.setDatabaseID(DatabaseID.DISPATCH, StringUtils.parse(e.getChildTextTrim("dispatchLogID"), 0));
 		afr.setStatus(FlightStatus.SUBMITTED);
@@ -62,7 +62,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		afr.setTailCode(getChildText(e, "tailCode", null));
 
 		// Check if it's a checkride
-		afr.setAttribute(FlightReport.ATTR_CHECKRIDE, Boolean.parseBoolean(e.getChildTextTrim("checkRide")));
+		afr.setAttribute(Attribute.CHECKRIDE, Boolean.parseBoolean(e.getChildTextTrim("checkRide")));
 
 		// Set the times
 		try {

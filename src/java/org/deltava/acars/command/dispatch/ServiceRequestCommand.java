@@ -25,7 +25,7 @@ import org.deltava.acars.message.dispatch.*;
 /**
  * An ACARS Command to handle Dispatch service request messages.
  * @author Luke
- * @version 12.0
+ * @version 12.2
  * @since 2.0
  */
 
@@ -76,7 +76,7 @@ public class ServiceRequestCommand extends DispatchCommand {
 				Collection<FlightReport> pireps = prdao.getDraftReports(ud.getID(), msg, ud.getDB());
 				for (Iterator<FlightReport> i = pireps.iterator(); i.hasNext() && !routeValid; ) {
 					FlightReport fr = i.next();
-					boolean isOK = fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
+					boolean isOK = fr.hasAttribute(Attribute.CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0);
 					isOK &= msg.matches(fr);
 					if (isOK) {
 						log.info("Validated route {} to {} using draft PIREP", msg.getAirportD(), msg.getAirportA());
