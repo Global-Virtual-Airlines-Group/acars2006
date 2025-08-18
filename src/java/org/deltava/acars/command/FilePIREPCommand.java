@@ -456,6 +456,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ackMsg.setEntry("pirepID", afr.getHexID());
 			ackMsg.setEntry("flightID", Integer.toHexString(afr.getDatabaseID(DatabaseID.ACARS)));
 			ackMsg.setEntry("domain", usrLoc.getDomain());
+			ackMsg.setEntry("autoApprove", String.valueOf(autoApprove));
 			ctx.push(ackMsg, ac.getID(), true);
 			
 			// Notify the other webappps
@@ -487,8 +488,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					insList.addAll(pdao.getByRole("Instructor", usrLoc.getDB()));
 					
 				// Send the message to the Instructors
-				EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
-				Mailer mailer = new Mailer(sender);
+				Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
 				mailer.setContext(mctxt);
 				mailer.send(insList);
 				log.info("Sending Academy Check Ride notification to {}", insList);
@@ -511,12 +511,27 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					eqCPs.addAll(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
 
 					// Send the message to the CP
-					EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
-					Mailer mailer = new Mailer(sender);
+					Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
 					mailer.setContext(mctxt);
 					mailer.send(eqCPs);
 					log.info("Sending Check Ride notification to {}", eqCPs);
 				}
+			} else if (autoApprove) {
+				ctx.setMessage("Sending Flight Report auto-approval notification");
+				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
+				mctxt.addData("user", p);
+				mctxt.addData("pirep", afr);
+				mctxt.addData("airline", usrAirline.getName());
+				mctxt.addData("url", "https://www." + usrLoc.getDomain() + "/");
+				
+				// Load the template
+				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "PIREPAPPROVE"));
+
+				// Send the message to the Pilot
+				Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
+				mailer.setContext(mctxt);
+				mailer.send(p);
+				log.info("Sending Flight Auto-Approval notification to {}", p.getName());
 			}
 			
 			log.info("PIREP {} [Flight {}] from {} ({}) filed", Integer.valueOf(afr.getID()), Integer.valueOf(afr.getDatabaseID(DatabaseID.ACARS)), env.getOwner().getName(), env.getOwnerID());
