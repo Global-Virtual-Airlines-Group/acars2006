@@ -28,7 +28,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 11.6
+ * @version 12.2
  * @since 1.0
  */
 
@@ -140,7 +140,7 @@ public class InfoCommand extends ACARSCommand {
 				
 				// If we're not valid, check against draft PIREPs
 				if (!msg.isScheduleValidated()) {
-					Optional<FlightReport> odfr = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0))).findAny();
+					Optional<FlightReport> odfr = pireps.stream().filter(fr -> (fr.hasAttribute(Attribute.CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) > 0))).findAny();
 					msg.setScheduleValidated(odfr.isPresent());
 				}
 				

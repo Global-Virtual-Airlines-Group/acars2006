@@ -1,4 +1,4 @@
-// Copyright 2011, 2016, 2019, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2016, 2019, 2020, 2021, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 
 import org.deltava.beans.UserData;
 import org.deltava.beans.econ.*;
-import org.deltava.beans.flight.FlightReport;
+import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
 
 import org.deltava.dao.*;
@@ -23,7 +23,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS Command to request a passenger load factor for a flight.
  * @author Luke
- * @version 11.2
+ * @version 12.2
  * @since 4.0
  */
 
@@ -54,7 +54,7 @@ public class LoadFactorCommand extends DataCommand {
 				Optional<FlightReport> df = frdao.getDraftReports(env.getOwner().getID(), null, ud.getDB()).stream().filter(fr -> fr.matches(rp)).findFirst();
 				FlightReport dfr = df.orElse(null);
 				int pax = df.isPresent() ? dfr.getPassengers() : -1;
-				boolean isDivert = df.isPresent() && dfr.hasAttribute(FlightReport.ATTR_DIVERT);
+				boolean isDivert = df.isPresent() && dfr.hasAttribute(Attribute.DIVERT);
 				ackMsg.setEntry("isDivert", String.valueOf(isDivert));
 				if (pax > 0)
 					ackMsg.setEntry("paxCount", String.valueOf(pax));

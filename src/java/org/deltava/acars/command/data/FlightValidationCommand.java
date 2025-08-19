@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to validate that a route exists in the Flight Schedule or is part of a valid flight assignment, charter request or Flight Tour, and if any dispatch routes currently exist.
  * @author Luke
- * @version 12.0
+ * @version 12.2
  * @since 2.3
  */
 
@@ -82,7 +82,7 @@ public class FlightValidationCommand extends DataCommand {
 			GetFlightReports frdao = new GetFlightReports(con);
 			if (!inSchedule) {
 				List<FlightReport> pireps = frdao.getDraftReports(ud.getID(), rt, ud.getDB());
-				Optional<FlightReport> ofr = pireps.stream().filter(fr -> (fr.hasAttribute(FlightReport.ATTR_CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0))).findAny();
+				Optional<FlightReport> ofr = pireps.stream().filter(fr -> (fr.hasAttribute(Attribute.CHARTER) || (fr.getDatabaseID(DatabaseID.ASSIGN) != 0))).findAny();
 				isValid = ofr.isPresent();
 			}
 			

@@ -12,6 +12,7 @@ import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.navdata.*;
+import org.deltava.beans.schedule.AircraftPolicyOptions;
 import org.deltava.beans.testing.*;
 import org.deltava.beans.system.AirlineInformation;
 
@@ -33,7 +34,7 @@ import org.gvagroup.common.*;
 /**
  * An ACARS Server command to file a Flight Report.
  * @author Luke
- * @version 12.1
+ * @version 12.2
  * @since 1.0
  */
 
@@ -254,8 +255,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			afr.setAverageFrameRate(fddao.getFrameRate(flightID).getAverage());
 			afr.setClientBuild(ac.getClientBuild());
 			afr.setBeta(ac.getBeta());
-			afr.setAttribute(FlightReport.ATTR_DISPATCH, (info.getDispatcher() == DispatchType.DISPATCH));
-			afr.setAttribute(FlightReport.ATTR_SIMBRIEF, (info.getDispatcher() == DispatchType.SIMBRIEF));
+			afr.setAttribute(Attribute.DISPATCH, (info.getDispatcher() == DispatchType.DISPATCH));
+			afr.setAttribute(Attribute.SIMBRIEF, (info.getDispatcher() == DispatchType.SIMBRIEF));
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 			
@@ -263,6 +264,25 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (msg.getDispatcher() != info.getDispatcher()) {
 				afr.addStatusUpdate(0,  HistoryType.SYSTEM, String.format("Flight Dispatcher = %s, Message = %s", msg.getDispatcher(), info.getDispatcher()));
 				log.warn("Flight Dispatcher = {}, Message = {} for Flight {}", msg.getDispatcher(), info.getDispatcher(), Integer.valueOf(info.getFlightID()));
+			}
+			
+			// Calculate the flight score
+			FlightInfo inf = fsh.getACARSInfo(); boolean autoApprove = false;
+			if (usrAirline.getAutoApprove() && !afr.hasAttribute(Attribute.ACADEMY) && !afr.hasAttribute(Attribute.CHECKRIDE) && fsh.hasPositionData()) {
+				ctx.setMessage(String.format("Calculating Flight Score for %s", afr.getFlightCode()));
+				AircraftPolicyOptions opts = fsh.getAircraft().getOptions(usrLoc.getAirlineCode());	
+				ScorePackage pkg = new ScorePackage(fsh.getAircraft(), afr, inf.getRunwayD(), inf.getRunwayA(), opts);	
+				pkg.setGates(inf.getGateD(), inf.getGateA());
+				fsh.getPositionData().stream().filter(ACARSRouteEntry.class::isInstance).map(ACARSRouteEntry.class::cast).forEach(pkg::add);
+							
+				// Generate the score
+				FlightScore score = FlightScorer.score(pkg);
+				if ((score == FlightScore.OPTIMAL) && !Attribute.hasWarning(afr.getAttributes())) {
+					afr.addStatusUpdate(0, HistoryType.LIFECYCLE, "Automatically approved based on optimal Flight Score");
+					afr.setStatus(FlightStatus.OK);
+					afr.setDisposedOn(Instant.now());
+					autoApprove = true;
+				}
 			}
 			
 			// Start the transaction
@@ -293,7 +313,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Update the checkride record (don't assume pilots check the box, because they don't)
 			CheckRide cr = null;
-			if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE)) {
+			if (afr.hasAttribute(Attribute.CHECKRIDE)) {
 				GetExam exdao = new GetExam(con);
 				// Check for Academy chck ride
 				if (fsh.getCourse() != null) {
@@ -306,14 +326,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				if (cr == null)
 					cr = exdao.getCheckRide(usrLoc.getID(), afr.getEquipmentType(), TestStatus.NEW);
 				
-				afr.setAttribute(FlightReport.ATTR_CHECKRIDE, (cr != null));
+				afr.setAttribute(Attribute.CHECKRIDE, (cr != null));
 				if (cr != null) {
 					ctx.setMessage("Saving check ride data for ACARS Flight " + flightID);
 					cr.setFlightID(info.getFlightID());
 					cr.setSubmittedOn(Instant.now());
 					cr.setStatus(TestStatus.SUBMITTED);
-					if (cr.getAcademy() && !afr.hasAttribute(FlightReport.ATTR_ACADEMY))
-						afr.setAttribute(FlightReport.ATTR_ACADEMY, true);
+					if (cr.getAcademy() && !afr.hasAttribute(Attribute.ACADEMY))
+						afr.setAttribute(Attribute.ACADEMY, true);
 
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
@@ -323,7 +343,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 			// Write the runway/gate data
 			SetACARSRunway awdao = new SetACARSRunway(con);
-			FlightInfo inf = fsh.getACARSInfo();
 			awdao.writeRunways(flightID, inf.getRunwayD(), inf.getRunwayA());
 			awdao.writeGates(inf);
 			
@@ -339,7 +358,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			// Check if we're a dispatch plan
 			if ((msg.getDispatcher() == DispatchType.DISPATCH) && (info.getDispatcher() != DispatchType.DISPATCH)) {
 				log.warn("Flight {} was not set as Dispatch, but PIREP has Dispatch flag!", Integer.valueOf(flightID));
-				afr.setAttribute(FlightReport.ATTR_DISPATCH, true);
+				afr.setAttribute(Attribute.DISPATCH, true);
 				
 				// Validate the dispatch route ID
 				GetACARSRoute ardao = new GetACARSRoute(con);
@@ -399,7 +418,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			}
 			
 			// Get the write DAO and save the PIREP
-			ctx.setMessage("Saving Flight report for flight " + afr.getFlightCode() + " for " + ac.getUserID());
+			ctx.setMessage(String.format("Saving Flight report for Flight %s for %s", afr.getFlightCode(), ac.getUserID()));
 			SetFlightReport wdao = new SetFlightReport(con);
 			wdao.write(afr, usrLoc.getDB());
 			wdao.writeACARS(afr, usrLoc.getDB());
@@ -420,6 +439,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					ackMsg.setEntry("onTimeFlight", fsh.getOnTimeEntry().getFlightCode());
 			}
 			
+			// Write post-approval entries if needed
+			if (autoApprove) {
+				Object epo = SharedData.get(SharedData.ELITE_INFO + usrLoc.getAirlineCode()); // check for Elite program
+				SetFlightReportQueue qwdao = new SetFlightReportQueue(con);
+				qwdao.add(afr.getID(), (epo != null), usrLoc.getDB());
+			}
+			
 			// Commit the transaction
 			ctx.commitTX();
 			
@@ -430,6 +456,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			ackMsg.setEntry("pirepID", afr.getHexID());
 			ackMsg.setEntry("flightID", Integer.toHexString(afr.getDatabaseID(DatabaseID.ACARS)));
 			ackMsg.setEntry("domain", usrLoc.getDomain());
+			ackMsg.setEntry("autoApprove", String.valueOf(autoApprove));
 			ctx.push(ackMsg, ac.getID(), true);
 			
 			// Notify the other webappps
@@ -437,7 +464,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Send a notification message if a check ride, either to the CP/ACP, or the Instructor(s)
 			GetMessageTemplate mtdao = new GetMessageTemplate(con);
-			if ((cr != null) && afr.hasAttribute(FlightReport.ATTR_ACADEMY)) {
+			if ((cr != null) && afr.hasAttribute(Attribute.ACADEMY)) {
 				ctx.setMessage("Sending Flight Academy check ride notification");
 				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
 				mctxt.addData("user", p);
@@ -461,12 +488,11 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					insList.addAll(pdao.getByRole("Instructor", usrLoc.getDB()));
 					
 				// Send the message to the Instructors
-				EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
-				Mailer mailer = new Mailer(sender);
+				Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
 				mailer.setContext(mctxt);
 				mailer.send(insList);
 				log.info("Sending Academy Check Ride notification to {}", insList);
-			} else if (afr.hasAttribute(FlightReport.ATTR_CHECKRIDE) && (cr != null)) {
+			} else if (afr.hasAttribute(Attribute.CHECKRIDE) && (cr != null)) {
 				ctx.setMessage("Sending check ride notification");
 				GetEquipmentType eqdao = new GetEquipmentType(con);
 				EquipmentType crEQ = eqdao.get(cr.getEquipmentType(), cr.getOwner().getDB());
@@ -485,12 +511,27 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					eqCPs.addAll(pdao.getPilotsByEQ(crEQ, null, true, Rank.CP));
 
 					// Send the message to the CP
-					EMailAddress sender = MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS");
-					Mailer mailer = new Mailer(sender);
+					Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
 					mailer.setContext(mctxt);
 					mailer.send(eqCPs);
 					log.info("Sending Check Ride notification to {}", eqCPs);
 				}
+			} else if (autoApprove) {
+				ctx.setMessage("Sending Flight Report auto-approval notification");
+				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
+				mctxt.addData("user", p);
+				mctxt.addData("pirep", afr);
+				mctxt.addData("airline", usrAirline.getName());
+				mctxt.addData("url", "https://www." + usrLoc.getDomain() + "/");
+				
+				// Load the template
+				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "PIREPAPPROVE"));
+
+				// Send the message to the Pilot
+				Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
+				mailer.setContext(mctxt);
+				mailer.send(p);
+				log.info("Sending Flight Auto-Approval notification to {}", p.getName());
 			}
 			
 			log.info("PIREP {} [Flight {}] from {} ({}) filed", Integer.valueOf(afr.getID()), Integer.valueOf(afr.getDatabaseID(DatabaseID.ACARS)), env.getOwner().getName(), env.getOwnerID());

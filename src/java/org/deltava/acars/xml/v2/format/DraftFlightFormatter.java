@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for Draft Flight Report data messages.
  * @author Luke
- * @version 11.5
+ * @version 12.2
  * @since 1.0
  */
 
@@ -44,7 +44,7 @@ class DraftFlightFormatter extends ElementFormatter {
 			fe.setAttribute("number", StringUtils.format(fr.getFlightNumber(), "#000"));
 			fe.setAttribute("leg", String.valueOf(fr.getLeg()));
 			fe.setAttribute("assign", String.valueOf(fr.getDatabaseID(DatabaseID.ASSIGN) != 0));
-			fe.setAttribute("isDivert", String.valueOf(fr.hasAttribute(FlightReport.ATTR_DIVERT)));
+			fe.setAttribute("isDivert", String.valueOf(fr.hasAttribute(Attribute.DIVERT)));
 			fe.addContent(XMLUtils.createElement("eqType", fr.getEquipmentType()));
 			fe.addContent(XMLUtils.createElement("airportA", fr.getAirportA().getICAO()));
 			fe.addContent(XMLUtils.createElement("airportD", fr.getAirportD().getICAO()));
@@ -57,7 +57,7 @@ class DraftFlightFormatter extends ElementFormatter {
 				fe.addContent(XMLUtils.createElement("route", fr.getRoute(), true));
 			
 			// Add SimBrief data if present
-			if (fr.hasAttribute(FlightReport.ATTR_SIMBRIEF) && (dfp.getPackage() != null)) {
+			if (fr.hasAttribute(Attribute.SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
 				fe.setAttribute("dispatcher", "SimBrief");
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
