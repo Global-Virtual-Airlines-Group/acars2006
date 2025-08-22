@@ -268,7 +268,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Calculate the flight score
 			FlightInfo inf = fsh.getACARSInfo(); boolean autoApprove = false;
-			if (usrAirline.getAutoApprove() && !afr.hasAttribute(Attribute.ACADEMY) && !afr.hasAttribute(Attribute.CHECKRIDE) && fsh.hasPositionData()) {
+			if (usrAirline.getAutoApprove() && !afr.hasAttribute(Attribute.ACADEMY) && !afr.hasAttribute(Attribute.CHECKRIDE) && fsh.hasPositionData() && p.isInRole("PIREP")) {
 				ctx.setMessage(String.format("Calculating Flight Score for %s", afr.getFlightCode()));
 				AircraftPolicyOptions opts = fsh.getAircraft().getOptions(usrLoc.getAirlineCode());	
 				ScorePackage pkg = new ScorePackage(fsh.getAircraft(), afr, inf.getRunwayD(), inf.getRunwayA(), opts);	
@@ -278,9 +278,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				// Generate the score
 				FlightScore score = FlightScorer.score(pkg);
 				if ((score == FlightScore.OPTIMAL) && !Attribute.hasWarning(afr.getAttributes())) {
-					afr.addStatusUpdate(0, HistoryType.LIFECYCLE, "Automatically approved based on optimal Flight Score");
+					afr.addStatusUpdate(0, HistoryType.LIFECYCLE, "Automatically approved based on Optimal Flight Score");
 					afr.setStatus(FlightStatus.OK);
 					afr.setDisposedOn(Instant.now());
+					afr.setAttribute(Attribute.AUTOAPPROVE, true);
 					autoApprove = true;
 				}
 			}
@@ -519,7 +520,9 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			} else if (autoApprove) {
 				ctx.setMessage("Sending Flight Report auto-approval notification");
 				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
-				mctxt.addData("user", p);
+				mctxt.addData("flightLength", Double.valueOf(afr.getLength() / 10.0));
+				mctxt.addData("flightDate", StringUtils.format(afr.getDate(), p.getDateFormat()));
+				mctxt.addData("pilot", p);
 				mctxt.addData("pirep", afr);
 				mctxt.addData("airline", usrAirline.getName());
 				mctxt.addData("url", "https://www." + usrLoc.getDomain() + "/");
