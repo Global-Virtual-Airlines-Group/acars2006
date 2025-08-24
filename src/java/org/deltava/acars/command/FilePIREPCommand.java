@@ -282,6 +282,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					afr.setStatus(FlightStatus.OK);
 					afr.setDisposedOn(Instant.now());
 					afr.setAttribute(Attribute.AUTOAPPROVE, true);
+					afr.setComments("Automatically approved by ACARS");
 					autoApprove = true;
 				}
 			}
