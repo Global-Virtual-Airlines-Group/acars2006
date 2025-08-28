@@ -445,7 +445,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (autoApprove) {
 				Object epo = SharedData.get(SharedData.ELITE_INFO + usrLoc.getAirlineCode()); // check for Elite program
 				SetFlightReportQueue qwdao = new SetFlightReportQueue(con);
-				qwdao.add(afr.getID(), (epo != null), usrLoc.getDB());
+				qwdao.add(afr.getID(), (epo == null), usrLoc.getDB());
 			}
 			
 			// Commit the transaction
