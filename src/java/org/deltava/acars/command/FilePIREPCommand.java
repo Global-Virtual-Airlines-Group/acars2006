@@ -534,7 +534,6 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "PIREPAPPROVE"));
 
 				// Send the message to the Pilot
-				
 				Mailer mailer = new Mailer(src);
 				mailer.setContext(mctxt);
 				mailer.send(p);
