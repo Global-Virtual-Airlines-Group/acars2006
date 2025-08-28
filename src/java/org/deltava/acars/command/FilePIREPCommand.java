@@ -520,11 +520,13 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				}
 			} else if (autoApprove) {
 				ctx.setMessage("Sending Flight Report auto-approval notification");
+				EMailAddress src = MailUtils.makeAddress("webmaster", usrLoc.getDomain(), "ACARS");
 				MessageContext mctxt = new MessageContext(usrLoc.getAirlineCode());
 				mctxt.addData("flightLength", Double.valueOf(afr.getLength() / 10.0));
 				mctxt.addData("flightDate", StringUtils.format(afr.getDate(), p.getDateFormat()));
 				mctxt.addData("pilot", p);
 				mctxt.addData("pirep", afr);
+				mctxt.addData("user", src);
 				mctxt.addData("airline", usrAirline.getName());
 				mctxt.addData("url", "https://www." + usrLoc.getDomain() + "/");
 				
@@ -532,7 +534,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 				mctxt.setTemplate(mtdao.get(usrLoc.getDB(), "PIREPAPPROVE"));
 
 				// Send the message to the Pilot
-				Mailer mailer = new Mailer(MailUtils.makeAddress("acars", usrLoc.getDomain(), "ACARS"));
+				
+				Mailer mailer = new Mailer(src);
 				mailer.setContext(mctxt);
 				mailer.send(p);
 				log.info("Sending Flight Auto-Approval notification to {}", p.getName());
