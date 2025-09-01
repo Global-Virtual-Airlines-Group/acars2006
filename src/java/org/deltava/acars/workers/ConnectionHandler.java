@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -17,7 +17,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 11.1
+ * @version 12.2
  * @since 2.1
  */
 
@@ -40,7 +40,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	protected final Collection<String> _blockedAddrs = new HashSet<String>();
 	
 	private class ConnectWorker implements Runnable {
-		private final String SYSTEM_HELLO = "ACARS " + VersionInfo.getAppName() + " HELLO";
+		private final String SYSTEM_HELLO = "ACARS (" + VersionInfo.getAppName() + ") HELLO";
 
 		private final SocketChannel _sc;
 		private final long _id;
@@ -118,9 +118,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		super("Connection Handler", 10, ConnectionHandler.class);
 	}
 	
-	/**
-	 * Initializes the worker.
-	 */
 	@Override
 	public final void open() {
 		super.open();
@@ -144,9 +141,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		}
 	}
 	
-	/**
-	 * Shuts down the Worker.
-	 */
 	@Override
 	public final void close() {
 		try {
@@ -172,17 +166,11 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		_selectCount = 0;
 	}
 	
-	/**
-	 * Uncaught exception handler for Connection workers.
-	 */
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		log.atError().withThrowable(e).log("{} - {}", t.getName(), e.getMessage());
 	}
 	
-	/**
-	 * Executes the Thread.
-	 */
 	@Override
 	public void run() {
 		log.info("Started");
