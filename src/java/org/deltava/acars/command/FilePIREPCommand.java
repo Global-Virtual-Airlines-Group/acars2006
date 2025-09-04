@@ -150,6 +150,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					// If the flight ID with the most records is different, use it
 					if (dupeID != flightID) {
 						log.warn("{} has more positions, switching Flight ID from {}", Integer.valueOf(dupeID), Integer.valueOf(flightID));
+						afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Flight %d has more positions, switching ACARS ID from %d to %d", Integer.valueOf(dupeID), Integer.valueOf(flightID), Integer.valueOf(dupeID)));
 						afr.setDatabaseID(DatabaseID.ACARS, dupeID);
 						flightID = dupeID;
 					}
@@ -169,8 +170,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 
 			// Log number of positions
 			int positionCount = pcdao.getCount(flightID).getPositionCount();
-			if (positionCount == 0)
+			if (positionCount == 0) {
 				log.warn("No position records for Flight {}", Integer.valueOf(info.getFlightID()));
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("No position records for Flight %d", Integer.valueOf(info.getFlightID())));
+			}
 			
 			// Reload the User
 			GetPilotDirectory pdao = new GetPilotDirectory(con);
