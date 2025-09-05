@@ -33,7 +33,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 11.5
+ * @version 12.2
  * @since 1.0
  */
 
@@ -327,6 +327,10 @@ public class AuthenticateCommand extends ACARSCommand {
 		ackMsg.setEntry("systemInfo", String.valueOf(requestSystemInfo));
 		ackMsg.setEntry("heldFlights", String.valueOf(heldFlights));
 		ackMsg.setEntry("updChannel", usr.getACARSUpdateChannel().name().toLowerCase());
+		if (usr.hasID(ExternalID.NAVIGRAPH))
+			ackMsg.setEntry("navigraphID", usr.getExternalID(ExternalID.NAVIGRAPH));
+		if (usr.hasID(ExternalID.DISCORD))
+			ackMsg.setEntry("discordID", usr.getExternalID(ExternalID.DISCORD));
 		if ((con.getCompression() == Compression.NONE) && (con.getProtocolVersion() > 1) && msg.getHasCompression())
 			ackMsg.setEntry("compress", String.valueOf(SystemData.getBoolean("acars.compress")));
 		if ((usr.getRoles().size() > 2) || (usr.getACARSRestriction() == Restriction.OK))
