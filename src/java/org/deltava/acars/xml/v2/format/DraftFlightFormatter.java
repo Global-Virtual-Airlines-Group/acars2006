@@ -60,6 +60,8 @@ class DraftFlightFormatter extends ElementFormatter {
 			if (fr.hasAttribute(Attribute.SIMBRIEF) && (dfp.getPackage() != null)) {
 				BriefingPackage pkg = dfp.getPackage();
 				fe.setAttribute("dispatcher", "SimBrief");
+				fe.setAttribute("fmt", pkg.getFormat().name());
+				fe.setAttribute("version", String.valueOf(pkg.getReleaseVersion()));
 				fe.addContent(XMLUtils.createElement("createdOn", StringUtils.format(pkg.getCreatedOn(), "MM/dd/yyyy HH:mm:ss")));
 				fe.addContent(XMLUtils.createElement("airac", String.valueOf(pkg.getAIRAC())));
 				XMLUtils.addIfPresent(fe, XMLUtils.createIfPresent("runwayD", pkg.getRunwayD()));
