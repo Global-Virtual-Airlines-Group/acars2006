@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 12.0
+ * @version 12.3
  * @since 1.0
  */
 
@@ -103,6 +103,7 @@ public class LogicProcessor extends Worker {
 		_subCommands.put(DataRequest.RWYINFO, new RunwayInfoCommand());
 		_subCommands.put(DataRequest.TAXITIME, new TaxiTimeCommand());
 		_subCommands.put(DataRequest.SBDATA, new SimBriefTextCommand());
+		_subCommands.put(DataRequest.SBPLAN, new SimBriefPlanCommand());
 		_subCommands.put(DataRequest.ATIS, new ATISCommand());
 
 		// Initialize dispatch commands
