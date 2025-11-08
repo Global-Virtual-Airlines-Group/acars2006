@@ -1,4 +1,4 @@
-// Copyright 2004, 2009, 2012, 2016, 2017, 2018, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2009, 2012, 2016, 2017, 2018, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import org.deltava.util.StringUtils;
 /**
  * An abstract class to parse ACARS XML messages.
  * @author Luke
- * @version 11.1
+ * @version 12.3
  * @since 2.8
  */
 
@@ -33,6 +33,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	public XMLMessageParser(int version) {
 		super(version);
 		builder.setReuseParser(true);
+		builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		init();
 	}
 	
