@@ -24,7 +24,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	protected final Map<MessageType, XMLElementParser<? extends Message>> _eParsers =  new HashMap<MessageType, XMLElementParser<? extends Message>>();
 	protected final Map<DispatchRequest, XMLElementParser<? extends DispatchMessage>> _dspParsers = new HashMap<DispatchRequest, XMLElementParser<? extends DispatchMessage>>();
 	
-	protected final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
+	protected final SAXBuilder builder;
 
 	/**
 	 * Initializes the parser.
@@ -32,6 +32,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	 */
 	public XMLMessageParser(int version) {
 		super(version);
+		builder = new SAXBuilder(XMLReaders.NONVALIDATING);
 		builder.setReuseParser(true);
 		builder.setProperty(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
 		init();
@@ -42,12 +43,6 @@ public abstract class XMLMessageParser extends MessageParser {
 	 */
 	protected abstract void init();
 	
-	/**
-	 * Parses a message Envelope.
-	 * @param env the Envelope
-	 * @return a Collection of Message beans
-	 * @throws XMLException if an error occurs
-	 */
 	@Override
 	public Collection<Message> parse(TextEnvelope env) throws XMLException {
 		if (env == null)
