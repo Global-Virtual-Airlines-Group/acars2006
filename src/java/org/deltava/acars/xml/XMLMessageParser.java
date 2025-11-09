@@ -33,7 +33,7 @@ public abstract class XMLMessageParser extends MessageParser {
 	public XMLMessageParser(int version) {
 		super(version);
 		builder.setReuseParser(true);
-		builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		builder.setProperty(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
 		init();
 	}
 	
