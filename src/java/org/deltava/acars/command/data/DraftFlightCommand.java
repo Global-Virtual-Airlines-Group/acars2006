@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2014, 2019, 2020, 2021, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2014, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import org.deltava.dao.*;
 /**
  * An ACARS command to load draft Flight Reports for a Pilot. 
  * @author Luke
- * @version 11.2
+ * @version 12.4
  * @since 1.0
  */
 
@@ -71,6 +71,11 @@ public class DraftFlightCommand extends DataCommand {
 					}
 				}
 			}
+			
+			// Check for only SimBrief flights
+			boolean simBriefOnly = Boolean.parseBoolean(msg.getFlag("simBriefOnly"));
+			if (simBriefOnly)
+				flights.removeIf(fr -> fr.hasAttribute(Attribute.SIMBRIEF));
 			
 			// Combine and convert into DraftFlightPackage
 			flights.stream().map(DraftFlightReport.class::cast).map(dfr -> new DraftFlightPackage(dfr, sbPkgs.get(Integer.valueOf(dfr.getID())))).forEach(rspMsg::add);
