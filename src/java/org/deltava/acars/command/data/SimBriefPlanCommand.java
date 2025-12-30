@@ -1,4 +1,4 @@
-// Copyright 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to determine if a Pilot has a pending SimBrief flight.
  * @author Luke
- * @version 12.3
+ * @version 12.4
  * @since 12.2
  */
 
@@ -70,7 +70,8 @@ public class SimBriefPlanCommand extends DataCommand {
 					}
 				}
 			} catch (HTTPDAOException hde) {
-				log.warn("Error loading latest SimBrief plan for {} - {}", ctx.getUser().getName(), Integer.valueOf(hde.getStatusCode()));
+				String errorMsg = (hde instanceof GetSimBrief.SimBriefException sbe) ? SimBriefParser.parseError(sbe.getMessage()) : "???";
+				log.warn("Error {} loading latest SimBrief plan for {} - {}", Integer.valueOf(hde.getStatusCode()), ctx.getUser().getName(), errorMsg);
 			} catch (Exception e) {
 				log.atError().withThrowable(e).log("Error parsing SimBrief plan for {} - {}", ctx.getUser().getName(), e.getMessage());
 			}
