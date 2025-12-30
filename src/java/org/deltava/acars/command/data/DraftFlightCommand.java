@@ -75,7 +75,7 @@ public class DraftFlightCommand extends DataCommand {
 			// Check for only SimBrief flights
 			boolean simBriefOnly = Boolean.parseBoolean(msg.getFlag("simBriefOnly"));
 			if (simBriefOnly)
-				flights.removeIf(fr -> fr.hasAttribute(Attribute.SIMBRIEF));
+				flights.removeIf(fr -> !fr.hasAttribute(Attribute.SIMBRIEF));
 			
 			// Combine and convert into DraftFlightPackage
 			flights.stream().map(DraftFlightReport.class::cast).map(dfr -> new DraftFlightPackage(dfr, sbPkgs.get(Integer.valueOf(dfr.getID())))).forEach(rspMsg::add);
