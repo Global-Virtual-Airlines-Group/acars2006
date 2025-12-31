@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -7,13 +7,15 @@ import java.util.*;
 
 import org.apache.logging.log4j.*;
 
-import org.deltava.acars.beans.ACARSConnectionPool;
+import org.deltava.acars.beans.*;
 
 import org.deltava.acars.workers.*;
 
 import org.deltava.dao.*;
 
 import org.deltava.security.Authenticator;
+
+import org.deltava.util.jmx.JMXUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.common.SharedData;
@@ -24,7 +26,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 11.4
+ * @version 12.4
  * @since 1.0
  */
 
@@ -122,6 +124,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		_conPool.setTimeout(SystemData.getInt("acars.timeout"));
 		_conPool.setMaxSelects(SystemData.getInt("acars.pool.maxSelect", 15000));
 		SharedData.addData(SharedData.ACARS_POOL, _conPool);
+		
+		// Add to JMX
+		JMXUtils.register("org.gvagroup:type=UserPool,name=ACARS", new ConnectedUsersBeanImpl(_conPool));
  	}
  	
  	/**
