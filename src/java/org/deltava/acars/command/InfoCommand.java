@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 12.2
+ * @version 12.4
  * @since 1.0
  */
 
@@ -157,7 +157,7 @@ public class InfoCommand extends ACARSCommand {
 				if (!msg.isScheduleValidated()) {
 					GetTour trdao = new GetTour(c);
 					Collection<Tour> possibleTours = trdao.findLeg(msg, null, usrLoc.getDB());
-					Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartDate().toEpochMilli()).min().orElse(msg.getStartTime().toEpochMilli()));
+					Instant minDate = Instant.ofEpochMilli(possibleTours.stream().mapToLong(t -> t.getStartTime().toEpochMilli()).min().orElse(msg.getStartTime().toEpochMilli()));
 					Duration d = Duration.between(minDate, msg.getStartTime());
 					Collection<FlightReport> oldPireps = prdao.getLogbookCalendar(usrLoc.getID(), usrLoc.getDB(), minDate, (int)d.toDaysPart() + 1);
 					
