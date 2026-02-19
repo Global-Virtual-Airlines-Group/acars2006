@@ -1,4 +1,4 @@
-// Copyright 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command.data;
 
 import java.util.*;
@@ -62,7 +62,7 @@ public class SimBriefPlanCommand extends DataCommand {
 				sbdao.setCompression(Compression.BROTLI, Compression.GZIP);
 				String sbdata = sbdao.refresh(ctx.getUser().getExternalID(ExternalID.NAVIGRAPH), null);
 				BriefingPackage pkg = SimBriefParser.parse(sbdata);
-				if (pkg.getAirportD().equals(a)) {
+				if (pkg.isPopulated() && (pkg.getAirportD().equals(a))) {
 					boolean isDupe = flights.stream().anyMatch(fr -> fr.matches(pkg));
 					if (!isDupe) {
 						planCount++;
