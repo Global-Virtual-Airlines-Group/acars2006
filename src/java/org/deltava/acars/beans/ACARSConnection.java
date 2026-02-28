@@ -1,8 +1,7 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
-import java.net.*;
 
 import java.nio.channels.*;
 
@@ -22,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS server connection.
  * @author Luke
- * @version 11.1
+ * @version 12.4
  * @since 1.0
  */
 
@@ -104,47 +103,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		}
 	}
 	
-	/**
-	 * Connects the UDP socket for voice communications.
-	 * @param dc the Channel to write on
-	 * @param srcAddr the source SocketAddress
-	 * @return TRUE if voice source address switched, otherwise FALSE
-	 */
-	public boolean enableVoice(DatagramChannel dc, InetSocketAddress srcAddr) {
-		if (isVoiceEnabled()) {
-			boolean isNew = !NetworkUtils.getSourceAddress(srcAddr).equals(_udp.getAddress());
-			if (isNew) {
-				_udp.setRemoteAddress(srcAddr, dc);
-				log.warn("Switched voice source address for {} to {}", getUserID(), getVoiceSourceAddr());
-				return true;
-			}
-				
-			return false;
-		}
-		
-		try {
-			_udp = new UDPChannel(_id, dc, srcAddr);
-			_isMuted = false;
-		} catch (IOException ie) {
-			log.atError().withThrowable(ie).log("Error creating Voice socket for {} - {}", getUserID(), ie.getMessage());
-		}
-		
-		return false;
-	}
-
-	/**
-	 * Closes the UDP pseudo-connection and disables voice.
-	 */
-	public void disableVoice() {
-		if (_udp != null)
-			_udp.close();
-		
-		_udp = null;
-	}
-	
 	@Override
 	public void close() {
-		disableVoice();
 		_tcp.close();
 	}
 
