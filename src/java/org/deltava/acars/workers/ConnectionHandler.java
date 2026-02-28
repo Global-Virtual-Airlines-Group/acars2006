@@ -5,10 +5,14 @@ import java.io.*;
 import java.net.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.log4j.Level;
 
 import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.beans.system.VersionInfo;
+
 import org.deltava.util.*;
 import org.deltava.util.dns.Resolver;
 import org.deltava.util.system.SystemData;
@@ -56,18 +60,19 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		public void run() {
 			
 			// Create a new connection bean
+			IntervalTaskTimer tt = new IntervalTaskTimer();
 			log.info("Handling connection from {}", Long.toHexString(_id));
 			ACARSConnection con = SystemData.getBoolean("acars.debug") ? new ACARSDebugConnection(_id, _sc) : new ACARSConnection(_id, _sc);
+			long ns = tt.mark("ACCreate");
 			
 			// Do an async reverse DNS lookup
 			try {
 				if (_sc.getRemoteAddress() instanceof InetSocketAddress sa) {
-					TaskTimer tt = new TaskTimer();
 					String addr = sa.getAddress().getHostAddress();
-					String hostName = Resolver.resolve(addr, 150);
-					long ms = tt.stop();
+					String hostName = Resolver.resolve(addr, 200);
+					long ns2 = tt.mark("ReverseDNS");
 					con.setRemoteHost(hostName);
-					log.info("Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(ms));
+					log.info("Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(TimeUnit.MILLISECONDS.convert(ns2 - ns, TimeUnit.NANOSECONDS)));
 				}
 			} catch (IOException ie) {
 				log.warn("Error reading remote address - {}", ie.getMessage());
@@ -82,6 +87,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 
 			// Check if we have a connection from there already
 			if (!SystemData.getBoolean("acars.pool.multiple")) {
+				tt.mark("CheckMulitple");
 				ACARSConnection oldCon = _pool.get(con.getRemoteAddr());
 				boolean killOld = SystemData.getBoolean("acars.pool.kill_old");
 				if ((oldCon != null) && oldCon.getIsDispatch())
@@ -103,6 +109,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				_sc.setOption(StandardSocketOptions.SO_KEEPALIVE, Boolean.TRUE);
 				_sc.setOption(StandardSocketOptions.SO_SNDBUF, Integer.valueOf(SystemData.getInt("acars.buffer.send")));
 				_sc.setOption(StandardSocketOptions.SO_RCVBUF, Integer.valueOf(SystemData.getInt("acars.buffer.recv")));
+				tt.mark("SocketOptions");
 			} catch (IOException ie) {
 				log.atError().withThrowable(ie).log("Error setting socket options - {}", ie.getMessage());
 			}
@@ -116,6 +123,10 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				log.atError().withThrowable(ae).log("Error adding to pool - {}", ae.getMessage());
 				con.close();
 			}
+			
+			// Log completion
+			long ms = tt.stop();
+			log.log((ms > 1000) ? Level.WARN : Level.INFO, "Connection from {} completed in {}ms", con.getRemoteAddr(), Long.valueOf(ms));
 		}
 		
 		public long getID() {
