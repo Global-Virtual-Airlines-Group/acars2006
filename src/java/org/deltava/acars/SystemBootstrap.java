@@ -1,4 +1,4 @@
-// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.io.*;
@@ -22,6 +22,7 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.*;
 import org.deltava.util.jmx.*;
 import org.deltava.util.cache.CacheLoader;
+import org.deltava.util.dns.ResolverDaemon;
 import org.deltava.util.system.*;
 
 import org.gvagroup.common.SharedData;
@@ -33,7 +34,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A servlet context listener to spawn ACARS in its own J2EE web application.
  * @author Luke
- * @version 12.3
+ * @version 12.4
  * @since 1.0
  */
 
@@ -49,7 +50,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 	public void contextDestroyed(ServletContextEvent e) {
 		Collection<Thread> threads = new ArrayList<Thread>(_daemons.keySet());
 		_daemons.clear();
-		threads.forEach(Thread::interrupt);
 		SharedWorker.clear(Thread.currentThread().getContextClassLoader());
 		
 		// Shut down the JDBC connection pool
@@ -208,6 +208,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		spawnDaemon(tcDaemon);
 		spawnDaemon(new MailerDaemon());
 		spawnDaemon(new IPCDaemon());
+		spawnDaemon(new ResolverDaemon());
 		
 		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);

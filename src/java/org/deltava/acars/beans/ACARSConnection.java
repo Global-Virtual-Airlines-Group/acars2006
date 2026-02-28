@@ -29,8 +29,8 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	protected transient static final Logger log = LogManager.getLogger(ACARSConnection.class);
 	
-	// Channels
 	private TCPChannel _tcp;
+	private String _hostName;
 	
 	private int _warningScore;
 
@@ -238,7 +238,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	
 	@Override
 	public String getRemoteHost() {
-		return _tcp.getRemoteHost();
+		return (_hostName == null) ? _tcp.getRemoteHost() : _hostName;
 	}
 	
 	public long getTimeOffset() {
@@ -317,6 +317,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	
 	public void setWarningScore(int score) {
 		_warningScore = Math.max(0, score);
+	}
+	
+	public void setRemoteHost(String hostName) {
+		_hostName = hostName;
 	}
 	
 	public void setTimeOffset(long ofs) {

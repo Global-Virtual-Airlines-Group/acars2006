@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2011, 2016, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2011, 2016, 2023, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 /**
  * An ACARS Connection that dumps messages to a text file.
  * @author Luke
- * @version 11.1
+ * @version 12.4
  * @since 1.0
  */
 
@@ -30,14 +30,11 @@ public class ACARSDebugConnection extends ACARSConnection {
 
 		// Log connection info
 		InetAddress addr = sc.socket().getInetAddress();
-		_debugWriter.println("Connection to " + addr.getHostAddress() + "(" + addr.getHostName() + ")");
+		_debugWriter.println("Connection from " + addr.getHostAddress());
 		_debugWriter.println("Connected on " + java.time.Instant.now());
 		_debugWriter.println("*****");
 	}
 
-	/**
-	 * Closes the connection.
-	 */
 	@Override
 	public void close() {
 		super.close();
@@ -49,10 +46,6 @@ public class ACARSDebugConnection extends ACARSConnection {
 		_debugWriter.close();
 	}
 
-	/**
-	 * Reads a message from the connection.
-	 * @return the XML message
-	 */
 	@Override
 	String read() throws IOException {
 		String msg = super.read();
@@ -65,10 +58,6 @@ public class ACARSDebugConnection extends ACARSConnection {
 		return msg;
 	}
 
-	/**
-	 * Writes a message to the connection.
-	 * @param msg the message string
-	 */
 	@Override
 	public final void write(String msg) {
 		_debugWriter.println("-- out " + java.time.Instant.now());

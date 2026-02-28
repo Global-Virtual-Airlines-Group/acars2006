@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2017, 2021, 2023, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.io.*;
@@ -10,6 +10,7 @@ import org.deltava.acars.ACARSException;
 import org.deltava.acars.beans.*;
 import org.deltava.beans.system.VersionInfo;
 import org.deltava.util.*;
+import org.deltava.util.dns.Resolver;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
@@ -17,7 +18,7 @@ import org.gvagroup.ipc.WorkerState;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 12.2
+ * @version 12.4
  * @since 2.1
  */
 
@@ -40,7 +41,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	protected final Collection<String> _blockedAddrs = new HashSet<String>();
 	
 	private class ConnectWorker implements Runnable {
-		private final String SYSTEM_HELLO = "ACARS (" + VersionInfo.getAppName() + ") HELLO";
+		private static final String SYSTEM_HELLO = "ACARS (" + VersionInfo.getAppName() + ") HELLO";
 
 		private final SocketChannel _sc;
 		private final long _id;
@@ -55,11 +56,22 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		public void run() {
 			
 			// Create a new connection bean
-			ACARSConnection con = null;
-			if (SystemData.getBoolean("acars.debug"))
-				con = new ACARSDebugConnection(_id, _sc);
-			else
-				con = new ACARSConnection(_id, _sc);
+			log.info("Handling connection from {}", Long.toHexString(_id));
+			ACARSConnection con = SystemData.getBoolean("acars.debug") ? new ACARSDebugConnection(_id, _sc) : new ACARSConnection(_id, _sc);
+			
+			// Do an async reverse DNS lookup
+			try {
+				if (_sc.getRemoteAddress() instanceof InetSocketAddress sa) {
+					TaskTimer tt = new TaskTimer();
+					String addr = sa.getAddress().getHostAddress();
+					String hostName = Resolver.resolve(addr, 150);
+					long ms = tt.stop();
+					con.setRemoteHost(hostName);
+					log.info("Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(ms));
+				}
+			} catch (IOException ie) {
+				log.warn("Error reading remote address - {}", ie.getMessage());
+			}
 
 			// Check if the address is on the block list or from a banned user
 			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
@@ -96,7 +108,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			}
 
 			// Register the channel with the pool
-			log.info("New Connection from {}", con.getRemoteAddr());
+			log.info("Adding Connection from {} to pool", con.getRemoteAddr());
 			try {
 				_pool.add(con);
 				con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
