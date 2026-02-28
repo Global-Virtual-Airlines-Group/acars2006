@@ -40,8 +40,8 @@ public class NetworkWriter extends Worker {
 		@Override
 		public void run() {
 			_status.setMessage("Writing to " + _con.getUserID());
-			if (_env instanceof TextEnvelope)
-				_con.write((String) _env.getMessage());
+			if (_env instanceof TextEnvelope te)
+				_con.write(te.getMessage());
 			else
 				log.warn("Unknown envelope type - {}", _env.getClass().getSimpleName());
 			
