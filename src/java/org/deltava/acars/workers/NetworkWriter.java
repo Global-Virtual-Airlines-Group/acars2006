@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023 Global Virtual Airline Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023, 2026 Global Virtual Airline Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -14,7 +14,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server task to handle writing to network connections.
  * @author Luke
- * @version 11.1
+ * @version 12.4
  * @since 1.0
  */
 
@@ -23,9 +23,8 @@ public class NetworkWriter extends Worker {
 	private QueueingThreadPool _ioPool;
 
 	private final class ConnectionWriter extends PoolWorker {
-
-		private ACARSConnection _con;
-		private OutputEnvelope _env;
+		private final ACARSConnection _con;
+		private final OutputEnvelope _env;
 
 		ConnectionWriter(ACARSConnection ac, OutputEnvelope env) {
 			super();
@@ -43,8 +42,6 @@ public class NetworkWriter extends Worker {
 			_status.setMessage("Writing to " + _con.getUserID());
 			if (_env instanceof TextEnvelope)
 				_con.write((String) _env.getMessage());
-			else if (_env instanceof BinaryEnvelope)
-				_con.write((byte[]) _env.getMessage());
 			else
 				log.warn("Unknown envelope type - {}", _env.getClass().getSimpleName());
 			

@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2019, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2010, 2011, 2019, 2021, 2023, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.Collection;
@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to modify a user's warning level. 
  * @author Luke
- * @version 11.1
+ * @version 12.4
  * @since 4.0
  */
 
@@ -56,19 +56,17 @@ public class WarnCommand extends ACARSCommand {
 		// Update the warning count - block the user after a certain level of warnings
 		int maxWarn = SystemData.getInt("acars.maxWarnings", 10); boolean disableVoiceText = false;
 		synchronized (ac) {
-			boolean isMuted = ac.getMuted() || (ac.getUser().getACARSRestriction() == Restriction.NOMSGS);
+			boolean isMuted = (ac.getUser().getACARSRestriction() == Restriction.NOMSGS);
 			int warnings = msg.isReset() ? 0 : ac.getWarningScore() + warnScore;
 			ac.setWarningScore(warnings);
 			if (warnings >= maxWarn) {
 				su.setDescription("Voice/Text disabled after " + warnings + " content warning score");
 				log.warn(ac.getUser().getName() + " " + su.getDescription());
-				ac.setMuted(true);
 				ac.getUser().setACARSRestriction(Restriction.NOMSGS);
 				disableVoiceText = true;
 			} else if (isMuted && msg.isReset()) {
 				log.info("Reset warnings for {}", ac.getUserID());
 				su.setDescription("Warning level reset");
-				ac.setMuted(false);
 				ac.getUser().setACARSRestriction(Restriction.RESTRICT);
 			} else
 				su.setDescription("Sent voice content warning (" + warnScore + " pts)");

@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020, 2021, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2018, 2019, 2020, 2021, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.format;
 
 import org.jdom2.Element;
@@ -16,7 +16,7 @@ import org.deltava.util.*;
 /**
  * An XML Formatter for ACARS Connection data messages.
  * @author Luke
- * @version 11.5
+ * @version 12.4
  * @since 1.0
  */
 
@@ -41,7 +41,6 @@ class ConnectionFormatter extends ElementFormatter {
 		Element e = initDataResponse(pe, (cmsg.getRequestType() == DataRequest.USERLIST ) ? "pilotlist" : "addpilots");
 		for (ACARSConnection con : cmsg.getResponse()) {
 			Element ce = new Element("Pilot");
-			ce.setAttribute("isVoice", String.valueOf(con.isVoiceEnabled()));
 			if (con.isAuthenticated()) {
 				Pilot usr = con.getUser();
 				ce.setAttribute("id", usr.getPilotCode());
@@ -57,7 +56,6 @@ class ConnectionFormatter extends ElementFormatter {
 				ce.addContent(XMLUtils.createElement("joinedOn", StringUtils.format(usr.getCreatedOn(), "MMMM dd, yyyy")));
 				ce.addContent(XMLUtils.createElement("isBusy", String.valueOf(con.getUserBusy())));
 				ce.addContent(XMLUtils.createElement("isDispatch", String.valueOf(con.getIsDispatch())));
-				ce.addContent(XMLUtils.createElement("isVoice", String.valueOf(con.isVoiceEnabled() || con.getMuted())));
 				ce.addContent(XMLUtils.createElement("isATC", String.valueOf(con.getIsATC())));
 				ce.addContent(XMLUtils.createElement("isHidden", String.valueOf(con.getUserHidden())));
 				ce.addContent(XMLUtils.createElement("roles", StringUtils.listConcat(usr.getRoles(), ",")));

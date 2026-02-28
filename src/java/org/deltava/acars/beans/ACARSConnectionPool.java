@@ -150,12 +150,10 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			entry.setRemoteAddr(ac.getRemoteAddr());
 			entry.setRemoteHost(ac.getRemoteHost());
 			entry.setAddressInfo(ac.getAddressInfo());
-			entry.setStatistics(ac.getTCPStatistics(), ac.getUDPStatistics());
 			entry.setStartTime(Instant.ofEpochMilli(ac.getStartTime()));
 			entry.setUser(ac.getUser());
 			entry.setUserData(ac.getUserData());
 			entry.setUserHidden(ac.getUserHidden());
-			entry.setVoice(ac.isVoiceEnabled());
 			entry.setCompressed(ac.getCompression() != Compression.NONE);
 				
 			// Get the flight information
@@ -228,7 +226,7 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			// Check size
 			int size = (_maxSize == 0) ? -1 : size();
 			if (size >= _maxSize)
-				throw new ACARSException("Connection Pool full - " + size + " connections");
+				throw new ACARSException(String.format("Connection Pool full - %d connections", Integer.valueOf(size)));
 			
 			// Register the SocketChannel with the selector, wake it up if it's sleeping
 			_cSelector.wakeup();
@@ -239,8 +237,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			_conLookup.put(c.getDataSourceAddr(), c);
 			if (c.isAuthenticated() && !StringUtils.isEmpty(c.getUserID()))
 				_conLookup.put(c.getUserID(), c);
-			if (c.isVoiceEnabled())
-				_conLookup.put(c.getVoiceSourceAddr(), c);
 		} catch (ClosedChannelException cce) {
 			throw new ACARSException(cce);
 		} finally {
@@ -278,7 +274,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 			// Have we exceeded the timeout interval
 			if (idleTime > timeout) {
 				log.warn("{} logged out after {}ms of inactivity", con.getUserID(), Long.valueOf(idleTime));
-				con.setMuted(con.isVoiceEnabled());
 				con.close();
 				remove(con);
 				
@@ -399,7 +394,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 							results.add(env);
 						}
 					} catch (IOException ie) {
-						con.setMuted(con.isVoiceEnabled());
 						con.close();
 						remove(con);
 						

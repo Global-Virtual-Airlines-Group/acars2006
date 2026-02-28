@@ -31,12 +31,7 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	
 	// Channels
 	private TCPChannel _tcp;
-	private UDPChannel _udp;
 	
-	// Voice settings
-	private long _maxVoiceSeq;
-	private boolean _voiceCapable;
-	private boolean _voiceEcho;
 	private int _warningScore;
 
 	private int _protocolVersion = 1;
@@ -68,7 +63,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	private int _updateInterval = 5000;
 	private boolean _isUserBusy;
 	private boolean _isUserHidden;
-	private boolean _isMuted;
 
 	// Activity monitors
 	private final long _startTime = System.currentTimeMillis();
@@ -117,10 +111,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		return _tcp.getStatistics();
 	}
 	
-	public ConnectionStats getUDPStatistics() {
-		return (_udp == null) ? null : _udp.getStatistics();
-	}
-
 	/**
 	 * Registers this channel with a Selector.
 	 * @param s the Selector to register with
@@ -170,10 +160,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	public boolean getUserHidden() {
 		return _isUserHidden;
-	}
-	
-	public boolean getMuted() {
-		return _isMuted;
 	}
 	
 	public int getWarningScore() {
@@ -237,10 +223,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		return _startTime;
 	}
 	
-	public long getVoiceSequence() {
-		return _maxVoiceSeq;
-	}
-	
 	public int getUpdateInterval() {
 		return _updateInterval;
 	}
@@ -254,10 +236,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		return _tcp.getAddress();
 	}
 	
-	public String getVoiceSourceAddr() {
-		return _udp.getAddress();
-	}
-
 	@Override
 	public String getRemoteHost() {
 		return _tcp.getRemoteHost();
@@ -293,18 +271,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	
 	public Compression getCompression() {
 		return _tcp.getCompression();
-	}
-	
-	public boolean isVoiceCapable() {
-		return _voiceCapable;
-	}
-	
-	public boolean isVoiceEnabled() {
-		return (_udp != null);
-	}
-	
-	public boolean isVoiceEcho() {
-		return _voiceEcho;
 	}
 
 	public void setFlightInfo(InfoMessage msg) {
@@ -343,10 +309,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	public void setIsDispatch(boolean isDispatch) {
 		_isDispatch = isDispatch;
-	}
-	
-	public void setMuted(boolean isMute) {
-		_isMuted = isMute;
 	}
 	
 	public void setDispatcherID(long conID) {
@@ -399,18 +361,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		else
 			_range = Math.max(0, Math.min(range, SystemData.getInt("mp.max_range", 40)));
 	}
-	
-	public void setVoiceCapable(boolean voiceOK) {
-		_voiceCapable = voiceOK;
-	}
-	
-	public void setVoiceEcho(boolean voiceEcho) {
-		_voiceEcho = voiceEcho;
-	}
-	
-	public void setVoiceSequence(long seq) {
-		_maxVoiceSeq = Math.max(seq, _maxVoiceSeq);
-	}
 
 	@Override
 	public String getRowClassName() {
@@ -443,13 +393,5 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 	 */
 	public void write(String msg) {
 		_tcp.queue(msg);
-	}
-	
-	/**
-	 * Queues a data packet to be written.
-	 * @param data the voice packet
-	 */
-	public void write(byte[] data) {
-		_udp.queue(data);
 	}
 }
