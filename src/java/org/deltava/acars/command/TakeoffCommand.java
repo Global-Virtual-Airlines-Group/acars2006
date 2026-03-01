@@ -105,6 +105,7 @@ public class TakeoffCommand extends ACARSCommand {
 					RunwayLandingStats rs = RunwayLandingStats.merge(rls, 100);
 					if ((rs != null) && (rs.getCount() > 10)) {
 						ackMsg.setEntry("avgScore", String.valueOf(rs.getAverageScore()));
+						ackMsg.setEntry("avgScoreSD", String.valueOf(rs.getScoreSD()));
 						ackMsg.setEntry("avgScoreCount", String.valueOf(rs.getCount()));
 					}
 				}
