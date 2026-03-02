@@ -22,7 +22,7 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.*;
 import org.deltava.util.jmx.*;
 import org.deltava.util.cache.CacheLoader;
-import org.deltava.util.dns.ResolverDaemon;
+import org.deltava.util.dns.Resolver;
 import org.deltava.util.system.*;
 
 import org.gvagroup.common.SharedData;
@@ -51,6 +51,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		Collection<Thread> threads = new ArrayList<Thread>(_daemons.keySet());
 		_daemons.clear();
 		SharedWorker.clear(Thread.currentThread().getContextClassLoader());
+		Resolver.stop();
 		
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(threads, 2500);
@@ -203,12 +204,12 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		}
 		
 		// Start the ACARS/Mailer/IPC daemons
+		Resolver.start();
 		TomcatDaemon tcDaemon = new TomcatDaemon();
 		tcDaemon.initACARSConnectionPool(); // Ensure the connection pool is created before IPCDaemon starts
 		spawnDaemon(tcDaemon);
 		spawnDaemon(new MailerDaemon());
 		spawnDaemon(new IPCDaemon());
-		spawnDaemon(new ResolverDaemon());
 		
 		// Save the ACARS daemon and client version map
 		SharedData.addData(SharedData.ACARS_DAEMON, tcDaemon);
