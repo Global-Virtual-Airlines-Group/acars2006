@@ -1,4 +1,4 @@
-// Copyright 2009, 2011, 2012, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2009, 2011, 2012, 2019, 2020, 2022, 2023, 2024, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import org.deltava.acars.message.*;
 import org.deltava.beans.flight.LandingScorer;
 import org.deltava.beans.navdata.*;
 import org.deltava.beans.schedule.Airport;
-
+import org.deltava.beans.stats.RunwayLandingStats;
 import org.deltava.comparators.GeoComparator;
 
 import org.deltava.dao.*;
@@ -22,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to process takeoff/touchdown messages.
  * @author Luke
- * @version 11.2
+ * @version 12.4
  * @since 2.8
  */
 
@@ -76,7 +76,7 @@ public class TakeoffCommand extends ACARSCommand {
 			Connection con = ctx.getConnection();
 			SetTakeoff todao = new SetTakeoff(con);
 			boolean isBounce = todao.logTakeoff(info.getFlightID(), msg.isTakeoff());
-
+			
 			// Get the runway
 			GetNavData nvdao = new GetNavData(con);
 			LandingRunways lr = nvdao.getBestRunway(a, info.getSimulator(), msg, msg.getHeading());
@@ -95,10 +95,19 @@ public class TakeoffCommand extends ACARSCommand {
 				ackMsg.setEntry("threshold", String.valueOf(r.getThresholdLength()));
 				ackMsg.setEntry("takeoff", String.valueOf(msg.isTakeoff()));
 				
-				// Calculate landing score
+				// Calculate landing score and aggregate stats
 				if (!msg.isTakeoff()) {
 					msg.setScore(LandingScorer.score(msg.getVSpeed(), dist));
 					ackMsg.setEntry("score", String.valueOf(msg.getScore()));
+					
+					GetAggregateStatistics agdao = new GetAggregateStatistics(con);
+					List<RunwayLandingStats> rls = agdao.getRunwayLandingStats(a, r.getName());
+					RunwayLandingStats rs = RunwayLandingStats.merge(rls, 100);
+					if ((rs != null) && (rs.getCount() > 10)) {
+						ackMsg.setEntry("avgScore", String.valueOf(rs.getAverageScore()));
+						ackMsg.setEntry("avgScoreSD", String.valueOf(rs.getScoreSD()));
+						ackMsg.setEntry("avgScoreCount", String.valueOf(rs.getCount()));
+					}
 				}
 				
 				ctx.push(ackMsg);
