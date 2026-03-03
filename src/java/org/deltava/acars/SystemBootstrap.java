@@ -203,8 +203,11 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			log.atError().withThrowable(ex).log("Error retrieving data - {}", ex.getMessage());
 		}
 		
-		// Start the ACARS/Mailer/IPC daemons
+		// Start DNS Resolver
 		Resolver.start();
+		JMXUtils.register("org.gvagroup:type=DNSResolver,name=" + code, new JMXResolver(code));
+		
+		// Start the ACARS/Mailer/IPC daemons
 		TomcatDaemon tcDaemon = new TomcatDaemon();
 		tcDaemon.initACARSConnectionPool(); // Ensure the connection pool is created before IPCDaemon starts
 		spawnDaemon(tcDaemon);
