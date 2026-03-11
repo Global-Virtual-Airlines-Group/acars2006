@@ -123,7 +123,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			_jdbcPool.connect(SystemData.getInt("jdbc.pool_size"));
 			JMXConnectionPool jmxpool = new JMXConnectionPool(code, _jdbcPool);
 			JMXUtils.register("org.gvagroup:type=JDBCPool,name=" + code, jmxpool);
-			SharedWorker.register(new JMXRefreshTask(jmxpool, 30000));
+			SharedWorker.register(new JMXRefreshTask(jmxpool, 60000));
 		} catch (ClassNotFoundException cnfe) {
 			log.error("Cannot load JDBC driver class - {}", SystemData.get("jdbc.Driver"));
 		} catch (ConnectionPoolException cpe) {
@@ -207,7 +207,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		Resolver.start();
 		JMXResolver rsolv = new JMXResolver(code);
 		JMXUtils.register("org.gvagroup:type=DNSResolver,name=" + code, rsolv);
-		SharedWorker.register(new JMXRefreshTask(rsolv, 30000));
+		SharedWorker.register(new JMXRefreshTask(rsolv, 60000));
 		
 		// Start the ACARS/Mailer/IPC daemons
 		TomcatDaemon tcDaemon = new TomcatDaemon();
