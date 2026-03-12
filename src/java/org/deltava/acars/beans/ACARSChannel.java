@@ -1,8 +1,8 @@
-// Copyright 2011, 2015, 2016, 2021 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2011, 2015, 2016, 2021, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
-import java.net.InetSocketAddress;
+import java.net.*;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
@@ -20,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An abstract class to store common NIO channel information.
  * @author Luke
- * @version 10.2
+ * @version 12.4
  * @since 4.0
  */
 
@@ -113,6 +113,15 @@ abstract class ACARSChannel<T> implements RemoteAddressBean, Serializable, Close
 	@Override
 	public String getRemoteAddr() {
 		return _remoteAddr.getAddress().getHostAddress();
+	}
+	
+	/**
+	 * Returns whether the remote address is a local address.
+	 * @return TRUE if local, otherwise FALSE
+	 */
+	public boolean isLocal() {
+		InetAddress addr = _remoteAddr.getAddress();
+		return addr.isLinkLocalAddress() || addr.isSiteLocalAddress();
 	}
 	
 	/**
