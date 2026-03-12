@@ -146,14 +146,6 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 		return _scope;
 	}
 	
-	public GeoLocation getMPLocation() {
-		return (_scope != null) ? _scope : _pInfo;
-	}
-	
-	public int getMPRange() {
-		return (_scope != null) ? _scope.getRange() : -1;
-	}
-	
 	public boolean getUserBusy() {
 		return _isUserBusy;
 	}
@@ -267,6 +259,10 @@ public class ACARSConnection implements Comparable<ACARSConnection>, RemoteAddre
 
 	public boolean isAuthenticated() {
 		return (_userInfo != null);
+	}
+	
+	public boolean isLocal() {
+		return _tcp.isLocal();
 	}
 	
 	public Compression getCompression() {

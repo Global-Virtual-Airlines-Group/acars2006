@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022, 2023, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2016, 2017, 2019, 2020, 2022, 2023, 2024, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.beans;
 
 import java.io.*;
@@ -16,7 +16,6 @@ import org.deltava.acars.ACARSException;
 
 import org.deltava.beans.Compression;
 import org.deltava.beans.acars.*;
-import org.deltava.beans.GeoLocation;
 
 import org.deltava.acars.message.*;
 
@@ -28,7 +27,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 11.2
+ * @version 12.4
  * @since 1.0
  */
 
@@ -325,26 +324,6 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		}
 	}
 	
-	/**
-	 * Returns multi-player (or radar scope) connections that can see a particular update.
-	 * @param loc the Location
-	 * @return a List of ACARSConnection beans
-	 */
-	@Deprecated
-	public List<ACARSConnection> getMP(GeoLocation loc) {
-		if (loc == null)
-			return Collections.emptyList();
-		
-		List<ACARSConnection> results = new ArrayList<ACARSConnection>();
-		for (ACARSConnection c : getAll()) {
-			int dst = loc.distanceTo(c.getMPLocation());
-			if ((dst >= 0) && (dst <= c.getMPRange()))
-				results.add(c);
-		}
-		
-		return results;
-	}
-
 	@Override
 	public int size() {
 		return getAll().size();
