@@ -1,7 +1,7 @@
 // Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
-import java.net.*;
+//import java.net.*;
 import java.sql.*;
 import java.util.*;
 import java.time.*;
@@ -33,7 +33,7 @@ import org.gvagroup.common.SharedData;
 /**
  * An ACARS server command to authenticate a user.
  * @author Luke
- * @version 12.2
+ * @version 12.4
  * @since 1.0
  */
 
@@ -109,7 +109,7 @@ public class AuthenticateCommand extends ACARSCommand {
 				throw new SecurityException(String.format("Cannot load user data - %s", msg.getUserID()));
 			
 			// Validate the password
-			try (org.deltava.security.Authenticator auth = (org.deltava.security.Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR)) {
+			try (Authenticator auth = (Authenticator) SystemData.getObject(SystemData.AUTHENTICATOR)) {
 				if (auth instanceof SQLAuthenticator sa) sa.setConnection(c); 
 				auth.authenticate(usr, msg.getPassword());
 			}
@@ -275,14 +275,10 @@ public class AuthenticateCommand extends ACARSCommand {
 			pwdao.login(ud.getID(), con.getRemoteHost(), ud.getDB());
 
 			// Save login hostname/IP address forever
-			try {
-				InetAddress addr = InetAddress.getByName(con.getRemoteAddr());
-				if (!addr.isLinkLocalAddress() && !addr.isSiteLocalAddress()) {
-					SetSystemData swdao = new SetSystemData(c);
-					swdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
-				}
-			} catch (UnknownHostException uhe) {
-				log.warn("Unknown Host - {}", con.getRemoteAddr());
+			
+			if (!con.isLocal()) {
+				SetSystemData swdao = new SetSystemData(c);
+				swdao.login(ud.getDB(), ud.getID(), con.getRemoteAddr(), con.getRemoteHost());
 			}
 
 			ctx.commitTX();
@@ -303,7 +299,7 @@ public class AuthenticateCommand extends ACARSCommand {
 		drMsg.add(con);
 		if (con.getUserHidden()) {
 			Collection<ACARSConnection> cons = ctx.getACARSConnectionPool().getAll(ac -> (ac.isAuthenticated() && ac.getUser().isInRole("HR") && (ac.getID() != con.getID())));
-			cons.forEach(c -> ctx.push(msg, c.getID(), false));
+			cons.forEach(c -> ctx.push(drMsg, c.getID(), false));
 		} else
 			ctx.pushAll(drMsg, env.getConnectionID());
 
