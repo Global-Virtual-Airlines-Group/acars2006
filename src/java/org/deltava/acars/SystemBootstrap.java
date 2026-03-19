@@ -22,7 +22,6 @@ import org.deltava.security.Authenticator;
 import org.deltava.util.*;
 import org.deltava.util.jmx.*;
 import org.deltava.util.cache.CacheLoader;
-import org.deltava.util.dns.Resolver;
 import org.deltava.util.system.*;
 
 import org.gvagroup.common.SharedData;
@@ -51,7 +50,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		Collection<Thread> threads = new ArrayList<Thread>(_daemons.keySet());
 		_daemons.clear();
 		SharedWorker.clear(Thread.currentThread().getContextClassLoader());
-		Resolver.stop();
 		
 		// Shut down the JDBC connection pool
 		ThreadUtils.kill(threads, 2500);
@@ -202,12 +200,6 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		} catch (Exception ex) {
 			log.atError().withThrowable(ex).log("Error retrieving data - {}", ex.getMessage());
 		}
-		
-		// Start DNS Resolver
-		Resolver.start();
-		JMXResolver rsolv = new JMXResolver(code);
-		JMXUtils.register("org.gvagroup:type=DNSResolver,name=" + code, rsolv);
-		SharedWorker.register(new JMXRefreshTask(rsolv, 60000));
 		
 		// Start the ACARS/Mailer/IPC daemons
 		TomcatDaemon tcDaemon = new TomcatDaemon();

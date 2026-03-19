@@ -15,9 +15,13 @@ import org.deltava.beans.system.VersionInfo;
 
 import org.deltava.util.*;
 import org.deltava.util.dns.Resolver;
+import org.deltava.util.jmx.JMXRefreshTask;
+import org.deltava.util.jmx.JMXResolver;
+import org.deltava.util.jmx.JMXUtils;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
+import org.gvagroup.tomcat.SharedWorker;
 
 /**
  * An ACARS Server task to handle new network connections.
@@ -32,6 +36,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	private int _selectCount;
 	private ServerSocketChannel _channel;
 	
+	private final Resolver _solv = new Resolver();
 	private final IDGenerator gen = new IDGenerator();
 
 	/**
@@ -45,7 +50,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	protected final Collection<String> _blockedAddrs = new HashSet<String>();
 	
 	private class ConnectWorker implements Runnable {
-		private static final String SYSTEM_HELLO = "ACARS (" + VersionInfo.getAppName() + ") HELLO";
+		private static final String SYSTEM_HELLO = String.format("ACARS (%s) HELLO", VersionInfo.getAppName());
 
 		private final SocketChannel _sc;
 		private final long _id;
@@ -69,7 +74,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			try {
 				if (_sc.getRemoteAddress() instanceof InetSocketAddress sa) {
 					String addr = sa.getAddress().getHostAddress();
-					String hostName = Resolver.resolve(addr, 200);
+					String hostName = _solv.resolve(addr, 200);
 					long ns2 = tt.mark("ReverseDNS");
 					con.setRemoteHost(hostName);
 					log.info("Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(TimeUnit.MILLISECONDS.convert(ns2 - ns, TimeUnit.NANOSECONDS)));
@@ -144,10 +149,16 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	@Override
 	public final void open() {
 		super.open();
+		_solv.start();
 		
 		// Load the list of blocked connections
 		_blockedAddrs.clear();
 		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
+		
+		// Start DNS Resolver
+		JMXResolver rsolv = new JMXResolver("ACARS", _solv);
+		JMXUtils.register("org.gvagroup:type=DNSResolver,name=ACARS", rsolv);
+		SharedWorker.register(new JMXRefreshTask(rsolv, 60000));
 
 		// Open the socket channel
 		try {
@@ -173,6 +184,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			log.error(ie.getMessage());
 		}
 
+		_solv.stop();
 		super.close();
 	}
 	
