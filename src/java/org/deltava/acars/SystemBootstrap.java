@@ -99,6 +99,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 		} catch (ConnectionPoolException cpe) {
 			Throwable t = cpe.getCause();
 			log.atError().withThrowable(t).log("Error connecting to Jedis - {}", t.getMessage());
+			throw new RuntimeException(cpe);
 		}
 		
 		// Save the connection pool in the SystemData
@@ -124,8 +125,10 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			SharedWorker.register(new JMXRefreshTask(jmxpool, 60000));
 		} catch (ClassNotFoundException cnfe) {
 			log.error("Cannot load JDBC driver class - {}", SystemData.get("jdbc.Driver"));
+			throw new RuntimeException(cnfe);
 		} catch (ConnectionPoolException cpe) {
-			log.error("Error connecting to JDBC data source - {}", cpe.getCause().getMessage(), cpe.getCause());
+			log.atError().withThrowable(cpe).log("Error connecting to JDBC data source - {}", cpe.getCause().getMessage());
+			throw new RuntimeException(cpe);
 		}
 		
 		// Save the connection pool in the SystemData
@@ -199,6 +202,7 @@ public class SystemBootstrap implements ServletContextListener, Thread.UncaughtE
 			Airspace.init(asdao.getRestricted());
 		} catch (Exception ex) {
 			log.atError().withThrowable(ex).log("Error retrieving data - {}", ex.getMessage());
+			throw new RuntimeException(ex);
 		}
 		
 		// Start the ACARS/Mailer/IPC daemons
