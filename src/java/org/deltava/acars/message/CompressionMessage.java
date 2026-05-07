@@ -1,4 +1,4 @@
-// Copyright 2015, 2018, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2015, 2018, 2022, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import org.deltava.beans.*;
@@ -6,7 +6,7 @@ import org.deltava.beans.*;
 /**
  * An ACARS message to enable/disable data compression.
  * @author Luke
- * @version 10.3
+ * @version 12.4
  * @since 6.4
  */
 
@@ -31,5 +31,10 @@ public class CompressionMessage extends AbstractMessage {
 	 */
 	public Compression getCompression() {
 		return _type;
+	}
+	
+	@Override
+	public final boolean isAnonymous() {
+		return true;
 	}
 }
