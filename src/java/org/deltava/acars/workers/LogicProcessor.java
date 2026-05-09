@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 12.3
+ * @version 12.4
  * @since 1.0
  */
 
@@ -33,7 +33,6 @@ public class LogicProcessor extends Worker {
 	private QueueingThreadPool _cmdPool;
 	
 	private final HashMap<String, CommandStats> _cmdStats = new HashMap<String, CommandStats>();
-
 	private final Map<MessageType, ACARSCommand> _commands = new HashMap<MessageType, ACARSCommand>();
 	private final Map<SubRequest, ACARSCommand> _subCommands = new HashMap<SubRequest, ACARSCommand>();
 
@@ -151,7 +150,7 @@ public class LogicProcessor extends Worker {
 
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
-			if (isAuthenticated == msg.isAnonymous()) {
+			if (isAuthenticated || msg.isAnonymous()) {
 				String errorMsg = _reqType + " Security Exception from " + _env.getOwnerID();
 				ACARSConnection ac = _pool.get(_env.getConnectionID());
 				if (ac != null)
