@@ -218,7 +218,7 @@ public class LogicProcessor extends Worker {
 			_cmdPool.shutdown();
 			_cmdPool.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException ie) {
-			// empty
+			log.warn("Interrupted waiting for shutdown");
 		} catch (Exception e) {
 			log.atError().withThrowable(e).log(e.getMessage());
 		}
