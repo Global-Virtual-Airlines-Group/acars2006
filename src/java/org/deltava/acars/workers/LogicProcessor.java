@@ -150,7 +150,7 @@ public class LogicProcessor extends Worker {
 
 			// Check if we can be anonymous
 			boolean isAuthenticated = (_env.getOwner() != null);
-			if (isAuthenticated || msg.isAnonymous()) {
+			if (!isAuthenticated && !msg.isAnonymous()) {
 				String errorMsg = _reqType + " Security Exception from " + _env.getOwnerID();
 				ACARSConnection ac = _pool.get(_env.getConnectionID());
 				if (ac != null)
@@ -200,8 +200,7 @@ public class LogicProcessor extends Worker {
 			// Instrumentation
 			NewRelic.setRequestAndResponse(new SyntheticRequest(_reqType, _env.getOwnerID()), new SyntheticResponse());
 			NewRelic.setTransactionName("ACARS", _cmd.getClass().getSimpleName());
-			if (!msg.isAnonymous())
-				NewRelic.setUserName(msg.getSender().getName());
+			NewRelic.setUserName(_env.getOwnerID());
 		}
 	}
 
