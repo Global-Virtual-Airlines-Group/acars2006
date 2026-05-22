@@ -118,12 +118,18 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 			} catch (IOException ie) {
 				log.atError().withThrowable(ie).log("Error setting socket options - {}", ie.getMessage());
 			}
+			
+			// Build the welcome message
+			StringBuilder buf = new StringBuilder(SYSTEM_HELLO);
+			buf.append(' ').append(con.getRemoteAddr());
+			if (SystemData.getBoolean("acars.compress"))
+				buf.append(" CMP:GZIP");
 
 			// Register the channel with the pool
 			log.info("Adding Connection from {} to pool", con.getRemoteAddr());
 			try {
 				_pool.add(con);
-				con.write(SYSTEM_HELLO + " " + con.getRemoteAddr() + "\r\n");
+				con.write(buf.append("\r\n").toString());
 			} catch (ACARSException ae) {
 				log.atError().withThrowable(ae).log("Error adding to pool - {}", ae.getMessage());
 				con.close();
@@ -214,7 +220,7 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 		
 		while (!Thread.currentThread().isInterrupted()) {
 			_selectCount++;
-			_status.setMessage("Listening for new Connection - " + String.valueOf(_selectCount) + " selects");
+			_status.setMessage(String.format("Listening for new Connection - %d selects", Integer.valueOf(_selectCount)));
 			_status.execute();
 			try {
 				_cSelector.select(sleepTime);
