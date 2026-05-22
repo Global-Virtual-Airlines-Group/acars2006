@@ -4,7 +4,6 @@ package org.deltava.acars.workers;
 import java.io.*;
 import java.net.*;
 import java.nio.channels.*;
-import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Level;
@@ -39,16 +38,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	private final Resolver _solv = new Resolver();
 	private final IDGenerator gen = new IDGenerator();
 
-	/**
-	 * The name of the SystemData attribute to store blocked addresses.
-	 */
-	public static final String BLOCKADDR_LIST = "acars.pool.blockList";
-	
-	/**
-	 * The list of blocked addresses.
-	 */
-	protected final Collection<String> _blockedAddrs = new HashSet<String>();
-	
 	private class ConnectWorker implements Runnable {
 		private static final String SYSTEM_HELLO = String.format("ACARS (%s) HELLO", VersionInfo.getAppName());
 
@@ -81,13 +70,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 				}
 			} catch (IOException ie) {
 				log.warn("Error reading remote address - {}", ie.getMessage());
-			}
-
-			// Check if the address is on the block list or from a banned user
-			if (_blockedAddrs.contains(con.getRemoteAddr()) || _blockedAddrs.contains(con.getRemoteHost())) {
-				log.warn("Refusing connection from {} ({})", con.getRemoteHost(), con.getRemoteAddr());
-				con.close();
-				return;
 			}
 
 			// Check if we have a connection from there already
@@ -156,10 +138,6 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 	public final void open() {
 		super.open();
 		_solv.start();
-		
-		// Load the list of blocked connections
-		_blockedAddrs.clear();
-		SystemData.add(BLOCKADDR_LIST, _blockedAddrs);
 		
 		// Start DNS Resolver
 		JMXResolver rsolv = new JMXResolver("ACARS", _solv);
