@@ -1,5 +1,5 @@
 // Copyright 2015, 2022 Global Virtual Airlines Group. All Rights Reserved.
-package org.deltava.acars.xml.v2.parse;
+package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.beans.*;
 import org.deltava.util.EnumUtils;

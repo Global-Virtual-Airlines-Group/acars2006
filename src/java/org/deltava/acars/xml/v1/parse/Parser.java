@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2016, 2018 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2016, 2018, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import org.deltava.acars.message.*;
@@ -7,7 +7,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for ACARS Protocol v1 messages.
  * @author Luke
- * @version 8.4
+ * @version 12.5
  * @since 1.0
  */
 
@@ -38,6 +38,7 @@ public class Parser extends XMLMessageParser {
 		_eParsers.put(MessageType.PIREP, new FlightReportParser());
 		_eParsers.put(MessageType.POSITION, new PositionParser());
 		_eParsers.put(MessageType.TEXT, new TextMessageParser());
+		_eParsers.put(MessageType.COMPRESS, new CompressionParser());
 		_eParsers.put(MessageType.PING, new PingParser());
 		_dspParsers.put(DispatchRequest.SVCREQ, new DispatchRequestParser());
 		_dspParsers.put(DispatchRequest.CANCEL, new DispatchCancelParser());
@@ -47,5 +48,6 @@ public class Parser extends XMLMessageParser {
 		_dspParsers.put(DispatchRequest.COMPLETE, new DispatchCompletionParser());
 		_dspParsers.put(DispatchRequest.PROGRESS, new ProgressParser());
 		_dspParsers.put(DispatchRequest.RANGE, new DispatchRangeParser());
+		_eParsers.put(MessageType.COMPRESS, new CompressionParser());
 	}
 }
