@@ -19,8 +19,8 @@
 	<!-- JDBC data source configuration -->
 	<jdbc>
 		<driver>com.mysql.cj.jdbc.Driver</driver>
-		<url>jdbc:mysql://mysql.gva.aws/acars</url>
-		<socket>/run/mysql/mysql.sock</socket>
+		<url>jdbc:mysql://localhost/acars</url>
+		<!-- <socket>/run/mysql/mysql.sock</socket>  -->
 		
 		<map name="connectProperties">
 			<useCompression>false</useCompression>
