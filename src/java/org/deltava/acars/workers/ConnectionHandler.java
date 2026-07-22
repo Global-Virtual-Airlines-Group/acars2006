@@ -14,9 +14,7 @@ import org.deltava.beans.system.VersionInfo;
 
 import org.deltava.util.*;
 import org.deltava.util.dns.Resolver;
-import org.deltava.util.jmx.JMXRefreshTask;
-import org.deltava.util.jmx.JMXResolver;
-import org.deltava.util.jmx.JMXUtils;
+import org.deltava.util.jmx.*;
 import org.deltava.util.system.SystemData;
 
 import org.gvagroup.ipc.WorkerState;
@@ -25,7 +23,7 @@ import org.gvagroup.tomcat.SharedWorker;
 /**
  * An ACARS Server task to handle new network connections.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 2.1
  */
 
@@ -66,7 +64,8 @@ public class ConnectionHandler extends Worker implements Thread.UncaughtExceptio
 					String hostName = _solv.resolve(addr, 200);
 					long ns2 = tt.mark("ReverseDNS");
 					con.setRemoteHost(hostName);
-					log.info("Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(TimeUnit.MILLISECONDS.convert(ns2 - ns, TimeUnit.NANOSECONDS)));
+					long resolveTime = TimeUnit.MILLISECONDS.convert(ns2 - ns, TimeUnit.NANOSECONDS);
+					log.log((resolveTime > 50) ? Level.INFO : Level.DEBUG, "Resolved {} to {} in {}ms", addr, hostName, Long.valueOf(resolveTime));
 				}
 			} catch (IOException ie) {
 				log.warn("Error reading remote address - {}", ie.getMessage());
