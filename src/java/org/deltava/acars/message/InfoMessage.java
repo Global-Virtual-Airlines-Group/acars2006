@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import org.deltava.util.StringUtils;
 /**
  * An ACARS Flight Information message.
  * @author Luke
- * @version 10.3
+ * @version 12.5
  * @since 1.0
  */
 
@@ -35,7 +35,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	private String _tailCode;
 	private int _engineCount;
 	
-	private Flight _f;
+	private FlightNumber _f;
 	private Airport _airportA;
 	private Airport _airportD;
 	private Airport _airportL;
@@ -151,7 +151,7 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 	}
 	
 	public String getFlightCode() {
-		return _f.getShortCode();
+		return String.format("%s%d", _f.getAirline().getCode(), Integer.valueOf(_f.getFlightNumber()));
 	}
 	
 	public double getLoadFactor() {
@@ -335,8 +335,8 @@ public class InfoMessage extends AbstractMessage implements FlightData, FlightTi
 		_tailCode = code;
 	}
 	
-	public void setFlight(Flight f) {
-		_f = f;
+	public void setFlight(FlightNumber fn) {
+		_f = fn;
 	}
 	
 	public void setFlightID(int id) {
