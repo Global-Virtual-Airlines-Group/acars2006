@@ -42,7 +42,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		FlightReportMessage msg = new FlightReportMessage(user);
 
 		// Build the PIREP
-		Flight fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
+		FlightNumber fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
 		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(Attribute.ACARS, true);
 		afr.setAttribute(Attribute.DIVERT, Boolean.parseBoolean(getChildText(e, "isDivert", "false")));

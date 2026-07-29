@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.xml.v1.parse;
 
 import java.time.*;
@@ -18,7 +18,7 @@ import org.deltava.acars.xml.*;
 /**
  * A parser for v1 FlightReport elements.
  * @author Luke
- * @version 12.2
+ * @version 12.5
  * @since 1.0
  */
 
@@ -39,7 +39,7 @@ class FlightReportParser extends XMLElementParser<FlightReportMessage> {
 		FlightReportMessage msg = new FlightReportMessage(user);
 
 		// Build the PIREP
-		Flight fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
+		FlightNumber fc = FlightCodeParser.parse(getChildText(e, "flightcode", "1"), user.getAirlineCode());
 		ACARSFlightReport afr = new ACARSFlightReport(fc.getAirline(), fc.getFlightNumber(), StringUtils.parse(getChildText(e, "leg", "1"), 1));
 		afr.setAttribute(Attribute.ACARS, true);
 		afr.setAttribute(Attribute.DIVERT, Boolean.parseBoolean(getChildText(e, "isDivert", "false")));
