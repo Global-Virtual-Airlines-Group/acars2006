@@ -8,6 +8,7 @@ import org.deltava.acars.beans.MessageEnvelope;
 import org.deltava.acars.command.*;
 import org.deltava.acars.message.*;
 
+import org.deltava.beans.Pilot;
 import org.deltava.beans.ExternalID;
 import org.deltava.beans.flight.*;
 import org.deltava.beans.schedule.*;
@@ -21,7 +22,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS command to determine if a Pilot has a pending SimBrief flight.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 12.2
  */
 
@@ -47,20 +48,22 @@ public class SimBriefPlanCommand extends DataCommand {
 		}
 
 		// Check for draft Flight Reports
+		Pilot p = env.getOwner();
 		try {
 			Connection con = ctx.getConnection();
 			
 			// Get flights with SimBrief briefings
 			GetFlightReports frdao = new GetFlightReports(con);
-			List<FlightReport> flights = frdao.getDraftReports(env.getOwner().getID(), null, ctx.getDB());
+			List<FlightReport> flights = frdao.getDraftReports(p.getID(), null, ctx.getDB());
 			flights.removeIf(fr -> !fr.hasAttribute(Attribute.SIMBRIEF));
 			long planCount = flights.stream().filter(fr -> (fr.getAirportD().equals(a))).count();
 			
 			// Load the package directly
+			String sbUserID = p.getExternalID(ExternalID.NAVIGRAPH);
 			try {
 				GetSimBrief sbdao = new GetSimBrief();
 				sbdao.setCompression(Compression.BROTLI, Compression.GZIP);
-				String sbdata = sbdao.refresh(ctx.getUser().getExternalID(ExternalID.NAVIGRAPH), null);
+				String sbdata = sbdao.refresh(sbUserID, null);
 				BriefingPackage pkg = SimBriefParser.parse(sbdata);
 				if (pkg.isPopulated() && (pkg.getAirportD().equals(a))) {
 					boolean isDupe = flights.stream().anyMatch(fr -> fr.matches(pkg));
@@ -71,13 +74,15 @@ public class SimBriefPlanCommand extends DataCommand {
 				}
 			} catch (HTTPDAOException hde) {
 				String errorMsg = (hde instanceof GetSimBrief.SimBriefException sbe) ? SimBriefParser.parseError(sbe.getMessage()) : "???";
-				log.warn("Error {} loading latest SimBrief plan for {} - {}", Integer.valueOf(hde.getStatusCode()), ctx.getUser().getName(), errorMsg);
+				log.warn("Error {} loading latest SimBrief plan for {} ({}) - {}", Integer.valueOf(hde.getStatusCode()), p.getName(), sbUserID, errorMsg);
+				ackMsg.setEntry("sbError", errorMsg);
 			} catch (Exception e) {
 				log.atError().withThrowable(e).log("Error parsing SimBrief plan for {} - {}", ctx.getUser().getName(), e.getMessage());
 			}
 			
 			ackMsg.setEntry("hasPlan", String.valueOf(planCount > 0));
 			ackMsg.setEntry("size", String.valueOf(planCount));
+			ackMsg.setEntry("sbUseriD", sbUserID);
 		} catch (DAOException de) {
 			log.atError().withThrowable(de).log("Error loading briefing package - {}", de.getMessage());
 		} finally {
