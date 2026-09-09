@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -18,12 +18,10 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.ipc.WorkerState;
 import org.gvagroup.pool.ConnectionPool;
 
-import com.newrelic.api.agent.NewRelic;
-
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 11.6
+ * @version 12.5
  * @since 9.0
  */
 
@@ -125,6 +123,5 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 		log.atError().withThrowable(e).log("{} Error - {}", t.getName(), e.getMessage());
-		NewRelic.noticeError(e, false);
 	}
 }

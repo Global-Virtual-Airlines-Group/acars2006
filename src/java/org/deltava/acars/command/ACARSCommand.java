@@ -1,14 +1,12 @@
-// Copyright 2005, 2006, 2008, 2011, 2012, 2016 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2008, 2011, 2012, 2016, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.command;
 
 import org.deltava.acars.beans.MessageEnvelope;
 
-import com.newrelic.api.agent.Trace;
-
 /**
  * An ACARS server command object.
  * @author Luke
- * @version 7.2
+ * @version 12.5
  * @since 1.0
  */
 
@@ -28,6 +26,5 @@ public abstract class ACARSCommand  {
 	 * @param ctx the command context
 	 * @param env the Envelope to process
 	 */
-	@Trace	
 	public abstract void execute(CommandContext ctx, MessageEnvelope env);
 }

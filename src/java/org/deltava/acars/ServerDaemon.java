@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -21,12 +21,10 @@ import org.deltava.util.system.SystemData;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.pool.*;
 
-import com.newrelic.api.agent.NewRelic;
-
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 1.0
  */
 
@@ -172,7 +170,6 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  		
  		// Log the error
  		log.atError().withThrowable(e).log("{} error: {}", t.getName(), e.getMessage());
- 		NewRelic.noticeError(e, false);
  		
  		// Get the worker and remove it
  		Worker w = _threads.get(t);

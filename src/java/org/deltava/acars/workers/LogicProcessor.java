@@ -4,7 +4,7 @@ package org.deltava.acars.workers;
 import java.util.*;
 import java.util.concurrent.*;
 
-import com.newrelic.api.agent.*;
+import io.opentelemetry.api.trace.Span;
 
 import org.deltava.acars.beans.*;
 import org.deltava.acars.command.*;
@@ -18,13 +18,12 @@ import org.deltava.beans.system.APILogger;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.ipc.*;
 
-import org.deltava.util.log.*;
 import org.deltava.util.system.SystemData;
 
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 1.0
  */
 
@@ -140,7 +139,6 @@ public class LogicProcessor extends Worker {
 		}
 
 		@Override
-		@Trace(dispatcher=true)
 		public void run() {
 			if ((_env == null) || (_cmd == null)) return;
 
@@ -193,14 +191,13 @@ public class LogicProcessor extends Worker {
 			// Calculate and log execution time
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 			stats.success(execTime, ctx.getBackEndTime());
-			NewRelic.recordResponseTimeMetric(_cmd.getClass().getSimpleName(), execTime);
 			if (execTime > _cmd.getMaxExecTime())
 				log.warn("{} completed in {}ms", _cmd.getClass().getName(), Long.valueOf(execTime));
 
 			// Instrumentation
-			NewRelic.setRequestAndResponse(new SyntheticRequest(_reqType, _env.getOwnerID()), new SyntheticResponse());
-			NewRelic.setTransactionName("ACARS", _cmd.getClass().getSimpleName());
-			NewRelic.setUserName(_env.getOwnerID());
+			Span span = Span.current();
+			span.setAttribute("user.name", _env.getOwnerID());
+			span.updateName(_cmd.getClass().getSimpleName());
 		}
 	}
 
