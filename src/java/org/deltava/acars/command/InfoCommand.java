@@ -4,7 +4,6 @@ package org.deltava.acars.command;
 import java.util.*;
 import java.time.*;
 import java.sql.Connection;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.*;
 
@@ -28,7 +27,7 @@ import org.deltava.util.*;
 /**
  * An ACARS Command to log Flight data.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 1.0
  */
 
@@ -118,7 +117,7 @@ public class InfoCommand extends ACARSCommand {
 					// Log changes
 					List<BeanUtils.PropertyChange> d = BeanUtils.getDelta(curInfo, msg, "TX", "engineCount", "noRideCheck", "time", "ID", "scheduleValidated");
 					if (!d.isEmpty())
-						log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).collect(Collectors.toList()));
+						log.info("Changes: {}", d.stream().map(BeanUtils.PropertyChange::toString).toList());
 					
 					log.log(d.isEmpty() ? Level.INFO : Level.WARN, "{} revalidating Flight {}", msg.isServerRequsted() ? "Server" : "Client", Integer.valueOf(msg.getFlightID()));
 				}

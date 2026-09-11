@@ -1,10 +1,9 @@
-// Copyright 2020, 2021, 2022, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2022, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
 import java.sql.Connection;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 import org.deltava.acars.online.*;
 import org.deltava.beans.servinfo.NetworkInfo;
@@ -23,7 +22,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 11.6
+ * @version 12.5
  * @since 9.0
  */
 
@@ -81,7 +80,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 
 				try {
 					long sleepTime = (SLEEP_INTERVAL * 1000);
-					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
+					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).toList();
 					if (!tasks.isEmpty()) {
 						CountDownLatch lt = new CountDownLatch(tasks.size());
 						tasks.forEach(t -> pool.submit(runnableWrapper(lt, t)));
