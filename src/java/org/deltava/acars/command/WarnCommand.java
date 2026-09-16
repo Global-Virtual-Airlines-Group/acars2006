@@ -3,7 +3,6 @@ package org.deltava.acars.command;
 
 import java.util.Collection;
 import java.sql.Connection;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.*;
 
@@ -21,7 +20,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Command to modify a user's warning level. 
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 4.0
  */
 
@@ -114,7 +113,7 @@ public class WarnCommand extends ACARSCommand {
 		ctx.push(notifyMsg, ac.getID(), true);
 		
 		// Send notification messages
-		Collection<ACARSConnection> aCons = ctx.getACARSConnectionPool().getAll().stream().filter(WarnCommand::filter).collect(Collectors.toList());
+		Collection<ACARSConnection> aCons = ctx.getACARSConnectionPool().getAll().stream().filter(WarnCommand::filter).toList();
 		SystemTextMessage nMsg = new SystemTextMessage();
 		nMsg.addMessage(ac.getUser().getName() + " received ACARS content warning from " + msg.getSender().getName() + " ( " + warnScore + " pts)");
 		aCons.forEach(c -> ctx.push(nMsg, c.getID(), false));

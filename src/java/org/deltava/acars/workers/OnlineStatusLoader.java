@@ -79,7 +79,7 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 
 				try {
 					long sleepTime = (SLEEP_INTERVAL * 1000);
-					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList());
+					List<Loader> tasks = LOADERS.stream().filter(Loader::isEligible).collect(Collectors.toList()); // needs to be mutable
 					if (!tasks.isEmpty()) {
 						CountDownLatch lt = new CountDownLatch(tasks.size());
 						tasks.forEach(t -> pool.submit(runnableWrapper(lt, t)));

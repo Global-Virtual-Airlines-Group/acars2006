@@ -27,7 +27,7 @@ import org.gvagroup.acars.ACARSAdminInfo;
 /**
  * A Connection Pool for ACARS Connections.
  * @author Luke
- * @version 12.4
+ * @version 12.5
  * @since 1.0
  */
 
@@ -114,13 +114,9 @@ public class ACARSConnectionPool implements ACARSAdminInfo<ACARSMapEntry>, Seria
 		return results;
 	}
 	
-	/**
-	 * Returns network data in a serialized form for transfer between virtual machines or class loaders.
-	 * @return a Collection of byte arrays
-	 */
 	@Override
 	public Collection<byte[]> getSerializedInfo() {
-		Collection<ACARSMapEntry> results = getAll(ac -> ac.getIsDispatch() || !ac.getUserHidden()).stream().map(ac -> RouteEntryHelper.build(ac)).filter(Objects::nonNull).collect(Collectors.toList());
+		Collection<ACARSMapEntry> results = getAll(ac -> ac.getIsDispatch() || !ac.getUserHidden()).stream().map(ac -> RouteEntryHelper.build(ac)).filter(Objects::nonNull).toList();
 		return IPCUtils.serialize(results);
 	}
 	
