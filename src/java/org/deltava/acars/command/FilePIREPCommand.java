@@ -274,7 +274,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (usrAirline.getAutoApprove() && !afr.hasAttribute(Attribute.ACADEMY) && !afr.hasAttribute(Attribute.CHECKRIDE) && fsh.hasPositionData()) {
 				ctx.setMessage(String.format("Calculating Flight Score for %s", afr.getFlightCode()));
 				AircraftPolicyOptions opts = fsh.getAircraft().getOptions(usrLoc.getAirlineCode());	
-				ScorePackage pkg = new ScorePackage(fsh.getAircraft(), afr, inf.getRunwayD(), inf.getRunwayA(), opts);	
+				ScorePackage pkg = new ScorePackage(fsh.getAircraft(), afr, p, inf.getRunwayD(), inf.getRunwayA(), opts);	
 				pkg.setGates(inf.getGateD(), inf.getGateA());
 				fsh.getPositionData().stream().filter(ACARSRouteEntry.class::isInstance).map(ACARSRouteEntry.class::cast).forEach(pkg::add);
 							
