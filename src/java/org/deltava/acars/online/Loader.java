@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2020, 2021, 2023, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.online;
 
 import java.time.Instant;
@@ -17,7 +17,7 @@ import org.deltava.util.cache.*;
 /**
  * An abstract class for common Online Network status loader tasks. 
  * @author Luke
- * @version 11.1
+ * @version 12.5
  * @since 9.0
  */
 
@@ -79,12 +79,25 @@ public abstract class Loader implements Runnable {
 		return _lastRun;
 	}
 	
+	/**
+	 * Returns if the loader has updated the network data.
+	 * @return TRUE if the data has been updated, otherwise FALSE
+	 */
 	public boolean isUpdated() {
 		return _isUpdated;
 	}
 	
+	/**
+	 * Returns if the loader is elegibile to be exected.
+	 * @return TRUE if ready to run, otherwise FALSE
+	 */
 	public boolean isEligible() {
 		return Instant.now().isAfter(_lastRun.plusSeconds(_updateInterval));
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s Loader", getNetwork());
 	}
 	
 	/**
