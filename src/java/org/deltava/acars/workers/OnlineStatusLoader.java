@@ -125,7 +125,13 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 				}
 			}
 			
-			pool.shutdown();
+			try {
+				pool.shutdown();
+				pool.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException ie) {
+				int tasks = pool.shutdownNow().size();
+				log.warn("Shutdown timeout - {} tasks running", Integer.valueOf(tasks));
+			}
 		}
 	}
 
