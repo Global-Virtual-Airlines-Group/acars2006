@@ -1,4 +1,4 @@
-// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2023, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.workers;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import org.gvagroup.ipc.*;
 /**
  * An ACARS Server worker is the runnable task for an ACARS server thread.
  * @author Luke
- * @version 11.0
+ * @version 12.5
  * @since 1.0
  */
 
@@ -25,6 +25,7 @@ public abstract class Worker implements Runnable {
 	public static final BlockingQueue<OutputEnvelope> RAW_OUTPUT = new PriorityBlockingQueue<OutputEnvelope>();
 	public static final BlockingQueue<MessageEnvelope> MP_UPDATE = new LinkedBlockingQueue<MessageEnvelope>();
 	public static final BlockingQueue<MessageEnvelope> GEO_INPUT = new LinkedBlockingQueue<MessageEnvelope>();
+	public static final BlockingQueue<MessageEnvelope> SUMMARY_INPUT = new PriorityBlockingQueue<MessageEnvelope>();
 	
 	protected final Logger log;
 	private final String _name;

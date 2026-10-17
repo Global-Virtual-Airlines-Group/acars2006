@@ -1,10 +1,10 @@
-// Copyright 2018, 2019, 2020, 2024 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2018, 2019, 2020, 2024, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars.message;
 
 /**
  * An enumeration of ACARS message types.
  * @author Luke
- * @version 11.2
+ * @version 12.5
  * @since 8.4
  */
 
@@ -14,7 +14,7 @@ public enum MessageType {
 	SYSTEM("smsg", "System Message"), PIREP("pirep", "Flight Report"), ERROR("error", "Error"), DISPATCH("dispatch", "Dispatch Data"), TOTD("totd", "Takeoff Touchdown"), MPUPDATE("mp", "MP Update"), 
 	MPINIT("mpinit", "MP Init"), MPREMOVE("mpquit", "MP Remove"), SWCHAN("voxswchan", "Switch Channel"), MUTE("mute", "Mute"), WARN("warn", "Warning"), WARNRESET("warnreset", "Warning Reset"), 
 	POSUPDINT("updint", "Update Interval"), COMPRESS("compress", "Data Compression"), SYSINFO("sysinfo", "System Information"), PERFORMANCE("performance", "Client Performance"), DISCONNECT("kick", "Disconnect"),
-	TAXI("taxitime", "Taxi Times");
+	TAXI("taxitime", "Taxi Times"), SUMMARY("summary", "Flight Summary");
 	
 	private final String _code;
 	private final String _desc;

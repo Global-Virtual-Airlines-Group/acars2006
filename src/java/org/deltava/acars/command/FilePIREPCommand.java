@@ -7,6 +7,8 @@ import java.sql.Connection;
 
 import org.apache.logging.log4j.*;
 
+import static org.deltava.acars.workers.Worker.SUMMARY_INPUT;
+
 import org.deltava.beans.*;
 import org.deltava.beans.acars.*;
 import org.deltava.beans.econ.*;
@@ -296,6 +298,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					afr.setComments("Automatically approved by ACARS");
 					autoApprove = true;
 				}
+				
+				// Send for async summarization
+				SummaryMessage smsg = new SummaryMessage(pkg);
+				SUMMARY_INPUT.add(new MessageEnvelope(smsg, ac.getID()));
 			}
 			
 			// Start the transaction
