@@ -7,6 +7,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import org.deltava.acars.online.*;
+import org.deltava.acars.pool.VirtualNamedThreadFactory;
+
 import org.deltava.beans.servinfo.NetworkInfo;
 
 import org.deltava.dao.*;
@@ -69,19 +71,12 @@ public class OnlineStatusLoader extends Worker implements Thread.UncaughtExcepti
 		};
 	}
 	
-	private static class NamedThreadFactory implements ThreadFactory {
-		@Override
-		public Thread newThread(Runnable r) {
-			return Thread.ofVirtual().name(r.toString()).unstarted(r);
-		}
-	}
-
 	@Override
 	public void run() {
 		log.info("Started");
 		_status.setStatus(WorkerState.RUNNING);
 
-		try (ExecutorService pool = Executors.newThreadPerTaskExecutor(new NamedThreadFactory())) {
+		try (ExecutorService pool = Executors.newThreadPerTaskExecutor(new VirtualNamedThreadFactory())) {
 			while (!Thread.currentThread().isInterrupted()) {
 				_status.setMessage("Downloading network data");
 				_status.execute();
