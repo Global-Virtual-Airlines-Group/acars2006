@@ -48,10 +48,12 @@ public class FlightSummarizer extends Worker {
 		
 		@Override
 		public void run() {
+			String k = SystemData.get(String.format("security.key.claude.%s", _pkg.getPilot().getAirlineCode().toLowerCase()));
 			try {
 				GetAIAnalysis sdao = new GetAIAnalysis(_pkg);
 				sdao.setConnectTimeout(3500);
 				sdao.setReadTimeout(45000);
+				sdao.setKey(k);
 				FlightAnalysis fa = sdao.execute();
 				_pkg.getFlightReport().addStatusUpdate(0, HistoryType.SYSTEM, "Generated AI Flight Summary");
 				log.info("Summary for {} Flight Report {} generated in {}ms", _pkg.getPilot().getAirlineCode(), Integer.valueOf(_pkg.getID()), Integer.valueOf(fa.getGenerationTime()));
