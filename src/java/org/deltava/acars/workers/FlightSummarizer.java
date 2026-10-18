@@ -56,7 +56,7 @@ public class FlightSummarizer extends Worker {
 				sdao.setKey(k);
 				FlightAnalysis fa = sdao.execute();
 				_pkg.getFlightReport().addStatusUpdate(0, HistoryType.SYSTEM, "Generated AI Flight Summary");
-				log.info("Summary for {} Flight Report {} generated in {}ms", _pkg.getPilot().getAirlineCode(), Integer.valueOf(_pkg.getID()), Integer.valueOf(fa.getGenerationTime()));
+				log.info("Summary for {} Flight Report {} generated in {}ms", _pkg.getPilot().getAirlineCode(), Integer.valueOf(_pkg.getID()), Long.valueOf(fa.getGenerationTime()));
 				
 				// Write to database
 				try (Connection c = _jdbcPool.getConnection()) {
