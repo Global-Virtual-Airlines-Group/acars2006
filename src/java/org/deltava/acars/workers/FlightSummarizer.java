@@ -10,6 +10,7 @@ import org.deltava.acars.message.SummaryMessage;
 import org.deltava.acars.pool.VirtualNamedThreadFactory;
 
 import org.deltava.beans.flight.*;
+import org.deltava.beans.system.Prompt;
 
 import org.deltava.dao.*;
 import org.deltava.dao.acars.SetSummaryQueue;
@@ -33,10 +34,12 @@ public class FlightSummarizer extends Worker {
 
 	private class SummaryWorker implements Runnable {
 		private final ScorePackage _pkg;
+		private final Prompt _p;
 		private final int _id;
 		
-		SummaryWorker(ScorePackage pkg) {
+		SummaryWorker(ScorePackage pkg, Prompt p) {
 			super();
+			_p = p;
 			_pkg = pkg;
 			_id = _pkg.getFlightReport().getDatabaseID(DatabaseID.ACARS);
 		}
@@ -54,6 +57,7 @@ public class FlightSummarizer extends Worker {
 				sdao.setConnectTimeout(3500);
 				sdao.setReadTimeout(45000);
 				sdao.setKey(k);
+				sdao.setPrompt(_p);
 				FlightAnalysis fa = sdao.execute();
 				_pkg.getFlightReport().addStatusUpdate(0, HistoryType.SYSTEM, "Generated AI Flight Summary");
 				log.info("Summary for {} Flight Report {} generated in {}ms", _pkg.getPilot().getAirlineCode(), Integer.valueOf(_pkg.getID()), Long.valueOf(fa.getGenerationTime()));
@@ -100,8 +104,16 @@ public class FlightSummarizer extends Worker {
 					MessageEnvelope env = MSG_OUTPUT.poll(30, TimeUnit.SECONDS);
 					if (env != null) {
 						SummaryMessage msg = (SummaryMessage) env.getMessage();
-						SummaryWorker w = new SummaryWorker(msg.getPackage());
-						pool.submit(w);
+						
+						// Get the prompt
+						try (Connection c = _jdbcPool.getConnection()) {
+							GetSystemData pdao = new GetSystemData(c);
+							Prompt p = pdao.getPrompt("FLIGHTSUMMARY", env.getOwner().getAirlineCode());
+
+							// Submit the job
+							SummaryWorker w = new SummaryWorker(msg.getPackage(), p);
+							pool.submit(w);
+						}
 					}
 				
 					_status.complete();
