@@ -8,7 +8,7 @@ import org.deltava.dao.*;
 /**
  * A Data Access Object to write to the AI Summary queue.
  * @author Luke
- * @version 12.5
+ * @version 13.0
  * @since 12.5
  */
 

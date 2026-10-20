@@ -4,7 +4,7 @@ package org.deltava.acars.message;
 /**
  * An enumeration of ACARS message types.
  * @author Luke
- * @version 12.5
+ * @version 13.0
  * @since 8.4
  */
 

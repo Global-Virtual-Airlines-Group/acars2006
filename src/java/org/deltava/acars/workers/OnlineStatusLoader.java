@@ -25,7 +25,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * An ACARS worker thread to load online network status.
  * @author Luke
- * @version 12.5
+ * @version 13.0
  * @since 9.0
  */
 

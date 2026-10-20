@@ -24,7 +24,7 @@ import org.gvagroup.pool.ConnectionPool;
 /**
  * An ACARS Server worker to generate AI flight summaries.
  * @author Luke
- * @version 12.5
+ * @version 13.0
  * @since 12.5
  */
 
