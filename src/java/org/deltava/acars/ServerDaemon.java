@@ -1,4 +1,4 @@
-// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024, 2025 Global Virtual Airlines Group. All Rights Reserved.
+// Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2016, 2017, 2020, 2021, 2023, 2024, 2025, 2026 Global Virtual Airlines Group. All Rights Reserved.
 package org.deltava.acars;
 
 import java.sql.Connection;
@@ -26,7 +26,7 @@ import com.newrelic.api.agent.NewRelic;
 /**
  * A class to support common ACARS Server daemon functions.
  * @author Luke
- * @version 12.4
+ * @version 13.0
  * @since 1.0
  */
 
@@ -51,10 +51,17 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
  	 */
  	protected ACARSConnectionPool _conPool;
  	
+ 	/**
+ 	 * Initializes the daemon logger.
+ 	 * @param loggerClass the logger class name
+ 	 */
  	protected void initLog(Class<?> loggerClass) {
         log = LogManager.getLogger(loggerClass);
  	}
  	
+ 	/**
+ 	 * Initializes the Authenticator.
+ 	 */
  	protected void initAuthenticator() {
  		
         // Get and load the authenticator
@@ -76,6 +83,9 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
         }
  	}
 
+ 	/**
+ 	 * Initializes the Connection pool.
+ 	 */
  	protected void initConnectionPool() {
 
  	    // Initialize the connection pool
@@ -147,6 +157,7 @@ public abstract class ServerDaemon implements Thread.UncaughtExceptionHandler {
 		tasks.add(new OutputDispatcher());
 		tasks.add(new BandwidthLogger());
 		tasks.add(new NetworkWriter());
+		tasks.add(new FlightSummarizer());
 
  		// Turn the workers into threads
  		for (Worker w : tasks) {
