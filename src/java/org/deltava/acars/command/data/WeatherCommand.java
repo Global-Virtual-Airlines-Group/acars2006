@@ -21,7 +21,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS data command to return available weather data.
  * @author Luke
- * @version 12.5
+ * @version 13.0
  * @since 2.3
  */
 
