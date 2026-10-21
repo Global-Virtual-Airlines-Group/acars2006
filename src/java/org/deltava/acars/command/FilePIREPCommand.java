@@ -280,6 +280,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			}
 			
 			// Calculate the flight score
+			SummaryMessage smsg = null;
 			FlightInfo inf = fsh.getACARSInfo(); boolean autoApprove = false;
 			if (usrAirline.getAutoApprove() && !afr.hasAttribute(Attribute.ACADEMY) && !afr.hasAttribute(Attribute.CHECKRIDE) && fsh.hasPositionData()) {
 				ctx.setMessage(String.format("Calculating Flight Score for %s", afr.getFlightCode()));
@@ -299,9 +300,7 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					autoApprove = true;
 				}
 				
-				// Send for async summarization
-				SummaryMessage smsg = new SummaryMessage(pkg);
-				SUMMARY_INPUT.add(new MessageEnvelope(smsg, ac.getID()));
+				smsg = new SummaryMessage(pkg);
 			}
 			
 			// Start the transaction
@@ -353,6 +352,8 @@ public class FilePIREPCommand extends PositionCacheCommand {
 					cr.setStatus(TestStatus.SUBMITTED);
 					if (cr.getAcademy() && !afr.hasAttribute(Attribute.ACADEMY))
 						afr.setAttribute(Attribute.ACADEMY, true);
+					if (smsg != null)
+						smsg.setCheckRide(cr);
 
 					// Update the checkride
 					SetExam wdao = new SetExam(con);
@@ -468,6 +469,10 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			
 			// Commit the transaction
 			ctx.commitTX();
+			
+			// Send for summarization
+			if (smsg != null)
+				SUMMARY_INPUT.add(new MessageEnvelope(smsg, ac.getID()));
 			
 			// Clear flight info
 			ac.setFlightInfo(null);
