@@ -14,7 +14,6 @@ import org.deltava.acars.message.*;
 import org.deltava.acars.pool.*;
 
 import org.deltava.beans.acars.CommandStats;
-import org.deltava.beans.system.APILogger;
 import org.gvagroup.common.SharedData;
 import org.gvagroup.ipc.*;
 
@@ -24,7 +23,7 @@ import org.deltava.util.system.SystemData;
 /**
  * An ACARS Worker thread to process messages.
  * @author Luke
- * @version 12.4
+ * @version 13.0
  * @since 1.0
  */
 
@@ -187,9 +186,6 @@ public class LogicProcessor extends Worker {
 			CommandContext ctx = new CommandContext(_pool, _env, _status);
 			_cmd.execute(ctx, _env);
 			
-			// TODO: Eventually log these to the correct airline
-			APILogger.drain();
-
 			// Calculate and log execution time
 			long execTime = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 			stats.success(execTime, ctx.getBackEndTime());
