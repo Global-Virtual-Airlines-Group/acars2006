@@ -263,6 +263,14 @@ public class FilePIREPCommand extends PositionCacheCommand {
 			if (afr.getDatabaseID(DatabaseID.ACARS) == 0)
 				afr.setDatabaseID(DatabaseID.ACARS, flightID);
 			
+			// Validate landing G-force
+			double g = LandingScorer.calculateG(afr.getLandingVSpeed(), afr.getEquipmentType());
+			double deltaG = Math.abs(g - afr.getLandingG());
+			if (deltaG > 0.65) {
+				afr.addStatusUpdate(0, HistoryType.SYSTEM, String.format("Updated landing vertial decceleration from %.3f to %.3f", Double.valueOf(afr.getLandingG()), Double.valueOf(g)));
+				afr.setLandingG(g);
+			}
+			
 			// Check for dispatch data
 			if (msg.getDispatcher() != info.getDispatcher()) {
 				afr.addStatusUpdate(0,  HistoryType.SYSTEM, String.format("Flight Dispatcher = %s, Message = %s", msg.getDispatcher(), info.getDispatcher()));
